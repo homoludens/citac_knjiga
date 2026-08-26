@@ -1,0 +1,18 @@
+[project]
+name = "citac-knjiga-model-tools"
+version = "0.1.0"
+description = "Desktop model tooling for the Serbian Kokoro Dragana audiobook pipeline (parity, reference captures, packaging)"
+requires-python = ">=3.11,<3.12"
+# The pinned Kokoro git revision is mandatory. The PyPI kokoro==0.9.4 wheel has
+# a different weight-norm implementation and produces noise with these weights.
+# Do NOT replace it. See model-tools/runtime-pins.md.
+dependencies = [
+    "kokoro @ git+https://github.com/semidark/kokoro.git@b96fef95e6a746495f92443fac7c688f90fc57fc",
+    "soundfile>=0.12,<1",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.3,<9"]
+
+# System espeak-ng (phonenumber, `-v sr`) is a runtime requirement, not a pip
+# dependency. See DEPLOYMENT.md.

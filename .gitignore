@@ -1,4 +1,8 @@
 *.wav
+# Golden reference vectors are tracked (LFS) — generated audio is not.
+!model-tools/reference/*.wav
 .agents/
 .hermes/
-openspec/
+# Python virtualenvs (uv)
+.venv/
+model-tools/.venv/
