@@ -6,3 +6,4 @@
 # Python virtualenvs (uv)
 .venv/
 model-tools/.venv/
+__pycache__/
