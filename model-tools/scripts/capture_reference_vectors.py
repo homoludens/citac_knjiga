@@ -33,6 +33,11 @@ import soundfile as sf  # noqa: E402
 from kokoro import KModel  # noqa: E402
 from kokoro_sr.phonemes import phonemize_serbian  # noqa: E402
 
+# Deterministic reference captures: the vocoder is seeded AND the CPU
+# inference is single-threaded so captures are bit-reproducible across
+# processes/machines (multi-threaded GEMM reduction order is not).
+torch.set_num_threads(1)
+
 # Representative Serbian inputs (Latin + Cyrillic), short enough for one pass.
 VECTORS = [
     {"id": "greeting-latin", "script": "latin",
@@ -63,6 +68,7 @@ def main() -> int:
 
     results = {
         "seed": SEED,
+        "torch_num_threads": 1,
         "sample_rate": 24000,
         "model_sha256_expected": "4e6d11053886acd15f4e2b873efef87b7d53885bcf80b3b5fe73f79dd253ca47",
         "voice_sha256_expected": "0c16ae704368f69e5e1467a702594f56f11a5cfdd38e9ae43b708932c1d6fb8a",

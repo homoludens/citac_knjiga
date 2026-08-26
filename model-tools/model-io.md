@@ -134,7 +134,25 @@ Verified (`scripts/verify_determinism.py`), 67-phoneme text:
 | seed 1234 vs seed 9999 | 0.081 | no | 0.9967 |
 
 **Control: `torch.manual_seed(seed)` immediately before each `model(...)`
-call makes output bit-identical.** Consequences:
+call makes output bit-identical — but only with `torch.set_num_threads(1)`
+set once at process start.** Verified 2026-08-26 (`scripts/verify_determinism.py`
+and a two-process SHA-256 probe), 67-phoneme text:
+
+| Comparison | max abs diff | bit-identical | cosine sim |
+|---|---|---|---|
+| unseeded vs unseeded | 0.057 | no | 0.9967 |
+| seed 1234 vs seed 1234 | **0.0** | **yes** | 1.0 |
+| seed 1234 vs seed 9999 | 0.081 | no | 0.9967 |
+
+Threading caveat: with multi-threaded CPU inference, the GEMM reduction order
+varies between runs/processes, so the *same seed* still produces ~1–3 LSB
+PCM16 differences cross-process (cos ≈ 0.999999). With `torch.set_num_threads(1)`,
+separate processes produce **byte-identical** WAVs (SHA-256 match verified).
+`scripts/capture_reference_vectors.py` therefore pins seed **20260826** and
+single-threaded inference, so the committed reference WAVs are reproducible
+bit-for-bit anywhere that uses the same pinned runtime.
+
+Consequences:
 
 - Reference captures (task 1.4) are produced with a fixed, recorded seed.
 - Phase-2 parity (PyTorch vs ONNX) must seed both sides identically; even

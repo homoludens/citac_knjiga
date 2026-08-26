@@ -1,5 +1,6 @@
 {
   "seed": 20260826,
+  "torch_num_threads": 1,
   "sample_rate": 24000,
   "model_sha256_expected": "4e6d11053886acd15f4e2b873efef87b7d53885bcf80b3b5fe73f79dd253ca47",
   "voice_sha256_expected": "0c16ae704368f69e5e1467a702594f56f11a5cfdd38e9ae43b708932c1d6fb8a",
@@ -86,11 +87,11 @@
       "token_count": 69,
       "audio_samples": 124200,
       "duration_s": 5.175,
-      "peak": 0.3565759062767029,
-      "rms": 0.066234,
+      "peak": 0.35661494731903076,
+      "rms": 0.066235,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/greeting-latin.wav",
-      "infer_seconds": 2.61
+      "infer_seconds": 7.29
     },
     {
       "id": "greeting-cyrillic",
@@ -173,11 +174,11 @@
       "token_count": 69,
       "audio_samples": 124200,
       "duration_s": 5.175,
-      "peak": 0.3565759062767029,
-      "rms": 0.066234,
+      "peak": 0.35661494731903076,
+      "rms": 0.066235,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/greeting-cyrillic.wav",
-      "infer_seconds": 2.5
+      "infer_seconds": 7.25
     },
     {
       "id": "diacritics-latin",
@@ -252,11 +253,11 @@
       "token_count": 61,
       "audio_samples": 114000,
       "duration_s": 4.75,
-      "peak": 0.39346885681152344,
-      "rms": 0.062619,
+      "peak": 0.39542925357818604,
+      "rms": 0.062626,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/diacritics-latin.wav",
-      "infer_seconds": 2.76
+      "infer_seconds": 6.7
     },
     {
       "id": "diacritics-cyrillic",
@@ -331,11 +332,11 @@
       "token_count": 61,
       "audio_samples": 114600,
       "duration_s": 4.775,
-      "peak": 0.4077172875404358,
-      "rms": 0.062799,
+      "peak": 0.4072636067867279,
+      "rms": 0.062807,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/diacritics-cyrillic.wav",
-      "infer_seconds": 2.61
+      "infer_seconds": 6.72
     },
     {
       "id": "mixed-digits",
@@ -415,11 +416,11 @@
       "token_count": 66,
       "audio_samples": 117600,
       "duration_s": 4.9,
-      "peak": 0.4008808135986328,
-      "rms": 0.06701,
+      "peak": 0.40073829889297485,
+      "rms": 0.067003,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/mixed-digits.wav",
-      "infer_seconds": 2.59
+      "infer_seconds": 6.85
     },
     {
       "id": "punctuation",
@@ -478,11 +479,11 @@
       "token_count": 45,
       "audio_samples": 80400,
       "duration_s": 3.35,
-      "peak": 0.3410193622112274,
-      "rms": 0.063345,
+      "peak": 0.3409543037414551,
+      "rms": 0.063349,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/punctuation.wav",
-      "infer_seconds": 1.81
+      "infer_seconds": 4.9
     },
     {
       "id": "cyrillic-punctuation",
@@ -539,11 +540,11 @@
       "token_count": 43,
       "audio_samples": 78000,
       "duration_s": 3.25,
-      "peak": 0.3347625434398651,
+      "peak": 0.33329516649246216,
       "rms": 0.063292,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/cyrillic-punctuation.wav",
-      "infer_seconds": 1.59
+      "infer_seconds": 4.65
     }
   ]
 }
