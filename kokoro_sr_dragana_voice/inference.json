@@ -1,0 +1,9 @@
+{
+  "model": "model.pth",
+  "voice": "voice.pt",
+  "config": "config.json",
+  "sample_rate": 24000,
+  "phonemizer": "kokoro_sr.phonemes.phonemize_serbian",
+  "stage": "dragana",
+  "checkpoint_id": "epoch-005"
+}
