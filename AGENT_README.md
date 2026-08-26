@@ -20,7 +20,7 @@ target.
 | `kokoro_sr_dragana_voice/` | Known-good Dragana checkpoint bundle (epoch-005), LFS-tracked |
 | `python_voice_test/` | Earlier self-contained Dragana inference bundle (epoch_2nd_00002) |
 | `speak_2.py` | Ad-hoc CPU inference test script (points at training-repo paths) |
-| `model-tools/` | Desktop model tooling: runtime pins, env lock, parity + reference captures (Phase 1–3) |
+| `model-tools/` | Desktop model tooling: runtime pins, env lock, reference captures, export wrapper (Phase 1–3) |
 | (later) | Android app modules (`app`, `core`, `tts-onnx`, `document-epub`, `playback-export`) |
 
 ## Key technical facts
@@ -33,6 +33,10 @@ target.
   plus symbol normalization/audit against the Kokoro v1 vocabulary.
 - Input limit: 507 phoneme symbols per model call.
 - Voice tensor shape: `[510, 1, 256]`; sampled at `min(len(ipa), 509)`.
+- Export wrapper (task 2.1): `model-tools/export/wrapper.py` exposes the
+  deterministic tensor boundary (token IDs + selected style row + speed →
+  24 kHz float32 PCM + pred_dur) that task 2.2 exports to ONNX. See
+  `model-tools/export/README.md` for the interface contract.
 
 ## Conventions
 
