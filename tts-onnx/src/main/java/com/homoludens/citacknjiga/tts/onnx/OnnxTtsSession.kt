@@ -24,6 +24,8 @@ public object OnnxRuntimeContract {
     public const val MIN_SEQUENCE_LENGTH: Int = 2
     public const val MAX_SEQUENCE_LENGTH: Int = 512
     public const val SAMPLES_PER_DURATION_FRAME: Int = 300
+    public const val MIN_DURATION_FRAMES: Long = 1
+    public const val MAX_DURATION_FRAMES: Long = 50
     public val CPU_BASELINE: OnnxRuntimeConfiguration = OnnxRuntimeConfiguration()
 }
 
@@ -34,7 +36,134 @@ public data class OnnxTtsOutput(
     val channels: Int = OnnxRuntimeContract.CHANNELS,
 )
 
-public class OnnxTtsException(message: String, cause: Throwable? = null) : IllegalStateException(message, cause)
+public open class OnnxTtsException(message: String, cause: Throwable? = null) : IllegalStateException(message, cause)
+
+public enum class OnnxAudioFailureCode {
+    NON_FINITE_SAMPLES,
+    SILENCE,
+    CLIPPING,
+    INVALID_SAMPLE_RATE,
+    INVALID_CHANNEL_COUNT,
+    SAMPLE_COUNT_MISMATCH,
+    IMPLAUSIBLE_DURATION,
+    EMPTY_OUTPUT,
+}
+
+public class OnnxAudioValidationException(
+    public val code: OnnxAudioFailureCode,
+    message: String,
+) : OnnxTtsException(message)
+
+/** Applies the frozen desktop audio contract before output can leave inference. */
+public object OnnxAudioOutputValidator {
+    public const val SILENCE_RMS_THRESHOLD: Double = 0.001
+    public const val SILENCE_LEVEL: Double = 0.0001
+    public const val MAX_SILENT_SAMPLE_FRACTION: Double = 0.995
+    public const val FULL_SCALE: Double = 1.0
+
+    public fun validate(output: OnnxTtsOutput, expectedTokenCount: Int, speed: Float = 1f) {
+        if (output.sampleRateHz != OnnxRuntimeContract.SAMPLE_RATE_HZ) {
+            fail(
+                OnnxAudioFailureCode.INVALID_SAMPLE_RATE,
+                "ONNX audio sample rate ${output.sampleRateHz} Hz is invalid; expected " +
+                    "${OnnxRuntimeContract.SAMPLE_RATE_HZ} Hz",
+            )
+        }
+        if (output.channels != OnnxRuntimeContract.CHANNELS) {
+            fail(
+                OnnxAudioFailureCode.INVALID_CHANNEL_COUNT,
+                "ONNX audio has ${output.channels} channels; expected ${OnnxRuntimeContract.CHANNELS}",
+            )
+        }
+        if (output.pcm.isEmpty()) {
+            fail(OnnxAudioFailureCode.EMPTY_OUTPUT, "ONNX audio output is empty")
+        }
+
+        var nonFiniteCount = 0
+        for (sample in output.pcm) {
+            if (!sample.isFinite()) nonFiniteCount++
+        }
+        if (nonFiniteCount != 0) {
+            fail(
+                OnnxAudioFailureCode.NON_FINITE_SAMPLES,
+                "ONNX audio output contains $nonFiniteCount non-finite samples",
+            )
+        }
+
+        if (output.predDur.size != expectedTokenCount) {
+            fail(
+                OnnxAudioFailureCode.SAMPLE_COUNT_MISMATCH,
+                "${OnnxTtsSession.PRED_DUR} length ${output.predDur.size} does not match " +
+                    "input_ids length $expectedTokenCount",
+            )
+        }
+
+        var durationFrames = 0L
+        val maximumDurationFrames = kotlin.math.round(
+            OnnxRuntimeContract.MAX_DURATION_FRAMES.toDouble() / speed.toDouble(),
+        ).toLong()
+        for ((index, duration) in output.predDur.withIndex()) {
+            if (duration !in OnnxRuntimeContract.MIN_DURATION_FRAMES..maximumDurationFrames) {
+                fail(
+                    OnnxAudioFailureCode.IMPLAUSIBLE_DURATION,
+                    "${OnnxTtsSession.PRED_DUR}[$index]=$duration is outside " +
+                        "${OnnxRuntimeContract.MIN_DURATION_FRAMES}..$maximumDurationFrames frames at speed $speed",
+                )
+            }
+            durationFrames = try {
+                Math.addExact(durationFrames, duration)
+            } catch (_: ArithmeticException) {
+                fail(
+                    OnnxAudioFailureCode.IMPLAUSIBLE_DURATION,
+                    "${OnnxTtsSession.PRED_DUR} total duration overflows the supported range",
+                )
+            }
+        }
+        val expectedSamples = try {
+            Math.multiplyExact(durationFrames, OnnxRuntimeContract.SAMPLES_PER_DURATION_FRAME.toLong())
+        } catch (_: ArithmeticException) {
+            fail(
+                OnnxAudioFailureCode.IMPLAUSIBLE_DURATION,
+                "${OnnxTtsSession.PRED_DUR} duration is too large for PCM output",
+            )
+        }
+        if (output.pcm.size.toLong() != expectedSamples) {
+            fail(
+                OnnxAudioFailureCode.SAMPLE_COUNT_MISMATCH,
+                "${OnnxTtsSession.WAVEFORM} length ${output.pcm.size} does not match " +
+                    "declared duration length $expectedSamples",
+            )
+        }
+
+        var silentSamples = 0
+        var sumSquares = 0.0
+        var clippedSamples = 0
+        for (sample in output.pcm) {
+            val value = sample.toDouble()
+            if (kotlin.math.abs(value) <= SILENCE_LEVEL) silentSamples++
+            sumSquares += value * value
+            if (kotlin.math.abs(value) >= FULL_SCALE) clippedSamples++
+        }
+        val rms = kotlin.math.sqrt(sumSquares / output.pcm.size)
+        val silentFraction = silentSamples.toDouble() / output.pcm.size
+        if (rms <= SILENCE_RMS_THRESHOLD || silentFraction > MAX_SILENT_SAMPLE_FRACTION) {
+            fail(
+                OnnxAudioFailureCode.SILENCE,
+                "ONNX audio output is silent or near-silent (RMS=$rms, " +
+                    "silent_fraction=$silentFraction)",
+            )
+        }
+        if (clippedSamples != 0) {
+            fail(
+                OnnxAudioFailureCode.CLIPPING,
+                "ONNX audio output contains $clippedSamples clipped or out-of-domain samples",
+            )
+        }
+    }
+
+    private fun fail(code: OnnxAudioFailureCode, message: String): Nothing =
+        throw OnnxAudioValidationException(code, message)
+}
 
 /** Owns one CPU ONNX Runtime session and the environment used to create it. */
 public class OnnxTtsSession private constructor(
@@ -75,20 +204,9 @@ public class OnnxTtsSession private constructor(
                 val predDur = outputTensor(result, PRED_DUR, OnnxJavaType.INT64)
                 val pcm = waveform.getFloatBuffer().toFloatArray()
                 val durations = predDur.getLongBuffer().toLongArray()
-                if (durations.size != ids.size) {
-                    throw OnnxTtsException(
-                        "$PRED_DUR length ${durations.size} does not match input_ids length ${ids.size}",
-                    )
-                }
-                val expectedSamples = durations.fold(0L) { total, duration ->
-                    Math.addExact(total, Math.multiplyExact(duration, OnnxRuntimeContract.SAMPLES_PER_DURATION_FRAME))
-                }
-                if (pcm.size.toLong() != expectedSamples) {
-                    throw OnnxTtsException(
-                        "$WAVEFORM length ${pcm.size} does not match declared duration length $expectedSamples",
-                    )
-                }
-                return@use OnnxTtsOutput(pcm = pcm, predDur = durations)
+                val output = OnnxTtsOutput(pcm = pcm, predDur = durations)
+                OnnxAudioOutputValidator.validate(output, ids.size, speed)
+                return@use output
             }
         } catch (exception: OnnxTtsException) {
             throw exception

@@ -16,8 +16,8 @@ public class OnnxTtsSessionAndroidTest {
             assertEquals(OnnxRuntimeContract.CHANNELS, output.channels)
             assertArrayEquals(longArrayOf(1, 1), output.predDur)
             assertEquals(600, output.pcm.size)
-            assertEquals(0f, output.pcm.first())
-            assertEquals(0f, output.pcm.last())
+            assertEquals(0.5f, output.pcm.first())
+            assertEquals(0.5f, output.pcm.last())
         }
     }
 
@@ -33,7 +33,7 @@ public class OnnxTtsSessionAndroidTest {
 
     private companion object {
         val TEST_MODEL: ByteArray = Base64.getDecoder().decode(
-            "CAgSDXRhc2stNC42LXRlc3Q6lQMKJwoJaW5wdXRfaWRzEgl3YXZlX2Jhc2UiBENhc3QqCQoCdG8YAaABAgolCgl3YXZlX2Jhc2UKBGF4ZXMSCXdhdmVfZmxhdCIHU3F1ZWV6ZQohCgl3YXZlX2ZsYXQKBHJlcHMSCHdhdmVmb3JtIgRUaWxlCh8KCWlucHV0X2lkcwoDb25lEghkdXJfYmFzZSIDQWRkCiMKCGR1cl9iYXNlCgRheGVzEghwcmVkX2R1ciIHU3F1ZWV6ZRIWZGV0ZXJtaW5pc3RpYy1ib3VuZGFyeSoMCAEQBzoBAUIDb25lKg4IARAHOgKsAkIEcmVwcyoNCAEQBzoBAEIEYXhlc1oiCglpbnB1dF9pZHMSFQoTCAcSDwoCCAEKCRIHc2VxX2xlbloYCgVyZWZfcxIPCg0IARIJCgIIAQoDCIACWg8KBXNwZWVkEgYKBAgBEgBiIgoId2F2ZWZvcm0SFgoUCAESEAoOEgx3YXZlZm9ybV9sZW5iIgoIcHJlZF9kdXISFgoUCAcSEAoOEgxwcmVkX2R1cl9sZW5CBAoAEBI=",
+            "CAgSDXRhc2stNC42LXRlc3Q62wMKJwoJaW5wdXRfaWRzEgl3YXZlX2Nhc3QiBENhc3QqCQoCdG8YAaABAgoyCgl3YXZlX2Nhc3QKBGhhbGYSCXdhdmVfYmFzZRoPb2Zmc2V0X3dhdmVmb3JtIgNBZGQKJQoJd2F2ZV9iYXNlCgRheGVzEgl3YXZlX2ZsYXQiB1NxdWVlemUKIQoJd2F2ZV9mbGF0CgRyZXBzEgh3YXZlZm9ybSIEVGlsZQofCglpbnB1dF9pZHMKA29uZRIIZHVyX2Jhc2UiA0FkZAojCghkdXJfYmFzZQoEYXhlcxIIcHJlZF9kdXIiB1NxdWVlemUSFmRldGVybWluaXN0aWMtYm91bmRhcnkqDAgBEAc6AQFCA29uZSoOCAEQBzoCrAJCBHJlcHMqDQgBEAc6AQBCBGF4ZXMqEAgBEAFCBGhhbGZKBAAAAD9aIgoJaW5wdXRfaWRzEhUKEwgHEg8KAggBCgkSB3NlcV9sZW5aGAoFcmVmX3MSDwoNCAESCQoCCAEKAwiAAloPCgVzcGVlZBIGCgQIARIAYiIKCHdhdmVmb3JtEhYKFAgBEhAKDhIMd2F2ZWZvcm1fbGVuYiIKCHByZWRfZHVyEhYKFAgHEhAKDhIMcHJlZF9kdXJfbGVuQgQKABAS",
         )
     }
 }

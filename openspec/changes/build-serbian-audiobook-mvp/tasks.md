@@ -43,7 +43,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 - [x] 4.4 Implement Kotlin preprocessing stages and load golden vectors as JVM and Android test fixtures. Kotlin fails closed at the unavailable native pronunciation stage; exact eSpeak-NG parity remains task 4.5.
 - [x] 4.5 Make Android normalized text, phonemes, token IDs, and chunk boundaries match every golden vector exactly. Debug variants package both `x86_64` and `arm64-v8a`; the connected smoke and all-26-vector gates pass on the available x86_64 emulator. Release remains explicitly ARM64-only, and ARM64 device execution remains unqualified.
 - [x] 4.6 Implement the pinned Android ONNX session and verified tensor-to-PCM boundary with bounded threads and explicit resource cleanup. → `tts-onnx/OnnxTtsSession.kt`; focused JVM/Android boundary tests pass with a small deterministic ONNX fixture; production graph/device parity remains task 4.9.
-- [ ] 4.7 Add invalid-output checks for non-finite samples, silence, clipping, sample rate, sample count, and plausible duration.
+- [x] 4.7 Add invalid-output checks for non-finite samples, silence, clipping, sample rate, sample count, and plausible duration.
 - [ ] 4.8 Build the typed Serbian text proof screen showing intermediate diagnostics, generate/cancel state, model provenance, and playable WAV output.
 - [ ] 4.9 Compare Android PCM with desktop ONNX vectors using the declared parity metrics and persist a device parity report.
 - [ ] 4.10 Demonstrate the complete offline path `Kotlin text → Serbian preprocessing → ONNX → playable 24 kHz audio` on the Poco F3.

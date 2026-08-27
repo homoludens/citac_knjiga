@@ -173,6 +173,12 @@ graph is present only as an ignored local export, while the legal-blocked model
 package is not checked in; production-graph Android parity and device
 qualification therefore remain later gates.
 
+The boundary validator rejects non-finite or silent PCM, samples at or beyond
+full scale, non-24 kHz/non-mono metadata, inconsistent sample counts, and
+`pred_dur` values outside the model's declared minimum and speed-scaled
+`max_dur=50` range. Its JVM and Android tests use synthetic PCM and do not load
+the local production graph.
+
 ## Voice bundle
 
 `kokoro_sr_dragana_voice/` is the current known-good epoch-005 Dragana bundle

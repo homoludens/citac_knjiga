@@ -66,6 +66,10 @@ target.
    uses a small deterministic ONNX fixture. The ignored local production graph
    exists, but a complete model package is not checked in because the legal gate
    remains blocked, so Android production-graph parity is still task 4.9.
+- Task 4.7 adds `OnnxAudioOutputValidator` at the tensor-to-PCM boundary. It
+  applies the frozen 24 kHz mono, finite, strict `(-1,1)`, RMS/silence, exact
+  sample-count, and speed-scaled `pred_dur` duration contracts, with typed
+  failure codes.
 - Task 4.1 creates the source-buildable Android foundation with `app`, `core`,
   `tts-onnx`, `document-epub`, and `playback-export` modules. The project pins
   Gradle 8.10.2, Android Gradle Plugin 8.8.2, Kotlin 2.1.10, JDK 21 toolchains,
