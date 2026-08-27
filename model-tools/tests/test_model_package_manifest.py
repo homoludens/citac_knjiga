@@ -20,7 +20,7 @@ def test_v1_example_is_valid_and_fail_closed_for_legal_status() -> None:
     assert manifest["preprocessing"]["android_status"] == "not-yet-qualified"
     assert manifest["runtime"]["qualification_status"] == "desktop-parity-only"
     assert manifest["test_vectors"]["all_required"] is True
-    assert len(manifest["test_vectors"]["vectors"]) == 22
+    assert len(manifest["test_vectors"]["vectors"]) == 26
     assert manifest["manifest"]["identity"]["value"] == expected_identity(manifest)
     assert EXAMPLE_PATH.is_file()
 

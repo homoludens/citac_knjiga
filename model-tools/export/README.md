@@ -92,7 +92,7 @@ cd model-tools
 .venv/bin/python scripts/verify_export_wrapper.py
 ```
 
-Runs all 22 vectors from `reference/vectors.json` (seed 20260826,
+Runs all 26 vectors from `reference/vectors.json` (seed 20260826,
 single-threaded, speed 1.0) and compares each output against the committed
 reference WAV: sample count, PCM16 max abs diff, byte-for-byte WAV
 identity. Expected: `ok: true` with `pcm_max_abs_diff: 0` on every vector

@@ -33,6 +33,9 @@ REQUIRED_CATEGORIES = {
     "email",
     "citations",
     "page-artifacts",
+    "input-limit",
+    "chunk-boundaries",
+    "no-sentence-boundary",
 }
 
 VECTOR_FIELDS = {
@@ -128,7 +131,24 @@ def _first_stage_error(vector: dict, document: dict) -> str | None:
                     return f"{vector_id}: divergent stage protected_spans"
                 previous_end = span["end"]
         if stage == "chunk_boundaries":
-            if vector[stage] != [{"start": 0, "end": len(vector["phonemes"])}]:
+            boundaries = vector[stage]
+            if (
+                boundaries[0]["start"] != 0
+                or boundaries[-1]["end"] != len(vector["phonemes"])
+                or any(
+                    not 0 <= boundary["start"] < boundary["end"] <= len(vector["phonemes"])
+                    or boundary["end"] - boundary["start"] > (
+                        document["hard_input_symbols"]
+                        if len(boundaries) == 1
+                        else document["max_input_symbols"]
+                    )
+                    for boundary in boundaries
+                )
+                or any(
+                    left["end"] != right["start"]
+                    for left, right in zip(boundaries, boundaries[1:])
+                )
+            ):
                 return f"{vector_id}: divergent stage chunk_boundaries"
         if stage == "reference_audio":
             audio = vector[stage]
@@ -146,7 +166,7 @@ def test_corpus_covers_every_task_3_3_category() -> None:
     vectors = document["vectors"]
     by_id = {vector["id"]: vector for vector in vectors}
 
-    assert len(vectors) == 22
+    assert len(vectors) == 26
     assert set(coverage) == REQUIRED_CATEGORIES
     assert all(coverage[category] for category in REQUIRED_CATEGORIES)
     assert len(by_id) == len(vectors)
@@ -164,14 +184,18 @@ def test_corpus_covers_every_task_3_3_category() -> None:
         assert vector["token_count"] == len(vector["token_ids"])
         assert vector["token_ids"][0] == vector["token_ids"][-1] == 0
         assert vector["voice_row_index"] == min(vector["ipa_len"], 509)
-        assert vector["ipa_len"] <= document["max_input_symbols"]
+        assert (
+            vector["ipa_len"] <= document["hard_input_symbols"]
+            or len(vector["chunk_boundaries"]) > 1
+        )
         assert vector["finite"] is True
         assert vector["cleanup_text"] == vector["text"]
         assert vector["normalized_text"] == vector["cleanup_text"]
         assert vector["phonemes"] == vector["ipa"]
         assert vector["phoneme_count"] == vector["ipa_len"]
         assert vector["protected_spans"] == []
-        assert vector["chunk_boundaries"] == [{"start": 0, "end": vector["ipa_len"]}]
+        assert vector["chunk_boundaries"][0]["start"] == 0
+        assert vector["chunk_boundaries"][-1]["end"] == vector["ipa_len"]
         assert _first_stage_error(vector, document) is None
 
         audio, sample_rate = sf.read(vector["wav"], dtype="float32")
@@ -246,6 +270,26 @@ def test_script_and_digraph_cases_contain_the_declared_forms() -> None:
     assert any("\u0400" <= character <= "\u04ff" for character in mixed_text)
 
 
+def test_input_limit_and_no_sentence_boundary_cases_are_pinned() -> None:
+    document = json.loads(CORPUS_PATH.read_text(encoding="utf-8"))
+    by_id = {vector["id"]: vector for vector in document["vectors"]}
+
+    assert [
+        by_id[f"input-limit-{position}"]["ipa_len"]
+        for position in ("below", "at", "above")
+    ] == [506, 507, 508]
+    for position in ("below", "at", "above"):
+        vector = by_id[f"input-limit-{position}"]
+        assert vector["chunk_boundaries"] == [{"start": 0, "end": vector["ipa_len"]}]
+    paragraph = by_id["paragraph-no-sentence-boundary"]
+    assert paragraph["ipa_len"] > document["max_input_symbols"]
+    assert paragraph["chunk_boundaries"] == [
+        {"start": 0, "end": 506},
+        {"start": 506, "end": 523},
+    ]
+    assert not any(mark in paragraph["text"] for mark in ".?!")
+
+
 def test_corpus_provenance_and_regeneration_contract_is_pinned() -> None:
     document = json.loads(CORPUS_PATH.read_text(encoding="utf-8"))
     corpus = document["corpus"]
@@ -253,7 +297,7 @@ def test_corpus_provenance_and_regeneration_contract_is_pinned() -> None:
     generation = corpus["generation"]
     runtime = generation["reference_runtime"]
 
-    assert corpus["version"] == "reference-20260827-task-3.4"
+    assert corpus["version"] == "reference-20260827-task-3.5"
     assert provenance["kind"] == "self-authored"
     assert provenance["license_status"] == "project-owned"
     assert "third-party" in provenance["statement"]

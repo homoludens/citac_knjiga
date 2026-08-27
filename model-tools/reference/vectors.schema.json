@@ -12,6 +12,7 @@
     "model_sha256_expected",
     "voice_sha256_expected",
     "max_input_symbols",
+    "hard_input_symbols",
     "corpus",
     "vectors"
   ],
@@ -31,6 +32,7 @@
     "model_sha256_expected": {"$ref": "#/$defs/sha256"},
     "voice_sha256_expected": {"$ref": "#/$defs/sha256"},
     "max_input_symbols": {"const": 507},
+    "hard_input_symbols": {"const": 510},
     "corpus": {
       "type": "object",
       "required": [
@@ -43,7 +45,7 @@
       ],
       "properties": {
         "corpus_id": {"const": "serbian-golden-vectors"},
-        "version": {"const": "reference-20260827-task-3.4"},
+        "version": {"const": "reference-20260827-task-3.5"},
         "input_provenance": {"type": "object"},
         "coverage": {"type": "object"},
         "equivalence_groups": {"type": "object"},

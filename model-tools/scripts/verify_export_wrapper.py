@@ -52,12 +52,25 @@ def main() -> int:
     vectors = []
     all_ok = True
     for v in meta["vectors"]:
-        input_ids = torch.LongTensor([v["token_ids"]])
-        ref_s = voice[v["voice_row_index"]]  # [1, 256]; row selection is the caller's job
+        boundaries = v.get(
+            "chunk_boundaries", [{"start": 0, "end": len(v["phonemes"])}]
+        )
         t0 = time.monotonic()
-        waveform, pred_dur = wrapper(input_ids, ref_s, SPEED, seed=seed)
+        waveforms = []
+        pred_durations = []
+        for boundary in boundaries:
+            start = boundary["start"]
+            end = boundary["end"]
+            input_ids = torch.LongTensor(
+                [[0, *v["token_ids"][start + 1:end + 1], 0]]
+            )
+            ref_s = voice[min(end - start, 509)]  # [1, 256]; row selection is the caller's job
+            waveform, pred_dur = wrapper(input_ids, ref_s, SPEED, seed=seed)
+            waveforms.append(waveform.detach().cpu().numpy())
+            pred_durations.append(pred_dur.detach().cpu().numpy())
         infer_seconds = time.monotonic() - t0
-        w = waveform.detach().cpu().numpy()
+        w = np.concatenate(waveforms)
+        pred_dur = np.concatenate(pred_durations)
         ref_path = Path(v["wav"])
         ref_pcm, sr = sf.read(ref_path, dtype="int16")
         with tempfile.TemporaryDirectory() as td:

@@ -11,7 +11,8 @@
   - audio metadata (samples, duration, peak, rms, finite)
 
 Reference seed is fixed so the captures are reproducible bit-for-bit. Phase 2
-(PyTorch vs ONNX vs Android) compares against these vectors.
+(PyTorch vs ONNX vs Android) compares against these vectors. Oversized vectors
+are captured as the concatenation of their declared bounded chunks.
 """
 from __future__ import annotations
 
@@ -28,7 +29,7 @@ BUNDLE = Path("/home/homoludens/projekti/citac_knjiga/kokoro_sr_dragana_voice")
 OUT = Path("/home/homoludens/projekti/citac_knjiga/model-tools/reference")
 
 SEED = 20260826  # fixed reference seed (recorded in vectors.json)
-CORPUS_VERSION = "reference-20260827-task-3.4"
+CORPUS_VERSION = "reference-20260827-task-3.5"
 
 import numpy as np  # noqa: E402
 import torch  # noqa: E402
@@ -41,8 +42,9 @@ from kokoro_sr.phonemes import phonemize_serbian  # noqa: E402
 # processes/machines (multi-threaded GEMM reduction order is not).
 torch.set_num_threads(1)
 
-# Representative, self-authored inputs. Every case stays below the operational
-# limit; task 3.5 owns boundary and oversized-input cases.
+# Representative, self-authored inputs. The first 22 cases are the task-3.4
+# corpus. The final four cases exercise the operational limit and fallback
+# chunking when a paragraph has no sentence boundary.
 VECTORS = [
     {"id": "greeting-latin", "script": "latin",
      "text": "Dobar dan, ovo je glas Dragane. Ona čita knjige svakog jutra.",
@@ -114,6 +116,23 @@ VECTORS = [
     {"id": "page-artifacts", "script": "mixed",
      "text": "— 37 —\nСтрана 38\fNastavak teksta.",
      "categories": ["page-artifacts"]},
+    {"id": "input-limit-below", "script": "latin",
+     "text": ("Ovo je probni tekst bez kraja " * 14)
+              + "veoma nastavlja",
+     "categories": ["input-limit"]},
+    {"id": "input-limit-at", "script": "latin",
+     "text": ("Ovo je probni tekst bez kraja " * 14)
+              + "veoma nastavlja i",
+     "categories": ["input-limit"]},
+    {"id": "input-limit-above", "script": "latin",
+     "text": ("Ovo je probni tekst bez kraja " * 14)
+              + "malo još",
+     "categories": ["input-limit"]},
+    {"id": "paragraph-no-sentence-boundary", "script": "latin",
+     "text": ("Ovo je probni tekst bez kraja " * 14)
+              + "veoma nastavlja malo nastavlja",
+     "categories": ["chunk-boundaries", "no-sentence-boundary"],
+     "chunk_boundaries": [{"start": 0, "end": 506}, {"start": 506, "end": 523}]},
 ]
 
 CORPUS_CATEGORIES = (
@@ -133,6 +152,9 @@ CORPUS_CATEGORIES = (
     "email",
     "citations",
     "page-artifacts",
+    "input-limit",
+    "chunk-boundaries",
+    "no-sentence-boundary",
 )
 
 
@@ -217,14 +239,16 @@ def corpus_metadata() -> dict[str, object]:
                     "no protected-span stage, so this is empty."
                 ),
                 "chunk_boundaries": (
-                    "Sorted half-open Unicode code-point ranges into phonemes. Each "
-                    "current vector is one unsplit model call because it is within "
-                    "the operational input limit; task 3.5 owns limit-edge cases."
+                    "Sorted half-open Unicode code-point ranges into phonemes, one "
+                    "range per bounded model call. Operational chunks are at most "
+                    "507 symbols; the 508-symbol edge vector records the verified "
+                    "hard-context behavior, and oversized vectors use the declared "
+                    "safe fallback boundaries."
                 ),
                 "reference_audio": (
                     "Metadata for the seeded mono 24 kHz PCM-16 WAV produced by the "
-                    "pinned desktop PyTorch call, including its relative path and "
-                    "SHA-256."
+                    "pinned desktop PyTorch call or concatenated bounded calls, "
+                    "including its relative path and SHA-256."
                 ),
             },
         },
@@ -270,6 +294,7 @@ def main() -> int:
         "model_sha256_expected": "4e6d11053886acd15f4e2b873efef87b7d53885bcf80b3b5fe73f79dd253ca47",
         "voice_sha256_expected": "0c16ae704368f69e5e1467a702594f56f11a5cfdd38e9ae43b708932c1d6fb8a",
         "max_input_symbols": 507,
+        "hard_input_symbols": 510,
         "corpus": corpus_metadata(),
         "vectors": [],
     }
@@ -278,14 +303,33 @@ def main() -> int:
         text = v["text"]
         t0 = time.monotonic()
         ipa = phonemize_serbian(text)
-        # Token IDs exactly as KModel.forward builds them.
+        boundaries = v.get("chunk_boundaries")
+        if boundaries is None:
+            boundaries = [{"start": 0, "end": len(ipa)}]
+        if (
+            boundaries[0]["start"] != 0
+            or boundaries[-1]["end"] != len(ipa)
+            or any(
+                left["end"] != right["start"]
+                for left, right in zip(boundaries, boundaries[1:])
+            )
+        ):
+            raise ValueError(f"{v['id']}: chunk boundaries do not cover the IPA")
+
+        # Token IDs exactly as KModel.forward builds them for the complete
+        # preprocessing output.
         ids = [i for i in (vocab.get(p) for p in ipa) if i is not None]
         input_ids = [0, *ids, 0]
         row_idx = min(len(ipa), 509)
-        torch.manual_seed(SEED)
-        with torch.inference_mode():
-            audio = model(ipa, voice[row_idx], speed=1.0)
-        a = audio.detach().cpu().numpy()
+        chunk_audio = []
+        for boundary in boundaries:
+            chunk_ipa = ipa[boundary["start"]:boundary["end"]]
+            chunk_row_idx = min(len(chunk_ipa), 509)
+            torch.manual_seed(SEED)
+            with torch.inference_mode():
+                audio = model(chunk_ipa, voice[chunk_row_idx], speed=1.0)
+            chunk_audio.append(audio.detach().cpu().numpy())
+        a = np.concatenate(chunk_audio)
         wav = OUT / f"{v['id']}.wav"
         sf.write(wav, a, 24000, subtype="PCM_16")
         audio_metadata = {
@@ -324,7 +368,7 @@ def main() -> int:
             "finite": bool(np.isfinite(a).all()),
             "wav": str(wav),
             "protected_spans": [],
-            "chunk_boundaries": [{"start": 0, "end": len(ipa)}],
+            "chunk_boundaries": boundaries,
             "reference_audio": audio_metadata,
             "infer_seconds": round(time.monotonic() - t0, 2),
         })

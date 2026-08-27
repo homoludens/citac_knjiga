@@ -2,7 +2,7 @@
   "kind": "fp32-parity-report",
   "task": "build-serbian-audiobook-mvp 2.5",
   "report_version": 1,
-  "ok": true,
+  "ok": false,
   "comparison": {
     "candidate": "FP32 ONNX Runtime CPU output",
     "reference": "pinned PyTorch CPU KModelForONNX with disable_complex=True",
@@ -50,8 +50,8 @@
     "seed": 20260826,
     "speed": 1.0,
     "sample_rate_hz": 24000,
-    "vectors_expected": 7,
-    "vectors_evaluated": 7
+    "vectors_expected": 26,
+    "vectors_evaluated": 26
   },
   "summary": {
     "sample_count": {
@@ -68,10 +68,10 @@
       }
     },
     "waveform_error": {
-      "pass": true,
+      "pass": false,
       "measurements": {
         "mean_absolute_error": {
-          "value": 0.0034102814320334913,
+          "value": 0.004448058280658709,
           "aggregation": "maximum",
           "unit": "normalized amplitude",
           "comparator": "<=",
@@ -79,12 +79,12 @@
           "pass": true
         },
         "maximum_absolute_error": {
-          "value": 0.06453564018011093,
+          "value": 0.12769455835223198,
           "aggregation": "maximum",
           "unit": "normalized amplitude",
           "comparator": "<=",
           "threshold": 0.1,
-          "pass": true
+          "pass": false
         }
       }
     },
@@ -92,7 +92,7 @@
       "pass": true,
       "measurements": {
         "stft_magnitude_cosine": {
-          "value": 0.9993543444867882,
+          "value": 0.9993088525361125,
           "aggregation": "minimum",
           "unit": "unitless cosine similarity in [0, 1]",
           "comparator": ">=",
@@ -105,7 +105,7 @@
       "pass": true,
       "measurements": {
         "rms_amplitude": {
-          "value": 0.08029528034316824,
+          "value": 0.07621443665904466,
           "aggregation": "minimum",
           "unit": "normalized amplitude RMS",
           "comparator": ">",
@@ -113,7 +113,7 @@
           "pass": true
         },
         "silent_sample_fraction": {
-          "value": 0.1175,
+          "value": 0.12723856209150328,
           "aggregation": "maximum",
           "unit": "fraction of samples in [0, 1]",
           "comparator": "<=",
@@ -134,7 +134,7 @@
           "pass": true
         },
         "absolute_peak": {
-          "value": 0.486664742231369,
+          "value": 0.48982882499694824,
           "aggregation": "maximum",
           "unit": "normalized amplitude",
           "comparator": "<",
@@ -165,7 +165,10 @@
       }
     }
   },
-  "failures": [],
+  "failures": [
+    "input-limit-at: waveform_error.maximum_absolute_error value=0.12769455835223198 <= threshold=0.1",
+    "paragraph-no-sentence-boundary: waveform_error.maximum_absolute_error value=0.10132836550474167 <= threshold=0.1"
+  ],
   "vectors": [
     {
       "vector": "greeting-latin",
@@ -210,14 +213,14 @@
           "pass": true,
           "measurements": {
             "mean_absolute_error": {
-              "value": 0.0032217278009327058,
+              "value": 0.0031163708611504346,
               "unit": "normalized amplitude",
               "comparator": "<=",
               "threshold": 0.01,
               "pass": true
             },
             "maximum_absolute_error": {
-              "value": 0.05206949636340141,
+              "value": 0.06451966613531113,
               "unit": "normalized amplitude",
               "comparator": "<=",
               "threshold": 0.1,
@@ -229,7 +232,7 @@
           "pass": true,
           "measurements": {
             "stft_magnitude_cosine": {
-              "value": 0.9993855556396019,
+              "value": 0.9993965704530489,
               "unit": "unitless cosine similarity in [0, 1]",
               "comparator": ">=",
               "threshold": 0.99,
@@ -241,14 +244,14 @@
           "pass": true,
           "measurements": {
             "rms_amplitude": {
-              "value": 0.08399529382353502,
+              "value": 0.08398832462219319,
               "unit": "normalized amplitude RMS",
               "comparator": ">",
               "threshold": 0.001,
               "pass": true
             },
             "silent_sample_fraction": {
-              "value": 0.10973429951690822,
+              "value": 0.10913848631239935,
               "unit": "fraction of samples in [0, 1]",
               "comparator": "<=",
               "threshold": 0.995,
@@ -267,7 +270,7 @@
               "pass": true
             },
             "absolute_peak": {
-              "value": 0.486664742231369,
+              "value": 0.4812542796134949,
               "unit": "normalized amplitude",
               "comparator": "<",
               "threshold": 1.0,
@@ -306,7 +309,7 @@
       "pred_dur_shape_candidate": [
         69
       ],
-      "onnx_infer_seconds": 7.8926
+      "onnx_infer_seconds": 7.7549
     },
     {
       "vector": "greeting-cyrillic",
@@ -351,14 +354,14 @@
           "pass": true,
           "measurements": {
             "mean_absolute_error": {
-              "value": 0.0034102814320334913,
+              "value": 0.0033779739025772792,
               "unit": "normalized amplitude",
               "comparator": "<=",
               "threshold": 0.01,
               "pass": true
             },
             "maximum_absolute_error": {
-              "value": 0.06077425740659237,
+              "value": 0.06456231325864792,
               "unit": "normalized amplitude",
               "comparator": "<=",
               "threshold": 0.1,
@@ -370,7 +373,7 @@
           "pass": true,
           "measurements": {
             "stft_magnitude_cosine": {
-              "value": 0.9993654789960602,
+              "value": 0.9993832322755484,
               "unit": "unitless cosine similarity in [0, 1]",
               "comparator": ">=",
               "threshold": 0.99,
@@ -382,14 +385,14 @@
           "pass": true,
           "measurements": {
             "rms_amplitude": {
-              "value": 0.08391388547945898,
+              "value": 0.0839572474245205,
               "unit": "normalized amplitude RMS",
               "comparator": ">",
               "threshold": 0.001,
               "pass": true
             },
             "silent_sample_fraction": {
-              "value": 0.10905797101449276,
+              "value": 0.10884863123993559,
               "unit": "fraction of samples in [0, 1]",
               "comparator": "<=",
               "threshold": 0.995,
@@ -408,7 +411,7 @@
               "pass": true
             },
             "absolute_peak": {
-              "value": 0.4860876798629761,
+              "value": 0.48982882499694824,
               "unit": "normalized amplitude",
               "comparator": "<",
               "threshold": 1.0,
@@ -447,7 +450,7 @@
       "pred_dur_shape_candidate": [
         69
       ],
-      "onnx_infer_seconds": 7.9145
+      "onnx_infer_seconds": 7.8536
     },
     {
       "vector": "diacritics-latin",
@@ -492,14 +495,14 @@
           "pass": true,
           "measurements": {
             "mean_absolute_error": {
-              "value": 0.0030341291322973068,
+              "value": 0.003203950972981891,
               "unit": "normalized amplitude",
               "comparator": "<=",
               "threshold": 0.01,
               "pass": true
             },
             "maximum_absolute_error": {
-              "value": 0.06453564018011093,
+              "value": 0.06631191074848175,
               "unit": "normalized amplitude",
               "comparator": "<=",
               "threshold": 0.1,
@@ -511,7 +514,7 @@
           "pass": true,
           "measurements": {
             "stft_magnitude_cosine": {
-              "value": 0.9994264523143725,
+              "value": 0.9994207608522547,
               "unit": "unitless cosine similarity in [0, 1]",
               "comparator": ">=",
               "threshold": 0.99,
@@ -523,14 +526,14 @@
           "pass": true,
           "measurements": {
             "rms_amplitude": {
-              "value": 0.08034937393998426,
+              "value": 0.08036536731486217,
               "unit": "normalized amplitude RMS",
               "comparator": ">",
               "threshold": 0.001,
               "pass": true
             },
             "silent_sample_fraction": {
-              "value": 0.0900701754385965,
+              "value": 0.0907719298245614,
               "unit": "fraction of samples in [0, 1]",
               "comparator": "<=",
               "threshold": 0.995,
@@ -549,7 +552,7 @@
               "pass": true
             },
             "absolute_peak": {
-              "value": 0.46943482756614685,
+              "value": 0.4591633081436157,
               "unit": "normalized amplitude",
               "comparator": "<",
               "threshold": 1.0,
@@ -588,7 +591,7 @@
       "pred_dur_shape_candidate": [
         61
       ],
-      "onnx_infer_seconds": 7.5302
+      "onnx_infer_seconds": 7.1537
     },
     {
       "vector": "diacritics-cyrillic",
@@ -633,14 +636,14 @@
           "pass": true,
           "measurements": {
             "mean_absolute_error": {
-              "value": 0.003120553163179832,
+              "value": 0.00294201322970945,
               "unit": "normalized amplitude",
               "comparator": "<=",
               "threshold": 0.01,
               "pass": true
             },
             "maximum_absolute_error": {
-              "value": 0.043885424733161926,
+              "value": 0.04690207168459892,
               "unit": "normalized amplitude",
               "comparator": "<=",
               "threshold": 0.1,
@@ -652,7 +655,7 @@
           "pass": true,
           "measurements": {
             "stft_magnitude_cosine": {
-              "value": 0.9993917228983283,
+              "value": 0.9994566902159633,
               "unit": "unitless cosine similarity in [0, 1]",
               "comparator": ">=",
               "threshold": 0.99,
@@ -664,14 +667,14 @@
           "pass": true,
           "measurements": {
             "rms_amplitude": {
-              "value": 0.08029528034316824,
+              "value": 0.08034367157140346,
               "unit": "normalized amplitude RMS",
               "comparator": ">",
               "threshold": 0.001,
               "pass": true
             },
             "silent_sample_fraction": {
-              "value": 0.09020942408376964,
+              "value": 0.09146596858638743,
               "unit": "fraction of samples in [0, 1]",
               "comparator": "<=",
               "threshold": 0.995,
@@ -690,7 +693,7 @@
               "pass": true
             },
             "absolute_peak": {
-              "value": 0.48263269662857056,
+              "value": 0.4752540588378906,
               "unit": "normalized amplitude",
               "comparator": "<",
               "threshold": 1.0,
@@ -729,7 +732,7 @@
       "pred_dur_shape_candidate": [
         61
       ],
-      "onnx_infer_seconds": 7.6291
+      "onnx_infer_seconds": 7.3666
     },
     {
       "vector": "mixed-digits",
@@ -774,14 +777,14 @@
           "pass": true,
           "measurements": {
             "mean_absolute_error": {
-              "value": 0.0032145045527323703,
+              "value": 0.003205663570719304,
               "unit": "normalized amplitude",
               "comparator": "<=",
               "threshold": 0.01,
               "pass": true
             },
             "maximum_absolute_error": {
-              "value": 0.05744331330060959,
+              "value": 0.05396397411823273,
               "unit": "normalized amplitude",
               "comparator": "<=",
               "threshold": 0.1,
@@ -793,7 +796,7 @@
           "pass": true,
           "measurements": {
             "stft_magnitude_cosine": {
-              "value": 0.9994508121622256,
+              "value": 0.9994605087480671,
               "unit": "unitless cosine similarity in [0, 1]",
               "comparator": ">=",
               "threshold": 0.99,
@@ -805,14 +808,14 @@
           "pass": true,
           "measurements": {
             "rms_amplitude": {
-              "value": 0.08517461418313142,
+              "value": 0.08521588065274237,
               "unit": "normalized amplitude RMS",
               "comparator": ">",
               "threshold": 0.001,
               "pass": true
             },
             "silent_sample_fraction": {
-              "value": 0.09639455782312925,
+              "value": 0.09628401360544217,
               "unit": "fraction of samples in [0, 1]",
               "comparator": "<=",
               "threshold": 0.995,
@@ -831,7 +834,7 @@
               "pass": true
             },
             "absolute_peak": {
-              "value": 0.47750258445739746,
+              "value": 0.47741496562957764,
               "unit": "normalized amplitude",
               "comparator": "<",
               "threshold": 1.0,
@@ -870,7 +873,7 @@
       "pred_dur_shape_candidate": [
         66
       ],
-      "onnx_infer_seconds": 7.7286
+      "onnx_infer_seconds": 7.2229
     },
     {
       "vector": "punctuation",
@@ -915,14 +918,14 @@
           "pass": true,
           "measurements": {
             "mean_absolute_error": {
-              "value": 0.003402252476431668,
+              "value": 0.003519236076313055,
               "unit": "normalized amplitude",
               "comparator": "<=",
               "threshold": 0.01,
               "pass": true
             },
             "maximum_absolute_error": {
-              "value": 0.04989439249038696,
+              "value": 0.05185667239129543,
               "unit": "normalized amplitude",
               "comparator": "<=",
               "threshold": 0.1,
@@ -934,7 +937,7 @@
           "pass": true,
           "measurements": {
             "stft_magnitude_cosine": {
-              "value": 0.9993543444867882,
+              "value": 0.9993700487928473,
               "unit": "unitless cosine similarity in [0, 1]",
               "comparator": ">=",
               "threshold": 0.99,
@@ -946,14 +949,14 @@
           "pass": true,
           "measurements": {
             "rms_amplitude": {
-              "value": 0.08142094401903063,
+              "value": 0.08144990234822644,
               "unit": "normalized amplitude RMS",
               "comparator": ">",
               "threshold": 0.001,
               "pass": true
             },
             "silent_sample_fraction": {
-              "value": 0.11412935323383085,
+              "value": 0.11436567164179104,
               "unit": "fraction of samples in [0, 1]",
               "comparator": "<=",
               "threshold": 0.995,
@@ -972,7 +975,7 @@
               "pass": true
             },
             "absolute_peak": {
-              "value": 0.40765103697776794,
+              "value": 0.40502241253852844,
               "unit": "normalized amplitude",
               "comparator": "<",
               "threshold": 1.0,
@@ -1011,7 +1014,7 @@
       "pred_dur_shape_candidate": [
         45
       ],
-      "onnx_infer_seconds": 5.1579
+      "onnx_infer_seconds": 5.0225
     },
     {
       "vector": "cyrillic-punctuation",
@@ -1056,14 +1059,14 @@
           "pass": true,
           "measurements": {
             "mean_absolute_error": {
-              "value": 0.003281279800461064,
+              "value": 0.0031235471936849673,
               "unit": "normalized amplitude",
               "comparator": "<=",
               "threshold": 0.01,
               "pass": true
             },
             "maximum_absolute_error": {
-              "value": 0.06039850786328316,
+              "value": 0.050172820687294006,
               "unit": "normalized amplitude",
               "comparator": "<=",
               "threshold": 0.1,
@@ -1075,7 +1078,7 @@
           "pass": true,
           "measurements": {
             "stft_magnitude_cosine": {
-              "value": 0.9994499530322298,
+              "value": 0.9994141602239809,
               "unit": "unitless cosine similarity in [0, 1]",
               "comparator": ">=",
               "threshold": 0.99,
@@ -1087,14 +1090,14 @@
           "pass": true,
           "measurements": {
             "rms_amplitude": {
-              "value": 0.08137150755504381,
+              "value": 0.08144760588731365,
               "unit": "normalized amplitude RMS",
               "comparator": ">",
               "threshold": 0.001,
               "pass": true
             },
             "silent_sample_fraction": {
-              "value": 0.1175,
+              "value": 0.11729487179487179,
               "unit": "fraction of samples in [0, 1]",
               "comparator": "<=",
               "threshold": 0.995,
@@ -1113,7 +1116,7 @@
               "pass": true
             },
             "absolute_peak": {
-              "value": 0.38907936215400696,
+              "value": 0.3977546691894531,
               "unit": "normalized amplitude",
               "comparator": "<",
               "threshold": 1.0,
@@ -1152,8 +1155,2691 @@
       "pred_dur_shape_candidate": [
         43
       ],
-      "onnx_infer_seconds": 4.9164
+      "onnx_infer_seconds": 4.9223
+    },
+    {
+      "vector": "digraphs-latin",
+      "reference": {
+        "dtype": "float32",
+        "shape": [
+          80400
+        ],
+        "sample_count": 80400,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "candidate": {
+        "dtype": "float32",
+        "shape": [
+          80400
+        ],
+        "sample_count": 80400,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "metrics": {
+        "sample_count": {
+          "pass": true,
+          "measurements": {
+            "absolute_difference_samples": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        },
+        "waveform_error": {
+          "pass": true,
+          "measurements": {
+            "mean_absolute_error": {
+              "value": 0.002866505754273956,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.01,
+              "pass": true
+            },
+            "maximum_absolute_error": {
+              "value": 0.06269627809524536,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.1,
+              "pass": true
+            }
+          }
+        },
+        "spectral_similarity": {
+          "pass": true,
+          "measurements": {
+            "stft_magnitude_cosine": {
+              "value": 0.9994479772454706,
+              "unit": "unitless cosine similarity in [0, 1]",
+              "comparator": ">=",
+              "threshold": 0.99,
+              "pass": true
+            }
+          }
+        },
+        "silence": {
+          "pass": true,
+          "measurements": {
+            "rms_amplitude": {
+              "value": 0.08029655339632193,
+              "unit": "normalized amplitude RMS",
+              "comparator": ">",
+              "threshold": 0.001,
+              "pass": true
+            },
+            "silent_sample_fraction": {
+              "value": 0.11235074626865672,
+              "unit": "fraction of samples in [0, 1]",
+              "comparator": "<=",
+              "threshold": 0.995,
+              "pass": true
+            }
+          }
+        },
+        "clipping": {
+          "pass": true,
+          "measurements": {
+            "clipped_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "absolute_peak": {
+              "value": 0.37664151191711426,
+              "unit": "normalized amplitude",
+              "comparator": "<",
+              "threshold": 1.0,
+              "pass": true
+            }
+          }
+        },
+        "invalid_values": {
+          "pass": true,
+          "measurements": {
+            "non_finite_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "invalid_output_count": {
+              "value": 0,
+              "unit": "outputs",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        }
+      },
+      "failures": [],
+      "ok": true,
+      "expected_sample_count": 80400,
+      "reference_sample_count_matches_vector": true,
+      "pred_dur_match": true,
+      "pred_dur_shape_reference": [
+        39
+      ],
+      "pred_dur_shape_candidate": [
+        39
+      ],
+      "onnx_infer_seconds": 5.0188
+    },
+    {
+      "vector": "digraphs-cyrillic",
+      "reference": {
+        "dtype": "float32",
+        "shape": [
+          80400
+        ],
+        "sample_count": 80400,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "candidate": {
+        "dtype": "float32",
+        "shape": [
+          80400
+        ],
+        "sample_count": 80400,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "metrics": {
+        "sample_count": {
+          "pass": true,
+          "measurements": {
+            "absolute_difference_samples": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        },
+        "waveform_error": {
+          "pass": true,
+          "measurements": {
+            "mean_absolute_error": {
+              "value": 0.0029703967171398585,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.01,
+              "pass": true
+            },
+            "maximum_absolute_error": {
+              "value": 0.04853079468011856,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.1,
+              "pass": true
+            }
+          }
+        },
+        "spectral_similarity": {
+          "pass": true,
+          "measurements": {
+            "stft_magnitude_cosine": {
+              "value": 0.9994850037007247,
+              "unit": "unitless cosine similarity in [0, 1]",
+              "comparator": ">=",
+              "threshold": 0.99,
+              "pass": true
+            }
+          }
+        },
+        "silence": {
+          "pass": true,
+          "measurements": {
+            "rms_amplitude": {
+              "value": 0.08027862148122804,
+              "unit": "normalized amplitude RMS",
+              "comparator": ">",
+              "threshold": 0.001,
+              "pass": true
+            },
+            "silent_sample_fraction": {
+              "value": 0.11237562189054727,
+              "unit": "fraction of samples in [0, 1]",
+              "comparator": "<=",
+              "threshold": 0.995,
+              "pass": true
+            }
+          }
+        },
+        "clipping": {
+          "pass": true,
+          "measurements": {
+            "clipped_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "absolute_peak": {
+              "value": 0.37586188316345215,
+              "unit": "normalized amplitude",
+              "comparator": "<",
+              "threshold": 1.0,
+              "pass": true
+            }
+          }
+        },
+        "invalid_values": {
+          "pass": true,
+          "measurements": {
+            "non_finite_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "invalid_output_count": {
+              "value": 0,
+              "unit": "outputs",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        }
+      },
+      "failures": [],
+      "ok": true,
+      "expected_sample_count": 80400,
+      "reference_sample_count_matches_vector": true,
+      "pred_dur_match": true,
+      "pred_dur_shape_reference": [
+        39
+      ],
+      "pred_dur_shape_candidate": [
+        39
+      ],
+      "onnx_infer_seconds": 5.1099
+    },
+    {
+      "vector": "mixed-scripts",
+      "reference": {
+        "dtype": "float32",
+        "shape": [
+          82800
+        ],
+        "sample_count": 82800,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "candidate": {
+        "dtype": "float32",
+        "shape": [
+          82800
+        ],
+        "sample_count": 82800,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "metrics": {
+        "sample_count": {
+          "pass": true,
+          "measurements": {
+            "absolute_difference_samples": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        },
+        "waveform_error": {
+          "pass": true,
+          "measurements": {
+            "mean_absolute_error": {
+              "value": 0.002858466768674289,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.01,
+              "pass": true
+            },
+            "maximum_absolute_error": {
+              "value": 0.04466843605041504,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.1,
+              "pass": true
+            }
+          }
+        },
+        "spectral_similarity": {
+          "pass": true,
+          "measurements": {
+            "stft_magnitude_cosine": {
+              "value": 0.9994950930171685,
+              "unit": "unitless cosine similarity in [0, 1]",
+              "comparator": ">=",
+              "threshold": 0.99,
+              "pass": true
+            }
+          }
+        },
+        "silence": {
+          "pass": true,
+          "measurements": {
+            "rms_amplitude": {
+              "value": 0.07962597534229798,
+              "unit": "normalized amplitude RMS",
+              "comparator": ">",
+              "threshold": 0.001,
+              "pass": true
+            },
+            "silent_sample_fraction": {
+              "value": 0.11520531400966183,
+              "unit": "fraction of samples in [0, 1]",
+              "comparator": "<=",
+              "threshold": 0.995,
+              "pass": true
+            }
+          }
+        },
+        "clipping": {
+          "pass": true,
+          "measurements": {
+            "clipped_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "absolute_peak": {
+              "value": 0.38277652859687805,
+              "unit": "normalized amplitude",
+              "comparator": "<",
+              "threshold": 1.0,
+              "pass": true
+            }
+          }
+        },
+        "invalid_values": {
+          "pass": true,
+          "measurements": {
+            "non_finite_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "invalid_output_count": {
+              "value": 0,
+              "unit": "outputs",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        }
+      },
+      "failures": [],
+      "ok": true,
+      "expected_sample_count": 82800,
+      "reference_sample_count_matches_vector": true,
+      "pred_dur_match": true,
+      "pred_dur_shape_reference": [
+        43
+      ],
+      "pred_dur_shape_candidate": [
+        43
+      ],
+      "onnx_infer_seconds": 5.238
+    },
+    {
+      "vector": "foreign-names",
+      "reference": {
+        "dtype": "float32",
+        "shape": [
+          98400
+        ],
+        "sample_count": 98400,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "candidate": {
+        "dtype": "float32",
+        "shape": [
+          98400
+        ],
+        "sample_count": 98400,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "metrics": {
+        "sample_count": {
+          "pass": true,
+          "measurements": {
+            "absolute_difference_samples": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        },
+        "waveform_error": {
+          "pass": true,
+          "measurements": {
+            "mean_absolute_error": {
+              "value": 0.0029426426504070282,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.01,
+              "pass": true
+            },
+            "maximum_absolute_error": {
+              "value": 0.04645170271396637,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.1,
+              "pass": true
+            }
+          }
+        },
+        "spectral_similarity": {
+          "pass": true,
+          "measurements": {
+            "stft_magnitude_cosine": {
+              "value": 0.9994772966959161,
+              "unit": "unitless cosine similarity in [0, 1]",
+              "comparator": ">=",
+              "threshold": 0.99,
+              "pass": true
+            }
+          }
+        },
+        "silence": {
+          "pass": true,
+          "measurements": {
+            "rms_amplitude": {
+              "value": 0.07869552492353797,
+              "unit": "normalized amplitude RMS",
+              "comparator": ">",
+              "threshold": 0.001,
+              "pass": true
+            },
+            "silent_sample_fraction": {
+              "value": 0.10498983739837399,
+              "unit": "fraction of samples in [0, 1]",
+              "comparator": "<=",
+              "threshold": 0.995,
+              "pass": true
+            }
+          }
+        },
+        "clipping": {
+          "pass": true,
+          "measurements": {
+            "clipped_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "absolute_peak": {
+              "value": 0.3815239667892456,
+              "unit": "normalized amplitude",
+              "comparator": "<",
+              "threshold": 1.0,
+              "pass": true
+            }
+          }
+        },
+        "invalid_values": {
+          "pass": true,
+          "measurements": {
+            "non_finite_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "invalid_output_count": {
+              "value": 0,
+              "unit": "outputs",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        }
+      },
+      "failures": [],
+      "ok": true,
+      "expected_sample_count": 98400,
+      "reference_sample_count_matches_vector": true,
+      "pred_dur_match": true,
+      "pred_dur_shape_reference": [
+        55
+      ],
+      "pred_dur_shape_candidate": [
+        55
+      ],
+      "onnx_infer_seconds": 6.2765
+    },
+    {
+      "vector": "abbreviations",
+      "reference": {
+        "dtype": "float32",
+        "shape": [
+          126600
+        ],
+        "sample_count": 126600,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "candidate": {
+        "dtype": "float32",
+        "shape": [
+          126600
+        ],
+        "sample_count": 126600,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "metrics": {
+        "sample_count": {
+          "pass": true,
+          "measurements": {
+            "absolute_difference_samples": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        },
+        "waveform_error": {
+          "pass": true,
+          "measurements": {
+            "mean_absolute_error": {
+              "value": 0.003153715854051852,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.01,
+              "pass": true
+            },
+            "maximum_absolute_error": {
+              "value": 0.058733224868774414,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.1,
+              "pass": true
+            }
+          }
+        },
+        "spectral_similarity": {
+          "pass": true,
+          "measurements": {
+            "stft_magnitude_cosine": {
+              "value": 0.999413150552011,
+              "unit": "unitless cosine similarity in [0, 1]",
+              "comparator": ">=",
+              "threshold": 0.99,
+              "pass": true
+            }
+          }
+        },
+        "silence": {
+          "pass": true,
+          "measurements": {
+            "rms_amplitude": {
+              "value": 0.08200503627895374,
+              "unit": "normalized amplitude RMS",
+              "comparator": ">",
+              "threshold": 0.001,
+              "pass": true
+            },
+            "silent_sample_fraction": {
+              "value": 0.1000473933649289,
+              "unit": "fraction of samples in [0, 1]",
+              "comparator": "<=",
+              "threshold": 0.995,
+              "pass": true
+            }
+          }
+        },
+        "clipping": {
+          "pass": true,
+          "measurements": {
+            "clipped_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "absolute_peak": {
+              "value": 0.44560033082962036,
+              "unit": "normalized amplitude",
+              "comparator": "<",
+              "threshold": 1.0,
+              "pass": true
+            }
+          }
+        },
+        "invalid_values": {
+          "pass": true,
+          "measurements": {
+            "non_finite_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "invalid_output_count": {
+              "value": 0,
+              "unit": "outputs",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        }
+      },
+      "failures": [],
+      "ok": true,
+      "expected_sample_count": 126600,
+      "reference_sample_count_matches_vector": true,
+      "pred_dur_match": true,
+      "pred_dur_shape_reference": [
+        73
+      ],
+      "pred_dur_shape_candidate": [
+        73
+      ],
+      "onnx_infer_seconds": 7.7932
+    },
+    {
+      "vector": "numbers-expanded",
+      "reference": {
+        "dtype": "float32",
+        "shape": [
+          256200
+        ],
+        "sample_count": 256200,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "candidate": {
+        "dtype": "float32",
+        "shape": [
+          256200
+        ],
+        "sample_count": 256200,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "metrics": {
+        "sample_count": {
+          "pass": true,
+          "measurements": {
+            "absolute_difference_samples": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        },
+        "waveform_error": {
+          "pass": true,
+          "measurements": {
+            "mean_absolute_error": {
+              "value": 0.003120721941308663,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.01,
+              "pass": true
+            },
+            "maximum_absolute_error": {
+              "value": 0.08421120420098305,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.1,
+              "pass": true
+            }
+          }
+        },
+        "spectral_similarity": {
+          "pass": true,
+          "measurements": {
+            "stft_magnitude_cosine": {
+              "value": 0.9993823817031885,
+              "unit": "unitless cosine similarity in [0, 1]",
+              "comparator": ">=",
+              "threshold": 0.99,
+              "pass": true
+            }
+          }
+        },
+        "silence": {
+          "pass": true,
+          "measurements": {
+            "rms_amplitude": {
+              "value": 0.07750057245184998,
+              "unit": "normalized amplitude RMS",
+              "comparator": ">",
+              "threshold": 0.001,
+              "pass": true
+            },
+            "silent_sample_fraction": {
+              "value": 0.05767369242779079,
+              "unit": "fraction of samples in [0, 1]",
+              "comparator": "<=",
+              "threshold": 0.995,
+              "pass": true
+            }
+          }
+        },
+        "clipping": {
+          "pass": true,
+          "measurements": {
+            "clipped_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "absolute_peak": {
+              "value": 0.41389477252960205,
+              "unit": "normalized amplitude",
+              "comparator": "<",
+              "threshold": 1.0,
+              "pass": true
+            }
+          }
+        },
+        "invalid_values": {
+          "pass": true,
+          "measurements": {
+            "non_finite_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "invalid_output_count": {
+              "value": 0,
+              "unit": "outputs",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        }
+      },
+      "failures": [],
+      "ok": true,
+      "expected_sample_count": 256200,
+      "reference_sample_count_matches_vector": true,
+      "pred_dur_match": true,
+      "pred_dur_shape_reference": [
+        149
+      ],
+      "pred_dur_shape_candidate": [
+        149
+      ],
+      "onnx_infer_seconds": 16.2306
+    },
+    {
+      "vector": "dates",
+      "reference": {
+        "dtype": "float32",
+        "shape": [
+          159000
+        ],
+        "sample_count": 159000,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "candidate": {
+        "dtype": "float32",
+        "shape": [
+          159000
+        ],
+        "sample_count": 159000,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "metrics": {
+        "sample_count": {
+          "pass": true,
+          "measurements": {
+            "absolute_difference_samples": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        },
+        "waveform_error": {
+          "pass": true,
+          "measurements": {
+            "mean_absolute_error": {
+              "value": 0.003089417682123165,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.01,
+              "pass": true
+            },
+            "maximum_absolute_error": {
+              "value": 0.07398201525211334,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.1,
+              "pass": true
+            }
+          }
+        },
+        "spectral_similarity": {
+          "pass": true,
+          "measurements": {
+            "stft_magnitude_cosine": {
+              "value": 0.9994300118395645,
+              "unit": "unitless cosine similarity in [0, 1]",
+              "comparator": ">=",
+              "threshold": 0.99,
+              "pass": true
+            }
+          }
+        },
+        "silence": {
+          "pass": true,
+          "measurements": {
+            "rms_amplitude": {
+              "value": 0.08351899620177371,
+              "unit": "normalized amplitude RMS",
+              "comparator": ">",
+              "threshold": 0.001,
+              "pass": true
+            },
+            "silent_sample_fraction": {
+              "value": 0.08266037735849056,
+              "unit": "fraction of samples in [0, 1]",
+              "comparator": "<=",
+              "threshold": 0.995,
+              "pass": true
+            }
+          }
+        },
+        "clipping": {
+          "pass": true,
+          "measurements": {
+            "clipped_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "absolute_peak": {
+              "value": 0.4568839371204376,
+              "unit": "normalized amplitude",
+              "comparator": "<",
+              "threshold": 1.0,
+              "pass": true
+            }
+          }
+        },
+        "invalid_values": {
+          "pass": true,
+          "measurements": {
+            "non_finite_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "invalid_output_count": {
+              "value": 0,
+              "unit": "outputs",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        }
+      },
+      "failures": [],
+      "ok": true,
+      "expected_sample_count": 159000,
+      "reference_sample_count_matches_vector": true,
+      "pred_dur_match": true,
+      "pred_dur_shape_reference": [
+        90
+      ],
+      "pred_dur_shape_candidate": [
+        90
+      ],
+      "onnx_infer_seconds": 10.143
+    },
+    {
+      "vector": "currencies",
+      "reference": {
+        "dtype": "float32",
+        "shape": [
+          186600
+        ],
+        "sample_count": 186600,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "candidate": {
+        "dtype": "float32",
+        "shape": [
+          186600
+        ],
+        "sample_count": 186600,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "metrics": {
+        "sample_count": {
+          "pass": true,
+          "measurements": {
+            "absolute_difference_samples": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        },
+        "waveform_error": {
+          "pass": true,
+          "measurements": {
+            "mean_absolute_error": {
+              "value": 0.0031933467016442697,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.01,
+              "pass": true
+            },
+            "maximum_absolute_error": {
+              "value": 0.07054974511265755,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.1,
+              "pass": true
+            }
+          }
+        },
+        "spectral_similarity": {
+          "pass": true,
+          "measurements": {
+            "stft_magnitude_cosine": {
+              "value": 0.9993959485141712,
+              "unit": "unitless cosine similarity in [0, 1]",
+              "comparator": ">=",
+              "threshold": 0.99,
+              "pass": true
+            }
+          }
+        },
+        "silence": {
+          "pass": true,
+          "measurements": {
+            "rms_amplitude": {
+              "value": 0.08178232593877387,
+              "unit": "normalized amplitude RMS",
+              "comparator": ">",
+              "threshold": 0.001,
+              "pass": true
+            },
+            "silent_sample_fraction": {
+              "value": 0.07684887459807074,
+              "unit": "fraction of samples in [0, 1]",
+              "comparator": "<=",
+              "threshold": 0.995,
+              "pass": true
+            }
+          }
+        },
+        "clipping": {
+          "pass": true,
+          "measurements": {
+            "clipped_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "absolute_peak": {
+              "value": 0.4375736117362976,
+              "unit": "normalized amplitude",
+              "comparator": "<",
+              "threshold": 1.0,
+              "pass": true
+            }
+          }
+        },
+        "invalid_values": {
+          "pass": true,
+          "measurements": {
+            "non_finite_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "invalid_output_count": {
+              "value": 0,
+              "unit": "outputs",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        }
+      },
+      "failures": [],
+      "ok": true,
+      "expected_sample_count": 186600,
+      "reference_sample_count_matches_vector": true,
+      "pred_dur_match": true,
+      "pred_dur_shape_reference": [
+        109
+      ],
+      "pred_dur_shape_candidate": [
+        109
+      ],
+      "onnx_infer_seconds": 12.1145
+    },
+    {
+      "vector": "measurements",
+      "reference": {
+        "dtype": "float32",
+        "shape": [
+          184800
+        ],
+        "sample_count": 184800,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "candidate": {
+        "dtype": "float32",
+        "shape": [
+          184800
+        ],
+        "sample_count": 184800,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "metrics": {
+        "sample_count": {
+          "pass": true,
+          "measurements": {
+            "absolute_difference_samples": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        },
+        "waveform_error": {
+          "pass": true,
+          "measurements": {
+            "mean_absolute_error": {
+              "value": 0.0033346542885540173,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.01,
+              "pass": true
+            },
+            "maximum_absolute_error": {
+              "value": 0.08617006242275238,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.1,
+              "pass": true
+            }
+          }
+        },
+        "spectral_similarity": {
+          "pass": true,
+          "measurements": {
+            "stft_magnitude_cosine": {
+              "value": 0.9993505987597605,
+              "unit": "unitless cosine similarity in [0, 1]",
+              "comparator": ">=",
+              "threshold": 0.99,
+              "pass": true
+            }
+          }
+        },
+        "silence": {
+          "pass": true,
+          "measurements": {
+            "rms_amplitude": {
+              "value": 0.08270518823891419,
+              "unit": "normalized amplitude RMS",
+              "comparator": ">",
+              "threshold": 0.001,
+              "pass": true
+            },
+            "silent_sample_fraction": {
+              "value": 0.07864177489177489,
+              "unit": "fraction of samples in [0, 1]",
+              "comparator": "<=",
+              "threshold": 0.995,
+              "pass": true
+            }
+          }
+        },
+        "clipping": {
+          "pass": true,
+          "measurements": {
+            "clipped_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "absolute_peak": {
+              "value": 0.4737904667854309,
+              "unit": "normalized amplitude",
+              "comparator": "<",
+              "threshold": 1.0,
+              "pass": true
+            }
+          }
+        },
+        "invalid_values": {
+          "pass": true,
+          "measurements": {
+            "non_finite_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "invalid_output_count": {
+              "value": 0,
+              "unit": "outputs",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        }
+      },
+      "failures": [],
+      "ok": true,
+      "expected_sample_count": 184800,
+      "reference_sample_count_matches_vector": true,
+      "pred_dur_match": true,
+      "pred_dur_shape_reference": [
+        114
+      ],
+      "pred_dur_shape_candidate": [
+        114
+      ],
+      "onnx_infer_seconds": 11.1572
+    },
+    {
+      "vector": "roman-numerals",
+      "reference": {
+        "dtype": "float32",
+        "shape": [
+          150000
+        ],
+        "sample_count": 150000,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "candidate": {
+        "dtype": "float32",
+        "shape": [
+          150000
+        ],
+        "sample_count": 150000,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "metrics": {
+        "sample_count": {
+          "pass": true,
+          "measurements": {
+            "absolute_difference_samples": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        },
+        "waveform_error": {
+          "pass": true,
+          "measurements": {
+            "mean_absolute_error": {
+              "value": 0.0032008907161261103,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.01,
+              "pass": true
+            },
+            "maximum_absolute_error": {
+              "value": 0.05287345498800278,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.1,
+              "pass": true
+            }
+          }
+        },
+        "spectral_similarity": {
+          "pass": true,
+          "measurements": {
+            "stft_magnitude_cosine": {
+              "value": 0.9993396297114556,
+              "unit": "unitless cosine similarity in [0, 1]",
+              "comparator": ">=",
+              "threshold": 0.99,
+              "pass": true
+            }
+          }
+        },
+        "silence": {
+          "pass": true,
+          "measurements": {
+            "rms_amplitude": {
+              "value": 0.08005364673950902,
+              "unit": "normalized amplitude RMS",
+              "comparator": ">",
+              "threshold": 0.001,
+              "pass": true
+            },
+            "silent_sample_fraction": {
+              "value": 0.08790666666666666,
+              "unit": "fraction of samples in [0, 1]",
+              "comparator": "<=",
+              "threshold": 0.995,
+              "pass": true
+            }
+          }
+        },
+        "clipping": {
+          "pass": true,
+          "measurements": {
+            "clipped_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "absolute_peak": {
+              "value": 0.40665972232818604,
+              "unit": "normalized amplitude",
+              "comparator": "<",
+              "threshold": 1.0,
+              "pass": true
+            }
+          }
+        },
+        "invalid_values": {
+          "pass": true,
+          "measurements": {
+            "non_finite_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "invalid_output_count": {
+              "value": 0,
+              "unit": "outputs",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        }
+      },
+      "failures": [],
+      "ok": true,
+      "expected_sample_count": 150000,
+      "reference_sample_count_matches_vector": true,
+      "pred_dur_match": true,
+      "pred_dur_shape_reference": [
+        88
+      ],
+      "pred_dur_shape_candidate": [
+        88
+      ],
+      "onnx_infer_seconds": 9.2073
+    },
+    {
+      "vector": "punctuation-extended",
+      "reference": {
+        "dtype": "float32",
+        "shape": [
+          61200
+        ],
+        "sample_count": 61200,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "candidate": {
+        "dtype": "float32",
+        "shape": [
+          61200
+        ],
+        "sample_count": 61200,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "metrics": {
+        "sample_count": {
+          "pass": true,
+          "measurements": {
+            "absolute_difference_samples": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        },
+        "waveform_error": {
+          "pass": true,
+          "measurements": {
+            "mean_absolute_error": {
+              "value": 0.0034692683590315148,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.01,
+              "pass": true
+            },
+            "maximum_absolute_error": {
+              "value": 0.058876343071460724,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.1,
+              "pass": true
+            }
+          }
+        },
+        "spectral_similarity": {
+          "pass": true,
+          "measurements": {
+            "stft_magnitude_cosine": {
+              "value": 0.9993088525361125,
+              "unit": "unitless cosine similarity in [0, 1]",
+              "comparator": ">=",
+              "threshold": 0.99,
+              "pass": true
+            }
+          }
+        },
+        "silence": {
+          "pass": true,
+          "measurements": {
+            "rms_amplitude": {
+              "value": 0.07704057843467749,
+              "unit": "normalized amplitude RMS",
+              "comparator": ">",
+              "threshold": 0.001,
+              "pass": true
+            },
+            "silent_sample_fraction": {
+              "value": 0.12723856209150328,
+              "unit": "fraction of samples in [0, 1]",
+              "comparator": "<=",
+              "threshold": 0.995,
+              "pass": true
+            }
+          }
+        },
+        "clipping": {
+          "pass": true,
+          "measurements": {
+            "clipped_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "absolute_peak": {
+              "value": 0.36241456866264343,
+              "unit": "normalized amplitude",
+              "comparator": "<",
+              "threshold": 1.0,
+              "pass": true
+            }
+          }
+        },
+        "invalid_values": {
+          "pass": true,
+          "measurements": {
+            "non_finite_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "invalid_output_count": {
+              "value": 0,
+              "unit": "outputs",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        }
+      },
+      "failures": [],
+      "ok": true,
+      "expected_sample_count": 61200,
+      "reference_sample_count_matches_vector": true,
+      "pred_dur_match": true,
+      "pred_dur_shape_reference": [
+        34
+      ],
+      "pred_dur_shape_candidate": [
+        34
+      ],
+      "onnx_infer_seconds": 3.8191
+    },
+    {
+      "vector": "urls",
+      "reference": {
+        "dtype": "float32",
+        "shape": [
+          184800
+        ],
+        "sample_count": 184800,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "candidate": {
+        "dtype": "float32",
+        "shape": [
+          184800
+        ],
+        "sample_count": 184800,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "metrics": {
+        "sample_count": {
+          "pass": true,
+          "measurements": {
+            "absolute_difference_samples": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        },
+        "waveform_error": {
+          "pass": true,
+          "measurements": {
+            "mean_absolute_error": {
+              "value": 0.0028320726176666875,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.01,
+              "pass": true
+            },
+            "maximum_absolute_error": {
+              "value": 0.06095246225595474,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.1,
+              "pass": true
+            }
+          }
+        },
+        "spectral_similarity": {
+          "pass": true,
+          "measurements": {
+            "stft_magnitude_cosine": {
+              "value": 0.9994940691132423,
+              "unit": "unitless cosine similarity in [0, 1]",
+              "comparator": ">=",
+              "threshold": 0.99,
+              "pass": true
+            }
+          }
+        },
+        "silence": {
+          "pass": true,
+          "measurements": {
+            "rms_amplitude": {
+              "value": 0.07978637315302214,
+              "unit": "normalized amplitude RMS",
+              "comparator": ">",
+              "threshold": 0.001,
+              "pass": true
+            },
+            "silent_sample_fraction": {
+              "value": 0.06766774891774892,
+              "unit": "fraction of samples in [0, 1]",
+              "comparator": "<=",
+              "threshold": 0.995,
+              "pass": true
+            }
+          }
+        },
+        "clipping": {
+          "pass": true,
+          "measurements": {
+            "clipped_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "absolute_peak": {
+              "value": 0.46442148089408875,
+              "unit": "normalized amplitude",
+              "comparator": "<",
+              "threshold": 1.0,
+              "pass": true
+            }
+          }
+        },
+        "invalid_values": {
+          "pass": true,
+          "measurements": {
+            "non_finite_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "invalid_output_count": {
+              "value": 0,
+              "unit": "outputs",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        }
+      },
+      "failures": [],
+      "ok": true,
+      "expected_sample_count": 184800,
+      "reference_sample_count_matches_vector": true,
+      "pred_dur_match": true,
+      "pred_dur_shape_reference": [
+        113
+      ],
+      "pred_dur_shape_candidate": [
+        113
+      ],
+      "onnx_infer_seconds": 11.4568
+    },
+    {
+      "vector": "email",
+      "reference": {
+        "dtype": "float32",
+        "shape": [
+          214800
+        ],
+        "sample_count": 214800,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "candidate": {
+        "dtype": "float32",
+        "shape": [
+          214800
+        ],
+        "sample_count": 214800,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "metrics": {
+        "sample_count": {
+          "pass": true,
+          "measurements": {
+            "absolute_difference_samples": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        },
+        "waveform_error": {
+          "pass": true,
+          "measurements": {
+            "mean_absolute_error": {
+              "value": 0.003034573042380779,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.01,
+              "pass": true
+            },
+            "maximum_absolute_error": {
+              "value": 0.07253258302807808,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.1,
+              "pass": true
+            }
+          }
+        },
+        "spectral_similarity": {
+          "pass": true,
+          "measurements": {
+            "stft_magnitude_cosine": {
+              "value": 0.9994173474482143,
+              "unit": "unitless cosine similarity in [0, 1]",
+              "comparator": ">=",
+              "threshold": 0.99,
+              "pass": true
+            }
+          }
+        },
+        "silence": {
+          "pass": true,
+          "measurements": {
+            "rms_amplitude": {
+              "value": 0.08080987942188265,
+              "unit": "normalized amplitude RMS",
+              "comparator": ">",
+              "threshold": 0.001,
+              "pass": true
+            },
+            "silent_sample_fraction": {
+              "value": 0.0630586592178771,
+              "unit": "fraction of samples in [0, 1]",
+              "comparator": "<=",
+              "threshold": 0.995,
+              "pass": true
+            }
+          }
+        },
+        "clipping": {
+          "pass": true,
+          "measurements": {
+            "clipped_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "absolute_peak": {
+              "value": 0.4222145080566406,
+              "unit": "normalized amplitude",
+              "comparator": "<",
+              "threshold": 1.0,
+              "pass": true
+            }
+          }
+        },
+        "invalid_values": {
+          "pass": true,
+          "measurements": {
+            "non_finite_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "invalid_output_count": {
+              "value": 0,
+              "unit": "outputs",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        }
+      },
+      "failures": [],
+      "ok": true,
+      "expected_sample_count": 214800,
+      "reference_sample_count_matches_vector": true,
+      "pred_dur_match": true,
+      "pred_dur_shape_reference": [
+        136
+      ],
+      "pred_dur_shape_candidate": [
+        136
+      ],
+      "onnx_infer_seconds": 13.0388
+    },
+    {
+      "vector": "citations",
+      "reference": {
+        "dtype": "float32",
+        "shape": [
+          178200
+        ],
+        "sample_count": 178200,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "candidate": {
+        "dtype": "float32",
+        "shape": [
+          178200
+        ],
+        "sample_count": 178200,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "metrics": {
+        "sample_count": {
+          "pass": true,
+          "measurements": {
+            "absolute_difference_samples": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        },
+        "waveform_error": {
+          "pass": true,
+          "measurements": {
+            "mean_absolute_error": {
+              "value": 0.0030201618434904064,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.01,
+              "pass": true
+            },
+            "maximum_absolute_error": {
+              "value": 0.05606715381145477,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.1,
+              "pass": true
+            }
+          }
+        },
+        "spectral_similarity": {
+          "pass": true,
+          "measurements": {
+            "stft_magnitude_cosine": {
+              "value": 0.9994424587647299,
+              "unit": "unitless cosine similarity in [0, 1]",
+              "comparator": ">=",
+              "threshold": 0.99,
+              "pass": true
+            }
+          }
+        },
+        "silence": {
+          "pass": true,
+          "measurements": {
+            "rms_amplitude": {
+              "value": 0.07943418129291527,
+              "unit": "normalized amplitude RMS",
+              "comparator": ">",
+              "threshold": 0.001,
+              "pass": true
+            },
+            "silent_sample_fraction": {
+              "value": 0.07659371492704826,
+              "unit": "fraction of samples in [0, 1]",
+              "comparator": "<=",
+              "threshold": 0.995,
+              "pass": true
+            }
+          }
+        },
+        "clipping": {
+          "pass": true,
+          "measurements": {
+            "clipped_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "absolute_peak": {
+              "value": 0.46087050437927246,
+              "unit": "normalized amplitude",
+              "comparator": "<",
+              "threshold": 1.0,
+              "pass": true
+            }
+          }
+        },
+        "invalid_values": {
+          "pass": true,
+          "measurements": {
+            "non_finite_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "invalid_output_count": {
+              "value": 0,
+              "unit": "outputs",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        }
+      },
+      "failures": [],
+      "ok": true,
+      "expected_sample_count": 178200,
+      "reference_sample_count_matches_vector": true,
+      "pred_dur_match": true,
+      "pred_dur_shape_reference": [
+        108
+      ],
+      "pred_dur_shape_candidate": [
+        108
+      ],
+      "onnx_infer_seconds": 11.0365
+    },
+    {
+      "vector": "page-artifacts",
+      "reference": {
+        "dtype": "float32",
+        "shape": [
+          105600
+        ],
+        "sample_count": 105600,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "candidate": {
+        "dtype": "float32",
+        "shape": [
+          105600
+        ],
+        "sample_count": 105600,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "metrics": {
+        "sample_count": {
+          "pass": true,
+          "measurements": {
+            "absolute_difference_samples": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        },
+        "waveform_error": {
+          "pass": true,
+          "measurements": {
+            "mean_absolute_error": {
+              "value": 0.00317929381389109,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.01,
+              "pass": true
+            },
+            "maximum_absolute_error": {
+              "value": 0.06077458709478378,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.1,
+              "pass": true
+            }
+          }
+        },
+        "spectral_similarity": {
+          "pass": true,
+          "measurements": {
+            "stft_magnitude_cosine": {
+              "value": 0.9994328517180248,
+              "unit": "unitless cosine similarity in [0, 1]",
+              "comparator": ">=",
+              "threshold": 0.99,
+              "pass": true
+            }
+          }
+        },
+        "silence": {
+          "pass": true,
+          "measurements": {
+            "rms_amplitude": {
+              "value": 0.08510558429590294,
+              "unit": "normalized amplitude RMS",
+              "comparator": ">",
+              "threshold": 0.001,
+              "pass": true
+            },
+            "silent_sample_fraction": {
+              "value": 0.09949810606060606,
+              "unit": "fraction of samples in [0, 1]",
+              "comparator": "<=",
+              "threshold": 0.995,
+              "pass": true
+            }
+          }
+        },
+        "clipping": {
+          "pass": true,
+          "measurements": {
+            "clipped_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "absolute_peak": {
+              "value": 0.4339052140712738,
+              "unit": "normalized amplitude",
+              "comparator": "<",
+              "threshold": 1.0,
+              "pass": true
+            }
+          }
+        },
+        "invalid_values": {
+          "pass": true,
+          "measurements": {
+            "non_finite_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "invalid_output_count": {
+              "value": 0,
+              "unit": "outputs",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        }
+      },
+      "failures": [],
+      "ok": true,
+      "expected_sample_count": 105600,
+      "reference_sample_count_matches_vector": true,
+      "pred_dur_match": true,
+      "pred_dur_shape_reference": [
+        58
+      ],
+      "pred_dur_shape_candidate": [
+        58
+      ],
+      "onnx_infer_seconds": 6.4859
+    },
+    {
+      "vector": "input-limit-below",
+      "reference": {
+        "dtype": "float32",
+        "shape": [
+          756600
+        ],
+        "sample_count": 756600,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "candidate": {
+        "dtype": "float32",
+        "shape": [
+          756600
+        ],
+        "sample_count": 756600,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "metrics": {
+        "sample_count": {
+          "pass": true,
+          "measurements": {
+            "absolute_difference_samples": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        },
+        "waveform_error": {
+          "pass": true,
+          "measurements": {
+            "mean_absolute_error": {
+              "value": 0.0037136533017578994,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.01,
+              "pass": true
+            },
+            "maximum_absolute_error": {
+              "value": 0.0940282829105854,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.1,
+              "pass": true
+            }
+          }
+        },
+        "spectral_similarity": {
+          "pass": true,
+          "measurements": {
+            "stft_magnitude_cosine": {
+              "value": 0.9994275369099775,
+              "unit": "unitless cosine similarity in [0, 1]",
+              "comparator": ">=",
+              "threshold": 0.99,
+              "pass": true
+            }
+          }
+        },
+        "silence": {
+          "pass": true,
+          "measurements": {
+            "rms_amplitude": {
+              "value": 0.07670558435629188,
+              "unit": "normalized amplitude RMS",
+              "comparator": ">",
+              "threshold": 0.001,
+              "pass": true
+            },
+            "silent_sample_fraction": {
+              "value": 0.044818926777689665,
+              "unit": "fraction of samples in [0, 1]",
+              "comparator": "<=",
+              "threshold": 0.995,
+              "pass": true
+            }
+          }
+        },
+        "clipping": {
+          "pass": true,
+          "measurements": {
+            "clipped_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "absolute_peak": {
+              "value": 0.42077672481536865,
+              "unit": "normalized amplitude",
+              "comparator": "<",
+              "threshold": 1.0,
+              "pass": true
+            }
+          }
+        },
+        "invalid_values": {
+          "pass": true,
+          "measurements": {
+            "non_finite_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "invalid_output_count": {
+              "value": 0,
+              "unit": "outputs",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        }
+      },
+      "failures": [],
+      "ok": true,
+      "expected_sample_count": 756600,
+      "reference_sample_count_matches_vector": true,
+      "pred_dur_match": true,
+      "pred_dur_shape_reference": [
+        508
+      ],
+      "pred_dur_shape_candidate": [
+        508
+      ],
+      "onnx_infer_seconds": 47.1487
+    },
+    {
+      "vector": "input-limit-at",
+      "reference": {
+        "dtype": "float32",
+        "shape": [
+          760200
+        ],
+        "sample_count": 760200,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "candidate": {
+        "dtype": "float32",
+        "shape": [
+          760200
+        ],
+        "sample_count": 760200,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "metrics": {
+        "sample_count": {
+          "pass": true,
+          "measurements": {
+            "absolute_difference_samples": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        },
+        "waveform_error": {
+          "pass": false,
+          "measurements": {
+            "mean_absolute_error": {
+              "value": 0.004448058280658709,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.01,
+              "pass": true
+            },
+            "maximum_absolute_error": {
+              "value": 0.12769455835223198,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.1,
+              "pass": false
+            }
+          }
+        },
+        "spectral_similarity": {
+          "pass": true,
+          "measurements": {
+            "stft_magnitude_cosine": {
+              "value": 0.9993909178050677,
+              "unit": "unitless cosine similarity in [0, 1]",
+              "comparator": ">=",
+              "threshold": 0.99,
+              "pass": true
+            }
+          }
+        },
+        "silence": {
+          "pass": true,
+          "measurements": {
+            "rms_amplitude": {
+              "value": 0.07734587677555162,
+              "unit": "normalized amplitude RMS",
+              "comparator": ">",
+              "threshold": 0.001,
+              "pass": true
+            },
+            "silent_sample_fraction": {
+              "value": 0.04644961852144173,
+              "unit": "fraction of samples in [0, 1]",
+              "comparator": "<=",
+              "threshold": 0.995,
+              "pass": true
+            }
+          }
+        },
+        "clipping": {
+          "pass": true,
+          "measurements": {
+            "clipped_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "absolute_peak": {
+              "value": 0.43672245740890503,
+              "unit": "normalized amplitude",
+              "comparator": "<",
+              "threshold": 1.0,
+              "pass": true
+            }
+          }
+        },
+        "invalid_values": {
+          "pass": true,
+          "measurements": {
+            "non_finite_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "invalid_output_count": {
+              "value": 0,
+              "unit": "outputs",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        }
+      },
+      "failures": [
+        "input-limit-at: waveform_error.maximum_absolute_error value=0.12769455835223198 <= threshold=0.1"
+      ],
+      "ok": false,
+      "expected_sample_count": 760200,
+      "reference_sample_count_matches_vector": true,
+      "pred_dur_match": true,
+      "pred_dur_shape_reference": [
+        509
+      ],
+      "pred_dur_shape_candidate": [
+        509
+      ],
+      "onnx_infer_seconds": 48.7157
+    },
+    {
+      "vector": "input-limit-above",
+      "reference": {
+        "dtype": "float32",
+        "shape": [
+          756000
+        ],
+        "sample_count": 756000,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "candidate": {
+        "dtype": "float32",
+        "shape": [
+          756000
+        ],
+        "sample_count": 756000,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "metrics": {
+        "sample_count": {
+          "pass": true,
+          "measurements": {
+            "absolute_difference_samples": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        },
+        "waveform_error": {
+          "pass": true,
+          "measurements": {
+            "mean_absolute_error": {
+              "value": 0.003622796184392429,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.01,
+              "pass": true
+            },
+            "maximum_absolute_error": {
+              "value": 0.09482769668102264,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.1,
+              "pass": true
+            }
+          }
+        },
+        "spectral_similarity": {
+          "pass": true,
+          "measurements": {
+            "stft_magnitude_cosine": {
+              "value": 0.9994106821887939,
+              "unit": "unitless cosine similarity in [0, 1]",
+              "comparator": ">=",
+              "threshold": 0.99,
+              "pass": true
+            }
+          }
+        },
+        "silence": {
+          "pass": true,
+          "measurements": {
+            "rms_amplitude": {
+              "value": 0.07651107366724991,
+              "unit": "normalized amplitude RMS",
+              "comparator": ">",
+              "threshold": 0.001,
+              "pass": true
+            },
+            "silent_sample_fraction": {
+              "value": 0.045470899470899474,
+              "unit": "fraction of samples in [0, 1]",
+              "comparator": "<=",
+              "threshold": 0.995,
+              "pass": true
+            }
+          }
+        },
+        "clipping": {
+          "pass": true,
+          "measurements": {
+            "clipped_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "absolute_peak": {
+              "value": 0.4274080991744995,
+              "unit": "normalized amplitude",
+              "comparator": "<",
+              "threshold": 1.0,
+              "pass": true
+            }
+          }
+        },
+        "invalid_values": {
+          "pass": true,
+          "measurements": {
+            "non_finite_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "invalid_output_count": {
+              "value": 0,
+              "unit": "outputs",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        }
+      },
+      "failures": [],
+      "ok": true,
+      "expected_sample_count": 756000,
+      "reference_sample_count_matches_vector": true,
+      "pred_dur_match": true,
+      "pred_dur_shape_reference": [
+        510
+      ],
+      "pred_dur_shape_candidate": [
+        510
+      ],
+      "onnx_infer_seconds": 48.5652
+    },
+    {
+      "vector": "paragraph-no-sentence-boundary",
+      "reference": {
+        "dtype": "float32",
+        "shape": [
+          799200
+        ],
+        "sample_count": 799200,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "candidate": {
+        "dtype": "float32",
+        "shape": [
+          799200
+        ],
+        "sample_count": 799200,
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "non_finite_sample_count": 0,
+        "invalid_output_count": 0,
+        "contract_ok": true
+      },
+      "metrics": {
+        "sample_count": {
+          "pass": true,
+          "measurements": {
+            "absolute_difference_samples": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        },
+        "waveform_error": {
+          "pass": false,
+          "measurements": {
+            "mean_absolute_error": {
+              "value": 0.00368566841607685,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.01,
+              "pass": true
+            },
+            "maximum_absolute_error": {
+              "value": 0.10132836550474167,
+              "unit": "normalized amplitude",
+              "comparator": "<=",
+              "threshold": 0.1,
+              "pass": false
+            }
+          }
+        },
+        "spectral_similarity": {
+          "pass": true,
+          "measurements": {
+            "stft_magnitude_cosine": {
+              "value": 0.9994128623152039,
+              "unit": "unitless cosine similarity in [0, 1]",
+              "comparator": ">=",
+              "threshold": 0.99,
+              "pass": true
+            }
+          }
+        },
+        "silence": {
+          "pass": true,
+          "measurements": {
+            "rms_amplitude": {
+              "value": 0.07621443665904466,
+              "unit": "normalized amplitude RMS",
+              "comparator": ">",
+              "threshold": 0.001,
+              "pass": true
+            },
+            "silent_sample_fraction": {
+              "value": 0.04975600600600601,
+              "unit": "fraction of samples in [0, 1]",
+              "comparator": "<=",
+              "threshold": 0.995,
+              "pass": true
+            }
+          }
+        },
+        "clipping": {
+          "pass": true,
+          "measurements": {
+            "clipped_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "absolute_peak": {
+              "value": 0.4308834373950958,
+              "unit": "normalized amplitude",
+              "comparator": "<",
+              "threshold": 1.0,
+              "pass": true
+            }
+          }
+        },
+        "invalid_values": {
+          "pass": true,
+          "measurements": {
+            "non_finite_sample_count": {
+              "value": 0,
+              "unit": "samples",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            },
+            "invalid_output_count": {
+              "value": 0,
+              "unit": "outputs",
+              "comparator": "==",
+              "threshold": 0,
+              "pass": true
+            }
+          }
+        }
+      },
+      "failures": [
+        "paragraph-no-sentence-boundary: waveform_error.maximum_absolute_error value=0.10132836550474167 <= threshold=0.1"
+      ],
+      "ok": false,
+      "expected_sample_count": 799200,
+      "reference_sample_count_matches_vector": true,
+      "pred_dur_match": true,
+      "pred_dur_shape_reference": [
+        527
+      ],
+      "pred_dur_shape_candidate": [
+        527
+      ],
+      "onnx_infer_seconds": 52.2617
     }
   ],
-  "elapsed_seconds": 107.677
+  "elapsed_seconds": 831.571
 }

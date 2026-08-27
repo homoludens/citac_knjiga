@@ -24,6 +24,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import torch
 
 torch.set_num_threads(1)
@@ -169,23 +170,35 @@ def run(
         input_ids = None
         ref_s = None
 
-        try:
-            input_ids = torch.tensor([vector["token_ids"]], dtype=torch.int64)
-            ref_s = wrapper.voice_table[vector["voice_row_index"]].to(torch.float32)
-        except Exception as exc:
-            errors.append(f"input setup: {type(exc).__name__}: {exc}")
+        boundaries = vector.get("chunk_boundaries", [{"start": 0, "end": len(vector["phonemes"])}])
+        pytorch_waveforms = []
+        pytorch_pred_durations = []
+        onnx_waveforms = []
+        onnx_pred_durations = []
+        onnx_seconds = 0.0
+        for boundary in boundaries:
+            start = boundary["start"]
+            end = boundary["end"]
+            chunk_token_ids = [0, *vector["token_ids"][start + 1:end + 1], 0]
+            try:
+                input_ids = torch.tensor([chunk_token_ids], dtype=torch.int64)
+                ref_s = wrapper.voice_table[min(end - start, 509)].to(torch.float32)
+            except Exception as exc:
+                errors.append(f"input setup: {type(exc).__name__}: {exc}")
+                break
 
-        if not errors:
             try:
                 torch.manual_seed(seed)
                 with torch.inference_mode():
-                    pytorch_waveform, pytorch_pred_dur = pytorch_model(
+                    chunk_waveform, chunk_pred_dur = pytorch_model(
                         input_ids, ref_s, speed
                     )
+                pytorch_waveforms.append(chunk_waveform.detach().cpu().numpy())
+                pytorch_pred_durations.append(chunk_pred_dur.detach().cpu().numpy())
             except Exception as exc:  # continue so every vector is attempted
                 errors.append(f"PyTorch: {type(exc).__name__}: {exc}")
+                break
 
-        if input_ids is not None and ref_s is not None:
             try:
                 started_onnx = time.monotonic()
                 outputs = session.run(
@@ -196,25 +209,31 @@ def run(
                         "speed": torch.tensor(speed, dtype=torch.float32).numpy(),
                     },
                 )
-                onnx_seconds = time.monotonic() - started_onnx
+                onnx_seconds += time.monotonic() - started_onnx
                 output_by_name = dict(zip(output_names, outputs))
-                onnx_waveform = output_by_name["waveform"]
-                onnx_pred_dur = output_by_name["pred_dur"]
+                onnx_waveforms.append(output_by_name["waveform"])
+                onnx_pred_durations.append(output_by_name["pred_dur"])
             except Exception as exc:  # continue so every vector is attempted
-                onnx_seconds = None
                 errors.append(f"ONNX Runtime: {type(exc).__name__}: {exc}")
+                break
+
+        if not errors:
+            pytorch_waveform = np.concatenate(pytorch_waveforms)
+            pytorch_pred_dur = np.concatenate(pytorch_pred_durations)
+            onnx_waveform = np.concatenate(onnx_waveforms)
+            onnx_pred_dur = np.concatenate(onnx_pred_durations)
 
         if errors:
             result = _runtime_failure(vector_id, errors)
         else:
             result = evaluate_vector(
                 vector_id,
-                pytorch_waveform.detach().cpu().numpy(),
+                pytorch_waveform,
                 onnx_waveform,
                 thresholds,
                 sample_rate_hz=int(vectors_document["sample_rate"]),
                 expected_sample_count=int(vector["audio_samples"]),
-                reference_pred_dur=pytorch_pred_dur.detach().cpu().numpy(),
+                reference_pred_dur=pytorch_pred_dur,
                 candidate_pred_dur=onnx_pred_dur,
             )
             result["onnx_infer_seconds"] = round(onnx_seconds, 4)

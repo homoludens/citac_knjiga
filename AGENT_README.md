@@ -9,8 +9,8 @@ target.
 - OpenSpec change `build-serbian-audiobook-mvp` is in progress:
   `openspec/changes/build-serbian-audiobook-mvp/` (proposal, design, 6 specs,
   12 task phases).
-- Phase 2 model export/parity is active: tasks 2.4-2.7 froze and exercised the
-  FP32 parity contract, desktop ONNX validation, and the bounded Sherpa
+- Phase 2 model export/parity is complete: tasks 2.4-2.7 froze and exercised
+  the FP32 parity contract, desktop ONNX validation, and the bounded Sherpa
   experiment; task 2.8 selects direct ONNX Runtime Android `1.29.0` as the
   implementation target. Android parity and device qualification remain later
   tasks.
@@ -19,12 +19,11 @@ target.
 - Task 3.3 expands the self-authored Serbian golden corpus to 22 pinned desktop
   reference vectors with explicit category coverage and deterministic
   regeneration metadata.
-- Task 3.4 extends every vector with explicit cleanup/normalized text, IPA,
-  token IDs, protected spans, chunk boundaries, and checksummed reference audio
-  metadata. The pinned capture has no text cleanup/normalization or protected
-  span stage, so those values are explicit no-ops; all current vectors are one
-  unsplit under-limit range. Packaging/import and Android qualification remain
-  later tasks.
+- Task 3.5 extends the corpus to 26 vectors with exact 506/507/508-symbol
+  operational-limit cases and a 523-symbol punctuation-free paragraph split at
+  `[0,506]` and `[506,523]`; seeded WAV metadata and chunk-aware desktop parity
+  are checked against the pinned runtime. Packaging/import and Android
+  qualification remain later tasks.
 
 ## Repository layout
 
@@ -46,7 +45,7 @@ target.
   weight-norm difference makes PyPI produce noise).
 - Phonemizer: `kokoro_sr.phonemes.phonemize_serbian` — eSpeak-NG `--ipa=3 -v sr`
   plus symbol normalization/audit against the Kokoro v1 vocabulary.
-- Input limit: 507 phoneme symbols per model call.
+- Input limit: 507 operational phoneme symbols per model call, 510 hard.
 - Voice tensor shape: `[510, 1, 256]`; sampled at `min(len(ipa), 509)`.
 - Export wrapper (task 2.1): `model-tools/export/wrapper.py` exposes the
   deterministic tensor boundary (token IDs + selected style row + speed →

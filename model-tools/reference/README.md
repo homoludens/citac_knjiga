@@ -1,7 +1,7 @@
 # Serbian Golden Corpus
 
 `vectors.json` is the machine-readable Serbian reference corpus. It contains
-22 self-authored, licensed-safe utterances and the v1 task-3.4 vector contract.
+26 self-authored, licensed-safe utterances and the v1 task-3.5 vector contract.
 The structural schema is `vectors.schema.json`.
 
 ## Vector Contract
@@ -22,11 +22,13 @@ Every vector records these stages in order:
    `normalized_text`. The pinned desktop capture has no protected-span stage,
    so all current values are `[]`.
 6. `chunk_boundaries` contains sorted half-open Unicode code-point ranges into
-   `phonemes`. Current vectors are all one unsplit range because they are below
-   the operational limit; task 3.5 owns limit-edge and oversized cases.
+   `phonemes`, one range per bounded model call. The limit fixtures are 506,
+   507, and 508 symbols; the 523-symbol punctuation-free paragraph uses
+   `[0,506]` and `[506,523]` fallback chunks.
 7. `reference_audio` records the relative WAV path, SHA-256, PCM-16 format,
    sample rate, channels, sample count, duration, peak, RMS, and finite-value
-   status. Existing flat audio fields remain compatibility aliases.
+   status. For a chunked vector this is the deterministic concatenation of
+   bounded calls; existing flat audio fields remain compatibility aliases.
 
 ## Coverage
 

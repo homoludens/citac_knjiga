@@ -26,7 +26,7 @@ candidate. It does not create the payload files or an archive.
   eSpeak-NG command/version, normalization contract, vocabulary contract, and
   507 operational/510 hard phoneme limits. Android compatibility remains an
   explicit status, not an assumption.
-- `test_vectors` references the expanded 22-case machine-readable vector
+- `test_vectors` references the expanded 26-case machine-readable vector
   artifact and each required golden WAV artifact. It pins `fp32-parity-v1` and
   requires exact preprocessing references. Each vector now includes the
   task-3.4 cleanup, normalized-text, IPA, token, protected-span,
