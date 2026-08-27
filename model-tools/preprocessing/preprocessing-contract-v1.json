@@ -1,0 +1,95 @@
+{
+  "schema": {
+    "id": "serbian-preprocessing-contract",
+    "version": 1
+  },
+  "contract_id": "kokoro-sr-preprocessing",
+  "contract_version": 1,
+  "identity": {
+    "algorithm": "sha-256",
+    "value": "4b4991dda9e26d7edf9d35f41bce395fcd9215fa771c4bc453a190560a897213",
+    "input": "contract_id, contract_version, and sorted resource path+sha256 pairs"
+  },
+  "implementation": {
+    "compatibility_id": "kokoro-sr-ca5590d9",
+    "locale": "sr",
+    "source_repository": "https://github.com/homoludens/kokoro-serbian.git",
+    "source_revision": "ca5590d9576f63b0763e51a73de0596d47f05425",
+    "source_files": [
+      {"path": "src/kokoro_sr/phonemes.py", "sha256": "be84544903e0657d8579e567f3dae1170a2a57f3ca221911ebc49bcb9525c267"},
+      {"path": "src/kokoro_sr/core.py", "sha256": "f35342bf835b6b058ed1a30370f79183f473bd4e474a03bf79cc489b54ee53c6"},
+      {"path": "src/kokoro_sr/constants.py", "sha256": "2eee068c822b25b777f66f3710735fb2bf38a2c868222268052c53dc140ce22f"}
+    ]
+  },
+  "versions": {
+    "cleanup": "reference-cleanup-noop-v1",
+    "text_normalization": "reference-text-normalization-noop-v1",
+    "ipa_normalization": "kokoro-sr-ipa-normalization-v1",
+    "pronunciation": "espeak-ng-sr-ipa3-1.52.0",
+    "tokenization": "kokoro-v1-code-point-tokenization-v1",
+    "chunking": "kokoro-sr-chunking-v1"
+  },
+  "phonemizer": {
+    "engine": "espeak-ng",
+    "version": "1.52.0",
+    "voice": "sr",
+    "ipa_mode": "3",
+    "command": "espeak-ng -q --ipa=3 -v sr --stdin",
+    "source": {
+      "repository": "https://github.com/espeak-ng/espeak-ng.git",
+      "tag": "1.52.0",
+      "commit": "4870adfa25b1a32b4361592f1be8a40337c58d6c",
+      "status": "candidate_for_reproducible_native_build"
+    },
+    "reference_installation": {
+      "status": "desktop_reference_only",
+      "binary": {"path": "/usr/bin/espeak-ng", "sha256": "76122c78e89cf20c0eabec6c8b79838ba5d91ade7399748b2d78073940bd40b8", "kind": "reference_installation_fingerprint"},
+      "data_root": "/usr/share/espeak-ng-data",
+      "data_files": [
+        {"path": "sr_dict", "sha256": "770cae9c516e48af7896629faf4abefaf041e1fd4ae184011aad07b97196f613", "kind": "reference_installation_fingerprint"},
+        {"path": "phondata", "sha256": "a0b643b155cb6b12628d9e7865b57d9fca0d35844614f2594a5e009c80c80bb4", "kind": "reference_installation_fingerprint"},
+        {"path": "phonindex", "sha256": "384e5fa6f714ba5356c58008249b78699c31c1ad044b243068d263fb806b7d73", "kind": "reference_installation_fingerprint"},
+        {"path": "phontab", "sha256": "1b40690667e1e9aa1ba5e5234773c799e7e72ea751426e5150423d53c3f24fa2", "kind": "reference_installation_fingerprint"}
+      ],
+      "data_closure_status": "incomplete_investigation_fingerprint"
+    },
+    "android_candidate": {
+      "status": "blocked_not_packaged",
+      "abi": "arm64-v8a",
+      "interface": "native_text_to_ipa_behind_narrow_jni_boundary",
+      "blockers": [
+        "The complete eSpeak-NG data closure and native library hashes are not yet recorded from a reproducible Android build.",
+        "The GPL-3.0-or-later engine conflicts with the current Android/F-Droid linked-dependency policy."
+      ],
+      "required_evidence": [
+        "Resolved source commit, local patches, NDK/toolchain, build flags, and reproducible build command.",
+        "Complete data-file checksum manifest, native library checksums, and applicable license/source notices.",
+        "Native output compared against the pinned desktop command for all 26 preprocessing vectors."
+      ]
+    }
+  },
+  "resources": [
+    {"resource_id": "vocabulary", "path": "model-tools/preprocessing/vocabulary-v1.json", "media_type": "application/json", "serialization": "json-sorted-keys-utf8-v1", "sha256": "c1525b7ba4c0233799a40f3fc00e5b2e375a4018fada5b5ef865f466a064249b"},
+    {"resource_id": "normalization", "path": "model-tools/preprocessing/normalization-v1.json", "media_type": "application/json", "serialization": "json-sorted-keys-utf8-v1", "sha256": "2d61d862e1c42798af0a4fd9a23e7afba809228830ab08bc060511fd25854e9d"},
+    {"resource_id": "chunking", "path": "model-tools/preprocessing/chunking-v1.json", "media_type": "application/json", "serialization": "json-sorted-keys-utf8-v1", "sha256": "e8d2e8b595a2b2a7a4f111623d3db4d107a67c734ffc303967ac566fca1f211c"}
+  ],
+  "compatibility": {
+    "model_package_schema": "serbian-model-package:1",
+    "model": {"vocab_size": 178, "token_dtype": "int64", "operational_phoneme_symbols": 507, "hard_phoneme_symbols": 510, "sample_rate_hz": 24000},
+    "vocabulary": {"resource_id": "vocabulary", "vocabulary_id": "kokoro-v1-symbols", "valid_symbol_count": 115, "model_config_entry_count": 114, "lookup_unit": "unicode_code_point", "unknown_symbol_policy": "reject"},
+    "boundary_tokens": {"token_id": 0, "placement": "prepend_and_append", "voice_row_length_unit": "phoneme_symbols_before_boundaries"},
+    "validation": {
+      "corpus_path": "model-tools/reference/vectors.json",
+      "corpus_sha256": "b35328514d1cca82d91d51c25aeacf5dd9e106f0b99b98803177c8720f096fa9",
+      "required_vector_count": 26,
+      "stage_order": ["cleanup_text", "normalized_text", "phonemes", "token_ids", "protected_spans", "chunk_boundaries"],
+      "comparison": "exact equality at every declared preprocessing stage",
+      "inference_gate": "all required vectors and stages must pass before inference is enabled"
+    }
+  },
+  "status": {
+    "portable_resources": "checked_in_and_checksum_pinned",
+    "android_compatibility": "not_yet_qualified",
+    "blocker": "Native eSpeak-NG packaging is blocked by incomplete provenance/data-closure evidence and the current GPL-linked-dependency policy."
+  }
+}

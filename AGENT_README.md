@@ -29,6 +29,12 @@ target.
   component on Android, not pure Kotlin pronunciation rules. The candidate is
   currently blocked by the project's GPL-linked-dependency policy and missing
   native source/data provenance; see `model-tools/phonemization-decision.md`.
+- Task 3.7 checks in the platform-neutral preprocessing resources and contract:
+  exact vocabulary lookup, IPA normalization, chunking limits, resource
+  checksums, pinned `kokoro_sr`/eSpeak-NG provenance, and fail-closed Android
+  compatibility status. The native eSpeak-NG data closure remains unbundled
+  because its provenance is incomplete and GPL linkage is blocked; see
+  `model-tools/preprocessing/`.
 
 ## Repository layout
 
@@ -39,7 +45,7 @@ target.
 | `kokoro_sr_dragana_voice/` | Known-good Dragana checkpoint bundle (epoch-005), LFS-tracked |
 | `python_voice_test/` | Earlier self-contained Dragana inference bundle (epoch_2nd_00002) |
 | `speak_2.py` | Ad-hoc CPU inference test script (points at training-repo paths) |
-| `model-tools/` | Desktop model tooling: runtime pins, env lock, reference captures, export wrapper, package schema/validator (Phase 1–3) |
+| `model-tools/` | Desktop model tooling: runtime pins, env lock, reference captures, export wrapper, package schema/validator, and preprocessing contract/resources (Phase 1–3) |
 | (later) | Android app modules (`app`, `core`, `tts-onnx`, `document-epub`, `playback-export`) |
 
 ## Key technical facts
@@ -67,6 +73,10 @@ target.
   the acceptance baseline and XNNPACK is a separately measured variant. See
   `model-tools/android-runtime-decision.md`; this does not claim Android or
   device qualification.
+- Preprocessing contract (task 3.7):
+  `model-tools/preprocessing/preprocessing-contract-v1.json` has identity
+  `4b4991dda9e26d7edf9d35f41bce395fcd9215fa771c4bc453a190560a897213` and
+  binds three checked-in JSON resources to the 26-vector exact-stage contract.
 
 ## Conventions
 

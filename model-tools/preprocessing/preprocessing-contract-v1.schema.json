@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://citac-knjiga.local/schemas/serbian-preprocessing-contract-v1.schema.json",
+  "title": "Serbian preprocessing contract v1",
+  "description": "Platform-neutral identity and provenance for the Kokoro Serbian preprocessing resources.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "contract_id",
+    "contract_version",
+    "identity",
+    "implementation",
+    "versions",
+    "phonemizer",
+    "resources",
+    "compatibility",
+    "status"
+  ],
+  "properties": {
+    "schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": {"const": "serbian-preprocessing-contract"},
+        "version": {"const": 1}
+      }
+    },
+    "contract_id": {"const": "kokoro-sr-preprocessing"},
+    "contract_version": {"const": 1},
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "value", "input"],
+      "properties": {
+        "algorithm": {"const": "sha-256"},
+        "value": {"$ref": "#/$defs/sha256"},
+        "input": {"const": "contract_id, contract_version, and sorted resource path+sha256 pairs"}
+      }
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["compatibility_id", "locale", "source_repository", "source_revision", "source_files"],
+      "properties": {
+        "compatibility_id": {"const": "kokoro-sr-ca5590d9"},
+        "locale": {"const": "sr"},
+        "source_repository": {"type": "string", "format": "uri"},
+        "source_revision": {"$ref": "#/$defs/sha1"},
+        "source_files": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256"],
+            "properties": {
+              "path": {"type": "string", "minLength": 1},
+              "sha256": {"$ref": "#/$defs/sha256"}
+            }
+          }
+        }
+      }
+    },
+    "versions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cleanup", "text_normalization", "ipa_normalization", "pronunciation", "tokenization", "chunking"],
+      "properties": {
+        "cleanup": {"type": "string", "minLength": 1},
+        "text_normalization": {"type": "string", "minLength": 1},
+        "ipa_normalization": {"type": "string", "minLength": 1},
+        "pronunciation": {"type": "string", "minLength": 1},
+        "tokenization": {"type": "string", "minLength": 1},
+        "chunking": {"type": "string", "minLength": 1}
+      }
+    },
+    "phonemizer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["engine", "version", "voice", "ipa_mode", "command", "source", "reference_installation", "android_candidate"],
+      "properties": {
+        "engine": {"const": "espeak-ng"},
+        "version": {"const": "1.52.0"},
+        "voice": {"const": "sr"},
+        "ipa_mode": {"const": "3"},
+        "command": {"const": "espeak-ng -q --ipa=3 -v sr --stdin"},
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["repository", "tag", "commit", "status"],
+          "properties": {
+            "repository": {"type": "string", "format": "uri"},
+            "tag": {"const": "1.52.0"},
+            "commit": {"$ref": "#/$defs/sha1"},
+            "status": {"const": "candidate_for_reproducible_native_build"}
+          }
+        },
+        "reference_installation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "binary", "data_root", "data_files", "data_closure_status"],
+          "properties": {
+            "status": {"const": "desktop_reference_only"},
+            "binary": {"$ref": "#/$defs/fingerprint"},
+            "data_root": {"type": "string", "minLength": 1},
+            "data_files": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"$ref": "#/$defs/fingerprint"}
+            },
+            "data_closure_status": {"const": "incomplete_investigation_fingerprint"}
+          }
+        },
+        "android_candidate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "abi", "interface", "blockers", "required_evidence"],
+          "properties": {
+            "status": {"const": "blocked_not_packaged"},
+            "abi": {"const": "arm64-v8a"},
+            "interface": {"const": "native_text_to_ipa_behind_narrow_jni_boundary"},
+            "blockers": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"type": "string", "minLength": 1}
+            },
+            "required_evidence": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    },
+    "resources": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["resource_id", "path", "media_type", "serialization", "sha256"],
+        "properties": {
+          "resource_id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]*$"},
+          "path": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\u0000]+$"},
+          "media_type": {"const": "application/json"},
+          "serialization": {"const": "json-sorted-keys-utf8-v1"},
+          "sha256": {"$ref": "#/$defs/sha256"}
+        }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model_package_schema", "model", "vocabulary", "boundary_tokens", "validation"],
+      "properties": {
+        "model_package_schema": {"const": "serbian-model-package:1"},
+        "model": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["vocab_size", "token_dtype", "operational_phoneme_symbols", "hard_phoneme_symbols", "sample_rate_hz"],
+          "properties": {
+            "vocab_size": {"const": 178},
+            "token_dtype": {"const": "int64"},
+            "operational_phoneme_symbols": {"const": 507},
+            "hard_phoneme_symbols": {"const": 510},
+            "sample_rate_hz": {"const": 24000}
+          }
+        },
+        "vocabulary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["resource_id", "vocabulary_id", "valid_symbol_count", "model_config_entry_count", "lookup_unit", "unknown_symbol_policy"],
+          "properties": {
+            "resource_id": {"const": "vocabulary"},
+            "vocabulary_id": {"const": "kokoro-v1-symbols"},
+            "valid_symbol_count": {"const": 115},
+            "model_config_entry_count": {"const": 114},
+            "lookup_unit": {"const": "unicode_code_point"},
+            "unknown_symbol_policy": {"const": "reject"}
+          }
+        },
+        "boundary_tokens": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["token_id", "placement", "voice_row_length_unit"],
+          "properties": {
+            "token_id": {"const": 0},
+            "placement": {"const": "prepend_and_append"},
+            "voice_row_length_unit": {"const": "phoneme_symbols_before_boundaries"}
+          }
+        },
+        "validation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["corpus_path", "corpus_sha256", "required_vector_count", "stage_order", "comparison", "inference_gate"],
+          "properties": {
+            "corpus_path": {"const": "model-tools/reference/vectors.json"},
+            "corpus_sha256": {"$ref": "#/$defs/sha256"},
+            "required_vector_count": {"const": 26},
+            "stage_order": {
+              "const": ["cleanup_text", "normalized_text", "phonemes", "token_ids", "protected_spans", "chunk_boundaries"]
+            },
+            "comparison": {"const": "exact equality at every declared preprocessing stage"},
+            "inference_gate": {"const": "all required vectors and stages must pass before inference is enabled"}
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["portable_resources", "android_compatibility", "blocker"],
+      "properties": {
+        "portable_resources": {"const": "checked_in_and_checksum_pinned"},
+        "android_compatibility": {"const": "not_yet_qualified"},
+        "blocker": {"type": "string", "minLength": 1}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "sha1": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "fingerprint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "kind"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "kind": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

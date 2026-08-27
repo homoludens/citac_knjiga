@@ -26,6 +26,12 @@ candidate. It does not create the payload files or an archive.
   eSpeak-NG command/version, normalization contract, vocabulary contract, and
   507 operational/510 hard phoneme limits. Android compatibility remains an
   explicit status, not an assumption.
+- Task 3.7 supplies the independently addressable platform-neutral contract at
+  `model-tools/preprocessing/preprocessing-contract-v1.json`. A package using
+  `preprocessing.compatibility_id=kokoro-sr-ca5590d9` must consume that
+  contract and verify its resource checksums before Android integration. The
+  contract records the exact eSpeak-NG reference fingerprints, but does not
+  claim a packaged native data closure or Android qualification.
 - `test_vectors` references the expanded 26-case machine-readable vector
   artifact and each required golden WAV artifact. It pins `fp32-parity-v1` and
   requires exact preprocessing references. Each vector now includes the

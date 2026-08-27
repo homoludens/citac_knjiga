@@ -1,0 +1,81 @@
+{
+  "ipa_operations": [
+    {
+      "form": "NFC",
+      "id": "unicode-nfc",
+      "operation": "unicode_normalize"
+    },
+    {
+      "code_points": [
+        "U+200B",
+        "U+200C",
+        "U+200D",
+        "U+2060",
+        "U+FEFF"
+      ],
+      "id": "strip-invisible",
+      "operation": "remove_code_points"
+    },
+    {
+      "code_points": [
+        "U+0361",
+        "U+035C"
+      ],
+      "id": "strip-tie-bars",
+      "operation": "remove_code_points"
+    },
+    {
+      "code_points": [
+        "U+0329"
+      ],
+      "id": "drop-syllabic-mark",
+      "operation": "remove_code_points"
+    },
+    {
+      "id": "merge-affricates",
+      "operation": "replace_sequences",
+      "replacements": {
+        "dʑ": "ʥ",
+        "dʒ": "ʤ",
+        "tɕ": "ʨ",
+        "tʃ": "ʧ"
+      }
+    },
+    {
+      "id": "collapse-whitespace",
+      "operation": "replace_regex",
+      "pattern": "\\s+",
+      "replacement": " ",
+      "trim": true
+    }
+  ],
+  "normalization_id": "kokoro-sr-ipa-normalization",
+  "pronunciation": {
+    "command": "espeak-ng -q --ipa=3 -v sr --stdin",
+    "failure_policy": "fail_closed",
+    "native_stage": true,
+    "output_encoding": "UTF-8",
+    "version": "espeak-ng-sr-ipa3-1.52.0"
+  },
+  "schema": {
+    "id": "kokoro-sr-normalization",
+    "version": 1
+  },
+  "source": {
+    "file": "src/kokoro_sr/phonemes.py",
+    "repository": "https://github.com/homoludens/kokoro-serbian.git",
+    "revision": "ca5590d9576f63b0763e51a73de0596d47f05425",
+    "sha256": "be84544903e0657d8579e567f3dae1170a2a57f3ca221911ebc49bcb9525c267"
+  },
+  "text_stages": {
+    "cleanup": {
+      "operation": "identity",
+      "version": "reference-cleanup-noop-v1"
+    },
+    "text_normalization": {
+      "operation": "identity",
+      "version": "reference-text-normalization-noop-v1"
+    }
+  },
+  "version": "kokoro-sr-ipa-normalization-v1"
+}

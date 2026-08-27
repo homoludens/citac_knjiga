@@ -1,0 +1,54 @@
+{
+  "boundary_preference": [
+    "chapter",
+    "paragraph",
+    "sentence",
+    "clause",
+    "protected_token_sequence",
+    "grapheme"
+  ],
+  "chunking_id": "kokoro-sr-chunking",
+  "limits": {
+    "hard_phoneme_symbols": 510,
+    "model_max_sequence_length": 512,
+    "model_sequence_includes_boundary_tokens": true,
+    "operational_phoneme_symbols": 507
+  },
+  "reference_behavior": {
+    "current_protected_spans": "empty",
+    "golden_corpus": "model-tools/reference/vectors.json",
+    "oversized_fallback_example": [
+      {
+        "end": 506,
+        "start": 0
+      },
+      {
+        "end": 523,
+        "start": 506
+      }
+    ]
+  },
+  "rules": [
+    "Do not split a protected span.",
+    "Do not split an abbreviation, decimal, URL, email address, citation, or grapheme.",
+    "Retain punctuation needed for prosody at the chunk boundary.",
+    "Use the operational limit for normal calls; the hard limit is a validation boundary, not a target.",
+    "If no safe linguistic boundary exists, split at the last safe code-point boundary at or below the operational limit."
+  ],
+  "schema": {
+    "id": "kokoro-sr-chunking",
+    "version": 1
+  },
+  "source": {
+    "evidence": "model-tools/reference/vectors.json",
+    "repository": "https://github.com/homoludens/kokoro-serbian.git",
+    "revision": "ca5590d9576f63b0763e51a73de0596d47f05425"
+  },
+  "units": {
+    "chunk_boundaries": "normalized_ipa",
+    "phoneme_ranges": "unicode_code_point_half_open",
+    "protected_spans": "normalized_text",
+    "text_ranges": "unicode_code_point_half_open"
+  },
+  "version": "kokoro-sr-chunking-v1"
+}
