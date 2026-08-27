@@ -39,6 +39,16 @@ target.
   through the contract stages without model inference, the first divergent
   vector/stage is reported, and package creation fails closed before archive
   publication on any mismatch.
+- Decision record (2026-08-27): the task 3.5 limit-boundary vectors
+  `input-limit-at` and `paragraph-no-sentence-boundary` exceed the frozen FP32
+  `maximum_absolute_error <= 0.1` threshold (0.128 / 0.101). The thresholds
+  are unchanged; the deviation is recorded in
+  `model-tools/parity/fp32-parity-v1-decision.md` and must be revisited
+  before the Phase 5 device gate. Android scaffolding continues meanwhile.
+- Decision record (2026-08-27): the GPL eSpeak-NG blocker from task 3.6 stays
+  documented in `model-tools/phonemization-decision.md`. Android scaffolding
+  continues; exact phonemization (tasks 4.4/4.5) waits for the GPL/native
+  provenance resolution.
 - Task 4.1 creates the source-buildable Android foundation with `app`, `core`,
   `tts-onnx`, `document-epub`, and `playback-export` modules. The project pins
   Gradle 8.10.2, Android Gradle Plugin 8.8.2, Kotlin 2.1.10, JDK 21 toolchains,

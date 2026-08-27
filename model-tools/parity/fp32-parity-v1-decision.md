@@ -62,3 +62,24 @@ model-tools/.venv/bin/python model-tools/scripts/validate_onnx.py --output /tmp/
 The ONNX validation passed independently; its desktop RSS observation is not
 a task-2.6 threshold and remains reserved for device qualification work.
 No Sherpa-ONNX experiment was run.
+
+## Known deviation — task 3.5 limit-boundary vectors
+
+Task 3.5 extended the reference corpus from 7 to 26 vectors. In a fresh
+single-threaded CPU run on 2026-08-27, two of the four new vectors exceed the
+frozen `waveform_error.maximum_absolute_error <= 0.1` threshold:
+
+| vector | observed | threshold |
+|---|---:|---:|
+| `input-limit-at` | 0.12769455835223198 | 0.1 |
+| `paragraph-no-sentence-boundary` | 0.10132836550474167 | 0.1 |
+
+The other 24 vectors, including all 7 original vectors, pass every declared
+measurement.
+
+Decision (Marko, 2026-08-27): **record the deviation and proceed.** No
+threshold, comparator, seed, or runtime change is made. The FP32 parity gate
+stays red for these two vectors, and no model package may claim Android
+compatibility on the parity gate alone until they are resolved. The deviation
+is to be revisited before the Phase 5 device-qualification gate; Android
+scaffolding (Phase 4) continues in the meantime.
