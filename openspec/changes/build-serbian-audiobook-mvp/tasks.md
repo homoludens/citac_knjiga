@@ -27,7 +27,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 ## 3. Model Package and Serbian Golden Corpus (rough phase effort: 1–2 weeks)
 
 - [x] 3.1 Define model-package schema version 1 with model, voice/style, vocabulary, configuration, preprocessing compatibility, test vectors, licenses, attribution, manifest, and SHA-256 checksums.
-- [ ] 3.2 Build a deterministic packager that rejects undeclared files and verifies its completed package before publication.
+- [x] 3.2 Build a deterministic packager that rejects undeclared files and verifies its completed package before publication.
 - [ ] 3.3 Expand the golden corpus for Latin/Cyrillic equivalence, `č/ć/š/ž/đ`, `lj/nj/dž`, mixed scripts, foreign names, abbreviations, numbers, dates, currencies, measurements, Roman numerals, punctuation, URLs, email, citations, and page artifacts.
 - [ ] 3.4 Store expected cleanup text, normalized text, phonemes, token IDs, protected spans, chunk boundaries, and reference audio metadata for each vector.
 - [ ] 3.5 Add parity cases immediately below, at, and above the verified model input limit and for paragraphs with no convenient sentence boundary.

@@ -63,4 +63,28 @@ model-tools/.venv/bin/pytest model-tools/tests/test_model_package_manifest.py
 The validator checks JSON Schema, cross-references, required artifact roles,
 legal gate consistency, unique package paths/IDs, and the manifest identity.
 It does not hash files, create packages, import packages, or establish legal
-clearance. Those behaviors belong to task 3.2 and later gates.
+clearance.
+
+## Deterministic Packaging
+
+`package_builder.py` builds a ZIP package only from the exact files declared by
+the manifest. It rejects undeclared or missing files, verifies every declared
+size and SHA-256, and validates the completed archive before atomically moving
+it into place. ZIP entries use sorted names, fixed timestamps, fixed file
+metadata, and no compression so identical inputs produce identical bytes.
+
+The legal gate is fail-closed: packaging requires `legal.status=cleared`,
+`legal.model_distribution=allowed`, no blocked artifacts, no outstanding
+reviews, declared license terms, and `allowed` status for every artifact. The
+blocked task-3.1 example therefore remains declaration-only and cannot be
+packaged.
+
+The payload root must mirror the manifest's package-relative artifact paths;
+the manifest file is supplied separately:
+
+```sh
+model-tools/.venv/bin/python model-tools/scripts/build_model_package.py \
+  --manifest path/to/cleared-manifest.json \
+  --payload-root path/to/payload \
+  --output path/to/model-package.zip
+```
