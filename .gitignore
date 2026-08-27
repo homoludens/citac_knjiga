@@ -7,3 +7,6 @@
 .venv/
 model-tools/.venv/
 __pycache__/
+# Regenerable ONNX export candidate (large; identity tracked via
+# model-tools/export/manifest.json sha256, not committed)
+model-tools/export/*.onnx

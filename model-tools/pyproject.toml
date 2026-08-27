@@ -9,6 +9,11 @@ requires-python = ">=3.11,<3.12"
 dependencies = [
     "kokoro @ git+https://github.com/semidark/kokoro.git@b96fef95e6a746495f92443fac7c688f90fc57fc",
     "soundfile>=0.12,<1",
+    # ONNX tooling for task 2.2+ (torch.onnx dynamo exporter needs onnx +
+    # onnxscript + onnx_ir; onnxruntime is the desktop parity runtime).
+    "onnx>=1.17,<2",
+    "onnxruntime>=1.19,<2",
+    "onnxscript>=0.5,<1",
 ]
 
 [dependency-groups]

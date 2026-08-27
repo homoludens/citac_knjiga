@@ -1,0 +1,411 @@
+{
+  "kind": "onnx-interface-manifest",
+  "task": "build-serbian-audiobook-mvp 2.2",
+  "candidate": "dragana.onnx (FP32, not committed \u2014 regenerate and verify against onnx_sha256)",
+  "route": "Option A (PM decision): legacy TorchScript exporter + disable_complex=True (CustomSTFT). Rationale: the dynamo exporter cannot carry the data-dependent sum(pred_dur) sequence length through the F0Ntrain LSTM; the official Kokoro export uses this route and it is length-general. See README.",
+  "onnx_file": "model-tools/export/dragana.onnx",
+  "onnx_sha256": "f40e096e2e4112bc6f529160eda9a4ebdab5baf3fefbd584ec19c8f6592bbeb6",
+  "onnx_size_bytes": 325709154,
+  "exporter": "torch.onnx.export(dynamo=False) \u2014 legacy TorchScript-based exporter (torch.onnx.utils._export), opset 18, classic dynamic_axes",
+  "torch_version": "2.13.0+cu130",
+  "python": "3.11.14",
+  "onnx_version": "1.22.0",
+  "onnxruntime_version": "1.29.0",
+  "onnxscript_version": "0.7.1",
+  "opset": {
+    "ai_onnx": 18,
+    "rationale": "18: broadest support across onnxruntime 1.29 (desktop) and the ORT Android builds, and it is the default target opset of the torch 2.13.0 legacy exporter's TorchScript ONNX symbolic functions for every op this graph uses (LSTM-7, RandomNormal/RandomUniform, ScatterND/ScatterElements, Resize-10, Pad-11/13, Conv/ConvTranspose-11, Erf, etc.). The official Kokoro export targets 17; 18 adds no unsupported op for this graph and matches the wider-verified torchlib path, so we pin 18."
+  },
+  "opset_imports": [
+    {
+      "domain": "ai.onnx",
+      "version": 18
+    }
+  ],
+  "ir_version": 8,
+  "graph_domains": [
+    ""
+  ],
+  "node_count": 4806,
+  "initializer_count": 532,
+  "interface": {
+    "inputs": {
+      "input_ids": {
+        "dtype": "int64",
+        "shape": [
+          1,
+          "seq_len"
+        ],
+        "axis_names": {
+          "1": "seq_len"
+        },
+        "bounds": {
+          "seq_len": [
+            2,
+            512
+          ]
+        },
+        "note": "token IDs, 0 boundary tokens at both ends, values 0..177"
+      },
+      "ref_s": {
+        "dtype": "float32",
+        "shape": [
+          1,
+          256
+        ],
+        "axis_names": {},
+        "note": "one already-selected Dragana style row (caller selects)"
+      },
+      "speed": {
+        "dtype": "float32",
+        "shape": [],
+        "axis_names": {},
+        "note": "positive scalar (0-dim); was a Python float in the pinned path"
+      }
+    },
+    "outputs": {
+      "waveform": {
+        "dtype": "float32",
+        "shape": [
+          "waveform_len"
+        ],
+        "axis_names": {
+          "0": "waveform_len"
+        },
+        "note": "mono 24 kHz; data-dependent length 300 * sum(pred_dur)"
+      },
+      "pred_dur": {
+        "dtype": "int64",
+        "shape": [
+          "pred_dur_len"
+        ],
+        "axis_names": {
+          "0": "pred_dur_len"
+        },
+        "note": "per-token predicted frame counts, >= 1 (== input_ids seq_len)"
+      }
+    },
+    "observed_graph_boundary": {
+      "inputs": {
+        "input_ids": {
+          "dtype": "int64",
+          "shape": [
+            1,
+            "seq_len"
+          ],
+          "dynamic": [
+            false,
+            true
+          ]
+        },
+        "ref_s": {
+          "dtype": "float32",
+          "shape": [
+            1,
+            256
+          ],
+          "dynamic": [
+            false,
+            false
+          ]
+        },
+        "speed": {
+          "dtype": "float32",
+          "shape": [],
+          "dynamic": []
+        }
+      },
+      "outputs": {
+        "waveform": {
+          "dtype": "float32",
+          "shape": [
+            "waveform_len"
+          ],
+          "dynamic": [
+            true
+          ]
+        },
+        "pred_dur": {
+          "dtype": "int64",
+          "shape": [
+            "pred_dur_len"
+          ],
+          "dynamic": [
+            true
+          ]
+        }
+      }
+    }
+  },
+  "dynamic_axes": {
+    "mechanism": "classic torch.onnx.export dynamic_axes (legacy exporter)",
+    "input_ids": {
+      "dim": 1,
+      "name": "seq_len",
+      "min": 2,
+      "max": 512
+    },
+    "pred_dur": {
+      "dim": 0,
+      "name": "pred_dur_len",
+      "note": "data-dependent; equals input_ids seq_len at runtime"
+    },
+    "waveform": {
+      "dim": 0,
+      "name": "waveform_len",
+      "note": "data-dependent (300 * sum(pred_dur)); no static bound"
+    }
+  },
+  "model_sha256": "4e6d11053886acd15f4e2b873efef87b7d53885bcf80b3b5fe73f79dd253ca47",
+  "voice_sha256": "0c16ae704368f69e5e1467a702594f56f11a5cfdd38e9ae43b708932c1d6fb8a",
+  "voice_bundle": "kokoro_sr_dragana_voice/ (epoch-005)",
+  "sample_rate": 24000,
+  "max_input_tokens": 512,
+  "vocab_size": 178,
+  "length_generality": {
+    "distinct_lengths": [
+      124200,
+      117600,
+      114600,
+      114000,
+      80400,
+      78000
+    ],
+    "num_vectors_checked": 7,
+    "all_sample_counts_match": true,
+    "per_vector": [
+      {
+        "vector": "greeting-latin",
+        "sample_count": 124200,
+        "onnx_sample_count": 124200,
+        "match": true
+      },
+      {
+        "vector": "greeting-cyrillic",
+        "sample_count": 124200,
+        "onnx_sample_count": 124200,
+        "match": true
+      },
+      {
+        "vector": "diacritics-latin",
+        "sample_count": 114000,
+        "onnx_sample_count": 114000,
+        "match": true
+      },
+      {
+        "vector": "diacritics-cyrillic",
+        "sample_count": 114600,
+        "onnx_sample_count": 114600,
+        "match": true
+      },
+      {
+        "vector": "mixed-digits",
+        "sample_count": 117600,
+        "onnx_sample_count": 117600,
+        "match": true
+      },
+      {
+        "vector": "punctuation",
+        "sample_count": 80400,
+        "onnx_sample_count": 80400,
+        "match": true
+      },
+      {
+        "vector": "cyrillic-punctuation",
+        "sample_count": 78000,
+        "onnx_sample_count": 78000,
+        "match": true
+      }
+    ]
+  },
+  "drift": {
+    "note": "The exact-reference fields compare ORT (CustomSTFT, unseedable RNG) with PyTorch (exact TorchSTFT); the export-path fields compare ORT with PyTorch CustomSTFT. Exact-reference drift includes known CustomSTFT lossiness and vocoder RNG (design \u00a711). The export-path comparison isolates ONNX conversion fidelity. Formal thresholds are task 2.4.",
+    "cosine_floor": 0.9,
+    "sanity_baseline": "PyTorch KModelForONNX with disable_complex=True",
+    "vectors": [
+      {
+        "vector": "greeting-latin",
+        "sample_count_pytorch": 124200,
+        "sample_count_export_pytorch": 124200,
+        "sample_count_onnx": 124200,
+        "sample_count_match": true,
+        "sample_count_export_match": true,
+        "pred_dur_match": true,
+        "max_abs_diff": 0.17121779918670654,
+        "mean_abs_diff": 0.03875847905874252,
+        "cosine_similarity": 0.801426818614092,
+        "high_freq_max_abs_diff": 0.03338784724473953,
+        "export_max_abs_diff": 0.05471155792474747,
+        "export_mean_abs_diff": 0.0033810536842793226,
+        "export_cosine_similarity": 0.9976507471143983,
+        "export_high_freq_max_abs_diff": 0.01862373948097229,
+        "pytorch_peak": 0.35661494731903076,
+        "export_pytorch_peak": 0.49396830797195435,
+        "onnx_peak": 0.5007613301277161,
+        "pytorch_finite": true,
+        "export_pytorch_finite": true,
+        "onnx_finite": true,
+        "ort_infer_seconds": 2.886984321055934
+      },
+      {
+        "vector": "greeting-cyrillic",
+        "sample_count_pytorch": 124200,
+        "sample_count_export_pytorch": 124200,
+        "sample_count_onnx": 124200,
+        "sample_count_match": true,
+        "sample_count_export_match": true,
+        "pred_dur_match": true,
+        "max_abs_diff": 0.15547361969947815,
+        "mean_abs_diff": 0.038753047585487366,
+        "cosine_similarity": 0.801503963276945,
+        "high_freq_max_abs_diff": 0.0303727388381958,
+        "export_max_abs_diff": 0.06086535379290581,
+        "export_mean_abs_diff": 0.003225918160751462,
+        "export_cosine_similarity": 0.9979049771593775,
+        "export_high_freq_max_abs_diff": 0.02480638027191162,
+        "pytorch_peak": 0.35661494731903076,
+        "export_pytorch_peak": 0.49396830797195435,
+        "onnx_peak": 0.48724859952926636,
+        "pytorch_finite": true,
+        "export_pytorch_finite": true,
+        "onnx_finite": true,
+        "ort_infer_seconds": 2.893959437031299
+      },
+      {
+        "vector": "diacritics-latin",
+        "sample_count_pytorch": 114000,
+        "sample_count_export_pytorch": 114000,
+        "sample_count_onnx": 114000,
+        "sample_count_match": true,
+        "sample_count_export_match": true,
+        "pred_dur_match": true,
+        "max_abs_diff": 0.15563803911209106,
+        "mean_abs_diff": 0.03617345169186592,
+        "cosine_similarity": 0.8012718906799834,
+        "high_freq_max_abs_diff": 0.030248984694480896,
+        "export_max_abs_diff": 0.07136423140764236,
+        "export_mean_abs_diff": 0.0031382949091494083,
+        "export_cosine_similarity": 0.9976681776241368,
+        "export_high_freq_max_abs_diff": 0.023015320301055908,
+        "pytorch_peak": 0.39542925357818604,
+        "export_pytorch_peak": 0.45080846548080444,
+        "onnx_peak": 0.46516016125679016,
+        "pytorch_finite": true,
+        "export_pytorch_finite": true,
+        "onnx_finite": true,
+        "ort_infer_seconds": 3.130548394052312
+      },
+      {
+        "vector": "diacritics-cyrillic",
+        "sample_count_pytorch": 114600,
+        "sample_count_export_pytorch": 114600,
+        "sample_count_onnx": 114600,
+        "sample_count_match": true,
+        "sample_count_export_match": true,
+        "pred_dur_match": true,
+        "max_abs_diff": 0.1694190502166748,
+        "mean_abs_diff": 0.03609468415379524,
+        "cosine_similarity": 0.8022272888530542,
+        "high_freq_max_abs_diff": 0.029618272557854652,
+        "export_max_abs_diff": 0.05857601389288902,
+        "export_mean_abs_diff": 0.003219321835786104,
+        "export_cosine_similarity": 0.9976752160187022,
+        "export_high_freq_max_abs_diff": 0.025291182100772858,
+        "pytorch_peak": 0.4072636067867279,
+        "export_pytorch_peak": 0.4786643087863922,
+        "onnx_peak": 0.47781917452812195,
+        "pytorch_finite": true,
+        "export_pytorch_finite": true,
+        "onnx_finite": true,
+        "ort_infer_seconds": 3.063838677946478
+      },
+      {
+        "vector": "mixed-digits",
+        "sample_count_pytorch": 117600,
+        "sample_count_export_pytorch": 117600,
+        "sample_count_onnx": 117600,
+        "sample_count_match": true,
+        "sample_count_export_match": true,
+        "pred_dur_match": true,
+        "max_abs_diff": 0.1677636057138443,
+        "mean_abs_diff": 0.039443258196115494,
+        "cosine_similarity": 0.8052018706382231,
+        "high_freq_max_abs_diff": 0.030845165252685547,
+        "export_max_abs_diff": 0.04266466200351715,
+        "export_mean_abs_diff": 0.0030754385516047478,
+        "export_cosine_similarity": 0.9982539555701565,
+        "export_high_freq_max_abs_diff": 0.017051421105861664,
+        "pytorch_peak": 0.40073829889297485,
+        "export_pytorch_peak": 0.47982674837112427,
+        "onnx_peak": 0.4881817698478699,
+        "pytorch_finite": true,
+        "export_pytorch_finite": true,
+        "onnx_finite": true,
+        "ort_infer_seconds": 2.7851936938241124
+      },
+      {
+        "vector": "punctuation",
+        "sample_count_pytorch": 80400,
+        "sample_count_export_pytorch": 80400,
+        "sample_count_onnx": 80400,
+        "sample_count_match": true,
+        "sample_count_export_match": true,
+        "pred_dur_match": true,
+        "max_abs_diff": 0.19663962721824646,
+        "mean_abs_diff": 0.038228485733270645,
+        "cosine_similarity": 0.7978709086281288,
+        "high_freq_max_abs_diff": 0.028613492846488953,
+        "export_max_abs_diff": 0.06399748474359512,
+        "export_mean_abs_diff": 0.0033989513758569956,
+        "export_cosine_similarity": 0.9975786013545374,
+        "export_high_freq_max_abs_diff": 0.02133643627166748,
+        "pytorch_peak": 0.3409543037414551,
+        "export_pytorch_peak": 0.4067341089248657,
+        "onnx_peak": 0.4108402729034424,
+        "pytorch_finite": true,
+        "export_pytorch_finite": true,
+        "onnx_finite": true,
+        "ort_infer_seconds": 1.9319688440300524
+      },
+      {
+        "vector": "cyrillic-punctuation",
+        "sample_count_pytorch": 78000,
+        "sample_count_export_pytorch": 78000,
+        "sample_count_onnx": 78000,
+        "sample_count_match": true,
+        "sample_count_export_match": true,
+        "pred_dur_match": true,
+        "max_abs_diff": 0.18517443537712097,
+        "mean_abs_diff": 0.03799087181687355,
+        "cosine_similarity": 0.7985788224772155,
+        "high_freq_max_abs_diff": 0.029573708772659302,
+        "export_max_abs_diff": 0.05803211033344269,
+        "export_mean_abs_diff": 0.003190844552591443,
+        "export_cosine_similarity": 0.9978665443160474,
+        "export_high_freq_max_abs_diff": 0.02051626518368721,
+        "pytorch_peak": 0.33329516649246216,
+        "export_pytorch_peak": 0.39368531107902527,
+        "onnx_peak": 0.39712458848953247,
+        "pytorch_finite": true,
+        "export_pytorch_finite": true,
+        "onnx_finite": true,
+        "ort_infer_seconds": 1.8209112100303173
+      }
+    ]
+  },
+  "substitutions": [
+    "NONE of the dynamo-path substitutions are used on this route: the legacy TorchScript exporter traces the pinned KModelForONNX (disable_complex=True) directly. BERT attention is forced to the manual 'eager' implementation (numerically identical to SDPA, ~1e-5; the SDPA path converts a tensor to a Python bool during tracing and would not generalize to other input lengths)."
+  ],
+  "stft": {
+    "exported": "CustomSTFT (disable_complex=True) \u2014 conv1d/conv_transpose1d real-arithmetic approximation; DC/Nyquist doubling skipped",
+    "reference": "TorchSTFT (disable_complex=False) \u2014 exact torch.stft/istft",
+    "note": "The exported graph's vocoder STFT is a KNOWN lossy approximation of the exact reference. The measured drift is in the 'drift' section. Parity is statistical (design \u00a711)."
+  },
+  "randomness": {
+    "ops": [
+      "RandomUniform (SineGen initial phase, istftnet.py:150)",
+      "RandomNormalLike (SineGen unvoiced noise, istftnet.py:205)"
+    ],
+    "note": "ORT cannot seed these; parity is statistical (design \u00a711). The seed is not a graph input."
+  }
+}
