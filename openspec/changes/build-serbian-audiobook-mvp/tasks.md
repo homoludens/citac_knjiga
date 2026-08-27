@@ -20,7 +20,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 - [x] 2.3 Validate the exported graph with ONNX tooling and enumerate its operators, initializers, external data, input limits, and runtime memory footprint.
 - [x] 2.4 Define versioned FP32 parity metrics and thresholds for sample count, waveform error, spectral similarity, silence, clipping, and invalid values before evaluating candidates. → `model-tools/parity/fp32-thresholds-v1.json` + schema validator/tests; export manifest pins `fp32-parity-v1` before vector evaluation
 - [x] 2.5 Build a desktop parity runner that compares PyTorch CPU and ONNX Runtime over every reference vector and emits machine-readable and human-readable reports.
-- [ ] 2.6 Diagnose and resolve every threshold failure without weakening the recorded thresholds silently.
+- [x] 2.6 Diagnose and resolve every threshold failure without weakening the recorded thresholds silently.
 - [ ] 2.7 Time-box a Sherpa-ONNX compatibility experiment using the Serbian graph, tokens, Dragana voice data, and phonemization inputs, then record accept/reject rationale.
 - [ ] 2.8 Select and pin the Android inference runtime only after direct ONNX Runtime and the bounded Sherpa-ONNX experiment have comparable evidence.
 
