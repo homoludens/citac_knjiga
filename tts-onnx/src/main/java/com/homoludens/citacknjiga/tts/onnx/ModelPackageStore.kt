@@ -1,0 +1,578 @@
+package com.homoludens.citacknjiga.tts.onnx
+
+import android.content.ContentResolver
+import android.net.Uri
+import java.io.File
+import java.io.InputStream
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import java.security.MessageDigest
+import java.util.UUID
+import java.util.zip.ZipException
+import java.util.zip.ZipFile
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
+
+/** Opens a user-selected model package without retaining the provider URI. */
+public fun interface ModelPackageSource {
+    public fun openStream(): InputStream
+}
+
+public data class ModelPackageCompatibility(
+    val runtimeVersion: String = "1.29.0",
+    val minimumAndroidApi: Int = 30,
+    val requiredAbi: String = "arm64-v8a",
+    val preprocessingCompatibilityId: String = "kokoro-sr-ca5590d9",
+    val preprocessingContractVersion: Int = 1,
+)
+
+public data class InstalledModelPackage(
+    val packageId: String,
+    val packageVersion: String,
+    val identitySha256: String,
+    val archive: File,
+)
+
+public enum class ModelPackageFailureCode {
+    SOURCE_UNAVAILABLE,
+    COPY_FAILED,
+    ARCHIVE_INVALID,
+    MANIFEST_INVALID,
+    CHECKSUM_MISMATCH,
+    INCOMPATIBLE,
+    PUBLICATION_FAILED,
+    NO_VALID_PACKAGE,
+}
+
+public class ModelPackageImportException(
+    public val code: ModelPackageFailureCode,
+    message: String,
+    cause: Throwable? = null,
+) : Exception(message, cause)
+
+/** Installs verified model archives below the application's private files directory. */
+public class ModelPackageStore(
+    filesDir: File,
+    private val compatibility: ModelPackageCompatibility = ModelPackageCompatibility(),
+) {
+    private val packageDir = File(filesDir, "model-packages")
+    private val activeFile = File(packageDir, "active.zip")
+    private val previousFile = File(packageDir, "last-valid.zip")
+
+    /** Copies a SAF document into private temporary storage before inspecting it. */
+    public fun importFromSaf(contentResolver: ContentResolver, uri: Uri): InstalledModelPackage {
+        val source = try {
+            contentResolver.openInputStream(uri)
+                ?: throw ModelPackageImportException(
+                    ModelPackageFailureCode.SOURCE_UNAVAILABLE,
+                    "The selected model package could not be opened",
+                )
+        } catch (exception: ModelPackageImportException) {
+            throw exception
+        } catch (exception: Exception) {
+            throw ModelPackageImportException(
+                ModelPackageFailureCode.SOURCE_UNAVAILABLE,
+                "The selected model package could not be opened",
+                exception,
+            )
+        }
+
+        source.use { input -> return importPackage(ModelPackageSource { input }) }
+    }
+
+    /** Testable equivalent of [importFromSaf] for a provider-backed stream. */
+    public fun importPackage(source: ModelPackageSource): InstalledModelPackage {
+        prepareDirectory()
+        val temporary = try {
+            File.createTempFile(".model-package-", ".tmp", packageDir)
+        } catch (exception: Exception) {
+            throw ModelPackageImportException(
+                ModelPackageFailureCode.COPY_FAILED,
+                "Could not create model-package temporary storage",
+                exception,
+            )
+        }
+
+        try {
+            try {
+                source.openStream().use { input ->
+                    temporary.outputStream().use { output -> input.copyTo(output) }
+                }
+            } catch (exception: Exception) {
+                throw ModelPackageImportException(
+                    ModelPackageFailureCode.COPY_FAILED,
+                    "Could not copy the selected model package",
+                    exception,
+                )
+            }
+
+            val metadata = validateArchive(temporary)
+            publish(temporary)
+            return metadata.copy(archive = activeFile)
+        } finally {
+            temporary.delete()
+        }
+    }
+
+    /** Returns the active package, restoring the previous verified package if needed. */
+    public fun activePackage(): InstalledModelPackage? {
+        if (!activeFile.exists() && !previousFile.exists()) return null
+        if (activeFile.exists()) {
+            try {
+                return validateArchive(activeFile).copy(archive = activeFile)
+            } catch (_: ModelPackageImportException) {
+                // The previous archive is the only safe recovery candidate.
+            }
+        }
+        if (!previousFile.exists()) {
+            throw ModelPackageImportException(
+                ModelPackageFailureCode.NO_VALID_PACKAGE,
+                "No valid installed model package remains",
+            )
+        }
+
+        val metadata = validateArchive(previousFile)
+        try {
+            if (activeFile.exists()) {
+                Files.move(
+                    activeFile.toPath(),
+                    File(packageDir, "invalid-${UUID.randomUUID()}.zip").toPath(),
+                    StandardCopyOption.REPLACE_EXISTING,
+                )
+            }
+            Files.move(
+                previousFile.toPath(),
+                activeFile.toPath(),
+                StandardCopyOption.REPLACE_EXISTING,
+            )
+        } catch (exception: Exception) {
+            throw ModelPackageImportException(
+                ModelPackageFailureCode.PUBLICATION_FAILED,
+                "Could not roll back to the last valid model package",
+                exception,
+            )
+        }
+        return metadata.copy(archive = activeFile)
+    }
+
+    private fun publish(temporary: File) {
+        var movedPrevious = false
+        try {
+            if (activeFile.exists()) {
+                Files.move(
+                    activeFile.toPath(),
+                    previousFile.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING,
+                )
+                movedPrevious = true
+            }
+            Files.move(
+                temporary.toPath(),
+                activeFile.toPath(),
+                StandardCopyOption.REPLACE_EXISTING,
+            )
+        } catch (exception: Exception) {
+            if (movedPrevious && !activeFile.exists() && previousFile.exists()) {
+                runCatching {
+                    Files.move(
+                        previousFile.toPath(),
+                        activeFile.toPath(),
+                        StandardCopyOption.REPLACE_EXISTING,
+                    )
+                }
+            }
+            throw ModelPackageImportException(
+                ModelPackageFailureCode.PUBLICATION_FAILED,
+                "Could not publish the verified model package",
+                exception,
+            )
+        }
+    }
+
+    private fun prepareDirectory() {
+        if (!packageDir.isDirectory && !packageDir.mkdirs()) {
+            throw ModelPackageImportException(
+                ModelPackageFailureCode.COPY_FAILED,
+                "Could not create private model-package storage",
+            )
+        }
+    }
+
+    private fun validateArchive(archiveFile: File): InstalledModelPackage {
+        if (!archiveFile.isFile) {
+            throw ModelPackageImportException(
+                ModelPackageFailureCode.ARCHIVE_INVALID,
+                "Model package archive does not exist",
+            )
+        }
+
+        try {
+            ZipFile(archiveFile).use { archive ->
+                val entries = archive.entries().asSequence().toList()
+                if (entries.isEmpty() || entries.any { it.isDirectory || !isSafePath(it.name) }) {
+                    throw ModelPackageImportException(
+                        ModelPackageFailureCode.ARCHIVE_INVALID,
+                        "Model package contains an unsafe or empty ZIP entry",
+                    )
+                }
+                if (entries.map { it.name }.toSet().size != entries.size) {
+                    throw ModelPackageImportException(
+                        ModelPackageFailureCode.ARCHIVE_INVALID,
+                        "Model package contains duplicate ZIP entries",
+                    )
+                }
+
+                val manifests = entries.mapNotNull { entry ->
+                    if (entry.size !in 0..MAX_MANIFEST_BYTES) return@mapNotNull null
+                    val bytes = archive.getInputStream(entry).use { it.readBytes() }
+                    try {
+                        val json = JsonParser.parseString(String(bytes, StandardCharsets.UTF_8)).asJsonObject
+                        if (json.has("schema") && json.has("manifest") && json.has("artifacts")) {
+                            entry.name to json
+                        } else {
+                            null
+                        }
+                } catch (_: Exception) {
+                        null
+                    }
+                }
+                if (manifests.size != 1) {
+                    throw ModelPackageImportException(
+                        ModelPackageFailureCode.MANIFEST_INVALID,
+                        "Model package must contain exactly one manifest",
+                    )
+                }
+
+                val (manifestPath, manifest) = manifests.single()
+                val metadata = try {
+                    validateManifest(manifest, manifestPath)
+                } catch (exception: ModelPackageImportException) {
+                    throw exception
+                } catch (exception: Exception) {
+                    throw ModelPackageImportException(
+                        ModelPackageFailureCode.MANIFEST_INVALID,
+                        "Model package manifest is malformed",
+                        exception,
+                    )
+                }
+                val declared = declaredArtifacts(manifest)
+                val expectedNames = declared.keys + manifestPath
+                if (entries.map { it.name }.toSet() != expectedNames.toSet()) {
+                    throw ModelPackageImportException(
+                        ModelPackageFailureCode.ARCHIVE_INVALID,
+                        "Model package contains undeclared or missing files",
+                    )
+                }
+
+                for ((path, artifact) in declared) {
+                    val entry = archive.getEntry(path)
+                    val actualSize = entry.size
+                    if (actualSize != artifact.sizeBytes) {
+                        throw ModelPackageImportException(
+                            ModelPackageFailureCode.CHECKSUM_MISMATCH,
+                            "${artifact.artifactId}: size mismatch",
+                        )
+                    }
+                    val actualHash = sha256(archive.getInputStream(entry))
+                    if (actualHash != artifact.sha256) {
+                        throw ModelPackageImportException(
+                            ModelPackageFailureCode.CHECKSUM_MISMATCH,
+                            "${artifact.artifactId}: checksum mismatch",
+                        )
+                    }
+                }
+                return metadata.copy(archive = archiveFile)
+            }
+        } catch (exception: ModelPackageImportException) {
+            throw exception
+        } catch (exception: ZipException) {
+            throw ModelPackageImportException(
+                ModelPackageFailureCode.ARCHIVE_INVALID,
+                "Model package is not a readable ZIP archive",
+                exception,
+            )
+        } catch (exception: Exception) {
+            throw ModelPackageImportException(
+                ModelPackageFailureCode.ARCHIVE_INVALID,
+                "Model package could not be validated",
+                exception,
+            )
+        }
+    }
+
+    private fun validateManifest(manifest: JsonObject, manifestPath: String): InstalledModelPackage {
+        ensureKeys(
+            manifest,
+            path = "manifest",
+            required = ROOT_KEYS,
+            allowed = ROOT_KEYS + "extensions",
+        )
+        val schema = manifest.getAsJsonObject("schema")
+        ensureKeys(schema, "manifest.schema", setOf("id", "version"), setOf("id", "version"))
+        if (schema.get("id").asString != "serbian-model-package" || schema.get("version").asInt != 1) {
+            failManifest("Unsupported model-package schema")
+        }
+
+        val manifestObject = manifest.getAsJsonObject("manifest")
+        ensureKeys(
+            manifestObject,
+            "manifest.manifest",
+            setOf("package_id", "package_version", "manifest_path", "created_at", "canonicalization", "identity"),
+            setOf("package_id", "package_version", "manifest_path", "created_at", "canonicalization", "identity", "publisher"),
+        )
+        val packageId = manifestObject.get("package_id").asString
+        val packageVersion = manifestObject.get("package_version").asString
+        if (!ID_PATTERN.matches(packageId) || !VERSION_PATTERN.matches(packageVersion)) {
+            failManifest("Invalid package identity")
+        }
+        if (manifestObject.get("manifest_path").asString != manifestPath ||
+            manifestObject.get("canonicalization").asString != "json-sorted-keys-utf8-v1"
+        ) {
+            failManifest("Manifest path or canonicalization does not match the archive")
+        }
+
+        val identity = manifestObject.getAsJsonObject("identity")
+        ensureKeys(identity, "manifest.identity", setOf("algorithm", "value", "input"), setOf("algorithm", "value", "input"))
+        if (identity.get("algorithm").asString != "sha-256" ||
+            identity.get("input").asString != "package_id, package_version, and sorted artifact path+sha256 pairs" ||
+            identity.get("value").asString != expectedIdentity(packageId, packageVersion, manifest.getAsJsonArray("artifacts"))
+        ) {
+            throw ModelPackageImportException(
+                ModelPackageFailureCode.CHECKSUM_MISMATCH,
+                "Manifest identity checksum mismatch",
+            )
+        }
+
+        val artifacts = manifest.getAsJsonArray("artifacts")
+        if (artifacts.size() < 8) failManifest("Model package declares too few artifacts")
+        val artifactIds = mutableSetOf<String>()
+        val artifactPaths = mutableSetOf<String>()
+        val roles = mutableSetOf<String>()
+        val artifactById = mutableMapOf<String, JsonObject>()
+        for (index in 0 until artifacts.size()) {
+            val artifact = artifacts[index].asJsonObject
+            ensureKeys(
+                artifact,
+                "artifacts[$index]",
+                ARTIFACT_KEYS,
+                ARTIFACT_KEYS + "description",
+            )
+            val artifactId = artifact.get("artifact_id").asString
+            val path = artifact.get("path").asString
+            if (!ID_PATTERN.matches(artifactId) || !isSafePath(path) ||
+                !artifactIds.add(artifactId) || !artifactPaths.add(path)
+            ) {
+                failManifest("Artifact identifiers and paths must be unique and safe")
+            }
+            val hash = artifact.get("sha256").asString
+            if (!SHA256_PATTERN.matches(hash) || artifact.get("size_bytes").asLong < 0) {
+                failManifest("Invalid artifact checksum or size")
+            }
+            val artifactRoles = artifact.getAsJsonArray("roles")
+            if (artifactRoles.size() == 0 ||
+                (0 until artifactRoles.size()).map { artifactRoles[it].asString }.toSet().size != artifactRoles.size() ||
+                (0 until artifactRoles.size()).any { artifactRoles[it].asString !in ARTIFACT_ROLES }
+            ) {
+                failManifest("Artifact roles are invalid")
+            }
+            for (roleIndex in 0 until artifactRoles.size()) roles += artifactRoles[roleIndex].asString
+            artifactById[artifactId] = artifact
+        }
+        if (manifestPath in artifactPaths || !REQUIRED_ROLES.all { it in roles }) {
+            failManifest("Manifest artifacts do not cover the required package roles")
+        }
+
+        requireArtifact(manifest.getAsJsonObject("model"), "artifact_id", "model", artifactById)
+        requireArtifact(
+            manifest.getAsJsonObject("model").getAsJsonObject("architecture"),
+            "config_artifact_id",
+            "configuration",
+            artifactById,
+        )
+        requireArtifact(manifest.getAsJsonObject("voice_style"), "artifact_id", "voice_style", artifactById)
+        requireArtifact(manifest.getAsJsonObject("vocabulary"), "artifact_id", "vocabulary", artifactById)
+        requireArtifact(manifest.getAsJsonObject("configuration"), "artifact_id", "configuration", artifactById)
+        requireArtifact(
+            manifest.getAsJsonObject("test_vectors"),
+            "manifest_artifact_id",
+            "test_vector",
+            artifactById,
+        )
+
+        validateCompatibility(manifest)
+        return InstalledModelPackage(
+            packageId = packageId,
+            packageVersion = packageVersion,
+            identitySha256 = identity.get("value").asString,
+            archive = File(""),
+        )
+    }
+
+    private fun validateCompatibility(manifest: JsonObject) {
+        try {
+            val model = manifest.getAsJsonObject("model")
+            if (model.get("format").asString != "onnx" ||
+                model.getAsJsonObject("output_contract").getAsJsonObject("waveform").get("sample_rate_hz").asInt != 24000 ||
+                manifest.getAsJsonObject("configuration").get("sample_rate_hz").asInt != 24000
+            ) {
+                failCompatibility("Model format or audio contract is not supported")
+            }
+            val voice = manifest.getAsJsonObject("voice_style")
+            if (voice.get("locale").asString != "sr" || voice.getAsJsonArray("shape").toString() != "[510,1,256]") {
+                failCompatibility("Voice/style contract is not compatible")
+            }
+            val preprocessing = manifest.getAsJsonObject("preprocessing")
+            if (preprocessing.get("compatibility_id").asString != compatibility.preprocessingCompatibilityId ||
+                preprocessing.get("contract_version").asInt != compatibility.preprocessingContractVersion ||
+                preprocessing.get("locale").asString != "sr"
+            ) {
+                failCompatibility("Serbian preprocessing contract is not compatible")
+            }
+            val runtime = manifest.getAsJsonObject("runtime")
+            val declaredAbis = runtime.getAsJsonArray("abis").let { array ->
+                (0 until array.size()).map { array[it].asString }
+            }
+            if (runtime.get("version").asString != compatibility.runtimeVersion ||
+                runtime.get("platform").asString != "android" ||
+                runtime.get("min_android_api").asInt != compatibility.minimumAndroidApi ||
+                declaredAbis != listOf(compatibility.requiredAbi) ||
+                runtime.get("execution_provider").asString != "cpu" ||
+                runtime.getAsJsonObject("threading").get("intra_op_threads").asInt != 1 ||
+                runtime.getAsJsonObject("threading").get("inter_op_threads").asInt != 1
+            ) {
+                failCompatibility("Android runtime contract is not compatible")
+            }
+        } catch (exception: ModelPackageImportException) {
+            throw exception
+        } catch (exception: Exception) {
+            failCompatibility("Required compatibility declaration is missing")
+        }
+    }
+
+    private fun declaredArtifacts(manifest: JsonObject): Map<String, Artifact> {
+        val result = linkedMapOf<String, Artifact>()
+        val artifacts = manifest.getAsJsonArray("artifacts")
+        for (index in 0 until artifacts.size()) {
+            val artifact = artifacts[index].asJsonObject
+            result[artifact.get("path").asString] = Artifact(
+                artifactId = artifact.get("artifact_id").asString,
+                sha256 = artifact.get("sha256").asString,
+                sizeBytes = artifact.get("size_bytes").asLong,
+            )
+        }
+        return result
+    }
+
+    private fun expectedIdentity(packageId: String, packageVersion: String, artifacts: JsonArray): String {
+        val pairs = (0 until artifacts.size()).map { index ->
+            val artifact = artifacts[index].asJsonObject
+            artifact.get("path").asString to artifact.get("sha256").asString
+        }.sortedWith(compareBy<Pair<String, String>> { it.first }.thenBy { it.second })
+        val canonical = buildString {
+            append("{\"artifacts\":[")
+            pairs.joinTo(this, separator = ",") { (path, hash) ->
+                "{\"path\":${quote(path)},\"sha256\":${quote(hash)}}"
+            }
+            append("],\"package_id\":${quote(packageId)},\"package_version\":${quote(packageVersion)}}")
+        }
+        return sha256(canonical.toByteArray(StandardCharsets.UTF_8))
+    }
+
+    private fun ensureKeys(
+        objectValue: JsonObject,
+        path: String,
+        required: Set<String>,
+        allowed: Set<String>,
+    ) {
+        val keys = objectValue.keySet()
+        if (!required.all { it in keys } || keys.any { it !in allowed }) {
+            failManifest("Invalid fields at $path")
+        }
+    }
+
+    private fun requireArtifact(
+        objectValue: JsonObject,
+        key: String,
+        role: String,
+        artifacts: Map<String, JsonObject>,
+    ) {
+        val artifactId = objectValue.get(key).asString
+        if (role !in artifacts[artifactId]?.getAsJsonArray("roles")?.map { it.asString }.orEmpty()) {
+            failManifest("$key must reference a $role artifact")
+        }
+    }
+
+    private fun failManifest(message: String): Nothing = throw ModelPackageImportException(
+        ModelPackageFailureCode.MANIFEST_INVALID,
+        message,
+    )
+
+    private fun failCompatibility(message: String): Nothing = throw ModelPackageImportException(
+        ModelPackageFailureCode.INCOMPATIBLE,
+        message,
+    )
+
+    private data class Artifact(val artifactId: String, val sha256: String, val sizeBytes: Long)
+
+    private companion object {
+        const val MAX_MANIFEST_BYTES = 16L * 1024L * 1024L
+        val ID_PATTERN = Regex("^[a-z][a-z0-9_.-]*$")
+        val VERSION_PATTERN = Regex("^[0-9]+\\.[0-9]+\\.[0-9]+$")
+        val SHA256_PATTERN = Regex("^[0-9a-f]{64}$")
+        val ARTIFACT_ROLES = setOf("model", "voice_style", "vocabulary", "configuration", "test_vector", "test_audio", "notice")
+        val REQUIRED_ROLES = setOf("model", "voice_style", "configuration", "test_vector", "vocabulary")
+        val ROOT_KEYS = setOf(
+            "schema", "manifest", "artifacts", "model", "voice_style", "vocabulary", "configuration",
+            "preprocessing", "runtime", "test_vectors", "licenses", "attribution", "legal",
+        )
+        val ARTIFACT_KEYS = setOf(
+            "artifact_id", "path", "roles", "media_type", "sha256", "size_bytes", "required",
+            "distribution_status", "license_refs", "attribution_refs",
+        )
+
+        fun isSafePath(path: String): Boolean {
+            val parts = path.split('/')
+            return path.isNotEmpty() && '\u0000' !in path && !path.startsWith('/') && '\\' !in path &&
+                parts.none { it.isEmpty() || it == "." || it == ".." }
+        }
+
+        fun quote(value: String): String = buildString {
+            append('"')
+            for (character in value) {
+                when (character) {
+                    '\\' -> append("\\\\")
+                    '"' -> append("\\\"")
+                    '\b' -> append("\\b")
+                    '\u000C' -> append("\\f")
+                    '\n' -> append("\\n")
+                    '\r' -> append("\\r")
+                    '\t' -> append("\\t")
+                    in '\u0000'..'\u001f' -> append("\\u%04x".format(character.code))
+                    else -> append(character)
+                }
+            }
+            append('"')
+        }
+
+        fun sha256(input: InputStream): String {
+            input.use { stream ->
+                val digest = MessageDigest.getInstance("SHA-256")
+                val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                while (true) {
+                    val count = stream.read(buffer)
+                    if (count < 0) break
+                    digest.update(buffer, 0, count)
+                }
+                return digest.digest().toHex()
+            }
+        }
+
+        fun sha256(bytes: ByteArray): String = MessageDigest.getInstance("SHA-256")
+            .digest(bytes)
+            .toHex()
+
+        fun ByteArray.toHex(): String = joinToString("") { byte -> "%02x".format(byte) }
+    }
+}

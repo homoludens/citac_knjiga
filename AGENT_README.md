@@ -69,6 +69,12 @@ target.
   network permissions contributed by the ONNX Runtime dependency because
   inference is local; no model or document behavior is implied by this
   boundary.
+- Task 4.3 adds `ModelPackageStore` in `tts-onnx`: SAF streams are first copied
+  to private temporary storage, then ZIP entries, the v1 manifest identity,
+  declared artifact sizes/SHA-256 values, and the pinned Android/Serbian
+  compatibility contract are checked before publication. The active archive is
+  kept at `filesDir/model-packages/active.zip` and the prior verified archive at
+  `last-valid.zip`; an invalid active archive is rolled back on next access.
 
 ## Repository layout
 

@@ -39,7 +39,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 
 - [x] 4.1 Create the Android 11+ ARM64 project with `app`, `core`, `tts-onnx`, `document-epub`, and `playback-export` modules and pinned Gradle/JDK/SDK versions.
 - [x] 4.2 Add Compose navigation, a manual application dependency container, structured local diagnostics, and separate debug/release/F-Droid configuration without proprietary services.
-- [ ] 4.3 Implement app-private model-package import through SAF with temporary copy, manifest validation, checksum verification, compatibility checks, and rollback to the last valid package.
+- [x] 4.3 Implement app-private model-package import through SAF with temporary copy, manifest validation, checksum verification, compatibility checks, and rollback to the last valid package.
 - [ ] 4.4 Implement Kotlin preprocessing stages and load golden vectors as JVM and Android test fixtures.
 - [ ] 4.5 Make Android normalized text, phonemes, token IDs, and chunk boundaries match every golden vector exactly.
 - [ ] 4.6 Implement the pinned Android ONNX session and verified tensor-to-PCM boundary with bounded threads and explicit resource cleanup.

@@ -32,4 +32,7 @@ kotlin {
 dependencies {
     implementation(project(":core"))
     implementation(libs.onnxruntime.android)
+    implementation(libs.gson)
+
+    testImplementation(libs.junit)
 }
