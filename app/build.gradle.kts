@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
@@ -21,13 +22,35 @@ android {
         }
     }
 
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
+
+    flavorDimensions += "distribution"
+
+    productFlavors {
+        create("standard") {
+            dimension = "distribution"
+            buildConfigField("String", "DISTRIBUTION", "\"standard\"")
+        }
+        create("fdroid") {
+            dimension = "distribution"
+            applicationIdSuffix = ".fdroid"
+            versionNameSuffix = "-fdroid"
+            buildConfigField("String", "DISTRIBUTION", "\"fdroid\"")
+        }
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
+            buildConfigField("Boolean", "VERBOSE_DIAGNOSTICS", "true")
         }
         release {
             isMinifyEnabled = false
+            buildConfigField("Boolean", "VERBOSE_DIAGNOSTICS", "false")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -50,8 +73,16 @@ kotlin {
 }
 
 dependencies {
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.navigation.compose)
     implementation(project(":core"))
     implementation(project(":tts-onnx"))
     implementation(project(":document-epub"))
     implementation(project(":playback-export"))
+
+    testImplementation(libs.junit)
 }

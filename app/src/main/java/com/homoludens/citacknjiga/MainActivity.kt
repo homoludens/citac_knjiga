@@ -1,12 +1,22 @@
 package com.homoludens.citacknjiga
 
-import android.app.Activity
 import android.os.Bundle
-import android.widget.TextView
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 
-class MainActivity : Activity() {
+public class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(TextView(this).apply { text = getString(R.string.app_name) })
+        val container = (application as CitacKnjigaApplication).container
+        if (container.variant.verboseDiagnostics) {
+            container.diagnostics.debug(
+                component = "navigation",
+                message = "opening_start_route",
+                attributes = mapOf("route" to AppRoute.Start.path),
+            )
+        }
+        setContent {
+            CitacKnjigaApp(variant = container.variant)
+        }
     }
 }

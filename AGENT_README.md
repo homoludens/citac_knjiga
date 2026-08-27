@@ -46,6 +46,19 @@ target.
   an explicit `arm64-v8a` filter. `tts-onnx` is the only module that currently
   carries the selected ONNX Runtime Android 1.29.0 dependency; later Android
   behavior remains unimplemented.
+- Task 4.2 adds a single Compose `start` route, Material 3 foundation screen,
+  and a manual `AppContainer` created by `CitacKnjigaApplication`. Dependencies
+  remain constructor-provided and test-replaceable; feature modules do not
+  depend on the app container. `core` owns the small `LocalDiagnostics` API,
+  which emits structured local events to Logcat and redacts unknown, document,
+  text, and URI attributes by default.
+- Android application variants are explicit: `standard` and `fdroid`
+  distribution flavors combine with the existing `debug` and `release` build
+  types. The F-Droid-oriented flavor has its own application ID suffix and no
+  proprietary service or network permission. The app manifest removes the
+  network permissions contributed by the ONNX Runtime dependency because
+  inference is local; no model or document behavior is implied by this
+  boundary.
 
 ## Repository layout
 
