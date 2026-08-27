@@ -17,7 +17,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 
 - [x] 2.1 Implement a deterministic export wrapper that exposes verified tensor inputs instead of hiding preprocessing inside the ONNX graph. → `model-tools/export/wrapper.py` + `model-tools/export/README.md`; `scripts/verify_export_wrapper.py` passes 7/7 reference vectors bit-identical (seed 20260826, single-threaded)
 - [x] 2.2 Export an FP32 ONNX candidate with pinned opset, named dynamic axes where required, and a machine-readable interface manifest.
-- [ ] 2.3 Validate the exported graph with ONNX tooling and enumerate its operators, initializers, external data, input limits, and runtime memory footprint.
+- [x] 2.3 Validate the exported graph with ONNX tooling and enumerate its operators, initializers, external data, input limits, and runtime memory footprint.
 - [ ] 2.4 Define versioned FP32 parity metrics and thresholds for sample count, waveform error, spectral similarity, silence, clipping, and invalid values before evaluating candidates.
 - [ ] 2.5 Build a desktop parity runner that compares PyTorch CPU and ONNX Runtime over every reference vector and emits machine-readable and human-readable reports.
 - [ ] 2.6 Diagnose and resolve every threshold failure without weakening the recorded thresholds silently.

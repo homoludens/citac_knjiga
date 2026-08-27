@@ -110,3 +110,24 @@ diff fails the run — do not loosen it.
 - Output length is data-dependent (`torch.repeat_interleave` over
   `pred_dur`) → declare a dynamic output axis.
 - The seed is not a graph input; it is a desktop call-path control only.
+
+## Validation report (task 2.3)
+
+Validate the existing candidate without re-exporting it:
+
+```bash
+model-tools/.venv/bin/python model-tools/scripts/validate_onnx.py
+```
+
+The command writes `model-tools/export/validation.json` and emits the same
+machine-readable report on stdout. It runs `onnx.checker`, creates a CPU
+ONNX Runtime session, verifies the manifest contract, enumerates every unique
+operator type and every initializer (shape, dtype, element count, storage
+bytes, and external-data metadata), records the manifest's declared input
+limits, and measures isolated-process RSS after session creation and after
+representative and maximum-declared-input inference. The current report has
+no external initializer data. The memory values are an observed desktop
+runtime footprint, not the Android device qualification gate.
+
+This validation intentionally does not apply waveform parity thresholds;
+those are defined by task 2.4.
