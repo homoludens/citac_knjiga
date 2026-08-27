@@ -87,6 +87,66 @@ performance, thermal, or Poco F3 qualification. See
 `model-tools/android-runtime-decision.md` before implementing the Android
 module.
 
+## Android Serbian phonemizer (task 4.5)
+
+The `tts-onnx` module builds eSpeak-NG `1.52.0` from source commit
+`4870adfa25b1a32b4361592f1be8a40337c58d6c` for `arm64-v8a`. NDK
+`26.1.10909125`, Android API 30, and the native data closure are pinned in
+`model-tools/native/espeak-data-manifest-v1.json`. The source-build and GPL
+notice are in `model-tools/native/NOTICE.md`.
+
+The data closure is installed into app-private storage and verified by size and
+SHA-256 before JNI use. The native bridge intentionally reproduces the pinned
+`espeak-ng -q --ipa=3 -v sr --stdin` bulk-input behavior, including its final
+byte removal, then Kotlin applies the checked-in IPA normalization and
+vocabulary contract.
+
+Build the native target directly when validating the toolchain:
+
+```sh
+cmake -S tts-onnx/src/main/cpp -B /tmp/cita-espeak-android -G Ninja \
+  -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
+  -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-30 \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DESPEAK_NG_SOURCE_DIR=/path/to/espeak-ng
+cmake --build /tmp/cita-espeak-android --parallel
+```
+
+The production ARM64 path remains unqualified until the Android smoke and full
+26-vector tests run on an ARM64 device or emulator. Do not treat a desktop or
+manual native build alone as ARM64 evidence.
+
+The first connected test attempt on the available API 35 emulator used the
+ARM64-only debug package and failed before JUnit discovery. The crash log shows
+the x86_64 process using the ARM64 guest/native-bridge path, with a SIGSEGV in
+the `libonnxruntime.so` constructor (`fault addr 0x8`, `0 tests`). This is an
+emulator/ORT translation failure, not an eSpeak-NG load or data failure.
+
+Debug is explicitly built for native `x86_64` and `arm64-v8a` and carries the
+pinned ORT dependency for the development APK; release remains explicitly
+native `arm64-v8a` and carries ORT as well. The x86_64 debug package therefore
+exercises the eSpeak-NG JNI bridge and ORT natively without changing the
+production ABI target, while the same debug APK can run on the target ARM64
+device. The runner is explicitly
+`androidx.test.runner.AndroidJUnitRunner`; without that setting the platform
+runner reports `OK (0 tests)`.
+
+The connected test command is:
+
+```sh
+ANDROID_HOME=/path/to/Android/Sdk \
+ANDROID_SDK_ROOT=/path/to/Android/Sdk \
+PATH=/path/to/Android/Sdk/platform-tools:$PATH \
+./gradlew :tts-onnx:connectedDebugAndroidTest
+```
+
+On 2026-08-27 this command ran 4 tests successfully on `emulator-5554`; the
+smoke test covers five representative vectors and the full test iterates all
+26 vectors. This completes task 4.5 for the currently available x86_64 Android
+test execution. It does not qualify the ARM64 eSpeak-NG path used by debug or
+release builds; rerun the same tests on an ARM64 device or native ARM64
+emulator before treating the production path as qualified.
+
 ## Voice bundle
 
 `kokoro_sr_dragana_voice/` is the current known-good epoch-005 Dragana bundle

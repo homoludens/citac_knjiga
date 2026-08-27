@@ -26,15 +26,15 @@ target.
   qualification remain later tasks.
 - Task 3.6 confirms from the pinned `kokoro_sr` source that exact Serbian
   phonemization is eSpeak-NG-backed and therefore needs a native engine/data
-  component on Android, not pure Kotlin pronunciation rules. The candidate is
-  currently blocked by the project's GPL-linked-dependency policy and missing
-  native source/data provenance; see `model-tools/phonemization-decision.md`.
+  component on Android, not pure Kotlin pronunciation rules. The project
+  accepts the GPL-3.0-or-later dependency; source/data provenance and release
+  notices are recorded under `model-tools/native/`.
 - Task 3.7 checks in the platform-neutral preprocessing resources and contract:
   exact vocabulary lookup, IPA normalization, chunking limits, resource
   checksums, pinned `kokoro_sr`/eSpeak-NG provenance, and fail-closed Android
-  compatibility status. The native eSpeak-NG data closure remains unbundled
-  because its provenance is incomplete and GPL linkage is blocked; see
-  `model-tools/preprocessing/`.
+  compatibility status. Native eSpeak-NG source/build provenance and the
+  checked-in data closure are now recorded under `model-tools/native/` and
+  packaged as Android assets; see `model-tools/preprocessing/`.
 - Task 3.8 adds the desktop golden preprocessing gate: all 26 vectors are run
   through the contract stages without model inference, the first divergent
   vector/stage is reported, and package creation fails closed before archive
@@ -45,17 +45,25 @@ target.
   are unchanged; the deviation is recorded in
   `model-tools/parity/fp32-parity-v1-decision.md` and must be revisited
   before the Phase 5 device gate. Android scaffolding continues meanwhile.
-- Decision record (2026-08-27): the GPL eSpeak-NG blocker from task 3.6 stays
-  documented in `model-tools/phonemization-decision.md`. Android scaffolding
-  continues; exact phonemization (tasks 4.4/4.5) waits for the GPL/native
-  provenance resolution.
+ - Task 4.5 is complete for the available native x86_64 Android test execution:
+   debug variants package both `x86_64` and `arm64-v8a`, and the pinned eSpeak-NG
+   source builds for ARM64, its verified data closure is installed privately,
+   and JNI phonemization reproduces the desktop CLI behavior. A host-equivalent
+   native probe matches all 26 preprocessing vectors. The API 35 x86_64
+   emulator now runs the native x86_64 debug bridge and passes the five-vector
+   smoke gate and the full 26-vector instrumentation gate. Both debug and
+   release include the pinned ONNX Runtime dependency; release assembly remains
+   explicitly ARM64-only, but ARM64 Android execution is still unqualified and
+   remains a production/device blocker.
 - Task 4.1 creates the source-buildable Android foundation with `app`, `core`,
   `tts-onnx`, `document-epub`, and `playback-export` modules. The project pins
   Gradle 8.10.2, Android Gradle Plugin 8.8.2, Kotlin 2.1.10, JDK 21 toolchains,
   compile/target SDK 35, build-tools 35.0.0, and Android 11 (`minSdk 30`) with
-  an explicit `arm64-v8a` filter. `tts-onnx` is the only module that currently
-  carries the selected ONNX Runtime Android 1.29.0 dependency; later Android
-  behavior remains unimplemented.
+   an explicit production `arm64-v8a` filter (debug packages both `x86_64` and
+   `arm64-v8a` for the available emulator and target device). `tts-onnx` is the
+   only module that currently carries the selected ONNX Runtime Android 1.29.0
+   dependency in both debug and release; later Android behavior remains
+   unimplemented.
 - Task 4.2 adds a single Compose `start` route, Material 3 foundation screen,
   and a manual `AppContainer` created by `CitacKnjigaApplication`. Dependencies
   remain constructor-provided and test-replaceable; feature modules do not
@@ -91,7 +99,7 @@ target.
 | `kokoro_sr_dragana_voice/` | Known-good Dragana checkpoint bundle (epoch-005), LFS-tracked |
 | `python_voice_test/` | Earlier self-contained Dragana inference bundle (epoch_2nd_00002) |
 | `speak_2.py` | Ad-hoc CPU inference test script (points at training-repo paths) |
-| `model-tools/` | Desktop model tooling: runtime pins, env lock, reference captures, export wrapper, package schema/validator, and preprocessing contract/resources (Phase 1–3) |
+| `model-tools/` | Desktop model tooling, native eSpeak-NG provenance/data manifest, reference captures, export wrapper, package schema/validator, and preprocessing contract/resources (Phase 1–3) |
 | `app/`, `core/`, `tts-onnx/`, `document-epub/`, `playback-export/` | Minimal Android foundation modules (task 4.1) |
 
 ## Key technical facts

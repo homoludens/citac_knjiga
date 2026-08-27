@@ -94,7 +94,7 @@
             "repository": {"type": "string", "format": "uri"},
             "tag": {"const": "1.52.0"},
             "commit": {"$ref": "#/$defs/sha1"},
-            "status": {"const": "candidate_for_reproducible_native_build"}
+            "status": {"const": "recorded_for_reproducible_native_build"}
           }
         },
         "reference_installation": {
@@ -118,7 +118,7 @@
           "additionalProperties": false,
           "required": ["status", "abi", "interface", "blockers", "required_evidence"],
           "properties": {
-            "status": {"const": "blocked_not_packaged"},
+            "status": {"const": "implemented_not_qualified"},
             "abi": {"const": "arm64-v8a"},
             "interface": {"const": "native_text_to_ipa_behind_narrow_jni_boundary"},
             "blockers": {

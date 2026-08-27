@@ -7,17 +7,41 @@ android {
     namespace = "com.homoludens.citacknjiga.tts.onnx"
     compileSdk = libs.versions.compileSdk.get().toInt()
     buildToolsVersion = libs.versions.buildTools.get()
+    ndkVersion = "26.1.10909125"
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
 
     defaultConfig {
         minSdk = libs.versions.minSdk.get().toInt()
-        ndk {
-            abiFilters += "arm64-v8a"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        getByName("debug") {
+            // Package both the available emulator ABI and the target device ABI.
+            ndk {
+                abiFilters.clear()
+                abiFilters += "x86_64"
+                abiFilters += "arm64-v8a"
+            }
+        }
+        getByName("release") {
+            ndk {
+                abiFilters.clear()
+                abiFilters += "arm64-v8a"
+            }
         }
     }
 
     sourceSets {
         getByName("main") {
             assets.srcDir(rootProject.file("model-tools/preprocessing"))
+            assets.srcDir(rootProject.file("model-tools/native"))
         }
         getByName("test") {
             resources.srcDir(rootProject.file("model-tools/reference"))
@@ -44,7 +68,8 @@ kotlin {
 
 dependencies {
     implementation(project(":core"))
-    implementation(libs.onnxruntime.android)
+    debugImplementation(libs.onnxruntime.android)
+    releaseImplementation(libs.onnxruntime.android)
     implementation(libs.gson)
 
     testImplementation(libs.junit)

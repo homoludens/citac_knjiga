@@ -1,0 +1,35 @@
+{
+  "schema": {
+    "id": "espeak-ng-android-data",
+    "version": 1
+  },
+  "source": {
+    "repository": "https://github.com/espeak-ng/espeak-ng.git",
+    "tag": "1.52.0",
+    "commit": "4870adfa25b1a32b4361592f1be8a40337c58d6c",
+    "build": "CMake host data compiler with USE_ASYNC=OFF, USE_KLATT=OFF, USE_LIBPCAUDIO=OFF, USE_LIBSONIC=OFF, USE_MBROLA=OFF, USE_SPEECHPLAYER=OFF"
+  },
+  "native_build": {
+    "abi": "arm64-v8a",
+    "android_platform": "android-30",
+    "build_type": "Release",
+    "cmake": "3.22.1",
+    "ndk": "26.1.10909125",
+    "local_patches": [],
+    "library": {
+      "path": "libcita_espeak.so",
+      "sha256": "6843c8e0afc47cd7c61dfe9487bd6da9da4ae48cbf09363b030913f5099f0b5e",
+      "kind": "manual_android_arm64_build_observation"
+    }
+  },
+  "data_root": "espeak-ng-data",
+  "files": [
+    {"path": "phondata", "size_bytes": 554740, "sha256": "a0b643b155cb6b12628d9e7865b57d9fca0d35844614f2594a5e009c80c80bb4"},
+    {"path": "phondata-manifest", "size_bytes": 21866, "sha256": "252ddec97d5cdd47c983a0db71f82fb3635c3b1b222b070f1db32d7943f426b2"},
+    {"path": "phonindex", "size_bytes": 43316, "sha256": "384e5fa6f714ba5356c58008249b78699c31c1ad044b243068d263fb806b7d73"},
+    {"path": "phontab", "size_bytes": 58652, "sha256": "1b40690667e1e9aa1ba5e5234773c799e7e72ea751426e5150423d53c3f24fa2"},
+    {"path": "intonations", "size_bytes": 2312, "sha256": "031a105bf6bb2ebcd73a2c579ccfb42469b27266db0078af65ae298fd3588b21"},
+    {"path": "sr_dict", "size_bytes": 46832, "sha256": "770cae9c516e48af7896629faf4abefaf041e1fd4ae184011aad07b97196f613"},
+    {"path": "lang/zls/sr", "size_bytes": 250, "sha256": "0e076528d3566f6e59b807e16e274dee505e88a6d477da188ab8ec442eae44f4"}
+  ]
+}

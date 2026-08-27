@@ -192,6 +192,15 @@ public class SerbianPreprocessor(
     private val resources: SerbianPreprocessingResources,
     private val phonemizer: SerbianPhonemizer = UnavailableSerbianPhonemizer,
 ) {
+    public companion object {
+        /** Android production wiring for the exact native pronunciation stage. */
+        public fun fromAssets(assetManager: AssetManager, filesDir: java.io.File): SerbianPreprocessor =
+            SerbianPreprocessor(
+                resources = SerbianPreprocessingResources.fromAssets(assetManager),
+                phonemizer = NativeSerbianPhonemizer.fromAssets(assetManager, filesDir),
+            )
+    }
+
     public fun process(text: String): SerbianPreprocessingOutput {
         val cleanupText = text
         val normalizedText = cleanupText

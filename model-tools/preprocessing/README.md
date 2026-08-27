@@ -27,17 +27,19 @@ model-tools/.venv/bin/pytest -q model-tools/tests/test_preprocessing_contract.py
 ```
 
 The contract records eSpeak-NG `1.52.0`, Serbian voice `sr`, IPA mode `3`, the
-exact reference command, upstream tag commit candidate, installed desktop
-binary/data fingerprints, and the pinned `kokoro_sr` source hashes. The
-installed data hashes are investigation fingerprints only, not a complete
-portable data closure.
+exact reference command, upstream tag commit, installed desktop fingerprints,
+and the pinned `kokoro_sr` source hashes. The Android data closure and native
+build observation are recorded in `model-tools/native/` and packaged under
+`tts-onnx/src/main/assets/`.
 
 The selected Android implementation remains `arm64-v8a` native eSpeak-NG
-behind a narrow JNI text-to-IPA boundary. No native library or eSpeak data is
-checked in here: the complete data closure/native build provenance is not yet
-recorded, and eSpeak-NG's GPL-3.0-or-later license conflicts with the current
-Android/F-Droid linked-dependency policy. The contract therefore remains
-`not_yet_qualified` and must not be treated as Android compatibility evidence.
+behind a narrow JNI text-to-IPA boundary. The bridge reproduces the pinned
+desktop CLI's bulk-stdin behavior before applying the Kotlin normalization and
+vocabulary stages. The contract remains `not_yet_qualified` for the ARM64
+production target until ARM64 Android instrumentation and device execution
+verify all 26 vectors. eSpeak-NG is
+`GPL-3.0-or-later`; release compliance requires the source, notices, and build
+information recorded in `model-tools/native/`.
 
 Desktop compatibility validation compares all 26 golden vectors at every
 declared preprocessing stage, using exact equality, and reports the first

@@ -160,24 +160,24 @@ Consequences recorded:
   provenance), and (c) the GPL obligations — license text, copyright notices,
   corresponding source, modification notices, and installation information.
 - The "release compatibility blocker" framing above is lifted as a *policy*
-  blocker. The remaining open items are the native source/data provenance gap
-  and native-vs-CLI output parity, tracked under tasks 4.4/4.5 and 12.3/12.4,
-  not as a license-policy decision.
+  blocker. The native source/data provenance is now recorded under
+  `model-tools/native/`; remaining open items are Android qualification and
+  release reproducibility, tracked under tasks 4.5 and 12.3/12.4, not as a
+  license-policy decision.
 - The Dragana/Južne vesti model licensing gate is independent and unchanged.
 
 ## Unresolved Risks
 
-- No Android NDK build, JNI API, ABI load, memory, or device parity evidence
-  exists yet.
-- The installed binary's source provenance and the complete data closure are
-  not currently recorded; task 12.3/12.4 must close that gap before release.
-- Native library output may differ from the CLI unless initialization, data
-  path, voice selection, encoding, and text-to-phoneme API options are matched
-  exactly. This needs a dedicated golden comparison.
-- Shipping the selected exact dependency conflicts with the current Android
-  dependency/license policy. If that conflict cannot be resolved, the project
-  needs a legally cleared, parity-proven alternative before Android
-  phonemization can proceed.
+- The native Android library builds for `arm64-v8a`, but no Android ABI load,
+  memory, or device parity evidence exists yet.
+- The checked-in data closure and build provenance are recorded, but release
+  reproducibility still requires the pinned toolchain and source-build steps to
+  be exercised in clean CI under task 12.3/12.4.
+- Native output has been compared with a host-equivalent implementation of the
+  pinned CLI behavior for all 26 vectors; Android instrumentation must still
+  prove the same result.
+- GPL obligations for the linked engine and every packaged data file still
+  require a file-level release audit and corresponding source/build material.
 
 This decision does not implement task 3.7 portable resources or any Android
 integration.

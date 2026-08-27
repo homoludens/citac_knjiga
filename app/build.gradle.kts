@@ -47,6 +47,11 @@ android {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
             buildConfigField("Boolean", "VERBOSE_DIAGNOSTICS", "true")
+            ndk {
+                abiFilters.clear()
+                abiFilters += "x86_64"
+                abiFilters += "arm64-v8a"
+            }
         }
         release {
             isMinifyEnabled = false

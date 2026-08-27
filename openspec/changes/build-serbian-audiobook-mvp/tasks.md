@@ -41,7 +41,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 - [x] 4.2 Add Compose navigation, a manual application dependency container, structured local diagnostics, and separate debug/release/F-Droid configuration without proprietary services.
 - [x] 4.3 Implement app-private model-package import through SAF with temporary copy, manifest validation, checksum verification, compatibility checks, and rollback to the last valid package.
 - [x] 4.4 Implement Kotlin preprocessing stages and load golden vectors as JVM and Android test fixtures. Kotlin fails closed at the unavailable native pronunciation stage; exact eSpeak-NG parity remains task 4.5.
-- [ ] 4.5 Make Android normalized text, phonemes, token IDs, and chunk boundaries match every golden vector exactly.
+- [x] 4.5 Make Android normalized text, phonemes, token IDs, and chunk boundaries match every golden vector exactly. Debug variants package both `x86_64` and `arm64-v8a`; the connected smoke and all-26-vector gates pass on the available x86_64 emulator. Release remains explicitly ARM64-only, and ARM64 device execution remains unqualified.
 - [ ] 4.6 Implement the pinned Android ONNX session and verified tensor-to-PCM boundary with bounded threads and explicit resource cleanup.
 - [ ] 4.7 Add invalid-output checks for non-finite samples, silence, clipping, sample rate, sample count, and plausible duration.
 - [ ] 4.8 Build the typed Serbian text proof screen showing intermediate diagnostics, generate/cancel state, model provenance, and playable WAV output.

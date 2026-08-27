@@ -23,6 +23,12 @@ def test_contract_and_resources_are_checksum_pinned() -> None:
     assert contract["status"]["portable_resources"] == "checked_in_and_checksum_pinned"
     assert contract["status"]["android_compatibility"] == "not_yet_qualified"
     assert contract["phonemizer"]["version"] == "1.52.0"
+    assert contract["phonemizer"]["source"]["status"] == (
+        "recorded_for_reproducible_native_build"
+    )
+    assert contract["phonemizer"]["android_candidate"]["status"] == (
+        "implemented_not_qualified"
+    )
     assert contract["phonemizer"]["reference_installation"]["data_closure_status"] == (
         "incomplete_investigation_fingerprint"
     )

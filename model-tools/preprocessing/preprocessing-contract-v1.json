@@ -39,7 +39,7 @@
       "repository": "https://github.com/espeak-ng/espeak-ng.git",
       "tag": "1.52.0",
       "commit": "4870adfa25b1a32b4361592f1be8a40337c58d6c",
-      "status": "candidate_for_reproducible_native_build"
+      "status": "recorded_for_reproducible_native_build"
     },
     "reference_installation": {
       "status": "desktop_reference_only",
@@ -54,12 +54,12 @@
       "data_closure_status": "incomplete_investigation_fingerprint"
     },
     "android_candidate": {
-      "status": "blocked_not_packaged",
+      "status": "implemented_not_qualified",
       "abi": "arm64-v8a",
       "interface": "native_text_to_ipa_behind_narrow_jni_boundary",
       "blockers": [
-        "The complete eSpeak-NG data closure and native library hashes are not yet recorded from a reproducible Android build.",
-        "The GPL-3.0-or-later engine conflicts with the current Android/F-Droid linked-dependency policy."
+        "Android instrumentation and ARM64 device/emulator parity evidence are not yet recorded.",
+        "A clean release build and file-level GPL/data notice audit remain required."
       ],
       "required_evidence": [
         "Resolved source commit, local patches, NDK/toolchain, build flags, and reproducible build command.",
@@ -90,6 +90,6 @@
   "status": {
     "portable_resources": "checked_in_and_checksum_pinned",
     "android_compatibility": "not_yet_qualified",
-    "blocker": "Native eSpeak-NG packaging is blocked by incomplete provenance/data-closure evidence and the current GPL-linked-dependency policy."
+    "blocker": "Android qualification, clean release reproducibility, and the file-level GPL/data notice audit remain."
   }
 }
