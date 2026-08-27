@@ -31,7 +31,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 - [x] 3.3 Expand the golden corpus for Latin/Cyrillic equivalence, `č/ć/š/ž/đ`, `lj/nj/dž`, mixed scripts, foreign names, abbreviations, numbers, dates, currencies, measurements, Roman numerals, punctuation, URLs, email, citations, and page artifacts.
 - [x] 3.4 Store expected cleanup text, normalized text, phonemes, token IDs, protected spans, chunk boundaries, and reference audio metadata for each vector.
 - [x] 3.5 Add parity cases immediately below, at, and above the verified model input limit and for paragraphs with no convenient sentence boundary.
-- [ ] 3.6 Decide from the pinned source whether exact Android phonemization can be pure Kotlin or requires a native eSpeak-NG component, and record the dependency and licensing decision.
+- [x] 3.6 Decide from the pinned source whether exact Android phonemization can be pure Kotlin or requires a native eSpeak-NG component, and record the dependency and licensing decision. -> `model-tools/phonemization-decision.md` (native eSpeak-NG required; Android inclusion blocked by current GPL dependency policy pending legal/provenance resolution)
 - [ ] 3.7 Implement the selected portable preprocessing resources and a platform-neutral version/provenance contract.
 - [ ] 3.8 Add desktop tests that report the first divergent preprocessing stage and block package creation on any golden mismatch.
 

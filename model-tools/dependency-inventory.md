@@ -22,7 +22,7 @@ ONNX runtime, Compose, etc.)._
 | Component | Version | License | Redistributable? | Notes |
 |---|---|---|---|---|
 | ONNX Runtime (Android) | 1.29.0 | MIT | yes | Selected task 2.8: exact Maven Central AAR; SHA-256 `e97540ca78fe36f6fe2013f82843414fb843b6c7681fb04644cba5e1406662dd`; CPU baseline with bounded XNNPACK experiment; arm64-v8a filter; not device-qualified |
-| eSpeak-NG (if native port) | 1.52.0 | GPL-3.0 (+data LGPL-2.1+) | **no** in app | GPL: keep out of app; desktop-only reference until 3.6 decides |
+| eSpeak-NG engine + Serbian data | 1.52.0 / data closure TBD | GPL-3.0-or-later (data notices TBD) | **blocked** in app | Task 3.6 selects a native arm64/JNI candidate for exact parity; current project policy forbids linking GPL/AGPL components into the Android app. See `model-tools/phonemization-decision.md`. |
 | Android NDK components | TBD | BSD-3-Clause | yes | Only if retained |
 
 ## 3. Model tooling (desktop, `model-tools/`)
@@ -64,8 +64,9 @@ ONNX runtime, Compose, etc.)._
 ## Rules
 
 1. Any `GPL`/`AGPL` component MUST NOT be linked into the Android app
-   (F-Droid + app license conflict). eSpeak-NG is desktop-reference only
-   unless task 3.6 produces a compatible strategy.
+   (F-Droid + app license conflict). eSpeak-NG remains desktop-reference only
+   until the task-3.6 native strategy is legally compatible and reproducibly
+   qualified.
 2. Any model weight row stays `blocked` until `legal-inventory.md` §1.8 gate
    passes; the packager (task 3.2) MUST refuse to include blocked rows.
 3. Every `pending` row must be resolved before the MVP release candidate

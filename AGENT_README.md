@@ -24,6 +24,11 @@ target.
   `[0,506]` and `[506,523]`; seeded WAV metadata and chunk-aware desktop parity
   are checked against the pinned runtime. Packaging/import and Android
   qualification remain later tasks.
+- Task 3.6 confirms from the pinned `kokoro_sr` source that exact Serbian
+  phonemization is eSpeak-NG-backed and therefore needs a native engine/data
+  component on Android, not pure Kotlin pronunciation rules. The candidate is
+  currently blocked by the project's GPL-linked-dependency policy and missing
+  native source/data provenance; see `model-tools/phonemization-decision.md`.
 
 ## Repository layout
 
