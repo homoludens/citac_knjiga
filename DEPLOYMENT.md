@@ -22,9 +22,13 @@ The reference CPU inference path uses the **pinned Kokoro runtime** (see
    uv sync --python 3.11        # creates .venv, resolves + locks (uv.lock)
    ```
    - `uv.lock` (310 packages) pins the exact versions, including
-     `kokoro @ git+https://github.com/semidark/kokoro.git@b96fef95...` and
+     `kokoro @ git+https://github.com/semidark/kokoro.git@b96fef95...`,
      `torch==2.13.0` (the CUDA build is fine for CPU inference; the reference
-     samples are CPU-generated).
+     samples are CPU-generated), and the ONNX tooling resolved for task 2.2:
+     `onnx==1.22.0`, `onnxruntime==1.29.0` (CPU), `onnxscript==0.7.1`.
+     The FP32 export uses the **legacy TorchScript exporter** (`dynamo=False`,
+     `dynamic_axes`), CustomSTFT (`disable_complex=True`), pinned `ai.onnx`
+     opset **18**. See `model-tools/export/README.md`.
    - **Do not replace the pinned kokoro with PyPI `kokoro==0.9.4`** — the
      weight-norm implementation differs and produces noise. The smoke test
      asserts the weight-norm guard.
