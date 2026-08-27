@@ -77,6 +77,16 @@ public class ModelPackageStoreTest {
         assertEquals("first", store.activePackage()?.packageId)
     }
 
+    @Test
+    public fun readsVerifiedArtifactsByManifestRole() {
+        val root = createTempDirectory().toFile()
+        val store = store(root)
+        val installed = store.importPackage(ModelPackageSource { ByteArrayInputStream(packageBytes("first")) })
+
+        assertEquals("model-first".toByteArray().toList(), store.readArtifact(installed, "model").toList())
+        assertEquals("voice".toByteArray().toList(), store.readArtifact(installed, "voice_style").toList())
+    }
+
     private fun store(root: File): ModelPackageStore = ModelPackageStore(
         filesDir = root,
         compatibility = ModelPackageCompatibility(minimumAndroidApi = 30),

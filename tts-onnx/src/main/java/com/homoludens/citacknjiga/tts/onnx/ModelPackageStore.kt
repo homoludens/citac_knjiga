@@ -157,6 +157,57 @@ public class ModelPackageStore(
         return metadata.copy(archive = activeFile)
     }
 
+    /** Reads one already verified payload artifact while keeping the ZIP private. */
+    public fun readArtifact(packageInfo: InstalledModelPackage, role: String): ByteArray {
+        try {
+            ZipFile(packageInfo.archive).use { archive ->
+                val manifestEntry = archive.getEntry("manifest.json")
+                    ?: throw ModelPackageImportException(
+                        ModelPackageFailureCode.MANIFEST_INVALID,
+                        "Model package manifest.json is missing",
+                    )
+                val manifest = archive.getInputStream(manifestEntry).use { input ->
+                    JsonParser.parseReader(input.reader(StandardCharsets.UTF_8)).asJsonObject
+                }
+                val candidates = manifest.getAsJsonArray("artifacts").map { it.asJsonObject }
+                    .filter { artifact ->
+                        artifact.getAsJsonArray("roles").any { it.asString == role }
+                    }
+                if (candidates.size != 1) {
+                    throw ModelPackageImportException(
+                        ModelPackageFailureCode.MANIFEST_INVALID,
+                        "Model package must declare exactly one artifact with role $role",
+                    )
+                }
+                val artifact = candidates.single()
+                val path = artifact.get("path").asString
+                val entry = archive.getEntry(path)
+                    ?: throw ModelPackageImportException(
+                        ModelPackageFailureCode.ARCHIVE_INVALID,
+                        "Declared artifact is missing: $path",
+                    )
+                val bytes = archive.getInputStream(entry).use { it.readBytes() }
+                if (bytes.size.toLong() != artifact.get("size_bytes").asLong ||
+                    sha256(bytes) != artifact.get("sha256").asString
+                ) {
+                    throw ModelPackageImportException(
+                        ModelPackageFailureCode.CHECKSUM_MISMATCH,
+                        "Artifact checksum mismatch: $path",
+                    )
+                }
+                return bytes
+            }
+        } catch (exception: ModelPackageImportException) {
+            throw exception
+        } catch (exception: Exception) {
+            throw ModelPackageImportException(
+                ModelPackageFailureCode.ARCHIVE_INVALID,
+                "Could not read model package artifact with role $role",
+                exception,
+            )
+        }
+    }
+
     private fun publish(temporary: File) {
         var movedPrevious = false
         try {

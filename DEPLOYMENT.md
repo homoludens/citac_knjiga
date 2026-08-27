@@ -147,6 +147,32 @@ test execution. It does not qualify the ARM64 eSpeak-NG path used by debug or
 release builds; rerun the same tests on an ARM64 device or native ARM64
 emulator before treating the production path as qualified.
 
+## Android tensor boundary (task 4.6)
+
+The direct runtime implementation is `tts-onnx/src/main/java/com/homoludens/
+citacknjiga/tts/onnx/OnnxTtsSession.kt`. It consumes the imported package's
+verified `model` and `voice_style` artifacts, uses the manifest boundary
+`input_ids` int64 `[1, seq_len]`, `ref_s` float32 `[1, 256]`, and scalar
+`speed` float32, and returns named `waveform` float32 PCM plus `pred_dur`
+int64. The baseline is sequential CPU execution with ORT intra-op/inter-op
+threads `1/1`; all input tensors, results, options, sessions, and environments
+are closed on success and failure.
+
+Focused checks:
+
+```sh
+ANDROID_HOME=/path/to/Android/Sdk ANDROID_SDK_ROOT=/path/to/Android/Sdk \
+  ./gradlew :tts-onnx:testDebugUnitTest :tts-onnx:lintDebug \
+  :tts-onnx:assembleDebug :tts-onnx:assembleRelease \
+  :tts-onnx:connectedDebugAndroidTest
+```
+
+The connected boundary test uses a small deterministic fixture and does not
+add the 326 MB local production graph to Android test assets. The production
+graph is present only as an ignored local export, while the legal-blocked model
+package is not checked in; production-graph Android parity and device
+qualification therefore remain later gates.
+
 ## Voice bundle
 
 `kokoro_sr_dragana_voice/` is the current known-good epoch-005 Dragana bundle

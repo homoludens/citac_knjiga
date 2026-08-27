@@ -55,6 +55,17 @@ target.
    release include the pinned ONNX Runtime dependency; release assembly remains
    explicitly ARM64-only, but ARM64 Android execution is still unqualified and
    remains a production/device blocker.
+ - Task 4.6 adds the direct ONNX Runtime Android session boundary. `OnnxTtsSession`
+   validates the manifest names, dtypes, fixed/dynamic shapes, int64 duration
+   relationship, and 24 kHz mono float PCM conversion. It selects the Dragana
+   row using `min(token_count - 2, 509)`, configures sequential CPU inference
+   with one intra-op and one inter-op thread, and closes input tensors, result
+   values, session options, session, and environment deterministically.
+   `ModelPackageStore.readArtifact` reads verified model/style payloads from the
+   private archive; no model is copied into the APK. The connected boundary gate
+   uses a small deterministic ONNX fixture. The ignored local production graph
+   exists, but a complete model package is not checked in because the legal gate
+   remains blocked, so Android production-graph parity is still task 4.9.
 - Task 4.1 creates the source-buildable Android foundation with `app`, `core`,
   `tts-onnx`, `document-epub`, and `playback-export` modules. The project pins
   Gradle 8.10.2, Android Gradle Plugin 8.8.2, Kotlin 2.1.10, JDK 21 toolchains,
@@ -63,7 +74,7 @@ target.
    `arm64-v8a` for the available emulator and target device). `tts-onnx` is the
    only module that currently carries the selected ONNX Runtime Android 1.29.0
    dependency in both debug and release; later Android behavior remains
-   unimplemented.
+   outside this session boundary unimplemented.
 - Task 4.2 adds a single Compose `start` route, Material 3 foundation screen,
   and a manual `AppContainer` created by `CitacKnjigaApplication`. Dependencies
   remain constructor-provided and test-replaceable; feature modules do not
