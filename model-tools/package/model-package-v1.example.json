@@ -12,7 +12,7 @@
     "canonicalization": "json-sorted-keys-utf8-v1",
     "identity": {
       "algorithm": "sha-256",
-      "value": "ced9a636235192cbd328e197d8abc28b41304bc9c93b5f58b1d1e43178d55cfd",
+      "value": "172bc373be090d62895bdbce031bd54ddc0106fa3f83b579a857ac864c4240f6",
       "input": "package_id, package_version, and sorted artifact path+sha256 pairs"
     }
   },
@@ -148,6 +148,186 @@
       "media_type": "audio/wav",
       "sha256": "0b197f8aba65bd020ba235758a90f624bae62937db22db750c4e79b0742147d4",
       "size_bytes": 156044,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-digraphs-latin",
+      "path": "tests/audio/digraphs-latin.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "cf3e6fc45c53238dc70601a7289dce8f9931769ad87a710e33d6fad78f072f93",
+      "size_bytes": 160844,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-digraphs-cyrillic",
+      "path": "tests/audio/digraphs-cyrillic.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "cf3e6fc45c53238dc70601a7289dce8f9931769ad87a710e33d6fad78f072f93",
+      "size_bytes": 160844,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-mixed-scripts",
+      "path": "tests/audio/mixed-scripts.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "48c2a95879bdc1ebce604a5e14465ac7a0b0f4fcbb637c043278cd411cbe767d",
+      "size_bytes": 165644,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-foreign-names",
+      "path": "tests/audio/foreign-names.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "09eb21993c670e88c478df0df537637865ad593d788dc029097d925c8751599d",
+      "size_bytes": 196844,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-abbreviations",
+      "path": "tests/audio/abbreviations.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "dda31c02181f90e209a72fc3412153a9135744af449bff5d161b7ca1003a5ef9",
+      "size_bytes": 253244,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-numbers-expanded",
+      "path": "tests/audio/numbers-expanded.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "ea2159dd64f0a7c364ddb259f2dcdb5bf435bca6a4b2ae487e5b0b7fbf5e3cb7",
+      "size_bytes": 512444,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-dates",
+      "path": "tests/audio/dates.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "db2c613bc5cc3ea1b513053db66e9fd3752b9ac6f17cdd089716c182b47083df",
+      "size_bytes": 318044,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-currencies",
+      "path": "tests/audio/currencies.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "9189ade9fb320db3bf30cbb56aa090d084f022ceef9eb54a950ed5cf627dadf1",
+      "size_bytes": 373244,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-measurements",
+      "path": "tests/audio/measurements.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "cdec360199172c6d0990910327f3c6a748245611573f7c11a2c2f3cd91c50565",
+      "size_bytes": 369644,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-roman-numerals",
+      "path": "tests/audio/roman-numerals.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "965d5946673573991d01b0912e9bc6b29374ccce119d47f8c29f5bfab986b2b0",
+      "size_bytes": 300044,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-punctuation-extended",
+      "path": "tests/audio/punctuation-extended.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "bf6c3343edf4f7e24d4388b9dfe11381785b760ffe187f7e3bbde30b91f69580",
+      "size_bytes": 122444,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-urls",
+      "path": "tests/audio/urls.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "0143de17fb7d117dd5404aa66ea2796c0c0b0bd3bc290a4de2a32fd6e5ed852f",
+      "size_bytes": 369644,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-email",
+      "path": "tests/audio/email.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "94d94ea2a2c30136d46d3cdfb74c819f25a8afb527ce09746ab3bea097b26372",
+      "size_bytes": 429644,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-citations",
+      "path": "tests/audio/citations.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "b14b9049c7d2650cc0548782a365fe0ffc9aa36ebef6a9c76f21645060922a44",
+      "size_bytes": 356444,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-page-artifacts",
+      "path": "tests/audio/page-artifacts.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "06b58195f4d9744dae6f4254049c1c7a3774cde2da03085810067d9f10e08b5c",
+      "size_bytes": 211244,
       "required": true,
       "distribution_status": "blocked",
       "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
@@ -296,7 +476,7 @@
   },
   "test_vectors": {
     "corpus_id": "serbian-golden-vectors",
-    "version": "reference-20260826",
+    "version": "reference-20260827-task-3.3",
     "manifest_artifact_id": "golden-vectors",
     "all_required": true,
     "parity_thresholds_version": "fp32-parity-v1",
@@ -307,7 +487,22 @@
       {"id": "diacritics-cyrillic", "case_ref": "tests/reference-vectors.json#/vectors/3", "audio_artifact_id": "audio-diacritics-cyrillic", "required": true, "exact_preprocessing": true},
       {"id": "mixed-digits", "case_ref": "tests/reference-vectors.json#/vectors/4", "audio_artifact_id": "audio-mixed-digits", "required": true, "exact_preprocessing": true},
       {"id": "punctuation", "case_ref": "tests/reference-vectors.json#/vectors/5", "audio_artifact_id": "audio-punctuation", "required": true, "exact_preprocessing": true},
-      {"id": "cyrillic-punctuation", "case_ref": "tests/reference-vectors.json#/vectors/6", "audio_artifact_id": "audio-cyrillic-punctuation", "required": true, "exact_preprocessing": true}
+      {"id": "cyrillic-punctuation", "case_ref": "tests/reference-vectors.json#/vectors/6", "audio_artifact_id": "audio-cyrillic-punctuation", "required": true, "exact_preprocessing": true},
+      {"id": "digraphs-latin", "case_ref": "tests/reference-vectors.json#/vectors/7", "audio_artifact_id": "audio-digraphs-latin", "required": true, "exact_preprocessing": true},
+      {"id": "digraphs-cyrillic", "case_ref": "tests/reference-vectors.json#/vectors/8", "audio_artifact_id": "audio-digraphs-cyrillic", "required": true, "exact_preprocessing": true},
+      {"id": "mixed-scripts", "case_ref": "tests/reference-vectors.json#/vectors/9", "audio_artifact_id": "audio-mixed-scripts", "required": true, "exact_preprocessing": true},
+      {"id": "foreign-names", "case_ref": "tests/reference-vectors.json#/vectors/10", "audio_artifact_id": "audio-foreign-names", "required": true, "exact_preprocessing": true},
+      {"id": "abbreviations", "case_ref": "tests/reference-vectors.json#/vectors/11", "audio_artifact_id": "audio-abbreviations", "required": true, "exact_preprocessing": true},
+      {"id": "numbers-expanded", "case_ref": "tests/reference-vectors.json#/vectors/12", "audio_artifact_id": "audio-numbers-expanded", "required": true, "exact_preprocessing": true},
+      {"id": "dates", "case_ref": "tests/reference-vectors.json#/vectors/13", "audio_artifact_id": "audio-dates", "required": true, "exact_preprocessing": true},
+      {"id": "currencies", "case_ref": "tests/reference-vectors.json#/vectors/14", "audio_artifact_id": "audio-currencies", "required": true, "exact_preprocessing": true},
+      {"id": "measurements", "case_ref": "tests/reference-vectors.json#/vectors/15", "audio_artifact_id": "audio-measurements", "required": true, "exact_preprocessing": true},
+      {"id": "roman-numerals", "case_ref": "tests/reference-vectors.json#/vectors/16", "audio_artifact_id": "audio-roman-numerals", "required": true, "exact_preprocessing": true},
+      {"id": "punctuation-extended", "case_ref": "tests/reference-vectors.json#/vectors/17", "audio_artifact_id": "audio-punctuation-extended", "required": true, "exact_preprocessing": true},
+      {"id": "urls", "case_ref": "tests/reference-vectors.json#/vectors/18", "audio_artifact_id": "audio-urls", "required": true, "exact_preprocessing": true},
+      {"id": "email", "case_ref": "tests/reference-vectors.json#/vectors/19", "audio_artifact_id": "audio-email", "required": true, "exact_preprocessing": true},
+      {"id": "citations", "case_ref": "tests/reference-vectors.json#/vectors/20", "audio_artifact_id": "audio-citations", "required": true, "exact_preprocessing": true},
+      {"id": "page-artifacts", "case_ref": "tests/reference-vectors.json#/vectors/21", "audio_artifact_id": "audio-page-artifacts", "required": true, "exact_preprocessing": true}
     ]
   },
   "licenses": [
@@ -317,7 +512,7 @@
       "name": "Creative Commons Attribution 4.0 International",
       "source_url": "https://creativecommons.org/licenses/by/4.0/",
       "terms_status": "declared",
-      "applies_to": ["model-onnx", "voice-dragana", "audio-greeting-latin", "audio-greeting-cyrillic", "audio-diacritics-latin", "audio-diacritics-cyrillic", "audio-mixed-digits", "audio-punctuation", "audio-cyrillic-punctuation"],
+      "applies_to": ["model-onnx", "voice-dragana", "audio-greeting-latin", "audio-greeting-cyrillic", "audio-diacritics-latin", "audio-diacritics-cyrillic", "audio-mixed-digits", "audio-punctuation", "audio-cyrillic-punctuation", "audio-digraphs-latin", "audio-digraphs-cyrillic", "audio-mixed-scripts", "audio-foreign-names", "audio-abbreviations", "audio-numbers-expanded", "audio-dates", "audio-currencies", "audio-measurements", "audio-roman-numerals", "audio-punctuation-extended", "audio-urls", "audio-email", "audio-citations", "audio-page-artifacts"],
       "modification_note": "Weights and audio are derived from the Dragana Common Voice training data."
     },
     {
@@ -326,7 +521,7 @@
       "name": "Creative Commons Attribution-ShareAlike 4.0 International",
       "source_url": "https://creativecommons.org/licenses/by-sa/4.0/",
       "terms_status": "pending-review",
-      "applies_to": ["model-onnx", "voice-dragana", "audio-greeting-latin", "audio-greeting-cyrillic", "audio-diacritics-latin", "audio-diacritics-cyrillic", "audio-mixed-digits", "audio-punctuation", "audio-cyrillic-punctuation"],
+      "applies_to": ["model-onnx", "voice-dragana", "audio-greeting-latin", "audio-greeting-cyrillic", "audio-diacritics-latin", "audio-diacritics-cyrillic", "audio-mixed-digits", "audio-punctuation", "audio-cyrillic-punctuation", "audio-digraphs-latin", "audio-digraphs-cyrillic", "audio-mixed-scripts", "audio-foreign-names", "audio-abbreviations", "audio-numbers-expanded", "audio-dates", "audio-currencies", "audio-measurements", "audio-roman-numerals", "audio-punctuation-extended", "audio-urls", "audio-email", "audio-citations", "audio-page-artifacts"],
       "modification_note": "Južne vesti DUA, ShareAlike, and underlying broadcast rights remain unresolved."
     },
     {
@@ -377,7 +572,7 @@
     "status": "blocked",
     "model_distribution": "blocked",
     "package_distribution": "private-development-only",
-    "blocked_artifact_ids": ["model-onnx", "voice-dragana", "audio-greeting-latin", "audio-greeting-cyrillic", "audio-diacritics-latin", "audio-diacritics-cyrillic", "audio-mixed-digits", "audio-punctuation", "audio-cyrillic-punctuation"],
+    "blocked_artifact_ids": ["model-onnx", "voice-dragana", "audio-greeting-latin", "audio-greeting-cyrillic", "audio-diacritics-latin", "audio-diacritics-cyrillic", "audio-mixed-digits", "audio-punctuation", "audio-cyrillic-punctuation", "audio-digraphs-latin", "audio-digraphs-cyrillic", "audio-mixed-scripts", "audio-foreign-names", "audio-abbreviations", "audio-numbers-expanded", "audio-dates", "audio-currencies", "audio-measurements", "audio-roman-numerals", "audio-punctuation-extended", "audio-urls", "audio-email", "audio-citations", "audio-page-artifacts"],
     "outstanding_reviews": [
       "Obtain the exact CLARIN.SI DUA for handle 11356/1679.",
       "Obtain written advice on ShareAlike obligations for weights and underlying broadcast rights."

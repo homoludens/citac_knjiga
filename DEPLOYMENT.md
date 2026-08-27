@@ -55,8 +55,9 @@ Writes `model-tools/reference/smoke-test.wav` (LFS-tracked).
 
 ### Reference artifacts
 
-- `model-tools/reference/` — LFS-tracked reference captures (smoke WAV now;
-  the full task 1.4 golden input/intermediate/PCM set is added next).
+- `model-tools/reference/` — LFS-tracked reference captures and the expanded
+  task-3.3 golden corpus. Corpus regeneration and validation are documented in
+  `model-tools/reference/README.md`.
 - `model-tools/runtime-pins.md` — immutable runtime/source/bundle identity.
 - `model-tools/legal-inventory.md` — data/weight licensing + release gate.
 - `model-tools/dependency-inventory.md` — dependency/license inventory template.

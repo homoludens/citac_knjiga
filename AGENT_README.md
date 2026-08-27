@@ -16,7 +16,10 @@ target.
   tasks.
 - Task 3.1 defines the strict v1 model-package manifest, blocked legal fixture,
   SHA-256 identity, and declaration validator under `model-tools/package/`.
-  Packaging/import and Android qualification remain later tasks.
+- Task 3.3 expands the self-authored Serbian golden corpus to 22 pinned desktop
+  reference vectors with explicit category coverage and deterministic
+  regeneration metadata. Packaging/import and Android qualification remain
+  later tasks.
 
 ## Repository layout
 

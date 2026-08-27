@@ -26,9 +26,10 @@ candidate. It does not create the payload files or an archive.
   eSpeak-NG command/version, normalization contract, vocabulary contract, and
   507 operational/510 hard phoneme limits. Android compatibility remains an
   explicit status, not an assumption.
-- `test_vectors` references the machine-readable vector artifact and each
-  required golden WAV artifact. It pins `fp32-parity-v1` and requires exact
-  preprocessing references without adding the later corpus expansion tasks.
+- `test_vectors` references the expanded 22-case machine-readable vector
+  artifact and each required golden WAV artifact. It pins `fp32-parity-v1` and
+  requires exact preprocessing references; cleanup/chunking fields remain a
+  later task.
 - Every artifact declares license and attribution references. The fixture
   records Dragana / Darko Milošević under CC BY 4.0, Južne vesti provenance
   under the declared CC BY-SA 4.0 terms, and synthetic-audio disclosure.

@@ -86,7 +86,7 @@ def test_packager_successfully_validates_completed_package(tmp_path: Path) -> No
     manifest = validate_package(output)
 
     assert output.is_file()
-    assert len(manifest["artifacts"]) == 11
+    assert len(manifest["artifacts"]) == 26
 
 
 def test_packager_rejects_blocked_legal_status(tmp_path: Path) -> None:
