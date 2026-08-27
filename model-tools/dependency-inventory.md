@@ -21,7 +21,7 @@ ONNX runtime, Compose, etc.)._
 
 | Component | Version | License | Redistributable? | Notes |
 |---|---|---|---|---|
-| ONNX Runtime (Android) | TBD (Phase 2.8) | MIT | yes | Pick after parity gate |
+| ONNX Runtime (Android) | 1.29.0 | MIT | yes | Selected task 2.8: exact Maven Central AAR; SHA-256 `e97540ca78fe36f6fe2013f82843414fb843b6c7681fb04644cba5e1406662dd`; CPU baseline with bounded XNNPACK experiment; arm64-v8a filter; not device-qualified |
 | eSpeak-NG (if native port) | 1.52.0 | GPL-3.0 (+data LGPL-2.1+) | **no** in app | GPL: keep out of app; desktop-only reference until 3.6 decides |
 | Android NDK components | TBD | BSD-3-Clause | yes | Only if retained |
 

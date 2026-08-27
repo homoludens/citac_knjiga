@@ -22,7 +22,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 - [x] 2.5 Build a desktop parity runner that compares PyTorch CPU and ONNX Runtime over every reference vector and emits machine-readable and human-readable reports.
 - [x] 2.6 Diagnose and resolve every threshold failure without weakening the recorded thresholds silently.
 - [x] 2.7 Time-box a Sherpa-ONNX compatibility experiment using the Serbian graph, tokens, Dragana voice data, and phonemization inputs, then record accept/reject rationale. → `model-tools/scripts/probe_sherpa_onnx.py` + `model-tools/sherpa-onnx-compatibility.md` (custom graph executes through Sherpa after disposable format adaptation; exact Serbian compatibility rejected due frontend/tokenization drift)
-- [ ] 2.8 Select and pin the Android inference runtime only after direct ONNX Runtime and the bounded Sherpa-ONNX experiment have comparable evidence.
+- [x] 2.8 Select and pin the Android inference runtime only after direct ONNX Runtime and the bounded Sherpa-ONNX experiment have comparable evidence. → `model-tools/android-runtime-decision.md`; direct ONNX Runtime Android `1.29.0` selected, Sherpa rejected for Serbian frontend/token drift; Android parity and device qualification remain later tasks.
 
 ## 3. Model Package and Serbian Golden Corpus (rough phase effort: 1–2 weeks)
 

@@ -9,10 +9,11 @@ target.
 - OpenSpec change `build-serbian-audiobook-mvp` is in progress:
   `openspec/changes/build-serbian-audiobook-mvp/` (proposal, design, 6 specs,
   12 task phases).
-- Phase 2 model export/parity is active: task 2.4 has frozen the FP32 parity
-  contract at `model-tools/parity/fp32-thresholds-v1.json`; task 2.5 has a
-  desktop runner at `model-tools/scripts/run_parity.py` with JSON and text
-  reports; task 2.6 remains pending.
+- Phase 2 model export/parity is active: tasks 2.4-2.7 froze and exercised the
+  FP32 parity contract, desktop ONNX validation, and the bounded Sherpa
+  experiment; task 2.8 selects direct ONNX Runtime Android `1.29.0` as the
+  implementation target. Android parity and device qualification remain later
+  tasks.
 
 ## Repository layout
 
@@ -46,6 +47,11 @@ target.
   vectors. Reports are written to
   `model-tools/parity/fp32-parity-report.json` and
   `model-tools/parity/fp32-parity-report.txt`.
+- Android runtime decision (task 2.8): direct
+  `com.microsoft.onnxruntime:onnxruntime-android:1.29.0` is selected; CPU is
+  the acceptance baseline and XNNPACK is a separately measured variant. See
+  `model-tools/android-runtime-decision.md`; this does not claim Android or
+  device qualification.
 
 ## Conventions
 

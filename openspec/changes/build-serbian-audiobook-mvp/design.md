@@ -30,9 +30,9 @@ Building the full Android shell first was rejected because a failed model export
 
 ### 2. Start with direct ONNX Runtime Android
 
-The initial runtime boundary accepts token IDs, a selected Dragana style vector, speed, and any additional verified tensors, and returns float PCM. Desktop tools export the graph and compare it to the pinned PyTorch CPU reference before Android consumes it. Android begins with the CPU and XNNPACK execution providers; NNAPI and reduced/custom runtime builds are optimization experiments after parity.
+The initial runtime boundary accepts token IDs, a selected Dragana style vector, speed, and any additional verified tensors, and returns float PCM. Desktop tools export the graph and compare it to the pinned PyTorch CPU reference before Android consumes it. Task 2.8 selects and pins `com.microsoft.onnxruntime:onnxruntime-android:1.29.0`, with CPU as the acceptance baseline and XNNPACK as an explicitly measured provider variant; NNAPI and reduced/custom runtime builds remain optimization experiments after parity. The dependency, checksum, ABI, thread, and remaining Android validation contract is recorded in `model-tools/android-runtime-decision.md`.
 
-Sherpa-ONNX is a time-boxed alternative spike because it has Kokoro and Android support. It replaces direct ONNX Runtime only if the custom Serbian graph, tokens, voice data, and phonemization can be integrated without output drift and with lower maintenance cost. Quantization is deferred until FP32 or quality-preserving FP16 establishes the baseline.
+Sherpa-ONNX was evaluated as the bounded alternative. It is rejected for the MVP because its high-level Kokoro frontend does not accept the project's precomputed Serbian token IDs, skips an unsupported phoneme, and produces different sample counts for all seven vectors. Making it viable would require a maintained custom frontend or source patch and a new parity gate. Quantization is deferred until FP32 or quality-preserving FP16 establishes the baseline.
 
 ### 3. Treat preprocessing as a versioned portable product component
 

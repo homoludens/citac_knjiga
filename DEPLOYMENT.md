@@ -61,6 +61,31 @@ Writes `model-tools/reference/smoke-test.wav` (LFS-tracked).
 - `model-tools/legal-inventory.md` — data/weight licensing + release gate.
 - `model-tools/dependency-inventory.md` — dependency/license inventory template.
 
+## Android inference runtime target (task 2.8)
+
+The selected implementation target is the exact Maven Central release:
+
+```kotlin
+implementation("com.microsoft.onnxruntime:onnxruntime-android:1.29.0")
+```
+
+Do not use `latest.release`, a dynamic version, nightly build, or Sherpa-ONNX
+for the MVP runtime. The inspected AAR SHA-256 is
+`e97540ca78fe36f6fe2013f82843414fb843b6c7681fb04644cba5e1406662dd`.
+Record that checksum in Gradle dependency verification when the Android
+project is created; dependency locking and checksum verification are release
+requirements for task 12.3.
+
+The app target is Android 11+ `arm64-v8a`, so configure an explicit ABI filter.
+The initial session baseline is CPU execution with sequential ORT execution and
+one intra-op plus one inter-op thread. XNNPACK is a separately measured,
+explicitly configured variant with CPU fallback. NNAPI is deferred to task 5.3.
+
+This is a selected dependency target, not Android graph parity, ABI loading,
+performance, thermal, or Poco F3 qualification. See
+`model-tools/android-runtime-decision.md` before implementing the Android
+module.
+
 ## Voice bundle
 
 `kokoro_sr_dragana_voice/` is the current known-good epoch-005 Dragana bundle
