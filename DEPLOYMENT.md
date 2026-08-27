@@ -194,3 +194,43 @@ application does not bundle the production model and never fabricates audio.
 Successful output is atomically written as validated PCM16, 24 kHz mono WAV
 under `filesDir/typed-proof/` and streamed locally with `AudioTrack`. This is a
 proof artifact, not durable generation or Media3 playback.
+
+## Android parity report (task 4.9)
+
+`tts-onnx` provides `AndroidDeviceParityRunner` and
+`DeviceParityReportStore`. The runner compares caller-supplied desktop ONNX
+waveforms with Android `OnnxTtsOutput` using every measurement in the immutable
+`fp32-parity-v1` declaration: exact sample count, waveform error, STFT cosine,
+silence, clipping, and invalid-output checks. `runAndPersist` writes
+`device-parity-report.json` through a synced temporary file and atomic rename;
+the report contains only identities, vector IDs, numeric metrics, thresholds,
+and status fields, never document text.
+
+The installed-package entry point is fail-closed:
+
+```kotlin
+AndroidDeviceParityRunner().runInstalledAndPersist(
+    store, desktopVectors, context, DeviceParityReportStore(reportDirectory),
+)
+```
+
+With no verified package it persists `status: "blocked"` and `ok: false`. The
+current connected test is fixture evidence only and uses the API 35 x86_64
+emulator:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew :tts-onnx:testDebugUnitTest :tts-onnx:connectedDebugAndroidTest
+```
+
+Task 4.9 is not qualified. The legal release gate blocks the production model
+package and derived audio, the checked-in desktop parity report retains metrics
+but no raw ONNX waveforms for Android, and the available emulator is x86_64.
+The local ignored `model-tools/export/dragana.onnx` is not production evidence.
+The next step is to obtain legal clearance for a private test package, publish
+the matching desktop ONNX vector waveforms without document text, and run the
+full declared vector set on a native ARM64 Android device or emulator. The
+existing desktop 26-vector report also has the recorded frozen-threshold
+failures for `input-limit-at` and `paragraph-no-sentence-boundary`; those must
+be resolved without weakening `fp32-parity-v1` before a passing device report.

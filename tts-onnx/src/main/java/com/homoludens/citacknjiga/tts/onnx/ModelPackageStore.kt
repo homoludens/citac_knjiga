@@ -32,6 +32,8 @@ public data class InstalledModelPackage(
     val packageId: String,
     val packageVersion: String,
     val identitySha256: String,
+    val modelSha256: String,
+    val voiceSha256: String,
     val archive: File,
 )
 
@@ -453,10 +455,16 @@ public class ModelPackageStore(
         )
 
         validateCompatibility(manifest)
+        val modelArtifact = artifactById[manifest.getAsJsonObject("model").get("artifact_id").asString]
+            ?: failManifest("Model artifact is not declared")
+        val voiceArtifact = artifactById[manifest.getAsJsonObject("voice_style").get("artifact_id").asString]
+            ?: failManifest("Voice artifact is not declared")
         return InstalledModelPackage(
             packageId = packageId,
             packageVersion = packageVersion,
             identitySha256 = identity.get("value").asString,
+            modelSha256 = modelArtifact.get("sha256").asString,
+            voiceSha256 = voiceArtifact.get("sha256").asString,
             archive = File(""),
         )
     }

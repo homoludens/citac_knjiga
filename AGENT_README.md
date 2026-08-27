@@ -109,6 +109,15 @@ target.
   states, writes validated app-private 24 kHz mono PCM16 WAV, and plays it with
   the local Android PCM API. Generation remains fail-closed when no verified
   model package is installed; EPUB, Room, Media3, and export are not included.
+- Task 4.9 adds the Kotlin `DeviceParityEvaluator`, frozen `fp32-parity-v1`
+  metric declarations, and `DeviceParityReportStore` for atomic app-private JSON
+  reports containing device, build, runtime, model, threshold, vector metrics,
+  and status identity without document text. JVM tests and the connected API 35
+  x86_64 instrumentation fixture pass. Task 4.9 remains unchecked: the legal
+  gate leaves the production model package unavailable, the desktop runner does
+  not publish raw ONNX vector waveforms for Android consumption, and x86_64
+  fixture execution is not ARM64/device qualification. The runner persists a
+  non-passing `blocked` report instead of claiming production parity.
 
 ## Repository layout
 
