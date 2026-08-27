@@ -136,10 +136,34 @@ Consequences for this project:
   licensing. The model-package legal gate and attribution requirements remain
   unchanged.
 
-Until the GPL/native dependency issue is resolved, the desktop path remains the
+Until the native dependency is built and qualified, the desktop path remains the
 only supported exact phonemization path. No Android model package may claim
 Android compatibility merely because its ONNX tensor boundary passed desktop
 parity.
+
+## Resolution (2026-08-27, Marko)
+
+The project owner changed the GPL policy: the app **links the native eSpeak-NG
+component and accepts GPL-3.0-or-later** for the whole application. The earlier
+"no GPL/AGPL linking into the app" rule is rescinded for this dependency.
+
+Consequences recorded:
+
+- The application license becomes **GPL-3.0-or-later** (linking the GPL
+  eSpeak-NG engine makes the combined work GPL). GPL is an open-source license,
+  so the spec's "open source" and "F-Droid-compatible" goals are not
+  contradicted by the license alone.
+- F-Droid compatibility **remains the target** (F-Droid distributes GPL apps)
+  but is now conditional on: (a) a file-level license audit of the complete
+  eSpeak-NG data closure, (b) source-buildability of the native component (no
+  prebuilt `.so`/AAR without recorded source, local patches, and build
+  provenance), and (c) the GPL obligations — license text, copyright notices,
+  corresponding source, modification notices, and installation information.
+- The "release compatibility blocker" framing above is lifted as a *policy*
+  blocker. The remaining open items are the native source/data provenance gap
+  and native-vs-CLI output parity, tracked under tasks 4.4/4.5 and 12.3/12.4,
+  not as a license-policy decision.
+- The Dragana/Južne vesti model licensing gate is independent and unchanged.
 
 ## Unresolved Risks
 
