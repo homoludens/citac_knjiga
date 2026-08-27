@@ -15,6 +15,19 @@ android {
         }
     }
 
+    sourceSets {
+        getByName("main") {
+            assets.srcDir(rootProject.file("model-tools/preprocessing"))
+        }
+        getByName("test") {
+            resources.srcDir(rootProject.file("model-tools/reference"))
+            resources.srcDir(rootProject.file("model-tools/preprocessing"))
+        }
+        getByName("androidTest") {
+            assets.srcDir(rootProject.file("model-tools/reference"))
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -35,4 +48,7 @@ dependencies {
     implementation(libs.gson)
 
     testImplementation(libs.junit)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.runner)
 }

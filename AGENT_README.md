@@ -75,6 +75,12 @@ target.
   compatibility contract are checked before publication. The active archive is
   kept at `filesDir/model-packages/active.zip` and the prior verified archive at
   `last-valid.zip`; an invalid active archive is rolled back on next access.
+- Task 4.4 adds resource-backed Kotlin cleanup, IPA normalization, vocabulary,
+  boundary-token, and chunking stages in `tts-onnx`. The 26-vector corpus is
+  wired directly as JVM resources and Android test assets. The default
+  pronunciation stage fails closed until native eSpeak-NG is available; tests
+  inject committed reference IPA only to qualify the later Kotlin stages, not to
+  claim Android phonemization parity.
 
 ## Repository layout
 
