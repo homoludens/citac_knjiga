@@ -28,8 +28,10 @@ candidate. It does not create the payload files or an archive.
   explicit status, not an assumption.
 - `test_vectors` references the expanded 22-case machine-readable vector
   artifact and each required golden WAV artifact. It pins `fp32-parity-v1` and
-  requires exact preprocessing references; cleanup/chunking fields remain a
-  later task.
+  requires exact preprocessing references. Each vector now includes the
+  task-3.4 cleanup, normalized-text, IPA, token, protected-span,
+  chunk-boundary, and reference-audio fields; task 3.5 adds input-limit edge
+  cases without changing this field contract.
 - Every artifact declares license and attribution references. The fixture
   records Dragana / Darko Milošević under CC BY 4.0, Južne vesti provenance
   under the declared CC BY-SA 4.0 terms, and synthetic-audio disclosure.

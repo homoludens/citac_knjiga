@@ -1,10 +1,32 @@
 # Serbian Golden Corpus
 
 `vectors.json` is the machine-readable Serbian reference corpus. It contains
-22 self-authored, licensed-safe utterances and preserves the task-1.4 vector
-contract: input text, normalized IPA, vocabulary token IDs, selected voice row,
-and seeded reference WAV metadata. It deliberately does not add cleanup,
-protected-span, or chunk-boundary fields; those belong to task 3.4.
+22 self-authored, licensed-safe utterances and the v1 task-3.4 vector contract.
+The structural schema is `vectors.schema.json`.
+
+## Vector Contract
+
+Every vector records these stages in order:
+
+1. `cleanup_text` is the text after cleanup. The pinned desktop capture has no
+   text cleanup stage, so it is an exact copy of `text`.
+2. `normalized_text` is the text passed to `phonemize_serbian`. The pinned
+   desktop capture has no text normalization stage, so it is an exact copy of
+   `cleanup_text`. No normalization behavior is inferred from the audio.
+3. `phonemes` is the exact normalized IPA string returned by the pinned
+   `kokoro_sr.phonemes.phonemize_serbian`; `phoneme_count` counts Unicode code
+   points. `ipa` and `ipa_len` remain compatibility aliases.
+4. `token_ids` contains one vocabulary ID per IPA code point with boundary ID
+   `0` prepended and appended. `token_count` remains the existing alias.
+5. `protected_spans` contains sorted half-open Unicode code-point ranges into
+   `normalized_text`. The pinned desktop capture has no protected-span stage,
+   so all current values are `[]`.
+6. `chunk_boundaries` contains sorted half-open Unicode code-point ranges into
+   `phonemes`. Current vectors are all one unsplit range because they are below
+   the operational limit; task 3.5 owns limit-edge and oversized cases.
+7. `reference_audio` records the relative WAV path, SHA-256, PCM-16 format,
+   sample rate, channels, sample count, duration, peak, RMS, and finite-value
+   status. Existing flat audio fields remain compatibility aliases.
 
 ## Coverage
 

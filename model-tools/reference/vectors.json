@@ -1,4 +1,8 @@
 {
+  "schema": {
+    "id": "serbian-golden-corpus",
+    "version": 1
+  },
   "seed": 20260826,
   "torch_num_threads": 1,
   "sample_rate": 24000,
@@ -7,7 +11,7 @@
   "max_input_symbols": 507,
   "corpus": {
     "corpus_id": "serbian-golden-vectors",
-    "version": "reference-20260827-task-3.3",
+    "version": "reference-20260827-task-3.4",
     "input_provenance": {
       "kind": "self-authored",
       "license_status": "project-owned",
@@ -89,6 +93,28 @@
         "expected": "same_ipa_and_token_ids"
       }
     },
+    "vector_contract": {
+      "schema_id": "serbian-golden-vector",
+      "schema_version": 1,
+      "stage_order": [
+        "cleanup_text",
+        "normalized_text",
+        "phonemes",
+        "token_ids",
+        "protected_spans",
+        "chunk_boundaries",
+        "reference_audio"
+      ],
+      "stage_semantics": {
+        "cleanup_text": "Text after the reference cleanup stage. The pinned desktop capture has no text cleanup stage, so this is an exact copy of text.",
+        "normalized_text": "Text passed to phonemize_serbian. The pinned desktop capture has no text normalization stage, so this is an exact copy of cleanup_text.",
+        "phonemes": "The normalized IPA code-point sequence returned by the pinned phonemize_serbian function.",
+        "token_ids": "Kokoro vocabulary IDs for each phoneme code point, with token 0 prepended and appended.",
+        "protected_spans": "Sorted half-open Unicode code-point ranges into normalized_text that a future chunker must not split. The pinned capture has no protected-span stage, so this is empty.",
+        "chunk_boundaries": "Sorted half-open Unicode code-point ranges into phonemes. Each current vector is one unsplit model call because it is within the operational input limit; task 3.5 owns limit-edge cases.",
+        "reference_audio": "Metadata for the seeded mono 24 kHz PCM-16 WAV produced by the pinned desktop PyTorch call, including its relative path and SHA-256."
+      }
+    },
     "generation": {
       "script": "model-tools/scripts/capture_reference_vectors.py",
       "command": "model-tools/.venv/bin/python model-tools/scripts/capture_reference_vectors.py",
@@ -120,6 +146,10 @@
         "latin-cyrillic-equivalence"
       ],
       "equivalence_group": "greeting-equivalence",
+      "cleanup_text": "Dobar dan, ovo je glas Dragane. Ona čita knjige svakog jutra.",
+      "normalized_text": "Dobar dan, ovo je glas Dragane. Ona čita knjige svakog jutra.",
+      "phonemes": "dˈobɑr dˈan ˈovo je ɡlˈaz drˈaɡɐnɛ ˈonɐ ʧˈitɐ kɲˈiɡɛ svˈakoɡ jˈutrɐ",
+      "phoneme_count": 67,
       "ipa": "dˈobɑr dˈan ˈovo je ɡlˈaz drˈaɡɐnɛ ˈonɐ ʧˈitɐ kɲˈiɡɛ svˈakoɡ jˈutrɐ",
       "ipa_len": 67,
       "voice_row_index": 67,
@@ -201,7 +231,27 @@
       "rms": 0.066235,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/greeting-latin.wav",
-      "infer_seconds": 9.7
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 67
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/greeting-latin.wav",
+        "sha256": "dd89e0736a68e371131799de0047c65096a45d8393b8745e8b302a403d45f173",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 124200,
+        "duration_s": 5.175,
+        "peak": 0.35661494731903076,
+        "rms": 0.066235,
+        "finite": true
+      },
+      "infer_seconds": 8.68
     },
     {
       "id": "greeting-cyrillic",
@@ -211,6 +261,10 @@
         "latin-cyrillic-equivalence"
       ],
       "equivalence_group": "greeting-equivalence",
+      "cleanup_text": "Добар дан, ово је глас Драгане. Она чита књиге сваког јутра.",
+      "normalized_text": "Добар дан, ово је глас Драгане. Она чита књиге сваког јутра.",
+      "phonemes": "dˈobɑr dˈan ˈovo je ɡlˈaz drˈaɡɐnɛ ˈonɐ ʧˈitɐ kɲˈiɡɛ svˈakoɡ jˈutrɐ",
+      "phoneme_count": 67,
       "ipa": "dˈobɑr dˈan ˈovo je ɡlˈaz drˈaɡɐnɛ ˈonɐ ʧˈitɐ kɲˈiɡɛ svˈakoɡ jˈutrɐ",
       "ipa_len": 67,
       "voice_row_index": 67,
@@ -292,7 +346,27 @@
       "rms": 0.066235,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/greeting-cyrillic.wav",
-      "infer_seconds": 9.31
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 67
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/greeting-cyrillic.wav",
+        "sha256": "dd89e0736a68e371131799de0047c65096a45d8393b8745e8b302a403d45f173",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 124200,
+        "duration_s": 5.175,
+        "peak": 0.35661494731903076,
+        "rms": 0.066235,
+        "finite": true
+      },
+      "infer_seconds": 8.4
     },
     {
       "id": "diacritics-latin",
@@ -301,6 +375,10 @@
       "categories": [
         "diacritics"
       ],
+      "cleanup_text": "Šešir, čuvar, žvakać guma, džep, ćirilično pismo i đavo.",
+      "normalized_text": "Šešir, čuvar, žvakać guma, džep, ćirilično pismo i đavo.",
+      "phonemes": "ʃˈɛʃɪr ʧˈuvɑr ʒvˈakɐʥ ɡˈumɐ ʤˈɛp ʨˈirɪlˌɪʧno pˈismo ɪ ʥˈavo",
+      "phoneme_count": 59,
       "ipa": "ʃˈɛʃɪr ʧˈuvɑr ʒvˈakɐʥ ɡˈumɐ ʤˈɛp ʨˈirɪlˌɪʧno pˈismo ɪ ʥˈavo",
       "ipa_len": 59,
       "voice_row_index": 59,
@@ -374,7 +452,27 @@
       "rms": 0.062626,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/diacritics-latin.wav",
-      "infer_seconds": 8.58
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 59
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/diacritics-latin.wav",
+        "sha256": "2d94af8e78d8fdc71f0c419a60f009e3113da7169658c2033dae5a8623009ca0",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 114000,
+        "duration_s": 4.75,
+        "peak": 0.39542925357818604,
+        "rms": 0.062626,
+        "finite": true
+      },
+      "infer_seconds": 7.34
     },
     {
       "id": "diacritics-cyrillic",
@@ -383,6 +481,10 @@
       "categories": [
         "diacritics"
       ],
+      "cleanup_text": "Шешир, чувар, жвакач гума, џеп, ћирилично писмо и ђаво.",
+      "normalized_text": "Шешир, чувар, жвакач гума, џеп, ћирилично писмо и ђаво.",
+      "phonemes": "ʃˈɛʃɪr ʧˈuvɑr ʒvˈakɐʤ ɡˈumɐ ʤˈɛp ʨˈirɪlˌɪʧno pˈismo ɪ ʥˈavo",
+      "phoneme_count": 59,
       "ipa": "ʃˈɛʃɪr ʧˈuvɑr ʒvˈakɐʤ ɡˈumɐ ʤˈɛp ʨˈirɪlˌɪʧno pˈismo ɪ ʥˈavo",
       "ipa_len": 59,
       "voice_row_index": 59,
@@ -456,7 +558,27 @@
       "rms": 0.062807,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/diacritics-cyrillic.wav",
-      "infer_seconds": 8.04
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 59
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/diacritics-cyrillic.wav",
+        "sha256": "f7030c07ca6ec56d65155ec4b7e2d0d37adff1e0322c5c682b4cf88e731335c4",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 114600,
+        "duration_s": 4.775,
+        "peak": 0.4072636067867279,
+        "rms": 0.062807,
+        "finite": true
+      },
+      "infer_seconds": 7.4
     },
     {
       "id": "mixed-digits",
@@ -465,6 +587,10 @@
       "categories": [
         "numbers"
       ],
+      "cleanup_text": "Ima 12 kuća, od kojih 3 su nove, a 1 je stara.",
+      "normalized_text": "Ima 12 kuća, od kojih 3 su nove, a 1 je stara.",
+      "phonemes": "ˌɪmɐ dvˈanaɛst kˈuʨɐ ˈot kˈojɪh trˈi sʊ nˈovɛ ɐ jˈedɐn je stˈɑrɐ",
+      "phoneme_count": 64,
       "ipa": "ˌɪmɐ dvˈanaɛst kˈuʨɐ ˈot kˈojɪh trˈi sʊ nˈovɛ ɐ jˈedɐn je stˈɑrɐ",
       "ipa_len": 64,
       "voice_row_index": 64,
@@ -543,7 +669,27 @@
       "rms": 0.067003,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/mixed-digits.wav",
-      "infer_seconds": 8.17
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 64
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/mixed-digits.wav",
+        "sha256": "b5cb5b38894202de34d2ceea4a4d6d3a14cf1c69938eab1ee1f6077efe416d8c",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 117600,
+        "duration_s": 4.9,
+        "peak": 0.40073829889297485,
+        "rms": 0.067003,
+        "finite": true
+      },
+      "infer_seconds": 7.79
     },
     {
       "id": "punctuation",
@@ -552,6 +698,10 @@
       "categories": [
         "punctuation"
       ],
+      "cleanup_text": "Da li? Ne! Možda... — možda! (Tačno, recila je.)",
+      "normalized_text": "Da li? Ne! Možda... — možda! (Tačno, recila je.)",
+      "phonemes": "dˈa lɪ nˈɛ mˈoʒdɐ mˈoʒdɐ tˈaʧno rˈɛtsɪlɐ je",
+      "phoneme_count": 43,
       "ipa": "dˈa lɪ nˈɛ mˈoʒdɐ mˈoʒdɐ tˈaʧno rˈɛtsɪlɐ je",
       "ipa_len": 43,
       "voice_row_index": 43,
@@ -609,7 +759,27 @@
       "rms": 0.063349,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/punctuation.wav",
-      "infer_seconds": 5.89
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 43
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/punctuation.wav",
+        "sha256": "627f944eac8c71ed76e604e1bf7b93371ab2722a3a9772e0a2282f05d0ad3b4a",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 80400,
+        "duration_s": 3.35,
+        "peak": 0.3409543037414551,
+        "rms": 0.063349,
+        "finite": true
+      },
+      "infer_seconds": 5.68
     },
     {
       "id": "cyrillic-punctuation",
@@ -618,6 +788,10 @@
       "categories": [
         "punctuation"
       ],
+      "cleanup_text": "Да ли? Не! Можда... — можда! (Тачно, рекла је.)",
+      "normalized_text": "Да ли? Не! Можда... — можда! (Тачно, рекла је.)",
+      "phonemes": "dˈa lɪ nˈɛ mˈoʒdɐ mˈoʒdɐ tˈaʧno rˈɛklɐ je",
+      "phoneme_count": 41,
       "ipa": "dˈa lɪ nˈɛ mˈoʒdɐ mˈoʒdɐ tˈaʧno rˈɛklɐ je",
       "ipa_len": 41,
       "voice_row_index": 41,
@@ -673,7 +847,27 @@
       "rms": 0.063292,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/cyrillic-punctuation.wav",
-      "infer_seconds": 5.8
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 41
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/cyrillic-punctuation.wav",
+        "sha256": "0b197f8aba65bd020ba235758a90f624bae62937db22db750c4e79b0742147d4",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 78000,
+        "duration_s": 3.25,
+        "peak": 0.33329516649246216,
+        "rms": 0.063292,
+        "finite": true
+      },
+      "infer_seconds": 5.36
     },
     {
       "id": "digraphs-latin",
@@ -685,6 +879,10 @@
         "latin-cyrillic-equivalence"
       ],
       "equivalence_group": "digraphs-equivalence",
+      "cleanup_text": "Njegoš ljulja džak, a džez svira tiho.",
+      "normalized_text": "Njegoš ljulja džak, a džez svira tiho.",
+      "phonemes": "ɲˈeɡoʃ ʎˈuʎɐ ʤˈak ɐ ʤˈɛs svˈirɐ tˈiho",
+      "phoneme_count": 37,
       "ipa": "ɲˈeɡoʃ ʎˈuʎɐ ʤˈak ɐ ʤˈɛs svˈirɐ tˈiho",
       "ipa_len": 37,
       "voice_row_index": 37,
@@ -736,7 +934,27 @@
       "rms": 0.062901,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/digraphs-latin.wav",
-      "infer_seconds": 5.82
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 37
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/digraphs-latin.wav",
+        "sha256": "cf3e6fc45c53238dc70601a7289dce8f9931769ad87a710e33d6fad78f072f93",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 80400,
+        "duration_s": 3.35,
+        "peak": 0.31410273909568787,
+        "rms": 0.062901,
+        "finite": true
+      },
+      "infer_seconds": 5.44
     },
     {
       "id": "digraphs-cyrillic",
@@ -748,6 +966,10 @@
         "latin-cyrillic-equivalence"
       ],
       "equivalence_group": "digraphs-equivalence",
+      "cleanup_text": "Његош љуља џак, а џез свира тихо.",
+      "normalized_text": "Његош љуља џак, а џез свира тихо.",
+      "phonemes": "ɲˈeɡoʃ ʎˈuʎɐ ʤˈak ɐ ʤˈɛs svˈirɐ tˈiho",
+      "phoneme_count": 37,
       "ipa": "ɲˈeɡoʃ ʎˈuʎɐ ʤˈak ɐ ʤˈɛs svˈirɐ tˈiho",
       "ipa_len": 37,
       "voice_row_index": 37,
@@ -799,7 +1021,27 @@
       "rms": 0.062901,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/digraphs-cyrillic.wav",
-      "infer_seconds": 5.73
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 37
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/digraphs-cyrillic.wav",
+        "sha256": "cf3e6fc45c53238dc70601a7289dce8f9931769ad87a710e33d6fad78f072f93",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 80400,
+        "duration_s": 3.35,
+        "peak": 0.31410273909568787,
+        "rms": 0.062901,
+        "finite": true
+      },
+      "infer_seconds": 5.48
     },
     {
       "id": "mixed-scripts",
@@ -808,6 +1050,10 @@
       "categories": [
         "mixed-scripts"
       ],
+      "cleanup_text": "Mila чита књигу о projektu OpenAI.",
+      "normalized_text": "Mila чита књигу о projektu OpenAI.",
+      "phonemes": "mˈilɐ ʧˈitɐ kɲˈiɡʊ o prˈojektʊ ˈopɛn ˈaˌɪ",
+      "phoneme_count": 41,
       "ipa": "mˈilɐ ʧˈitɐ kɲˈiɡʊ o prˈojektʊ ˈopɛn ˈaˌɪ",
       "ipa_len": 41,
       "voice_row_index": 41,
@@ -863,7 +1109,27 @@
       "rms": 0.060918,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/mixed-scripts.wav",
-      "infer_seconds": 6.09
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 41
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/mixed-scripts.wav",
+        "sha256": "48c2a95879bdc1ebce604a5e14465ac7a0b0f4fcbb637c043278cd411cbe767d",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 82800,
+        "duration_s": 3.45,
+        "peak": 0.2882849872112274,
+        "rms": 0.060918,
+        "finite": true
+      },
+      "infer_seconds": 5.66
     },
     {
       "id": "foreign-names",
@@ -872,6 +1138,10 @@
       "categories": [
         "foreign-names"
       ],
+      "cleanup_text": "William Shakespeare i Beyoncé stigli su u Niš.",
+      "normalized_text": "William Shakespeare i Beyoncé stigli su u Niš.",
+      "phonemes": "vˈillɪɐm shˈakɛspˌɛɑrɛ ɪ bˈɛjontseː stˈiɡlɪ sʊ ʊ nˈiʃ",
+      "phoneme_count": 53,
       "ipa": "vˈillɪɐm shˈakɛspˌɛɑrɛ ɪ bˈɛjontseː stˈiɡlɪ sʊ ʊ nˈiʃ",
       "ipa_len": 53,
       "voice_row_index": 53,
@@ -939,7 +1209,27 @@
       "rms": 0.0598,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/foreign-names.wav",
-      "infer_seconds": 7.4
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 53
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/foreign-names.wav",
+        "sha256": "09eb21993c670e88c478df0df537637865ad593d788dc029097d925c8751599d",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 98400,
+        "duration_s": 4.1,
+        "peak": 0.31627458333969116,
+        "rms": 0.0598,
+        "finite": true
+      },
+      "infer_seconds": 6.93
     },
     {
       "id": "abbreviations",
@@ -948,6 +1238,10 @@
       "categories": [
         "abbreviations"
       ],
+      "cleanup_text": "Dr. Ana Petrović, prof. Marko Ilić, tj. autori, rade itd.",
+      "normalized_text": "Dr. Ana Petrović, prof. Marko Ilić, tj. autori, rade itd.",
+      "phonemes": "dˈərˌə ˈanɐ pˈɛtrovɪʨ prˈof mˈɑrko ˈilɪʨ tˈəjˌə ˈaʊtˌorɪ rˈadɛ ˈitˌədˌə",
+      "phoneme_count": 71,
       "ipa": "dˈərˌə ˈanɐ pˈɛtrovɪʨ prˈof mˈɑrko ˈilɪʨ tˈəjˌə ˈaʊtˌorɪ rˈadɛ ˈitˌədˌə",
       "ipa_len": 71,
       "voice_row_index": 71,
@@ -1033,7 +1327,27 @@
       "rms": 0.063612,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/abbreviations.wav",
-      "infer_seconds": 9.5
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 71
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/abbreviations.wav",
+        "sha256": "dda31c02181f90e209a72fc3412153a9135744af449bff5d161b7ca1003a5ef9",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 126600,
+        "duration_s": 5.275,
+        "peak": 0.3491908311843872,
+        "rms": 0.063612,
+        "finite": true
+      },
+      "infer_seconds": 9.22
     },
     {
       "id": "numbers-expanded",
@@ -1042,6 +1356,10 @@
       "categories": [
         "numbers"
       ],
+      "cleanup_text": "Imam 1.234 knjige, 56,78 bodova, 42% i broj 007.",
+      "normalized_text": "Imam 1.234 knjige, 56,78 bodova, 42% i broj 007.",
+      "phonemes": "ˌɪmɐm jˈedɐn tˈaʧkɐ dvˈestˈa trˌidɛsɛtʧˈɛtɪrɪ kɲˈiɡɛ pˌɛdɛsɛʧˈɛst zˈaɾɛz sˌɛdɐmdˌɛsɛtˈosɐm bˈodovɐ ʧˌɛtrdˌɛsɛddvˈa pˈosto ɪ brˈoj nˈulɐnˈulɐ sˈɛdɐm",
+      "phoneme_count": 147,
       "ipa": "ˌɪmɐm jˈedɐn tˈaʧkɐ dvˈestˈa trˌidɛsɛtʧˈɛtɪrɪ kɲˈiɡɛ pˌɛdɛsɛʧˈɛst zˈaɾɛz sˌɛdɐmdˌɛsɛtˈosɐm bˈodovɐ ʧˌɛtrdˌɛsɛddvˈa pˈosto ɪ brˈoj nˈulɐnˈulɐ sˈɛdɐm",
       "ipa_len": 147,
       "voice_row_index": 147,
@@ -1203,7 +1521,27 @@
       "rms": 0.059504,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/numbers-expanded.wav",
-      "infer_seconds": 20.54
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 147
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/numbers-expanded.wav",
+        "sha256": "ea2159dd64f0a7c364ddb259f2dcdb5bf435bca6a4b2ae487e5b0b7fbf5e3cb7",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 256200,
+        "duration_s": 10.675,
+        "peak": 0.34158140420913696,
+        "rms": 0.059504,
+        "finite": true
+      },
+      "infer_seconds": 18.43
     },
     {
       "id": "dates",
@@ -1212,6 +1550,10 @@
       "categories": [
         "dates"
       ],
+      "cleanup_text": "Sastanak je 12. марта 2024. у 08:30.",
+      "normalized_text": "Sastanak je 12. марта 2024. у 08:30.",
+      "phonemes": "sˈastɐnɐk je dvˈanaɛst mˈɑrtɐ dvˈɛ hˈiʎˌɐde dvˌadɛsɛtʧˈɛtɪrɪ ʊ ˈosɐm dvˈotɐʧkɐ trˈidɛsɛt",
+      "phoneme_count": 88,
       "ipa": "sˈastɐnɐk je dvˈanaɛst mˈɑrtɐ dvˈɛ hˈiʎˌɐde dvˌadɛsɛtʧˈɛtɪrɪ ʊ ˈosɐm dvˈotɐʧkɐ trˈidɛsɛt",
       "ipa_len": 88,
       "voice_row_index": 88,
@@ -1314,7 +1656,27 @@
       "rms": 0.065582,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/dates.wav",
-      "infer_seconds": 11.99
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 88
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/dates.wav",
+        "sha256": "db2c613bc5cc3ea1b513053db66e9fd3752b9ac6f17cdd089716c182b47083df",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 159000,
+        "duration_s": 6.625,
+        "peak": 0.3962997794151306,
+        "rms": 0.065582,
+        "finite": true
+      },
+      "infer_seconds": 10.59
     },
     {
       "id": "currencies",
@@ -1323,6 +1685,10 @@
       "categories": [
         "currencies"
       ],
+      "cleanup_text": "Cena je 1.250,50 RSD, 20 € ili 15 USD.",
+      "normalized_text": "Cena je 1.250,50 RSD, 20 € ili 15 USD.",
+      "phonemes": "tsˈɛnɐ je jˈedɐn tˈaʧkɐ dvˈestˈa pˈɛdɛsɛt zˈaɾɛz pˈɛdɛsɛt rˈəsˌədˌə dvˈadɛsɛt ˈevro ˌɪlɪ pˈɛtnaɛst ˈusˌədˌə",
+      "phoneme_count": 107,
       "ipa": "tsˈɛnɐ je jˈedɐn tˈaʧkɐ dvˈestˈa pˈɛdɛsɛt zˈaɾɛz pˈɛdɛsɛt rˈəsˌədˌə dvˈadɛsɛt ˈevro ˌɪlɪ pˈɛtnaɛst ˈusˌədˌə",
       "ipa_len": 107,
       "voice_row_index": 107,
@@ -1444,7 +1810,27 @@
       "rms": 0.063539,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/currencies.wav",
-      "infer_seconds": 14.37
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 107
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/currencies.wav",
+        "sha256": "9189ade9fb320db3bf30cbb56aa090d084f022ceef9eb54a950ed5cf627dadf1",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 186600,
+        "duration_s": 7.775,
+        "peak": 0.36508914828300476,
+        "rms": 0.063539,
+        "finite": true
+      },
+      "infer_seconds": 13.29
     },
     {
       "id": "measurements",
@@ -1453,6 +1839,10 @@
       "categories": [
         "measurements"
       ],
+      "cleanup_text": "Sto meri 2,5 kg, 120 cm, 220 V i 24 °C.",
+      "normalized_text": "Sto meri 2,5 kg, 120 cm, 220 V i 24 °C.",
+      "phonemes": "stˈo mˈɛrɪ dvˈa zˈaɾɛz pˈɛt kˈəɡˌə stˈɔ dvˈadɛsɛt tsˈəmˌə dvˈestˈa dvˈadɛsɛt vˈə ɪ dvˌadɛsɛtʧˈɛtɪrɪ stˈepen tsˈə",
+      "phoneme_count": 112,
       "ipa": "stˈo mˈɛrɪ dvˈa zˈaɾɛz pˈɛt kˈəɡˌə stˈɔ dvˈadɛsɛt tsˈəmˌə dvˈestˈa dvˈadɛsɛt vˈə ɪ dvˌadɛsɛtʧˈɛtɪrɪ stˈepen tsˈə",
       "ipa_len": 112,
       "voice_row_index": 112,
@@ -1579,7 +1969,27 @@
       "rms": 0.064474,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/measurements.wav",
-      "infer_seconds": 13.69
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 112
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/measurements.wav",
+        "sha256": "cdec360199172c6d0990910327f3c6a748245611573f7c11a2c2f3cd91c50565",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 184800,
+        "duration_s": 7.7,
+        "peak": 0.40689030289649963,
+        "rms": 0.064474,
+        "finite": true
+      },
+      "infer_seconds": 13.45
     },
     {
       "id": "roman-numerals",
@@ -1588,6 +1998,10 @@
       "categories": [
         "roman-numerals"
       ],
+      "cleanup_text": "U XXI veku, papa Jovan Pavle II posetio je Beograd.",
+      "normalized_text": "U XXI veku, papa Jovan Pavle II posetio je Beograd.",
+      "phonemes": "ʊ rˈimsko dvˌɐdɛsɛtjˈedɐn vˈɛkʊ pˈapɐ jˈovɐn pˈavlɛ rˈimsko dvˈa pˈosɛtˌɪo je bˈɛoɡrɐd",
+      "phoneme_count": 86,
       "ipa": "ʊ rˈimsko dvˌɐdɛsɛtjˈedɐn vˈɛkʊ pˈapɐ jˈovɐn pˈavlɛ rˈimsko dvˈa pˈosɛtˌɪo je bˈɛoɡrɐd",
       "ipa_len": 86,
       "voice_row_index": 86,
@@ -1688,7 +2102,27 @@
       "rms": 0.06206,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/roman-numerals.wav",
-      "infer_seconds": 10.53
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 86
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/roman-numerals.wav",
+        "sha256": "965d5946673573991d01b0912e9bc6b29374ccce119d47f8c29f5bfab986b2b0",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 150000,
+        "duration_s": 6.25,
+        "peak": 0.34222522377967834,
+        "rms": 0.06206,
+        "finite": true
+      },
+      "infer_seconds": 10.5
     },
     {
       "id": "punctuation-extended",
@@ -1697,6 +2131,10 @@
       "categories": [
         "punctuation"
       ],
+      "cleanup_text": "Rekla je: „Da; može...“ — zar ne? [Da!].",
+      "normalized_text": "Rekla je: „Da; može...“ — zar ne? [Da!].",
+      "phonemes": "rˈɛklɐ je dˈa mˈoʒɛ zˈɑr nˈɛ dˈa",
+      "phoneme_count": 32,
       "ipa": "rˈɛklɐ je dˈa mˈoʒɛ zˈɑr nˈɛ dˈa",
       "ipa_len": 32,
       "voice_row_index": 32,
@@ -1743,7 +2181,27 @@
       "rms": 0.059419,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/punctuation-extended.wav",
-      "infer_seconds": 4.54
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 32
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/punctuation-extended.wav",
+        "sha256": "bf6c3343edf4f7e24d4388b9dfe11381785b760ffe187f7e3bbde30b91f69580",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 61200,
+        "duration_s": 2.55,
+        "peak": 0.35236984491348267,
+        "rms": 0.059419,
+        "finite": true
+      },
+      "infer_seconds": 4.5
     },
     {
       "id": "urls",
@@ -1752,6 +2210,10 @@
       "categories": [
         "urls"
       ],
+      "cleanup_text": "Посети https://primer.rs/knjige?id=12#uvod.",
+      "normalized_text": "Посети https://primer.rs/knjige?id=12#uvod.",
+      "phonemes": "pˈosɛtɪ xˈətˌətˌəpˌəsˌə dvˈotɐʧkɐkrˈozkrˈoz prˈimɛr tˈaʧkɐ rˈəsˌə krˈoz kɲˈiɡɛɪd jˈednɐko dvˈanaɛzd brˈoj ˈuvod",
+      "phoneme_count": 111,
       "ipa": "pˈosɛtɪ xˈətˌətˌəpˌəsˌə dvˈotɐʧkɐkrˈozkrˈoz prˈimɛr tˈaʧkɐ rˈəsˌə krˈoz kɲˈiɡɛɪd jˈednɐko dvˈanaɛzd brˈoj ˈuvod",
       "ipa_len": 111,
       "voice_row_index": 111,
@@ -1877,7 +2339,27 @@
       "rms": 0.061498,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/urls.wav",
-      "infer_seconds": 14.44
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 111
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/urls.wav",
+        "sha256": "0143de17fb7d117dd5404aa66ea2796c0c0b0bd3bc290a4de2a32fd6e5ed852f",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 184800,
+        "duration_s": 7.7,
+        "peak": 0.37795770168304443,
+        "rms": 0.061498,
+        "finite": true
+      },
+      "infer_seconds": 13.73
     },
     {
       "id": "email",
@@ -1886,6 +2368,10 @@
       "categories": [
         "email"
       ],
+      "cleanup_text": "Piši na citač@example.org ili marko.petrovic+tts@example.com.",
+      "normalized_text": "Piši na citač@example.org ili marko.petrovic+tts@example.com.",
+      "phonemes": "pˈiʃɪ nˈa tsˈitɐʧ trɡˈovaʧkˌoi ˈɛksɐmplɛ tˈaʧkɐ ˈorɡ ˌɪlɪ mˈɑrko tˈaʧkɐ pˈɛtrovɪts plˈus tˈətˌəsˌə trɡˈovaʧkˌoi ˈɛksɐmplɛ tˈaʧkɐ tsˈom",
+      "phoneme_count": 134,
       "ipa": "pˈiʃɪ nˈa tsˈitɐʧ trɡˈovaʧkˌoi ˈɛksɐmplɛ tˈaʧkɐ ˈorɡ ˌɪlɪ mˈɑrko tˈaʧkɐ pˈɛtrovɪts plˈus tˈətˌəsˌə trɡˈovaʧkˌoi ˈɛksɐmplɛ tˈaʧkɐ tsˈom",
       "ipa_len": 134,
       "voice_row_index": 134,
@@ -2034,7 +2520,27 @@
       "rms": 0.063254,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/email.wav",
-      "infer_seconds": 16.78
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 134
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/email.wav",
+        "sha256": "94d94ea2a2c30136d46d3cdfb74c819f25a8afb527ce09746ab3bea097b26372",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 214800,
+        "duration_s": 8.95,
+        "peak": 0.3156338632106781,
+        "rms": 0.063254,
+        "finite": true
+      },
+      "infer_seconds": 15.14
     },
     {
       "id": "citations",
@@ -2043,6 +2549,10 @@
       "categories": [
         "citations"
       ],
+      "cleanup_text": "Prema [1, str. 12] i (Jovanović, 2024, br. 3), rezultat važi.",
+      "normalized_text": "Prema [1, str. 12] i (Jovanović, 2024, br. 3), rezultat važi.",
+      "phonemes": "prˈɛmɐ jˈedɐn sˈətˌərˌə dvˈanaɛst ɪ jˈovɐnˌovɪʨ dvˈɛ hˈiʎˌɐde dvˌadɛsɛtʧˈɛtɪrɪ bˈərˌə trˈi rˈɛzʊltɐt vˈaʒɪ",
+      "phoneme_count": 106,
       "ipa": "prˈɛmɐ jˈedɐn sˈətˌərˌə dvˈanaɛst ɪ jˈovɐnˌovɪʨ dvˈɛ hˈiʎˌɐde dvˌadɛsɛtʧˈɛtɪrɪ bˈərˌə trˈi rˈɛzʊltɐt vˈaʒɪ",
       "ipa_len": 106,
       "voice_row_index": 106,
@@ -2163,7 +2673,27 @@
       "rms": 0.061222,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/citations.wav",
-      "infer_seconds": 13.71
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 106
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/citations.wav",
+        "sha256": "b14b9049c7d2650cc0548782a365fe0ffc9aa36ebef6a9c76f21645060922a44",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 178200,
+        "duration_s": 7.425,
+        "peak": 0.36602023243904114,
+        "rms": 0.061222,
+        "finite": true
+      },
+      "infer_seconds": 12.25
     },
     {
       "id": "page-artifacts",
@@ -2172,6 +2702,10 @@
       "categories": [
         "page-artifacts"
       ],
+      "cleanup_text": "— 37 —\nСтрана 38\fNastavak teksta.",
+      "normalized_text": "— 37 —\nСтрана 38\fNastavak teksta.",
+      "phonemes": "trˌidɛsɛtsˈɛdɐm strˈanɐ trˌidɛsɛtˈosɐm nˈastɐvɐk tˈɛkstɐ",
+      "phoneme_count": 56,
       "ipa": "trˌidɛsɛtsˈɛdɐm strˈanɐ trˌidɛsɛtˈosɐm nˈastɐvɐk tˈɛkstɐ",
       "ipa_len": 56,
       "voice_row_index": 56,
@@ -2242,7 +2776,27 @@
       "rms": 0.067419,
       "finite": true,
       "wav": "/home/homoludens/projekti/citac_knjiga/model-tools/reference/page-artifacts.wav",
-      "infer_seconds": 6.75
+      "protected_spans": [],
+      "chunk_boundaries": [
+        {
+          "start": 0,
+          "end": 56
+        }
+      ],
+      "reference_audio": {
+        "path": "model-tools/reference/page-artifacts.wav",
+        "sha256": "06b58195f4d9744dae6f4254049c1c7a3774cde2da03085810067d9f10e08b5c",
+        "format": "wav",
+        "subtype": "PCM_16",
+        "sample_rate_hz": 24000,
+        "channels": 1,
+        "sample_count": 105600,
+        "duration_s": 4.4,
+        "peak": 0.3586609959602356,
+        "rms": 0.067419,
+        "finite": true
+      },
+      "infer_seconds": 7.16
     }
   ]
 }

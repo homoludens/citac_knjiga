@@ -1,0 +1,222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://citac-knjiga.local/schemas/serbian-golden-corpus-v1.schema.json",
+  "title": "Serbian golden corpus v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "seed",
+    "torch_num_threads",
+    "sample_rate",
+    "model_sha256_expected",
+    "voice_sha256_expected",
+    "max_input_symbols",
+    "corpus",
+    "vectors"
+  ],
+  "properties": {
+    "schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": {"const": "serbian-golden-corpus"},
+        "version": {"const": 1}
+      }
+    },
+    "seed": {"type": "integer"},
+    "torch_num_threads": {"const": 1},
+    "sample_rate": {"const": 24000},
+    "model_sha256_expected": {"$ref": "#/$defs/sha256"},
+    "voice_sha256_expected": {"$ref": "#/$defs/sha256"},
+    "max_input_symbols": {"const": 507},
+    "corpus": {
+      "type": "object",
+      "required": [
+        "corpus_id",
+        "version",
+        "coverage",
+        "equivalence_groups",
+        "generation",
+        "vector_contract"
+      ],
+      "properties": {
+        "corpus_id": {"const": "serbian-golden-vectors"},
+        "version": {"const": "reference-20260827-task-3.4"},
+        "input_provenance": {"type": "object"},
+        "coverage": {"type": "object"},
+        "equivalence_groups": {"type": "object"},
+        "generation": {"type": "object"},
+        "vector_contract": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema_id",
+            "schema_version",
+            "stage_order",
+            "stage_semantics"
+          ],
+          "properties": {
+            "schema_id": {"const": "serbian-golden-vector"},
+            "schema_version": {"const": 1},
+            "stage_order": {
+              "const": [
+                "cleanup_text",
+                "normalized_text",
+                "phonemes",
+                "token_ids",
+                "protected_spans",
+                "chunk_boundaries",
+                "reference_audio"
+              ]
+            },
+            "stage_semantics": {
+              "type": "object",
+              "required": [
+                "cleanup_text",
+                "normalized_text",
+                "phonemes",
+                "token_ids",
+                "protected_spans",
+                "chunk_boundaries",
+                "reference_audio"
+              ],
+              "additionalProperties": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "vectors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/vector"}
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "vector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "script",
+        "text",
+        "categories",
+        "cleanup_text",
+        "normalized_text",
+        "phonemes",
+        "phoneme_count",
+        "ipa",
+        "ipa_len",
+        "voice_row_index",
+        "token_ids",
+        "token_count",
+        "audio_samples",
+        "duration_s",
+        "peak",
+        "rms",
+        "finite",
+        "wav",
+        "protected_spans",
+        "chunk_boundaries",
+        "reference_audio",
+        "infer_seconds"
+      ],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "script": {"type": "string", "minLength": 1},
+        "text": {"type": "string"},
+        "categories": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string"}
+        },
+        "equivalence_group": {"type": "string", "minLength": 1},
+        "cleanup_text": {"type": "string"},
+        "normalized_text": {"type": "string"},
+        "phonemes": {"type": "string", "minLength": 1},
+        "phoneme_count": {"type": "integer", "minimum": 1},
+        "ipa": {"type": "string", "minLength": 1},
+        "ipa_len": {"type": "integer", "minimum": 1},
+        "voice_row_index": {"type": "integer", "minimum": 0},
+        "token_ids": {
+          "type": "array",
+          "minItems": 2,
+          "items": {"type": "integer", "minimum": 0}
+        },
+        "token_count": {"type": "integer", "minimum": 2},
+        "audio_samples": {"type": "integer", "minimum": 1},
+        "duration_s": {"type": "number", "exclusiveMinimum": 0},
+        "peak": {"type": "number", "minimum": 0},
+        "rms": {"type": "number", "minimum": 0},
+        "finite": {"const": true},
+        "wav": {"type": "string", "minLength": 1},
+        "protected_spans": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/span"}
+        },
+        "chunk_boundaries": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/boundary"}
+        },
+        "reference_audio": {"$ref": "#/$defs/audio"},
+        "infer_seconds": {"type": "number", "minimum": 0}
+      }
+    },
+    "span": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": {"type": "integer", "minimum": 0},
+        "end": {"type": "integer", "minimum": 0}
+      }
+    },
+    "boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": {"type": "integer", "minimum": 0},
+        "end": {"type": "integer", "minimum": 0}
+      }
+    },
+    "audio": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "format",
+        "subtype",
+        "sample_rate_hz",
+        "channels",
+        "sample_count",
+        "duration_s",
+        "peak",
+        "rms",
+        "finite"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^model-tools/reference/[^/]+\\.wav$"
+        },
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "format": {"const": "wav"},
+        "subtype": {"const": "PCM_16"},
+        "sample_rate_hz": {"const": 24000},
+        "channels": {"const": 1},
+        "sample_count": {"type": "integer", "minimum": 1},
+        "duration_s": {"type": "number", "exclusiveMinimum": 0},
+        "peak": {"type": "number", "minimum": 0},
+        "rms": {"type": "number", "minimum": 0},
+        "finite": {"const": true}
+      }
+    }
+  }
+}

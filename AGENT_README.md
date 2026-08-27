@@ -18,7 +18,12 @@ target.
   SHA-256 identity, and declaration validator under `model-tools/package/`.
 - Task 3.3 expands the self-authored Serbian golden corpus to 22 pinned desktop
   reference vectors with explicit category coverage and deterministic
-  regeneration metadata. Packaging/import and Android qualification remain
+  regeneration metadata.
+- Task 3.4 extends every vector with explicit cleanup/normalized text, IPA,
+  token IDs, protected spans, chunk boundaries, and checksummed reference audio
+  metadata. The pinned capture has no text cleanup/normalization or protected
+  span stage, so those values are explicit no-ops; all current vectors are one
+  unsplit under-limit range. Packaging/import and Android qualification remain
   later tasks.
 
 ## Repository layout

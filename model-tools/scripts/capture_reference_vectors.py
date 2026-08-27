@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Capture reference vectors from the pinned PyTorch CPU implementation
-(task 1.4). For each representative Serbian input it records:
+(tasks 1.4 and 3.4). For each representative Serbian input it records:
 
   - input text (Latin and Cyrillic)
   - normalized IPA (phonemize_serbian output)
   - token IDs (the exact int64 sequence KModel.forward builds, incl. 0 pads)
+  - explicit cleanup/normalization, protected-span, and chunk-stage outputs
   - pred_dur (per-phoneme frame counts, with the fixed seed)
   - seeded PCM16 WAV (the reference audio)
   - audio metadata (samples, duration, peak, rms, finite)
@@ -27,6 +28,7 @@ BUNDLE = Path("/home/homoludens/projekti/citac_knjiga/kokoro_sr_dragana_voice")
 OUT = Path("/home/homoludens/projekti/citac_knjiga/model-tools/reference")
 
 SEED = 20260826  # fixed reference seed (recorded in vectors.json)
+CORPUS_VERSION = "reference-20260827-task-3.4"
 
 import numpy as np  # noqa: E402
 import torch  # noqa: E402
@@ -151,7 +153,7 @@ def input_manifest_bytes() -> bytes:
 def corpus_metadata() -> dict[str, object]:
     return {
         "corpus_id": "serbian-golden-vectors",
-        "version": "reference-20260827-task-3.3",
+        "version": CORPUS_VERSION,
         "input_provenance": {
             "kind": "self-authored",
             "license_status": "project-owned",
@@ -176,6 +178,54 @@ def corpus_metadata() -> dict[str, object]:
             "digraphs-equivalence": {
                 "vector_ids": ["digraphs-latin", "digraphs-cyrillic"],
                 "expected": "same_ipa_and_token_ids",
+            },
+        },
+        "vector_contract": {
+            "schema_id": "serbian-golden-vector",
+            "schema_version": 1,
+            "stage_order": [
+                "cleanup_text",
+                "normalized_text",
+                "phonemes",
+                "token_ids",
+                "protected_spans",
+                "chunk_boundaries",
+                "reference_audio",
+            ],
+            "stage_semantics": {
+                "cleanup_text": (
+                    "Text after the reference cleanup stage. The pinned desktop "
+                    "capture has no text cleanup stage, so this is an exact copy "
+                    "of text."
+                ),
+                "normalized_text": (
+                    "Text passed to phonemize_serbian. The pinned desktop capture "
+                    "has no text normalization stage, so this is an exact copy "
+                    "of cleanup_text."
+                ),
+                "phonemes": (
+                    "The normalized IPA code-point sequence returned by the pinned "
+                    "phonemize_serbian function."
+                ),
+                "token_ids": (
+                    "Kokoro vocabulary IDs for each phoneme code point, with token "
+                    "0 prepended and appended."
+                ),
+                "protected_spans": (
+                    "Sorted half-open Unicode code-point ranges into normalized_text "
+                    "that a future chunker must not split. The pinned capture has "
+                    "no protected-span stage, so this is empty."
+                ),
+                "chunk_boundaries": (
+                    "Sorted half-open Unicode code-point ranges into phonemes. Each "
+                    "current vector is one unsplit model call because it is within "
+                    "the operational input limit; task 3.5 owns limit-edge cases."
+                ),
+                "reference_audio": (
+                    "Metadata for the seeded mono 24 kHz PCM-16 WAV produced by the "
+                    "pinned desktop PyTorch call, including its relative path and "
+                    "SHA-256."
+                ),
             },
         },
         "generation": {
@@ -213,6 +263,7 @@ def main() -> int:
     vocab = model.vocab
 
     results = {
+        "schema": {"id": "serbian-golden-corpus", "version": 1},
         "seed": SEED,
         "torch_num_threads": 1,
         "sample_rate": 24000,
@@ -237,6 +288,19 @@ def main() -> int:
         a = audio.detach().cpu().numpy()
         wav = OUT / f"{v['id']}.wav"
         sf.write(wav, a, 24000, subtype="PCM_16")
+        audio_metadata = {
+            "path": f"model-tools/reference/{wav.name}",
+            "sha256": hashlib.sha256(wav.read_bytes()).hexdigest(),
+            "format": "wav",
+            "subtype": "PCM_16",
+            "sample_rate_hz": 24000,
+            "channels": 1,
+            "sample_count": int(a.size),
+            "duration_s": round(float(a.size) / 24000, 3),
+            "peak": float(np.max(np.abs(a))),
+            "rms": round(float(np.sqrt(np.mean(np.square(a)))), 6),
+            "finite": bool(np.isfinite(a).all()),
+        }
         results["vectors"].append({
             "id": v["id"],
             "script": v["script"],
@@ -244,6 +308,10 @@ def main() -> int:
             "categories": v["categories"],
             **({"equivalence_group": v["equivalence_group"]}
                if "equivalence_group" in v else {}),
+            "cleanup_text": text,
+            "normalized_text": text,
+            "phonemes": ipa,
+            "phoneme_count": len(ipa),
             "ipa": ipa,
             "ipa_len": len(ipa),
             "voice_row_index": row_idx,
@@ -255,6 +323,9 @@ def main() -> int:
             "rms": round(float(np.sqrt(np.mean(np.square(a)))), 6),
             "finite": bool(np.isfinite(a).all()),
             "wav": str(wav),
+            "protected_spans": [],
+            "chunk_boundaries": [{"start": 0, "end": len(ipa)}],
+            "reference_audio": audio_metadata,
             "infer_seconds": round(time.monotonic() - t0, 2),
         })
         print(f"  {v['id']:24s} ipa={len(ipa):3d} tok={len(input_ids):3d} "
