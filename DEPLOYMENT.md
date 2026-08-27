@@ -184,3 +184,13 @@ the local production graph.
 `kokoro_sr_dragana_voice/` is the current known-good epoch-005 Dragana bundle
 (LFS-tracked `.pth`/`.pt`). `python_voice_test/` is an older epoch_2nd_00002
 export retained for provenance. See `runtime-pins.md` §4.
+
+## Typed Serbian proof screen (task 4.8)
+
+The single Compose route accepts typed Latin or Cyrillic Serbian text and uses
+the native eSpeak-NG preprocessing bridge followed by `OnnxTtsSession`. A
+verified model package must be imported into app-private storage first; the
+application does not bundle the production model and never fabricates audio.
+Successful output is atomically written as validated PCM16, 24 kHz mono WAV
+under `filesDir/typed-proof/` and streamed locally with `AudioTrack`. This is a
+proof artifact, not durable generation or Media3 playback.

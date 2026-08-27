@@ -16,7 +16,7 @@ public class MainActivity : ComponentActivity() {
             )
         }
         setContent {
-            CitacKnjigaApp(variant = container.variant)
+            CitacKnjigaApp(variant = container.variant, proofEngine = container.typedTextProofEngine)
         }
     }
 }

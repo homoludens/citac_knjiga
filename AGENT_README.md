@@ -104,6 +104,11 @@ target.
   pronunciation stage fails closed until native eSpeak-NG is available; tests
   inject committed reference IPA only to qualify the later Kotlin stages, not to
   claim Android phonemization parity.
+- Task 4.8 adds the single-route typed Serbian proof screen. It accepts Latin and
+  Cyrillic input, exposes preprocessing/model diagnostics and explicit generation
+  states, writes validated app-private 24 kHz mono PCM16 WAV, and plays it with
+  the local Android PCM API. Generation remains fail-closed when no verified
+  model package is installed; EPUB, Room, Media3, and export are not included.
 
 ## Repository layout
 

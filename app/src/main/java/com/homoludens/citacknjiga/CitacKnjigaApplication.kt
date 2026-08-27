@@ -8,7 +8,7 @@ public class CitacKnjigaApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        container = AppContainer.production()
+        container = AppContainer.production(filesDir = filesDir, assets = assets)
         container.diagnostics.info(
             component = "app",
             message = "application_started",
