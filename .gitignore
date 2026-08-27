@@ -10,3 +10,6 @@ __pycache__/
 # Regenerable ONNX export candidate (large; identity tracked via
 # model-tools/export/manifest.json sha256, not committed)
 model-tools/export/*.onnx
+# Android/Gradle build outputs are local and reproducible.
+**/build/
+.gradle/

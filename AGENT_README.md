@@ -39,6 +39,13 @@ target.
   through the contract stages without model inference, the first divergent
   vector/stage is reported, and package creation fails closed before archive
   publication on any mismatch.
+- Task 4.1 creates the source-buildable Android foundation with `app`, `core`,
+  `tts-onnx`, `document-epub`, and `playback-export` modules. The project pins
+  Gradle 8.10.2, Android Gradle Plugin 8.8.2, Kotlin 2.1.10, JDK 21 toolchains,
+  compile/target SDK 35, build-tools 35.0.0, and Android 11 (`minSdk 30`) with
+  an explicit `arm64-v8a` filter. `tts-onnx` is the only module that currently
+  carries the selected ONNX Runtime Android 1.29.0 dependency; later Android
+  behavior remains unimplemented.
 
 ## Repository layout
 
@@ -50,7 +57,7 @@ target.
 | `python_voice_test/` | Earlier self-contained Dragana inference bundle (epoch_2nd_00002) |
 | `speak_2.py` | Ad-hoc CPU inference test script (points at training-repo paths) |
 | `model-tools/` | Desktop model tooling: runtime pins, env lock, reference captures, export wrapper, package schema/validator, and preprocessing contract/resources (Phase 1–3) |
-| (later) | Android app modules (`app`, `core`, `tts-onnx`, `document-epub`, `playback-export`) |
+| `app/`, `core/`, `tts-onnx/`, `document-epub/`, `playback-export/` | Minimal Android foundation modules (task 4.1) |
 
 ## Key technical facts
 
@@ -87,3 +94,6 @@ target.
 - Commit style: `type(scope): description` (see `AGENTS.md`).
 - Commit after every task; a fresh-context agent per task.
 - Deployment/environment steps live in `DEPLOYMENT.md`.
+- The Android wrapper and dependency checksums live under `gradle/`; local SDK
+  discovery uses `ANDROID_HOME` or `ANDROID_SDK_ROOT` rather than committing a
+  machine-specific `local.properties`.
