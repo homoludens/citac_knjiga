@@ -1,0 +1,726 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://citac-knjiga.local/schemas/serbian-model-package-v1.schema.json",
+  "title": "Serbian audiobook model package manifest v1",
+  "description": "A declaration of a model package. Validation is structural and does not grant legal clearance.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "manifest",
+    "artifacts",
+    "model",
+    "voice_style",
+    "vocabulary",
+    "configuration",
+    "preprocessing",
+    "runtime",
+    "test_vectors",
+    "licenses",
+    "attribution",
+    "legal"
+  ],
+  "properties": {
+    "schema": {
+      "$ref": "#/$defs/schema_identity"
+    },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "package_id",
+        "package_version",
+        "manifest_path",
+        "created_at",
+        "canonicalization",
+        "identity"
+      ],
+      "properties": {
+        "package_id": {
+          "$ref": "#/$defs/id"
+        },
+        "package_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "manifest_path": {
+          "$ref": "#/$defs/relative_path"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publisher": {
+          "type": "string",
+          "minLength": 1
+        },
+        "canonicalization": {
+          "const": "json-sorted-keys-utf8-v1"
+        },
+        "identity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["algorithm", "value", "input"],
+          "properties": {
+            "algorithm": {
+              "const": "sha-256"
+            },
+            "value": {
+              "$ref": "#/$defs/sha256"
+            },
+            "input": {
+              "const": "package_id, package_version, and sorted artifact path+sha256 pairs"
+            }
+          }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/artifact"
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_id",
+        "revision",
+        "artifact_id",
+        "format",
+        "architecture",
+        "opset",
+        "input_contract",
+        "output_contract",
+        "limits"
+      ],
+      "properties": {
+        "model_id": {
+          "$ref": "#/$defs/id"
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1
+        },
+        "artifact_id": {
+          "$ref": "#/$defs/id"
+        },
+        "format": {
+          "const": "onnx"
+        },
+        "architecture": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["family", "config_artifact_id"],
+          "properties": {
+            "family": {
+              "const": "kokoro-82m"
+            },
+            "config_artifact_id": {
+              "$ref": "#/$defs/id"
+            }
+          }
+        },
+        "opset": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ai_onnx", "ir_version", "domains"],
+          "properties": {
+            "ai_onnx": {
+              "const": 18
+            },
+            "ir_version": {
+              "const": 8
+            },
+            "domains": {
+              "type": "array",
+              "const": ["ai.onnx"]
+            }
+          }
+        },
+        "input_contract": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["input_ids", "ref_s", "speed"],
+          "properties": {
+            "input_ids": {
+              "$ref": "#/$defs/tensor",
+              "properties": {
+                "dtype": {"const": "int64"},
+                "shape": {"const": [1, "seq_len"]},
+                "min_seq_len": {"const": 2},
+                "max_seq_len": {"const": 512}
+              },
+              "required": ["dtype", "shape", "min_seq_len", "max_seq_len"]
+            },
+            "ref_s": {
+              "$ref": "#/$defs/tensor",
+              "properties": {
+                "dtype": {"const": "float32"},
+                "shape": {"const": [1, 256]}
+              },
+              "required": ["dtype", "shape"]
+            },
+            "speed": {
+              "$ref": "#/$defs/tensor",
+              "properties": {
+                "dtype": {"const": "float32"},
+                "shape": {"const": []},
+                "positive": {"const": true}
+              },
+              "required": ["dtype", "shape", "positive"]
+            }
+          }
+        },
+        "output_contract": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["waveform", "pred_dur"],
+          "properties": {
+            "waveform": {
+              "$ref": "#/$defs/tensor",
+              "properties": {
+                "dtype": {"const": "float32"},
+                "shape": {"const": ["waveform_len"]},
+                "channels": {"const": 1},
+                "sample_rate_hz": {"const": 24000},
+                "amplitude_domain": {"const": "strictly_inside_minus_one_to_one"}
+              },
+              "required": ["dtype", "shape", "channels", "sample_rate_hz", "amplitude_domain"]
+            },
+            "pred_dur": {
+              "$ref": "#/$defs/tensor",
+              "properties": {
+                "dtype": {"const": "int64"},
+                "shape": {"const": ["pred_dur_len"]},
+                "relationship": {"const": "pred_dur_len_equals_input_seq_len"}
+              },
+              "required": ["dtype", "shape", "relationship"]
+            }
+          }
+        },
+        "limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["hard_phoneme_symbols", "operational_phoneme_symbols", "vocab_size"],
+          "properties": {
+            "hard_phoneme_symbols": {"const": 510},
+            "operational_phoneme_symbols": {"const": 507},
+            "vocab_size": {"const": 178}
+          }
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["runtime_repository", "runtime_revision", "checkpoint_sha256"],
+          "properties": {
+            "runtime_repository": {"format": "uri", "type": "string"},
+            "runtime_revision": {"type": "string", "minLength": 40, "maxLength": 40},
+            "checkpoint_sha256": {"$ref": "#/$defs/sha256"}
+          }
+        }
+      }
+    },
+    "voice_style": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "voice_id",
+        "speaker_label",
+        "locale",
+        "style_id",
+        "artifact_id",
+        "dtype",
+        "shape",
+        "row_selection"
+      ],
+      "properties": {
+        "voice_id": {"$ref": "#/$defs/id"},
+        "speaker_label": {"type": "string", "minLength": 1},
+        "locale": {"const": "sr"},
+        "style_id": {"$ref": "#/$defs/id"},
+        "artifact_id": {"$ref": "#/$defs/id"},
+        "dtype": {"const": "float32"},
+        "shape": {"const": [510, 1, 256]},
+        "row_selection": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["expression", "clamp_max", "length_unit"],
+          "properties": {
+            "expression": {"const": "min(phoneme_symbol_count, 509)"},
+            "clamp_max": {"const": 509},
+            "length_unit": {"const": "phoneme_symbols"}
+          }
+        }
+      }
+    },
+    "vocabulary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vocabulary_id",
+        "version",
+        "artifact_id",
+        "size",
+        "valid_symbol_count",
+        "token_dtype",
+        "boundary_token_id",
+        "unknown_symbol_policy"
+      ],
+      "properties": {
+        "vocabulary_id": {"$ref": "#/$defs/id"},
+        "version": {"type": "string", "minLength": 1},
+        "artifact_id": {"$ref": "#/$defs/id"},
+        "size": {"const": 178},
+        "valid_symbol_count": {"const": 115},
+        "token_dtype": {"const": "int64"},
+        "boundary_token_id": {"const": 0},
+        "unknown_symbol_policy": {"const": "reject"}
+      }
+    },
+    "configuration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["configuration_id", "artifact_id", "sample_rate_hz", "model_scalars", "inference"],
+      "properties": {
+        "configuration_id": {"$ref": "#/$defs/id"},
+        "artifact_id": {"$ref": "#/$defs/id"},
+        "sample_rate_hz": {"const": 24000},
+        "model_scalars": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["n_token", "hidden_dim", "style_dim", "n_mels", "max_dur", "dim_in"],
+          "properties": {
+            "n_token": {"const": 178},
+            "hidden_dim": {"const": 512},
+            "style_dim": {"const": 128},
+            "n_mels": {"const": 80},
+            "max_dur": {"const": 50},
+            "dim_in": {"const": 64}
+          }
+        },
+        "inference": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["speed_rule", "randomness", "audio_format"],
+          "properties": {
+            "speed_rule": {"const": "duration_frames=round(predicted_duration/speed), minimum_one"},
+            "randomness": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["seed_control", "deterministic_requires_single_thread"],
+              "properties": {
+                "seed_control": {"const": "torch_manual_seed_before_call"},
+                "deterministic_requires_single_thread": {"const": true}
+              }
+            },
+            "audio_format": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["channels", "sample_rate_hz", "dtype"],
+              "properties": {
+                "channels": {"const": 1},
+                "sample_rate_hz": {"const": 24000},
+                "dtype": {"const": "float32"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "preprocessing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "compatibility_id",
+        "contract_version",
+        "source_repository",
+        "source_revision",
+        "source_files",
+        "locale",
+        "phonemizer",
+        "normalization",
+        "output_contract",
+        "android_status"
+      ],
+      "properties": {
+        "compatibility_id": {"$ref": "#/$defs/id"},
+        "contract_version": {"const": 1},
+        "source_repository": {"type": "string", "format": "uri"},
+        "source_revision": {"type": "string", "minLength": 40, "maxLength": 40},
+        "source_files": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256"],
+            "properties": {
+              "path": {"type": "string", "minLength": 1},
+              "sha256": {"$ref": "#/$defs/sha256"}
+            }
+          }
+        },
+        "locale": {"const": "sr"},
+        "phonemizer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["engine", "version", "voice", "ipa_mode", "command"],
+          "properties": {
+            "engine": {"const": "espeak-ng"},
+            "version": {"const": "1.52.0"},
+            "voice": {"const": "sr"},
+            "ipa_mode": {"const": "3"},
+            "command": {"const": "espeak-ng -q --ipa=3 -v sr --stdin"}
+          }
+        },
+        "normalization": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "output_contract": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["unit", "vocabulary_id", "boundary_tokens", "unknown_symbol_policy"],
+          "properties": {
+            "unit": {"const": "normalized_ipa_character_sequence"},
+            "vocabulary_id": {"$ref": "#/$defs/id"},
+            "boundary_tokens": {"const": "token_0_prepend_and_append"},
+            "unknown_symbol_policy": {"const": "reject"}
+          }
+        },
+        "android_status": {
+          "enum": ["not-yet-qualified", "qualified"]
+        },
+        "max_input": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["hard_phoneme_symbols", "operational_phoneme_symbols"],
+          "properties": {
+            "hard_phoneme_symbols": {"const": 510},
+            "operational_phoneme_symbols": {"const": 507}
+          }
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runtime_id",
+        "coordinate",
+        "version",
+        "platform",
+        "min_android_api",
+        "abis",
+        "execution_provider",
+        "threading",
+        "qualification_status"
+      ],
+      "properties": {
+        "runtime_id": {"$ref": "#/$defs/id"},
+        "coordinate": {"type": "string", "minLength": 1},
+        "version": {"const": "1.29.0"},
+        "platform": {"const": "android"},
+        "min_android_api": {"const": 30},
+        "abis": {"const": ["arm64-v8a"]},
+        "execution_provider": {"const": "cpu"},
+        "threading": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["intra_op_threads", "inter_op_threads"],
+          "properties": {
+            "intra_op_threads": {"const": 1},
+            "inter_op_threads": {"const": 1}
+          }
+        },
+        "qualification_status": {
+          "enum": ["desktop-parity-only", "android-parity-passed", "device-qualified"]
+        },
+        "parity_thresholds_version": {"const": "fp32-parity-v1"},
+        "runtime_artifact": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["sha256", "source"],
+          "properties": {
+            "sha256": {"$ref": "#/$defs/sha256"},
+            "source": {"type": "string", "format": "uri"}
+          }
+        }
+      }
+    },
+    "test_vectors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["corpus_id", "version", "manifest_artifact_id", "all_required", "parity_thresholds_version", "vectors"],
+      "properties": {
+        "corpus_id": {"$ref": "#/$defs/id"},
+        "version": {"type": "string", "minLength": 1},
+        "manifest_artifact_id": {"$ref": "#/$defs/id"},
+        "all_required": {"const": true},
+        "parity_thresholds_version": {"const": "fp32-parity-v1"},
+        "vectors": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "case_ref", "audio_artifact_id", "required", "exact_preprocessing"],
+            "properties": {
+              "id": {"$ref": "#/$defs/id"},
+              "case_ref": {"type": "string", "pattern": "^[^#]+#/vectors/[0-9]+$"},
+              "audio_artifact_id": {"$ref": "#/$defs/id"},
+              "required": {"const": true},
+              "exact_preprocessing": {"const": true}
+            }
+          }
+        }
+      }
+    },
+    "licenses": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "spdx_id", "name", "source_url", "terms_status", "applies_to"],
+        "properties": {
+          "id": {"$ref": "#/$defs/id"},
+          "spdx_id": {"type": "string", "minLength": 1},
+          "name": {"type": "string", "minLength": 1},
+          "source_url": {"type": "string", "format": "uri"},
+          "terms_status": {"enum": ["declared", "pending-review"]},
+          "applies_to": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"$ref": "#/$defs/id"}
+          },
+          "modification_note": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "attribution": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "subject", "text", "source_url", "license_id", "required"],
+        "properties": {
+          "id": {"$ref": "#/$defs/id"},
+          "subject": {"type": "string", "minLength": 1},
+          "text": {"type": "string", "minLength": 1},
+          "source_url": {"type": "string", "format": "uri"},
+          "license_id": {"$ref": "#/$defs/id"},
+          "required": {"const": true}
+        }
+      }
+    },
+    "legal": {
+      "type": "object",
+      "description": "A recorded release gate, not a legal opinion or clearance certificate.",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "model_distribution",
+        "package_distribution",
+        "blocked_artifact_ids",
+        "outstanding_reviews",
+        "disclaimer"
+      ],
+      "properties": {
+        "status": {"enum": ["blocked", "pending", "cleared"]},
+        "model_distribution": {"enum": ["blocked", "pending", "allowed"]},
+        "package_distribution": {"enum": ["private-development-only", "restricted", "public"]},
+        "blocked_artifact_ids": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/id"}
+        },
+        "outstanding_reviews": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        },
+        "clearance_evidence": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        },
+        "disclaimer": {
+          "const": "Schema validation records declarations only; it is not legal clearance."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"model_distribution": {"const": "allowed"}}
+          },
+          "then": {
+            "properties": {
+              "status": {"const": "cleared"},
+              "clearance_evidence": {"minItems": 1}
+            },
+            "required": ["clearance_evidence"]
+          }
+        },
+        {
+          "if": {
+            "properties": {"status": {"enum": ["blocked", "pending"]}}
+          },
+          "then": {
+            "properties": {
+              "model_distribution": {"enum": ["blocked", "pending"]}
+            }
+          }
+        }
+      ]
+    },
+    "extensions": {
+      "type": "object",
+      "description": "Namespaced data may be ignored by a v1 reader; core fields remain strict.",
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9_.-]*:[a-zA-Z0-9_.-]+$"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "properties": {
+        "artifacts": {
+          "contains": {
+            "properties": {"roles": {"contains": {"const": "model"}}},
+            "required": ["roles"]
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "artifacts": {
+          "contains": {
+            "properties": {"roles": {"contains": {"const": "voice_style"}}},
+            "required": ["roles"]
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "artifacts": {
+          "contains": {
+            "properties": {"roles": {"contains": {"const": "configuration"}}},
+            "required": ["roles"]
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "artifacts": {
+          "contains": {
+            "properties": {"roles": {"contains": {"const": "test_vector"}}},
+            "required": ["roles"]
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "artifacts": {
+          "contains": {
+            "properties": {"roles": {"contains": {"const": "vocabulary"}}},
+            "required": ["roles"]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "relative_path": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)[^\\u0000]+$"
+    },
+    "schema_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": {"const": "serbian-model-package"},
+        "version": {"const": 1}
+      }
+    },
+    "tensor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dtype", "shape"],
+      "properties": {
+        "dtype": {"type": "string", "minLength": 1},
+        "shape": {
+          "type": "array",
+          "items": {"type": ["integer", "string"]}
+        },
+        "min_seq_len": {"type": "integer", "minimum": 1},
+        "max_seq_len": {"type": "integer", "minimum": 1},
+        "positive": {"type": "boolean"},
+        "channels": {"type": "integer", "minimum": 1},
+        "sample_rate_hz": {"type": "integer", "minimum": 1},
+        "amplitude_domain": {"type": "string", "minLength": 1},
+        "relationship": {"type": "string", "minLength": 1}
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "path",
+        "roles",
+        "media_type",
+        "sha256",
+        "size_bytes",
+        "required",
+        "distribution_status",
+        "license_refs",
+        "attribution_refs"
+      ],
+      "properties": {
+        "artifact_id": {"$ref": "#/$defs/id"},
+        "path": {"$ref": "#/$defs/relative_path"},
+        "roles": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["model", "voice_style", "vocabulary", "configuration", "test_vector", "test_audio", "notice"]
+          }
+        },
+        "media_type": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 0},
+        "required": {"type": "boolean"},
+        "distribution_status": {"enum": ["blocked", "pending", "allowed", "not-applicable"]},
+        "license_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/id"}
+        },
+        "attribution_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/id"}
+        },
+        "description": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

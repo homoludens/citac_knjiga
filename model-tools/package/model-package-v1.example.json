@@ -1,0 +1,391 @@
+{
+  "schema": {
+    "id": "serbian-model-package",
+    "version": 1
+  },
+  "manifest": {
+    "package_id": "kokoro-serbian-dragana",
+    "package_version": "1.0.0",
+    "manifest_path": "manifest.json",
+    "created_at": "2026-08-27T12:00:00Z",
+    "publisher": "citac-knjiga",
+    "canonicalization": "json-sorted-keys-utf8-v1",
+    "identity": {
+      "algorithm": "sha-256",
+      "value": "ced9a636235192cbd328e197d8abc28b41304bc9c93b5f58b1d1e43178d55cfd",
+      "input": "package_id, package_version, and sorted artifact path+sha256 pairs"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact_id": "model-onnx",
+      "path": "model/dragana.onnx",
+      "roles": ["model"],
+      "media_type": "application/onnx",
+      "sha256": "f40e096e2e4112bc6f529160eda9a4ebdab5baf3fefbd584ec19c8f6592bbeb6",
+      "size_bytes": 325709154,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"],
+      "description": "FP32 ONNX graph, exported with opset 18."
+    },
+    {
+      "artifact_id": "voice-dragana",
+      "path": "voice/sr_dragana.pt",
+      "roles": ["voice_style"],
+      "media_type": "application/octet-stream",
+      "sha256": "0c16ae704368f69e5e1467a702594f56f11a5cfdd38e9ae43b708932c1d6fb8a",
+      "size_bytes": 523739,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"],
+      "description": "The 510-row Dragana style table."
+    },
+    {
+      "artifact_id": "config-kokoro",
+      "path": "config/config.json",
+      "roles": ["vocabulary", "configuration"],
+      "media_type": "application/json",
+      "sha256": "5abb01e2403b072bf03d04fde160443e209d7a0dad49a423be15196b9b43c17f",
+      "size_bytes": 2351,
+      "required": true,
+      "distribution_status": "allowed",
+      "license_refs": ["license-project"],
+      "attribution_refs": ["attribution-project"],
+      "description": "Kokoro model configuration and vocabulary map."
+    },
+    {
+      "artifact_id": "golden-vectors",
+      "path": "tests/reference-vectors.json",
+      "roles": ["test_vector"],
+      "media_type": "application/json",
+      "sha256": "04d4fa0843e259f3d3cb16e0610fe98a58b105f2ed873ebc1264215fb6316e49",
+      "size_bytes": 9721,
+      "required": true,
+      "distribution_status": "allowed",
+      "license_refs": ["license-project"],
+      "attribution_refs": ["attribution-project"],
+      "description": "Machine-readable inputs and expected preprocessing/model metadata."
+    },
+    {
+      "artifact_id": "audio-greeting-latin",
+      "path": "tests/audio/greeting-latin.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "dd89e0736a68e371131799de0047c65096a45d8393b8745e8b302a403d45f173",
+      "size_bytes": 248444,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-greeting-cyrillic",
+      "path": "tests/audio/greeting-cyrillic.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "dd89e0736a68e371131799de0047c65096a45d8393b8745e8b302a403d45f173",
+      "size_bytes": 248444,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-diacritics-latin",
+      "path": "tests/audio/diacritics-latin.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "2d94af8e78d8fdc71f0c419a60f009e3113da7169658c2033dae5a8623009ca0",
+      "size_bytes": 228044,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-diacritics-cyrillic",
+      "path": "tests/audio/diacritics-cyrillic.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "f7030c07ca6ec56d65155ec4b7e2d0d37adff1e0322c5c682b4cf88e731335c4",
+      "size_bytes": 229244,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-mixed-digits",
+      "path": "tests/audio/mixed-digits.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "b5cb5b38894202de34d2ceea4a4d6d3a14cf1c69938eab1ee1f6077efe416d8c",
+      "size_bytes": 235244,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-punctuation",
+      "path": "tests/audio/punctuation.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "627f944eac8c71ed76e604e1bf7b93371ab2722a3a9772e0a2282f05d0ad3b4a",
+      "size_bytes": 160844,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    },
+    {
+      "artifact_id": "audio-cyrillic-punctuation",
+      "path": "tests/audio/cyrillic-punctuation.wav",
+      "roles": ["test_audio"],
+      "media_type": "audio/wav",
+      "sha256": "0b197f8aba65bd020ba235758a90f624bae62937db22db750c4e79b0742147d4",
+      "size_bytes": 156044,
+      "required": true,
+      "distribution_status": "blocked",
+      "license_refs": ["license-cc-by-4", "license-cc-by-sa-4"],
+      "attribution_refs": ["attribution-dragana", "attribution-juzne-vesti", "attribution-synthetic"]
+    }
+  ],
+  "model": {
+    "model_id": "kokoro-serbian-dragana",
+    "revision": "epoch-005-onnx-fp32",
+    "artifact_id": "model-onnx",
+    "format": "onnx",
+    "architecture": {
+      "family": "kokoro-82m",
+      "config_artifact_id": "config-kokoro"
+    },
+    "opset": {
+      "ai_onnx": 18,
+      "ir_version": 8,
+      "domains": ["ai.onnx"]
+    },
+    "input_contract": {
+      "input_ids": {"dtype": "int64", "shape": [1, "seq_len"], "min_seq_len": 2, "max_seq_len": 512},
+      "ref_s": {"dtype": "float32", "shape": [1, 256]},
+      "speed": {"dtype": "float32", "shape": [], "positive": true}
+    },
+    "output_contract": {
+      "waveform": {
+        "dtype": "float32",
+        "shape": ["waveform_len"],
+        "channels": 1,
+        "sample_rate_hz": 24000,
+        "amplitude_domain": "strictly_inside_minus_one_to_one"
+      },
+      "pred_dur": {
+        "dtype": "int64",
+        "shape": ["pred_dur_len"],
+        "relationship": "pred_dur_len_equals_input_seq_len"
+      }
+    },
+    "limits": {
+      "hard_phoneme_symbols": 510,
+      "operational_phoneme_symbols": 507,
+      "vocab_size": 178
+    },
+    "source": {
+      "runtime_repository": "https://github.com/semidark/kokoro.git",
+      "runtime_revision": "b96fef95e6a746495f92443fac7c688f90fc57fc",
+      "checkpoint_sha256": "4e6d11053886acd15f4e2b873efef87b7d53885bcf80b3b5fe73f79dd253ca47"
+    }
+  },
+  "voice_style": {
+    "voice_id": "dragana-sr",
+    "speaker_label": "Dragana",
+    "locale": "sr",
+    "style_id": "dragana-epoch-005",
+    "artifact_id": "voice-dragana",
+    "dtype": "float32",
+    "shape": [510, 1, 256],
+    "row_selection": {
+      "expression": "min(phoneme_symbol_count, 509)",
+      "clamp_max": 509,
+      "length_unit": "phoneme_symbols"
+    }
+  },
+  "vocabulary": {
+    "vocabulary_id": "kokoro-v1-symbols",
+    "version": "config-5abb01e2",
+    "artifact_id": "config-kokoro",
+    "size": 178,
+    "valid_symbol_count": 115,
+    "token_dtype": "int64",
+    "boundary_token_id": 0,
+    "unknown_symbol_policy": "reject"
+  },
+  "configuration": {
+    "configuration_id": "kokoro-config-5abb01e2",
+    "artifact_id": "config-kokoro",
+    "sample_rate_hz": 24000,
+    "model_scalars": {
+      "n_token": 178,
+      "hidden_dim": 512,
+      "style_dim": 128,
+      "n_mels": 80,
+      "max_dur": 50,
+      "dim_in": 64
+    },
+    "inference": {
+      "speed_rule": "duration_frames=round(predicted_duration/speed), minimum_one",
+      "randomness": {
+        "seed_control": "torch_manual_seed_before_call",
+        "deterministic_requires_single_thread": true
+      },
+      "audio_format": {"channels": 1, "sample_rate_hz": 24000, "dtype": "float32"}
+    }
+  },
+  "preprocessing": {
+    "compatibility_id": "kokoro-sr-ca5590d9",
+    "contract_version": 1,
+    "source_repository": "https://github.com/homoludens/kokoro-serbian.git",
+    "source_revision": "ca5590d9576f63b0763e51a73de0596d47f05425",
+    "source_files": [
+      {"path": "src/kokoro_sr/phonemes.py", "sha256": "be84544903e0657d8579e567f3dae1170a2a57f3ca221911ebc49bcb9525c267"},
+      {"path": "src/kokoro_sr/core.py", "sha256": "f35342bf835b6b058ed1a30370f79183f473bd4e474a03bf79cc489b54ee53c6"},
+      {"path": "src/kokoro_sr/constants.py", "sha256": "2eee068c822b25b777f66f3710735fb2bf38a2c868222268052c53dc140ce22f"}
+    ],
+    "locale": "sr",
+    "phonemizer": {
+      "engine": "espeak-ng",
+      "version": "1.52.0",
+      "voice": "sr",
+      "ipa_mode": "3",
+      "command": "espeak-ng -q --ipa=3 -v sr --stdin"
+    },
+    "normalization": [
+      "NFC",
+      "strip zero-width characters U+200B/U+200C/U+200D/U+2060/U+FEFF",
+      "strip tie bars U+0361/U+035C",
+      "drop syllabic mark U+0329",
+      "merge tʃ→ʧ, dʒ→ʤ, tɕ→ʨ, dʑ→ʥ",
+      "collapse whitespace"
+    ],
+    "output_contract": {
+      "unit": "normalized_ipa_character_sequence",
+      "vocabulary_id": "kokoro-v1-symbols",
+      "boundary_tokens": "token_0_prepend_and_append",
+      "unknown_symbol_policy": "reject"
+    },
+    "android_status": "not-yet-qualified",
+    "max_input": {"hard_phoneme_symbols": 510, "operational_phoneme_symbols": 507}
+  },
+  "runtime": {
+    "runtime_id": "onnxruntime-android",
+    "coordinate": "com.microsoft.onnxruntime:onnxruntime-android:1.29.0",
+    "version": "1.29.0",
+    "platform": "android",
+    "min_android_api": 30,
+    "abis": ["arm64-v8a"],
+    "execution_provider": "cpu",
+    "threading": {"intra_op_threads": 1, "inter_op_threads": 1},
+    "qualification_status": "desktop-parity-only",
+    "parity_thresholds_version": "fp32-parity-v1",
+    "runtime_artifact": {
+      "sha256": "e97540ca78fe36f6fe2013f82843414fb843b6c7681fb04644cba5e1406662dd",
+      "source": "https://repo1.maven.org/maven2/com/microsoft/onnxruntime/onnxruntime-android/1.29.0/onnxruntime-android-1.29.0.aar"
+    }
+  },
+  "test_vectors": {
+    "corpus_id": "serbian-golden-vectors",
+    "version": "reference-20260826",
+    "manifest_artifact_id": "golden-vectors",
+    "all_required": true,
+    "parity_thresholds_version": "fp32-parity-v1",
+    "vectors": [
+      {"id": "greeting-latin", "case_ref": "tests/reference-vectors.json#/vectors/0", "audio_artifact_id": "audio-greeting-latin", "required": true, "exact_preprocessing": true},
+      {"id": "greeting-cyrillic", "case_ref": "tests/reference-vectors.json#/vectors/1", "audio_artifact_id": "audio-greeting-cyrillic", "required": true, "exact_preprocessing": true},
+      {"id": "diacritics-latin", "case_ref": "tests/reference-vectors.json#/vectors/2", "audio_artifact_id": "audio-diacritics-latin", "required": true, "exact_preprocessing": true},
+      {"id": "diacritics-cyrillic", "case_ref": "tests/reference-vectors.json#/vectors/3", "audio_artifact_id": "audio-diacritics-cyrillic", "required": true, "exact_preprocessing": true},
+      {"id": "mixed-digits", "case_ref": "tests/reference-vectors.json#/vectors/4", "audio_artifact_id": "audio-mixed-digits", "required": true, "exact_preprocessing": true},
+      {"id": "punctuation", "case_ref": "tests/reference-vectors.json#/vectors/5", "audio_artifact_id": "audio-punctuation", "required": true, "exact_preprocessing": true},
+      {"id": "cyrillic-punctuation", "case_ref": "tests/reference-vectors.json#/vectors/6", "audio_artifact_id": "audio-cyrillic-punctuation", "required": true, "exact_preprocessing": true}
+    ]
+  },
+  "licenses": [
+    {
+      "id": "license-cc-by-4",
+      "spdx_id": "CC-BY-4.0",
+      "name": "Creative Commons Attribution 4.0 International",
+      "source_url": "https://creativecommons.org/licenses/by/4.0/",
+      "terms_status": "declared",
+      "applies_to": ["model-onnx", "voice-dragana", "audio-greeting-latin", "audio-greeting-cyrillic", "audio-diacritics-latin", "audio-diacritics-cyrillic", "audio-mixed-digits", "audio-punctuation", "audio-cyrillic-punctuation"],
+      "modification_note": "Weights and audio are derived from the Dragana Common Voice training data."
+    },
+    {
+      "id": "license-cc-by-sa-4",
+      "spdx_id": "CC-BY-SA-4.0",
+      "name": "Creative Commons Attribution-ShareAlike 4.0 International",
+      "source_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "terms_status": "pending-review",
+      "applies_to": ["model-onnx", "voice-dragana", "audio-greeting-latin", "audio-greeting-cyrillic", "audio-diacritics-latin", "audio-diacritics-cyrillic", "audio-mixed-digits", "audio-punctuation", "audio-cyrillic-punctuation"],
+      "modification_note": "Južne vesti DUA, ShareAlike, and underlying broadcast rights remain unresolved."
+    },
+    {
+      "id": "license-project",
+      "spdx_id": "UNLICENSED",
+      "name": "Project-owned declaration",
+      "source_url": "https://github.com/homoludens/citac_knjiga",
+      "terms_status": "declared",
+      "applies_to": ["config-kokoro", "golden-vectors"],
+      "modification_note": "No third-party corpus text is introduced by this declaration."
+    }
+  ],
+  "attribution": [
+    {
+      "id": "attribution-dragana",
+      "subject": "Serbian Common Voice Style TTS Dataset; creator Darko Milošević; speaker Dragana",
+      "text": "Serbian Common Voice Style TTS Dataset by Darko Milošević, spoken by Dragana. Licensed CC BY 4.0. Modifications: fine-tuned Kokoro weights and derived voice/style data.",
+      "source_url": "https://huggingface.co/datasets/daremc86/serbian_common_voice",
+      "license_id": "license-cc-by-4",
+      "required": true
+    },
+    {
+      "id": "attribution-juzne-vesti",
+      "subject": "JuzneVesti-SR v1.0; Peter Rupnik and Nikola Ljubešić; Jožef Stefan Institute / CLARIN.SI",
+      "text": "JuzneVesti-SR v1.0 by Peter Rupnik and Nikola Ljubešić, Jožef Stefan Institute / CLARIN.SI. Declared CC BY-SA 4.0; redistribution and underlying broadcast rights are not cleared.",
+      "source_url": "https://hdl.handle.net/11356/1679",
+      "license_id": "license-cc-by-sa-4",
+      "required": true
+    },
+    {
+      "id": "attribution-synthetic",
+      "subject": "Synthetic-audio disclosure",
+      "text": "Generated audio reproduces characteristics of real people and must not be used for impersonation or fraud.",
+      "source_url": "https://github.com/homoludens/kokoro-serbian",
+      "license_id": "license-cc-by-4",
+      "required": true
+    },
+    {
+      "id": "attribution-project",
+      "subject": "citac-knjiga project",
+      "text": "Model configuration and self-authored golden-vector declarations for the citac-knjiga project.",
+      "source_url": "https://github.com/homoludens/citac_knjiga",
+      "license_id": "license-project",
+      "required": true
+    }
+  ],
+  "legal": {
+    "status": "blocked",
+    "model_distribution": "blocked",
+    "package_distribution": "private-development-only",
+    "blocked_artifact_ids": ["model-onnx", "voice-dragana", "audio-greeting-latin", "audio-greeting-cyrillic", "audio-diacritics-latin", "audio-diacritics-cyrillic", "audio-mixed-digits", "audio-punctuation", "audio-cyrillic-punctuation"],
+    "outstanding_reviews": [
+      "Obtain the exact CLARIN.SI DUA for handle 11356/1679.",
+      "Obtain written advice on ShareAlike obligations for weights and underlying broadcast rights."
+    ],
+    "clearance_evidence": [],
+    "disclaimer": "Schema validation records declarations only; it is not legal clearance."
+  },
+  "extensions": {
+    "org.citac-knjiga:source-notes": "Example declaration only; payload files are not created by task 3.1."
+  }
+}
