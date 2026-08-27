@@ -9,7 +9,9 @@ target.
 - OpenSpec change `build-serbian-audiobook-mvp` is in progress:
   `openspec/changes/build-serbian-audiobook-mvp/` (proposal, design, 6 specs,
   12 task phases).
-- Phase 1 (reference runtime + legal inventory) is the active work.
+- Phase 2 model export/parity is active: task 2.4 has frozen the FP32 parity
+  contract at `model-tools/parity/fp32-thresholds-v1.json`; task 2.5 remains
+  pending and no candidate parity runner is implemented yet.
 
 ## Repository layout
 

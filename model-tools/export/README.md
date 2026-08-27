@@ -131,3 +131,24 @@ runtime footprint, not the Android device qualification gate.
 
 This validation intentionally does not apply waveform parity thresholds;
 those are defined by task 2.4.
+
+## FP32 parity thresholds (task 2.4)
+
+`parity/fp32-thresholds-v1.json` is the frozen, versioned declaration for the
+future parity runner. It is loaded before candidate vector evaluation by the
+export script; no runtime threshold override is permitted. A threshold change
+requires a new `thresholds_version` and review before evaluation.
+
+The required gate covers every vector and fails closed: exact sample count,
+pointwise waveform mean/max absolute error, flattened Hann-windowed STFT
+magnitude cosine similarity, whole-output silence, full-scale clipping, and
+non-finite values. The declaration records units, formulas, per-vector and
+worst-case aggregation, strict comparator semantics, the 24 kHz mono float32
+contract, and the PyTorch `CustomSTFT` comparison baseline. It does not run the
+parity comparison; that is task 2.5.
+
+Validate the schema and frozen policy without evaluating a candidate:
+
+```bash
+model-tools/.venv/bin/python model-tools/scripts/validate_parity_thresholds.py
+```

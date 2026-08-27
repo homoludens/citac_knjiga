@@ -69,6 +69,7 @@ from export.wrapper import (  # noqa: E402
     MAX_INPUT_TOKENS,
     SAMPLE_RATE,
 )
+from parity.thresholds import load_thresholds  # noqa: E402
 # Importing the wrapper also puts the pinned kokoro runtime on sys.path.
 from kokoro import KModel  # noqa: E402
 from kokoro.model import KModelForONNX  # noqa: E402
@@ -96,6 +97,7 @@ EXPORTER = (
 MANIFEST_PATH = REPO / "model-tools" / "export" / "manifest.json"
 ONNX_PATH = REPO / "model-tools" / "export" / "dragana.onnx"
 VECTORS_PATH = REPO / "model-tools" / "reference" / "vectors.json"
+THRESHOLDS_PATH = REPO / "model-tools" / "parity" / "fp32-thresholds-v1.json"
 
 COSINE_FLOOR = 0.9  # hard sanity floor (task 2.2); formal thresholds = 2.4
 
@@ -440,7 +442,7 @@ def isolate_stft_lossiness(model_to_export: KModelForONNX,
 # --------------------------------------------------------------------------- #
 # manifest                                                                    #
 # --------------------------------------------------------------------------- #
-def write_manifest(boundary: dict, generality: dict, drift: dict) -> dict:
+def write_manifest(boundary: dict, generality: dict, drift: dict, thresholds: dict) -> dict:
     manifest = {
         "kind": "onnx-interface-manifest",
         "task": "build-serbian-audiobook-mvp 2.2",
@@ -522,6 +524,11 @@ def write_manifest(boundary: dict, generality: dict, drift: dict) -> dict:
         "voice_bundle": "kokoro_sr_dragana_voice/ (epoch-005)",
         "sample_rate": SAMPLE_RATE,
         "max_input_tokens": MAX_INPUT_TOKENS,
+        "parity_thresholds": {
+            "path": "model-tools/parity/fp32-thresholds-v1.json",
+            "version": thresholds["thresholds_version"],
+            "declared_before_candidate_evaluation": thresholds["declared_before_candidate_evaluation"],
+        },
         "vocab_size": 178,
         "length_generality": generality,
         "drift": drift,
@@ -555,6 +562,10 @@ def write_manifest(boundary: dict, generality: dict, drift: dict) -> dict:
 def main() -> int:
     t_start = time.perf_counter()
     print(f"[2.2] torch {torch.__version__}, threads={torch.get_num_threads()}")
+
+    # The formal gate must exist and be valid before any candidate vectors run.
+    thresholds = load_thresholds(THRESHOLDS_PATH)
+    print(f"[2.4] loaded thresholds {thresholds['thresholds_version']}")
 
     ref_wrapper = DraganaExportWrapper()  # exact TorchSTFT reference (~22 s)
     model_to_export = load_export_model()  # CustomSTFT, eager attention (~22 s)
@@ -600,7 +611,7 @@ def main() -> int:
             f"dur={'Y' if r['pred_dur_match'] else 'N'}"
         )
 
-    manifest = write_manifest(boundary, generality, drift)
+    manifest = write_manifest(boundary, generality, drift, thresholds)
     print(f"[2.2] manifest -> {MANIFEST_PATH}")
     print(f"[2.2] onnx sha256: {manifest['onnx_sha256']}")
     print(f"[2.2] total {time.perf_counter() - t_start:.1f} s")

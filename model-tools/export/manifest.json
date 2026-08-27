@@ -161,6 +161,11 @@
   "voice_bundle": "kokoro_sr_dragana_voice/ (epoch-005)",
   "sample_rate": 24000,
   "max_input_tokens": 512,
+  "parity_thresholds": {
+    "path": "model-tools/parity/fp32-thresholds-v1.json",
+    "version": "fp32-parity-v1",
+    "declared_before_candidate_evaluation": true
+  },
   "vocab_size": 178,
   "length_generality": {
     "distinct_lengths": [
