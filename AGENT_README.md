@@ -10,8 +10,9 @@ target.
   `openspec/changes/build-serbian-audiobook-mvp/` (proposal, design, 6 specs,
   12 task phases).
 - Phase 2 model export/parity is active: task 2.4 has frozen the FP32 parity
-  contract at `model-tools/parity/fp32-thresholds-v1.json`; task 2.5 remains
-  pending and no candidate parity runner is implemented yet.
+  contract at `model-tools/parity/fp32-thresholds-v1.json`; task 2.5 has a
+  desktop runner at `model-tools/scripts/run_parity.py` with JSON and text
+  reports; task 2.6 remains pending.
 
 ## Repository layout
 
@@ -39,6 +40,12 @@ target.
   deterministic tensor boundary (token IDs + selected style row + speed →
   24 kHz float32 PCM + pred_dur) that task 2.2 exports to ONNX. See
   `model-tools/export/README.md` for the interface contract.
+- Desktop parity (task 2.5): run
+  `model-tools/.venv/bin/python model-tools/scripts/run_parity.py` to compare
+  the PyTorch CustomSTFT baseline with ONNX Runtime CPU over all committed
+  vectors. Reports are written to
+  `model-tools/parity/fp32-parity-report.json` and
+  `model-tools/parity/fp32-parity-report.txt`.
 
 ## Conventions
 

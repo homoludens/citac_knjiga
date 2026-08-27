@@ -1,0 +1,27 @@
+FP32 Desktop Parity Report
+===========================
+Status: PASS
+Task: build-serbian-audiobook-mvp 2.5
+Thresholds: fp32-parity-v1
+Vectors: 7/7 evaluated
+
+Vector results:
+  greeting-latin: PASS (samples pt=124200 onnx=124200)
+  greeting-cyrillic: PASS (samples pt=124200 onnx=124200)
+  diacritics-latin: PASS (samples pt=114000 onnx=114000)
+  diacritics-cyrillic: PASS (samples pt=114600 onnx=114600)
+  mixed-digits: PASS (samples pt=117600 onnx=117600)
+  punctuation: PASS (samples pt=80400 onnx=80400)
+  cyrillic-punctuation: PASS (samples pt=78000 onnx=78000)
+
+Worst-case declared measurements:
+  sample_count.absolute_difference_samples: PASS value=0 == 0
+  waveform_error.mean_absolute_error: PASS value=0.0034102814320334913 <= 0.01
+  waveform_error.maximum_absolute_error: PASS value=0.06453564018011093 <= 0.1
+  spectral_similarity.stft_magnitude_cosine: PASS value=0.9993543444867882 >= 0.99
+  silence.rms_amplitude: PASS value=0.08029528034316824 > 0.001
+  silence.silent_sample_fraction: PASS value=0.1175 <= 0.995
+  clipping.clipped_sample_count: PASS value=0 == 0
+  clipping.absolute_peak: PASS value=0.486664742231369 < 1.0
+  invalid_values.non_finite_sample_count: PASS value=0 == 0
+  invalid_values.invalid_output_count: PASS value=0 == 0
