@@ -10,8 +10,10 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+import package_builder  # noqa: E402
 from package_builder import PackageError, build_package, validate_package  # noqa: E402
 from package_manifest import EXAMPLE_PATH, expected_identity, load_and_validate  # noqa: E402
+from scripts.validate_preprocessing import load_json, validate_golden_preprocessing  # noqa: E402
 
 
 def _write_fixture(tmp_path: Path, *, cleared: bool) -> tuple[Path, Path]:
@@ -94,5 +96,27 @@ def test_packager_rejects_blocked_legal_status(tmp_path: Path) -> None:
     output = tmp_path / "package.zip"
 
     with pytest.raises(PackageError, match="legal gate blocks package"):
+        build_package(manifest_path, payload_root, output)
+    assert not output.exists()
+
+
+def test_packager_rejects_golden_preprocessing_mismatch(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest_path, payload_root = _write_fixture(tmp_path, cleared=True)
+    output = tmp_path / "package.zip"
+    document = load_json(Path(__file__).resolve().parents[1] / "reference/vectors.json")
+    document["vectors"][0]["token_ids"] = [0, 0]
+
+    def failing_gate() -> None:
+        validate_golden_preprocessing(document=document)
+
+    monkeypatch.setattr(package_builder, "validate_golden_preprocessing", failing_gate)
+
+    with pytest.raises(
+        PackageError,
+        match="golden preprocessing gate blocks package.*greeting-latin.*token_ids",
+    ):
         build_package(manifest_path, payload_root, output)
     assert not output.exists()

@@ -11,6 +11,10 @@ from typing import Any, Iterable
 from zipfile import ZIP_STORED, BadZipFile, ZipFile, ZipInfo
 
 from package_manifest import load_and_validate, validate_manifest
+from scripts.validate_preprocessing import (
+    GoldenPreprocessingError,
+    validate_golden_preprocessing,
+)
 
 
 class PackageError(ValueError):
@@ -267,6 +271,10 @@ def build_package(
     except (OSError, ValueError) as exc:
         raise PackageError(f"manifest validation failed: {exc}") from exc
     _assert_legal_for_packaging(manifest)
+    try:
+        validate_golden_preprocessing()
+    except (GoldenPreprocessingError, OSError, ValueError) as exc:
+        raise PackageError(f"golden preprocessing gate blocks package: {exc}") from exc
     payloads = _verify_payload_root(payload_root, manifest)
 
     if not output_path.parent.is_dir():

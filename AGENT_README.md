@@ -35,6 +35,10 @@ target.
   compatibility status. The native eSpeak-NG data closure remains unbundled
   because its provenance is incomplete and GPL linkage is blocked; see
   `model-tools/preprocessing/`.
+- Task 3.8 adds the desktop golden preprocessing gate: all 26 vectors are run
+  through the contract stages without model inference, the first divergent
+  vector/stage is reported, and package creation fails closed before archive
+  publication on any mismatch.
 
 ## Repository layout
 

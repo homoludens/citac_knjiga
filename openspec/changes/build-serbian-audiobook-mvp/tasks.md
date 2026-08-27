@@ -33,7 +33,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 - [x] 3.5 Add parity cases immediately below, at, and above the verified model input limit and for paragraphs with no convenient sentence boundary.
 - [x] 3.6 Decide from the pinned source whether exact Android phonemization can be pure Kotlin or requires a native eSpeak-NG component, and record the dependency and licensing decision. -> `model-tools/phonemization-decision.md` (native eSpeak-NG required; Android inclusion blocked by current GPL dependency policy pending legal/provenance resolution)
 - [x] 3.7 Implement the selected portable preprocessing resources and a platform-neutral version/provenance contract. -> `model-tools/preprocessing/` (vocabulary, normalization, chunking resources, checksummed contract/validator; native eSpeak-NG closure remains accurately blocked)
-- [ ] 3.8 Add desktop tests that report the first divergent preprocessing stage and block package creation on any golden mismatch.
+- [x] 3.8 Add desktop tests that report the first divergent preprocessing stage and block package creation on any golden mismatch.
 
 ## 4. Android Foundation and Typed-Text Slice (rough phase effort: 2–4 weeks)
 

@@ -39,8 +39,13 @@ recorded, and eSpeak-NG's GPL-3.0-or-later license conflicts with the current
 Android/F-Droid linked-dependency policy. The contract therefore remains
 `not_yet_qualified` and must not be treated as Android compatibility evidence.
 
-Later compatibility validation must compare all 26 golden vectors at every
-declared preprocessing stage, using exact equality, before enabling model
-inference. This task's validator checks only schema, resource bytes, resource
-semantics, and contract identity; it does not implement task 3.8's first-
-divergence or package-blocking behavior.
+Desktop compatibility validation compares all 26 golden vectors at every
+declared preprocessing stage, using exact equality, and reports the first
+divergent vector/stage. Model package creation runs this same gate after legal
+validation and before writing an archive. It performs no model inference.
+
+Run it directly with:
+
+```sh
+model-tools/.venv/bin/python model-tools/scripts/validate_preprocessing.py
+```

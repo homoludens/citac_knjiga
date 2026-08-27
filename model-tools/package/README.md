@@ -86,7 +86,9 @@ The legal gate is fail-closed: packaging requires `legal.status=cleared`,
 `legal.model_distribution=allowed`, no blocked artifacts, no outstanding
 reviews, declared license terms, and `allowed` status for every artifact. The
 blocked task-3.1 example therefore remains declaration-only and cannot be
-packaged.
+packaged. Before payload publication, the builder also runs the desktop golden
+preprocessing gate over all 26 vectors; any first-stage mismatch blocks the
+package and names the vector and stage.
 
 The payload root must mirror the manifest's package-relative artifact paths;
 the manifest file is supplied separately:
