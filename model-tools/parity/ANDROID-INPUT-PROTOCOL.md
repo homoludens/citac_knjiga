@@ -65,6 +65,7 @@ the phone without adding the generated 325 MB model package or WAV bundle to
 the repository:
 
 ```sh
+export PATH=/home/homoludens/Android/Sdk/platform-tools:$PATH
 APP_ID=com.homoludens.citacknjiga.tts.onnx.test
 BUNDLE=/tmp/citac-knjiga-desktop-onnx-vectors
 MODEL_PACKAGE=/path/to/verified-model-package.zip
