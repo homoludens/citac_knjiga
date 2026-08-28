@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 REPO = Path(__file__).resolve().parents[2]
-DEFAULT_THRESHOLDS_PATH = REPO / "model-tools" / "parity" / "fp32-thresholds-v1.json"
+DEFAULT_THRESHOLDS_PATH = REPO / "model-tools" / "parity" / "fp32-thresholds-v2.json"
 VERSION_PATTERN = re.compile(r"^fp32-parity-v[1-9][0-9]*$")
 REQUIRED_METRICS = {
     "sample_count",
@@ -114,7 +114,7 @@ def validate_thresholds(document: Any) -> dict[str, Any]:
             if not _is_finite_number(measurement["threshold"]):
                 raise ValueError(f"{metric_name}.{measurement_name}.threshold must be finite")
 
-    # These invariants make accidental broadening of the v1 contract visible to
+    # These invariants make accidental broadening of the active contract visible to
     # this validator instead of allowing a syntactically valid but weaker gate.
     sample_count = metrics["sample_count"]["measurements"]["absolute_difference_samples"]
     if sample_count["comparator"] != "==" or sample_count["threshold"] != 0:

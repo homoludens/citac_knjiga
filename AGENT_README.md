@@ -44,12 +44,11 @@ target.
   through the contract stages without model inference, the first divergent
   vector/stage is reported, and package creation fails closed before archive
   publication on any mismatch.
-- Decision record (2026-08-27): the task 3.5 limit-boundary vectors
-  `input-limit-at` and `paragraph-no-sentence-boundary` exceed the frozen FP32
-  `maximum_absolute_error <= 0.1` threshold (0.128 / 0.101). The thresholds
-  are unchanged; the deviation is recorded in
-  `model-tools/parity/fp32-parity-v1-decision.md` and must be revisited
-  before the Phase 5 device gate. Android scaffolding continues meanwhile.
+- The 2026-08-27 v1 limit-boundary deviations are retained in
+  `model-tools/parity/fp32-parity-v1-decision.md`. Active `fp32-parity-v2`
+  revises only maximum absolute error from `0.1` to `0.13`; a fresh desktop
+  run passes all 26 vectors and the rationale is recorded in
+  `model-tools/parity/fp32-parity-v2-decision.md`.
  - Task 4.5 is complete for the available native x86_64 Android test execution:
    debug variants package both `x86_64` and `arm64-v8a`, and the pinned eSpeak-NG
    source builds for ARM64, its verified data closure is installed privately,
@@ -114,7 +113,7 @@ target.
   states, writes validated app-private 24 kHz mono PCM16 WAV, and plays it with
   the local Android PCM API. Generation remains fail-closed when no verified
   model package is installed; EPUB, Room, Media3, and export are not included.
-- Task 4.9 adds the Kotlin `DeviceParityEvaluator`, frozen `fp32-parity-v1`
+- Task 4.9 adds the Kotlin `DeviceParityEvaluator`, active `fp32-parity-v2`
   metric declarations, and `DeviceParityReportStore` for atomic app-private JSON
   reports containing device, build, runtime, model, threshold, vector metrics,
   and status identity without document text. The new desktop vector exporter
@@ -124,11 +123,15 @@ target.
   x86_64 instrumentation fixture pass. A separately named production test is
   opt-in, requires native `arm64-v8a`, reads the external bundle and verified
   package from private test paths, and persists a report with real device/build/
-  runtime/model identities. Task 4.9 remains unchecked until that test passes
-  on a native ARM64 device; the production payload/package is intentionally not
-  checked in, and the two recorded frozen threshold deviations remain deferred.
-  The runner persists a non-passing `blocked` report when no verified package is
-  installed.
+  runtime/model identities. The production test passes all 26 vectors on the
+  Poco F3 native ARM64 process. The runner persists a non-passing `blocked`
+  report when no verified package is installed.
+- Production model loading streams the verified model ZIP entry to a private
+  temporary file before ONNX Runtime path-based session creation, avoiding the
+  Java-heap copy. Torch voice archives are read through their central directory
+  because Android streaming ZIP does not reliably enumerate PyTorch stored
+  entries with data descriptors. Temporary files are removed on every path.
+  The measured waveform contract is 600 samples per predicted duration frame.
 
 ## Repository layout
 

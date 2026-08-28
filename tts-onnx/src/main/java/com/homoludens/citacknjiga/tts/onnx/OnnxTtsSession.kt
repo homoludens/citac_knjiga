@@ -23,7 +23,7 @@ public object OnnxRuntimeContract {
     public const val VOCAB_SIZE: Int = 178
     public const val MIN_SEQUENCE_LENGTH: Int = 2
     public const val MAX_SEQUENCE_LENGTH: Int = 512
-    public const val SAMPLES_PER_DURATION_FRAME: Int = 300
+    public const val SAMPLES_PER_DURATION_FRAME: Int = 600
     public const val MIN_DURATION_FRAMES: Long = 1
     public const val MAX_DURATION_FRAMES: Long = 50
     public val CPU_BASELINE: OnnxRuntimeConfiguration = OnnxRuntimeConfiguration()
@@ -313,7 +313,16 @@ public class OnnxTtsSession private constructor(
             LongArray(buffer.remaining()) { buffer.get() }
         }
 
-        private fun createFromArtifacts(model: ByteArray, styleTable: FloatArray): OnnxTtsSession {
+        private fun createFromArtifacts(model: ByteArray, styleTable: FloatArray): OnnxTtsSession =
+            createSession(styleTable) { environment, options -> environment.createSession(model, options) }
+
+        private fun createFromArtifactPath(modelPath: String, styleTable: FloatArray): OnnxTtsSession =
+            createSession(styleTable) { environment, options -> environment.createSession(modelPath, options) }
+
+        private fun createSession(
+            styleTable: FloatArray,
+            sessionFactory: (OrtEnvironment, OrtSession.SessionOptions) -> OrtSession,
+        ): OnnxTtsSession {
             require(styleTable.size == DraganaStyleTable.VALUE_COUNT) {
                 "Voice style table has ${styleTable.size} values; expected ${DraganaStyleTable.VALUE_COUNT}"
             }
@@ -341,7 +350,7 @@ public class OnnxTtsSession private constructor(
                     options.setExecutionMode(configuration.executionMode)
                     options.setIntraOpNumThreads(configuration.intraOpThreads)
                     options.setInterOpNumThreads(configuration.interOpThreads)
-                    session = requireNotNull(environment).createSession(model, options)
+                    session = sessionFactory(requireNotNull(environment), options)
                 }
                 val result = OnnxTtsSession(
                     environment = requireNotNull(environment),
@@ -369,11 +378,12 @@ public class OnnxTtsSession private constructor(
         }
 
         /** Opens a specific package returned by [ModelPackageStore]. */
-        public fun open(store: ModelPackageStore, packageInfo: InstalledModelPackage): OnnxTtsSession =
-            fromArtifacts(
-                model = store.readArtifact(packageInfo, "model"),
-                styleTable = DraganaStyleTable.fromTorchArchive(store.readArtifact(packageInfo, "voice_style")),
-            )
+        public fun open(store: ModelPackageStore, packageInfo: InstalledModelPackage): OnnxTtsSession {
+            val styleTable = DraganaStyleTable.fromTorchArchive(store.readArtifact(packageInfo, "voice_style"))
+            return store.withVerifiedArtifactFile(packageInfo, "model") { modelFile ->
+                createFromArtifactPath(modelFile.absolutePath, styleTable)
+            }
+        }
 
         /** Test and package-tool entry point for already verified artifact bytes. */
         public fun fromArtifacts(model: ByteArray, styleTable: FloatArray): OnnxTtsSession =

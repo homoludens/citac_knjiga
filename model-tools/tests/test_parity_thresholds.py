@@ -11,10 +11,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from parity.thresholds import DEFAULT_THRESHOLDS_PATH, load_thresholds, validate_thresholds
 
 
-def test_v1_thresholds_are_complete_and_fail_closed() -> None:
+def test_active_thresholds_are_complete_and_fail_closed() -> None:
     declaration = load_thresholds()
 
-    assert declaration["thresholds_version"] == "fp32-parity-v1"
+    assert declaration["thresholds_version"] == "fp32-parity-v2"
+    maximum_error = declaration["metrics"]["waveform_error"]["measurements"]["maximum_absolute_error"]
+    assert maximum_error["threshold"] == 0.13
     assert declaration["declared_before_candidate_evaluation"] is True
     assert declaration["policy"]["runtime_override_allowed"] is False
     assert set(declaration["metrics"]) == {

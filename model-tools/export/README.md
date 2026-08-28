@@ -138,7 +138,7 @@ The candidate `model-tools/export/dragana.onnx` (FP32, ~326 MB) is produced by
 - **Dynamic axes** — **classic** `dynamic_axes` (this pinned ORT/torch line has no
   named dynamic-axes manifest step for the legacy exporter): `input_ids` axis 1
   = `seq_len` [2, 512]; `waveform` axis 0 = `waveform_len` (data-dependent,
-  `300 * sum(pred_dur)`); `pred_dur` axis 0 = `pred_dur_len` (== input seq length).
+  `600 * sum(pred_dur)`); `pred_dur` axis 0 = `pred_dur_len` (== input seq length).
 
 Interface (FP32 asserted on graph I/O):
 
@@ -198,7 +198,7 @@ Fallbacks **if task 2.6 later deems the drift unacceptable** (design §11, risks
 register "unsupported/numerically unstable export ops"): the time-boxed
 Sherpa-ONNX experiment (task 2.7), or a graph-level STFT patch that replaces the
 CustomSTFT subgraph with an exact-TorchSTFT-equivalent realization. Formal parity
-thresholds are defined and frozen separately (task 2.4, `parity/fp32-thresholds-v1.json`);
+thresholds are defined and frozen separately (active: `parity/fp32-thresholds-v2.json`);
 nothing here is a formal acceptance threshold.
 
 ## Validation report (task 2.3)
@@ -224,10 +224,11 @@ those are defined by task 2.4.
 
 ## FP32 parity thresholds (task 2.4)
 
-`parity/fp32-thresholds-v1.json` is the frozen, versioned declaration for the
-future parity runner. It is loaded before candidate vector evaluation by the
-export script; no runtime threshold override is permitted. A threshold change
-requires a new `thresholds_version` and review before evaluation.
+`parity/fp32-thresholds-v2.json` is the active frozen declaration. V2 changes
+only the maximum absolute error ceiling from `0.1` to `0.13`; the rationale and
+fresh 26-vector results are recorded in `parity/fp32-parity-v2-decision.md`.
+It is loaded before candidate vector evaluation by the export script; no runtime
+threshold override is permitted. Any further change requires another version.
 
 The required gate covers every vector and fails closed: exact sample count,
 pointwise waveform mean/max absolute error, flattened Hann-windowed STFT

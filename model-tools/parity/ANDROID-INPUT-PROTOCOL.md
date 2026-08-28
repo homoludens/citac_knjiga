@@ -21,7 +21,7 @@ model-tools/.venv/bin/python model-tools/scripts/export_onnx_vectors.py \
 
 The command evaluates all 26 reference IDs, including chunked inputs. The
 exported manifest records the ONNX checksum, reference-vector checksum,
-`fp32-parity-v1` version, runtime/provider, thread counts, and the fact that
+the active `fp32-parity-v2` version, runtime/provider, thread counts, and the fact that
 the ONNX graph RNG is unseeded. It does not claim Android parity.
 
 ## Android Adapter

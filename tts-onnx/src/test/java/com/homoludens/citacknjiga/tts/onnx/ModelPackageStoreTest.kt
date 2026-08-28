@@ -8,7 +8,9 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.io.path.createTempDirectory
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertThrows
 import org.junit.Test
 
 public class ModelPackageStoreTest {
@@ -85,6 +87,56 @@ public class ModelPackageStoreTest {
 
         assertEquals("model-first".toByteArray().toList(), store.readArtifact(installed, "model").toList())
         assertEquals("voice".toByteArray().toList(), store.readArtifact(installed, "voice_style").toList())
+    }
+
+    @Test
+    public fun streamsArtifactAndRemovesTemporaryFileAfterConsumerReturns() {
+        val root = createTempDirectory().toFile()
+        val store = store(root)
+        val installed = store.importPackage(ModelPackageSource { ByteArrayInputStream(packageBytes("first")) })
+        var temporary: File? = null
+
+        val result = store.withVerifiedArtifactFile(installed, "model") { file ->
+            temporary = file
+            assertEquals("model-first", file.readText())
+            "consumed"
+        }
+
+        assertEquals("consumed", result)
+        assertFalse(temporary!!.exists())
+        assertTrue(root.resolve("model-packages").listFiles().orEmpty().none { it.name.startsWith(".model-artifact-") })
+    }
+
+    @Test
+    public fun removesTemporaryFileWhenArtifactConsumerFails() {
+        val root = createTempDirectory().toFile()
+        val store = store(root)
+        val installed = store.importPackage(ModelPackageSource { ByteArrayInputStream(packageBytes("first")) })
+        var temporary: File? = null
+
+        assertThrows(IllegalStateException::class.java) {
+            store.withVerifiedArtifactFile(installed, "model") { file ->
+                temporary = file
+                throw IllegalStateException("consumer failed")
+            }
+        }
+
+        assertFalse(temporary!!.exists())
+    }
+
+    @Test
+    public fun streamingArtifactRejectsChangedSizeOrChecksum() {
+        val root = createTempDirectory().toFile()
+        val store = store(root)
+        val installed = store.importPackage(ModelPackageSource { ByteArrayInputStream(packageBytes("first")) })
+        installed.archive.writeBytes(packageBytes("first", corruptModel = true))
+
+        val failure = assertThrows(ModelPackageImportException::class.java) {
+            store.withVerifiedArtifactFile(installed, "model") { it.readBytes() }
+        }
+
+        assertEquals(ModelPackageFailureCode.CHECKSUM_MISMATCH, failure.code)
+        assertTrue(root.resolve("model-packages").listFiles().orEmpty().none { it.name.startsWith(".model-artifact-") })
     }
 
     private fun store(root: File): ModelPackageStore = ModelPackageStore(

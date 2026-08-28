@@ -12,7 +12,12 @@ public class PcmWavWriterTest {
         val directory = createTempDirectory().toFile()
         val artifact = PcmWavWriter.writeAtomic(
             destination = File(directory, "proof.wav"),
-            output = OnnxTtsOutput(FloatArray(600) { if (it % 2 == 0) 0.5f else -0.5f }, longArrayOf(1, 1)),
+            output = OnnxTtsOutput(
+                FloatArray(OnnxRuntimeContract.SAMPLES_PER_DURATION_FRAME * 2) {
+                    if (it % 2 == 0) 0.5f else -0.5f
+                },
+                longArrayOf(1, 1),
+            ),
             expectedTokenCount = 2,
         )
         val bytes = artifact.file.readBytes()
@@ -26,8 +31,8 @@ public class PcmWavWriterTest {
         assertEquals(24_000, littleEndianInt(bytes, 24))
         assertEquals(16, littleEndianShort(bytes, 34))
         assertEquals("data", String(bytes, 36, 4, Charsets.US_ASCII))
-        assertEquals(1_200, littleEndianInt(bytes, 40))
-        assertEquals(1_244, bytes.size)
+        assertEquals(2_400, littleEndianInt(bytes, 40))
+        assertEquals(2_444, bytes.size)
         assertEquals(16_384, littleEndianShort(bytes, 44))
         assertEquals(-16_384, littleEndianSignedShort(bytes, 46))
     }

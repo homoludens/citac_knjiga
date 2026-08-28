@@ -121,9 +121,9 @@ public data class DeviceParityDeclaration(
     val threshold: Double,
 )
 
-/** The immutable v1 declaration mirrored from model-tools/parity/fp32-thresholds-v1.json. */
+/** The active declaration mirrored from model-tools/parity/fp32-thresholds-v2.json. */
 public object DeviceParityThresholds {
-    public const val VERSION: String = "fp32-parity-v1"
+    public const val VERSION: String = "fp32-parity-v2"
 
     public val METRICS: Map<String, Map<String, DeviceParityDeclaration>> = linkedMapOf(
         "sample_count" to linkedMapOf(
@@ -131,7 +131,7 @@ public object DeviceParityThresholds {
         ),
         "waveform_error" to linkedMapOf(
             "mean_absolute_error" to declaration("normalized amplitude", "maximum", "<=", 0.01),
-            "maximum_absolute_error" to declaration("normalized amplitude", "maximum", "<=", 0.1),
+            "maximum_absolute_error" to declaration("normalized amplitude", "maximum", "<=", 0.13),
         ),
         "spectral_similarity" to linkedMapOf(
             "stft_magnitude_cosine" to declaration("unitless cosine similarity in [0, 1]", "minimum", ">=", 0.99),

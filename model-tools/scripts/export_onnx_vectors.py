@@ -149,7 +149,7 @@ def export_bundle(
         "model_sha256": model_sha256,
         "reference_vectors": repo_relative(vectors_path),
         "reference_vectors_sha256": sha256_file(vectors_path),
-        "thresholds": repo_relative(MODEL_TOOLS / "parity" / "fp32-thresholds-v1.json"),
+        "thresholds": interface_manifest["parity_thresholds"]["path"],
         "thresholds_version": thresholds["thresholds_version"],
         "onnxruntime_version": ort.__version__,
         "execution_provider": "CPUExecutionProvider",

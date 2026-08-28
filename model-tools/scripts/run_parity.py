@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Run the desktop FP32 PyTorch CPU versus ONNX Runtime parity gate (task 2.5).
 
-The runner consumes the ONNX path and ``fp32-parity-v1`` declaration pinned by
+The runner consumes the ONNX path and versioned FP32 declaration pinned by
 the interface manifest. It evaluates every committed reference vector, writes
 machine-readable JSON and a human-readable text report, and exits non-zero for
 runtime errors or any failed declared measurement.

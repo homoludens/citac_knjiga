@@ -22,7 +22,7 @@ public class OnnxAudioOutputValidatorTest {
     public fun rejectsSilence() {
         assertCode(
             OnnxAudioFailureCode.SILENCE,
-            OnnxTtsOutput(FloatArray(600), longArrayOf(1, 1)),
+            OnnxTtsOutput(FloatArray(OnnxRuntimeContract.SAMPLES_PER_DURATION_FRAME * 2), longArrayOf(1, 1)),
         )
     }
 
@@ -30,13 +30,16 @@ public class OnnxAudioOutputValidatorTest {
     public fun rejectsNearSilenceBelowTheRmsFloor() {
         assertCode(
             OnnxAudioFailureCode.SILENCE,
-            OnnxTtsOutput(FloatArray(600) { 0.0005f }, longArrayOf(1, 1)),
+            OnnxTtsOutput(
+                FloatArray(OnnxRuntimeContract.SAMPLES_PER_DURATION_FRAME * 2) { 0.0005f },
+                longArrayOf(1, 1),
+            ),
         )
     }
 
     @Test
     public fun rejectsNearSilenceAboveTheSilentFractionLimit() {
-        val pcm = FloatArray(600)
+        val pcm = FloatArray(OnnxRuntimeContract.SAMPLES_PER_DURATION_FRAME * 2)
         pcm[0] = 0.1f
         pcm[1] = -0.1f
 
@@ -67,7 +70,7 @@ public class OnnxAudioOutputValidatorTest {
     public fun rejectsInconsistentSampleCount() {
         assertCode(
             OnnxAudioFailureCode.SAMPLE_COUNT_MISMATCH,
-            OnnxTtsOutput(validPcm().copyOf(599), longArrayOf(1, 1)),
+            OnnxTtsOutput(validPcm().copyOf(validPcm().size - 1), longArrayOf(1, 1)),
         )
     }
 
@@ -88,7 +91,7 @@ public class OnnxAudioOutputValidatorTest {
 
     private fun validOutput(): OnnxTtsOutput = OnnxTtsOutput(validPcm(), longArrayOf(1, 1))
 
-    private fun validPcm(): FloatArray = FloatArray(600) { index ->
+    private fun validPcm(): FloatArray = FloatArray(OnnxRuntimeContract.SAMPLES_PER_DURATION_FRAME * 2) { index ->
         if (index % 2 == 0) 0.1f else -0.1f
     }
 }

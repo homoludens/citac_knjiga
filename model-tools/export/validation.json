@@ -7986,7 +7986,7 @@
       "graph_optimization": "ORT_ENABLE_ALL (default)",
       "intra_op_num_threads": "default"
     },
-    "session_creation_seconds": 2.707,
+    "session_creation_seconds": 3.066,
     "probes": [
       {
         "name": "reference:greeting-latin",
@@ -8015,8 +8015,8 @@
             "bytes": 552
           }
         ],
-        "inference_seconds": 3.962,
-        "rss_after_inference_bytes": 955142144
+        "inference_seconds": 4.182,
+        "rss_after_inference_bytes": 955604992
       },
       {
         "name": "maximum_declared_input",
@@ -8045,17 +8045,17 @@
             "bytes": 4096
           }
         ],
-        "inference_seconds": 22.246,
-        "rss_after_inference_bytes": 1361461248
+        "inference_seconds": 24.131,
+        "rss_after_inference_bytes": 1361989632
       }
     ],
     "process_memory": {
       "measurement": "isolated child process RSS; includes ONNX Runtime session and model allocations",
-      "baseline_rss_bytes": 64479232,
-      "rss_after_session_bytes": 895467520,
-      "session_rss_delta_bytes": 830988288,
-      "peak_rss_bytes": 1361461248,
-      "peak_rss_delta_from_baseline_bytes": 1296982016,
+      "baseline_rss_bytes": 64946176,
+      "rss_after_session_bytes": 895860736,
+      "session_rss_delta_bytes": 830914560,
+      "peak_rss_bytes": 1361989632,
+      "peak_rss_delta_from_baseline_bytes": 1297043456,
       "max_rss_source": "resource.getrusage(RUSAGE_SELF).ru_maxrss"
     }
   },

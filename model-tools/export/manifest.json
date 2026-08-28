@@ -72,7 +72,7 @@
         "axis_names": {
           "0": "waveform_len"
         },
-        "note": "mono 24 kHz; data-dependent length 300 * sum(pred_dur)"
+        "note": "mono 24 kHz; data-dependent length 600 * sum(pred_dur)"
       },
       "pred_dur": {
         "dtype": "int64",
@@ -153,7 +153,7 @@
     "waveform": {
       "dim": 0,
       "name": "waveform_len",
-      "note": "data-dependent (300 * sum(pred_dur)); no static bound"
+      "note": "data-dependent (600 * sum(pred_dur)); no static bound"
     }
   },
   "model_sha256": "4e6d11053886acd15f4e2b873efef87b7d53885bcf80b3b5fe73f79dd253ca47",
@@ -162,8 +162,8 @@
   "sample_rate": 24000,
   "max_input_tokens": 512,
   "parity_thresholds": {
-    "path": "model-tools/parity/fp32-thresholds-v1.json",
-    "version": "fp32-parity-v1",
+    "path": "model-tools/parity/fp32-thresholds-v2.json",
+    "version": "fp32-parity-v2",
     "declared_before_candidate_evaluation": true
   },
   "vocab_size": 178,

@@ -179,6 +179,12 @@ full scale, non-24 kHz/non-mono metadata, inconsistent sample counts, and
 `max_dur=50` range. Its JVM and Android tests use synthetic PCM and do not load
 the local production graph.
 
+The production model entry is streamed to an app-private temporary file and
+opened with ONNX Runtime's path-based session API. It is deleted after session
+creation and on all session-open failure paths. The PyTorch voice archive is
+read with `ZipFile`: Android's streaming ZIP reader does not reliably enumerate
+its stored entries with data descriptors.
+
 ## Voice bundle
 
 `kokoro_sr_dragana_voice/` is the current known-good epoch-005 Dragana bundle
@@ -199,8 +205,8 @@ proof artifact, not durable generation or Media3 playback.
 
 `tts-onnx` provides `AndroidDeviceParityRunner`, `DeviceParityReportStore`,
 and `DesktopOnnxParityVectorLoader`. The runner compares caller-supplied desktop ONNX
-waveforms with Android `OnnxTtsOutput` using every measurement in the immutable
-`fp32-parity-v1` declaration: exact sample count, waveform error, STFT cosine,
+waveforms with Android `OnnxTtsOutput` using every measurement in the active
+`fp32-parity-v2` declaration: exact sample count, waveform error, STFT cosine,
 silence, clipping, and invalid-output checks. `runAndPersist` writes
 `device-parity-report.json` through a synced temporary file and atomic rename;
 the report contains only identities, vector IDs, numeric metrics, thresholds,
@@ -214,6 +220,11 @@ AndroidDeviceParityRunner().runInstalledAndPersist(
 )
 ```
 
+The exported graph produces 600 samples per predicted duration frame. V2 changes
+only the maximum absolute error ceiling from `0.1` to `0.13`; all exact-count,
+MAE, spectral, silence, clipping, finite-output, fail-closed, and all-vector
+requirements are unchanged. See `model-tools/parity/fp32-parity-v2-decision.md`.
+
 With no verified package it persists `status: "blocked"` and `ok: false`. The
 current connected test is fixture evidence only and uses the API 35 x86_64
 emulator:
@@ -224,17 +235,21 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
 ./gradlew :tts-onnx:testDebugUnitTest :tts-onnx:connectedDebugAndroidTest
 ```
 
-Task 4.9 is not qualified. The public derived-package treatment is recorded in
-`model-tools/legal-inventory.md`, but the production payload/package remains
-local and uncommitted. The available emulator is x86_64, and fixture execution
-is not ARM64/device qualification. The local ignored
-`model-tools/export/dragana.onnx` is not production evidence.
+Task 4.9 is qualified on the Poco F3 (`Xiaomi M2012K11AG`, `alioth`, API 33,
+native `arm64-v8a`) against all 26 freshly generated desktop ONNX vectors. The
+app-private report has `status=passed`, exact sample counts, worst MAE
+`0.0034103132`, worst maximum error `0.0741992146`, and minimum STFT cosine
+`0.9993200098`. Its SHA-256 is
+`a048addfc24bb04654590b818034ec75849a1686e2865f8592b9f8c9ccbdb51a`.
+The local v2 package archive SHA-256 is
+`58c031fd6e37a12cafe3575d26a057e10c45cdfe7c6c7605f6966e7e2406458b`;
+generated package and device-report artifacts remain uncommitted.
 
 Prepare the external desktop input bundle with:
 
 ```sh
 model-tools/.venv/bin/python model-tools/scripts/export_onnx_vectors.py \
-  --output-dir /tmp/citac-knjiga-desktop-onnx-vectors
+  --output-dir /tmp/citac-knjiga-desktop-onnx-vectors-v2
 ```
 
 The bundle format and Kotlin loader are documented in
@@ -246,6 +261,5 @@ process and stores the report at the test app's private
 `files/parity-reports/device-parity-report.json`. Its synthetic fixture test
 remains separate and is not production evidence.
 
-The existing desktop report records the frozen-threshold failures for
-`input-limit-at` and `paragraph-no-sentence-boundary`; they are intentionally
-deferred and must not be fixed by weakening `fp32-parity-v1`.
+The historical v1 report and decision remain committed. The fresh v2 desktop
+report passes 26/26 and is committed alongside the versioned declaration.

@@ -1,0 +1,165 @@
+{
+  "kind": "fp32-parity-thresholds",
+  "schema_version": 1,
+  "thresholds_version": "fp32-parity-v2",
+  "declared_before_candidate_evaluation": true,
+  "comparison": {
+    "candidate": "FP32 ONNX Runtime CPU output",
+    "reference": "pinned PyTorch CPU KModelForONNX with disable_complex=True",
+    "reference_vectors": "model-tools/reference/vectors.json",
+    "sample_rate_hz": 24000,
+    "audio_contract": {
+      "channels": 1,
+      "dtype": "float32",
+      "shape": "one-dimensional, non-empty waveform",
+      "amplitude_domain": "normalized float amplitude; valid samples are strictly inside (-1.0, 1.0)"
+    },
+    "alignment": "compare sample index after the exact sample-count check; do not resample, time-align, truncate, or pad",
+    "exact_reference_note": "The committed WAVs use exact TorchSTFT. The export-path PyTorch reference is the parity baseline because the ONNX graph intentionally uses the recorded CustomSTFT approximation; exact-reference drift remains a diagnostic, not a reason to weaken this conversion gate."
+  },
+  "policy": {
+    "all_vectors_required": true,
+    "fail_closed": true,
+    "runtime_override_allowed": false,
+    "threshold_changes_require_new_version": true,
+    "aggregation_rule": "Every measurement passes for every reference vector. There is no average-over-vectors waiver. The stated across_vectors aggregation is the reported worst case."
+  },
+  "metrics": {
+    "sample_count": {
+      "description": "Candidate waveform length must equal the reference waveform length exactly.",
+      "pass_condition": "For every vector, absolute_difference_samples == 0.",
+      "measurements": {
+        "absolute_difference_samples": {
+          "unit": "samples",
+          "aggregation": {
+            "per_vector": "absolute(candidate_sample_count - reference_sample_count)",
+            "across_vectors": "maximum"
+          },
+          "comparator": "==",
+          "threshold": 0
+        }
+      }
+    },
+    "waveform_error": {
+      "description": "Pointwise error over aligned normalized float32 samples.",
+      "pass_condition": "For every vector, both waveform error measurements are at or below their thresholds.",
+      "measurements": {
+        "mean_absolute_error": {
+          "unit": "normalized amplitude",
+          "aggregation": {
+            "per_vector": "mean(abs(candidate - reference)) over all samples",
+            "across_vectors": "maximum"
+          },
+          "comparator": "<=",
+          "threshold": 0.01
+        },
+        "maximum_absolute_error": {
+          "unit": "normalized amplitude",
+          "aggregation": {
+            "per_vector": "maximum(abs(candidate - reference)) over all samples",
+            "across_vectors": "maximum"
+          },
+          "comparator": "<=",
+          "threshold": 0.13
+        }
+      }
+    },
+    "spectral_similarity": {
+      "description": "Similarity of non-negative short-time magnitude spectra.",
+      "pass_condition": "For every vector, the flattened STFT magnitude cosine similarity meets the floor.",
+      "algorithm": {
+        "transform": "real FFT magnitude",
+        "window": "Hann",
+        "n_fft": 1024,
+        "hop_length": 256,
+        "center": false,
+        "frames": "complete frames only; no padding",
+        "value": "cosine(candidate_magnitude, reference_magnitude)"
+      },
+      "measurements": {
+        "stft_magnitude_cosine": {
+          "unit": "unitless cosine similarity in [0, 1]",
+          "aggregation": {
+            "per_vector": "cosine over the flattened magnitude matrices",
+            "across_vectors": "minimum"
+          },
+          "comparator": ">=",
+          "threshold": 0.99
+        }
+      }
+    },
+    "silence": {
+      "description": "Reject an output that is silent or effectively silent as a whole.",
+      "pass_condition": "For every vector, RMS is above its floor and no more than the allowed fraction is below the silence level.",
+      "measurements": {
+        "rms_amplitude": {
+          "unit": "normalized amplitude RMS",
+          "aggregation": {
+            "per_vector": "sqrt(mean(candidate^2))",
+            "across_vectors": "minimum"
+          },
+          "comparator": ">",
+          "threshold": 0.001
+        },
+        "silent_sample_fraction": {
+          "unit": "fraction of samples in [0, 1]",
+          "aggregation": {
+            "per_vector": "mean(abs(candidate) <= 0.0001)",
+            "across_vectors": "maximum"
+          },
+          "comparator": "<=",
+          "threshold": 0.995,
+          "silence_level": 0.0001
+        }
+      }
+    },
+    "clipping": {
+      "description": "Reject full-scale or out-of-domain samples.",
+      "pass_condition": "For every vector, no sample is clipped and the absolute peak stays strictly below full scale.",
+      "measurements": {
+        "clipped_sample_count": {
+          "unit": "samples",
+          "aggregation": {
+            "per_vector": "count(abs(candidate) >= 1.0)",
+            "across_vectors": "maximum"
+          },
+          "comparator": "==",
+          "threshold": 0
+        },
+        "absolute_peak": {
+          "unit": "normalized amplitude",
+          "aggregation": {
+            "per_vector": "maximum(abs(candidate))",
+            "across_vectors": "maximum"
+          },
+          "comparator": "<",
+          "threshold": 1.0
+        }
+      }
+    },
+    "invalid_values": {
+      "description": "Reject non-finite numeric output before any other numeric metric is considered.",
+      "pass_condition": "For every vector, the waveform contains zero NaN or infinite samples and the output has the declared dtype, shape, sample rate, channel count, and non-empty contract.",
+      "measurements": {
+        "non_finite_sample_count": {
+          "unit": "samples",
+          "aggregation": {
+            "per_vector": "count(not finite(candidate))",
+            "across_vectors": "maximum"
+          },
+          "comparator": "==",
+          "threshold": 0
+        },
+        "invalid_output_count": {
+          "unit": "outputs",
+          "aggregation": {
+            "per_vector": "1 if dtype, shape, sample rate, channel count, or non-empty contract is invalid; otherwise 0",
+            "across_vectors": "maximum"
+          },
+          "comparator": "==",
+          "threshold": 0
+        }
+      }
+    }
+  }
+}

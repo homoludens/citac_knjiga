@@ -21,7 +21,7 @@ public class DesktopOnnxParityVectorLoaderTest {
         File(directory, "manifest.json").writeText(
             """
             {"kind":"desktop-onnx-parity-audio","version":1,
-             "provenance":{"thresholds_version":"fp32-parity-v1"},
+             "provenance":{"thresholds_version":"fp32-parity-v2"},
              "vectors":[{"id":"fixture","audio_file":"audio/fixture.wav",
              "sample_format":"float32-le","sample_rate_hz":24000,"channels":1,
              "sample_count":4096,"byte_size":${audio.length()},"sha256":"$hash"}]}
@@ -30,7 +30,7 @@ public class DesktopOnnxParityVectorLoaderTest {
         File(directory, "inputs.json").writeText(
             """
             {"kind":"desktop-onnx-parity-inputs","version":1,"audio_manifest":"manifest.json",
-             "provenance":{"thresholds_version":"fp32-parity-v1"},
+             "provenance":{"thresholds_version":"fp32-parity-v2"},
              "vectors":[{"id":"fixture","speed":1.0,
              "token_id_chunks":[[0,69,0],[0,70,71,0]]}]}
             """.trimIndent(),

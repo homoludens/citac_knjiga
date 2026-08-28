@@ -160,7 +160,85 @@ public class ModelPackageStore(
     }
 
     /** Reads one already verified payload artifact while keeping the ZIP private. */
-    public fun readArtifact(packageInfo: InstalledModelPackage, role: String): ByteArray {
+    public fun readArtifact(packageInfo: InstalledModelPackage, role: String): ByteArray =
+        withDeclaredArtifact(packageInfo, role) { archive, artifact ->
+            val entry = archive.getEntry(artifact.path)
+                ?: throw ModelPackageImportException(
+                    ModelPackageFailureCode.ARCHIVE_INVALID,
+                    "Declared artifact is missing: ${artifact.path}",
+                )
+            val bytes = archive.getInputStream(entry).use { it.readBytes() }
+            if (bytes.size.toLong() != artifact.sizeBytes || sha256(bytes) != artifact.sha256) {
+                throw ModelPackageImportException(
+                    ModelPackageFailureCode.CHECKSUM_MISMATCH,
+                    "Artifact checksum mismatch: ${artifact.path}",
+                )
+            }
+            bytes
+        }
+
+    /** Streams one verified artifact to a private file for APIs that accept a path. */
+    public fun <T> withVerifiedArtifactFile(
+        packageInfo: InstalledModelPackage,
+        role: String,
+        block: (File) -> T,
+    ): T {
+        prepareDirectory()
+        val temporary = try {
+            File.createTempFile(".model-artifact-", ".tmp", packageDir)
+        } catch (exception: Exception) {
+            throw ModelPackageImportException(
+                ModelPackageFailureCode.COPY_FAILED,
+                "Could not create model artifact temporary storage",
+                exception,
+            )
+        }
+
+        try {
+            withDeclaredArtifact(packageInfo, role) { archive, artifact ->
+                val entry = archive.getEntry(artifact.path)
+                    ?: throw ModelPackageImportException(
+                        ModelPackageFailureCode.ARCHIVE_INVALID,
+                        "Declared artifact is missing: ${artifact.path}",
+                    )
+                if (entry.size != artifact.sizeBytes) {
+                    throw ModelPackageImportException(
+                        ModelPackageFailureCode.CHECKSUM_MISMATCH,
+                        "Artifact size mismatch: ${artifact.path}",
+                    )
+                }
+                val digest = MessageDigest.getInstance("SHA-256")
+                var size = 0L
+                archive.getInputStream(entry).use { input ->
+                    temporary.outputStream().use { output ->
+                        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                        while (true) {
+                            val count = input.read(buffer)
+                            if (count < 0) break
+                            output.write(buffer, 0, count)
+                            digest.update(buffer, 0, count)
+                            size += count
+                        }
+                    }
+                }
+                if (size != artifact.sizeBytes || digest.digest().toHex() != artifact.sha256) {
+                    throw ModelPackageImportException(
+                        ModelPackageFailureCode.CHECKSUM_MISMATCH,
+                        "Artifact checksum mismatch: ${artifact.path}",
+                    )
+                }
+            }
+            return block(temporary)
+        } finally {
+            temporary.delete()
+        }
+    }
+
+    private fun <T> withDeclaredArtifact(
+        packageInfo: InstalledModelPackage,
+        role: String,
+        block: (ZipFile, DeclaredArtifact) -> T,
+    ): T {
         try {
             ZipFile(packageInfo.archive).use { archive ->
                 val manifestEntry = archive.getEntry("manifest.json")
@@ -171,33 +249,23 @@ public class ModelPackageStore(
                 val manifest = archive.getInputStream(manifestEntry).use { input ->
                     JsonParser.parseReader(input.reader(StandardCharsets.UTF_8)).asJsonObject
                 }
-                val candidates = manifest.getAsJsonArray("artifacts").map { it.asJsonObject }
-                    .filter { artifact ->
-                        artifact.getAsJsonArray("roles").any { it.asString == role }
-                    }
+                val candidates = manifest.getAsJsonArray("artifacts").map { item -> item.asJsonObject }
+                    .filter { artifact -> artifact.getAsJsonArray("roles").any { it.asString == role } }
                 if (candidates.size != 1) {
                     throw ModelPackageImportException(
                         ModelPackageFailureCode.MANIFEST_INVALID,
                         "Model package must declare exactly one artifact with role $role",
                     )
                 }
-                val artifact = candidates.single()
-                val path = artifact.get("path").asString
-                val entry = archive.getEntry(path)
-                    ?: throw ModelPackageImportException(
-                        ModelPackageFailureCode.ARCHIVE_INVALID,
-                        "Declared artifact is missing: $path",
-                    )
-                val bytes = archive.getInputStream(entry).use { it.readBytes() }
-                if (bytes.size.toLong() != artifact.get("size_bytes").asLong ||
-                    sha256(bytes) != artifact.get("sha256").asString
-                ) {
-                    throw ModelPackageImportException(
-                        ModelPackageFailureCode.CHECKSUM_MISMATCH,
-                        "Artifact checksum mismatch: $path",
-                    )
-                }
-                return bytes
+                val declared = candidates.single()
+                return block(
+                    archive,
+                    DeclaredArtifact(
+                        path = declared.get("path").asString,
+                        sha256 = declared.get("sha256").asString,
+                        sizeBytes = declared.get("size_bytes").asLong,
+                    ),
+                )
             }
         } catch (exception: ModelPackageImportException) {
             throw exception
@@ -209,6 +277,8 @@ public class ModelPackageStore(
             )
         }
     }
+
+    private data class DeclaredArtifact(val path: String, val sha256: String, val sizeBytes: Long)
 
     private fun publish(temporary: File) {
         var movedPrevious = false

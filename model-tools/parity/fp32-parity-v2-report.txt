@@ -1,0 +1,46 @@
+FP32 Desktop Parity Report
+===========================
+Status: PASS
+Task: build-serbian-audiobook-mvp 2.5
+Thresholds: fp32-parity-v2
+Vectors: 26/26 evaluated
+
+Vector results:
+  greeting-latin: PASS (samples pt=124200 onnx=124200)
+  greeting-cyrillic: PASS (samples pt=124200 onnx=124200)
+  diacritics-latin: PASS (samples pt=114000 onnx=114000)
+  diacritics-cyrillic: PASS (samples pt=114600 onnx=114600)
+  mixed-digits: PASS (samples pt=117600 onnx=117600)
+  punctuation: PASS (samples pt=80400 onnx=80400)
+  cyrillic-punctuation: PASS (samples pt=78000 onnx=78000)
+  digraphs-latin: PASS (samples pt=80400 onnx=80400)
+  digraphs-cyrillic: PASS (samples pt=80400 onnx=80400)
+  mixed-scripts: PASS (samples pt=82800 onnx=82800)
+  foreign-names: PASS (samples pt=98400 onnx=98400)
+  abbreviations: PASS (samples pt=126600 onnx=126600)
+  numbers-expanded: PASS (samples pt=256200 onnx=256200)
+  dates: PASS (samples pt=159000 onnx=159000)
+  currencies: PASS (samples pt=186600 onnx=186600)
+  measurements: PASS (samples pt=184800 onnx=184800)
+  roman-numerals: PASS (samples pt=150000 onnx=150000)
+  punctuation-extended: PASS (samples pt=61200 onnx=61200)
+  urls: PASS (samples pt=184800 onnx=184800)
+  email: PASS (samples pt=214800 onnx=214800)
+  citations: PASS (samples pt=178200 onnx=178200)
+  page-artifacts: PASS (samples pt=105600 onnx=105600)
+  input-limit-below: PASS (samples pt=756600 onnx=756600)
+  input-limit-at: PASS (samples pt=760200 onnx=760200)
+  input-limit-above: PASS (samples pt=756000 onnx=756000)
+  paragraph-no-sentence-boundary: PASS (samples pt=799200 onnx=799200)
+
+Worst-case declared measurements:
+  sample_count.absolute_difference_samples: PASS value=0 == 0
+  waveform_error.mean_absolute_error: PASS value=0.0044169973925093425 <= 0.01
+  waveform_error.maximum_absolute_error: PASS value=0.11900689825415611 <= 0.13
+  spectral_similarity.stft_magnitude_cosine: PASS value=0.9992545506384698 >= 0.99
+  silence.rms_amplitude: PASS value=0.07625163039351757 > 0.001
+  silence.silent_sample_fraction: PASS value=0.12820261437908498 <= 0.995
+  clipping.clipped_sample_count: PASS value=0 == 0
+  clipping.absolute_peak: PASS value=0.4978867769241333 < 1.0
+  invalid_values.non_finite_sample_count: PASS value=0 == 0
+  invalid_values.invalid_output_count: PASS value=0 == 0

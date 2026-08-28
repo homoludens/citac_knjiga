@@ -97,7 +97,7 @@ EXPORTER = (
 MANIFEST_PATH = REPO / "model-tools" / "export" / "manifest.json"
 ONNX_PATH = REPO / "model-tools" / "export" / "dragana.onnx"
 VECTORS_PATH = REPO / "model-tools" / "reference" / "vectors.json"
-THRESHOLDS_PATH = REPO / "model-tools" / "parity" / "fp32-thresholds-v1.json"
+THRESHOLDS_PATH = REPO / "model-tools" / "parity" / "fp32-thresholds-v2.json"
 
 COSINE_FLOOR = 0.9  # hard sanity floor (task 2.2); formal thresholds = 2.4
 
@@ -500,7 +500,7 @@ def write_manifest(boundary: dict, generality: dict, drift: dict, thresholds: di
                     "dtype": "float32",
                     "shape": ["waveform_len"],
                     "axis_names": {0: "waveform_len"},
-                    "note": "mono 24 kHz; data-dependent length 300 * sum(pred_dur)",
+                    "note": "mono 24 kHz; data-dependent length 600 * sum(pred_dur)",
                 },
                 "pred_dur": {
                     "dtype": "int64",
@@ -517,7 +517,7 @@ def write_manifest(boundary: dict, generality: dict, drift: dict, thresholds: di
             "pred_dur": {"dim": 0, "name": "pred_dur_len",
                          "note": "data-dependent; equals input_ids seq_len at runtime"},
             "waveform": {"dim": 0, "name": "waveform_len",
-                         "note": "data-dependent (300 * sum(pred_dur)); no static bound"},
+                         "note": "data-dependent (600 * sum(pred_dur)); no static bound"},
         },
         "model_sha256": EXPECTED_MODEL_SHA256,
         "voice_sha256": EXPECTED_VOICE_SHA256,
@@ -525,7 +525,7 @@ def write_manifest(boundary: dict, generality: dict, drift: dict, thresholds: di
         "sample_rate": SAMPLE_RATE,
         "max_input_tokens": MAX_INPUT_TOKENS,
         "parity_thresholds": {
-            "path": "model-tools/parity/fp32-thresholds-v1.json",
+            "path": "model-tools/parity/fp32-thresholds-v2.json",
             "version": thresholds["thresholds_version"],
             "declared_before_candidate_evaluation": thresholds["declared_before_candidate_evaluation"],
         },

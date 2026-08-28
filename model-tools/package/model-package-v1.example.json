@@ -516,7 +516,7 @@
     "execution_provider": "cpu",
     "threading": {"intra_op_threads": 1, "inter_op_threads": 1},
     "qualification_status": "desktop-parity-only",
-    "parity_thresholds_version": "fp32-parity-v1",
+    "parity_thresholds_version": "fp32-parity-v2",
     "runtime_artifact": {
       "sha256": "e97540ca78fe36f6fe2013f82843414fb843b6c7681fb04644cba5e1406662dd",
       "source": "https://repo1.maven.org/maven2/com/microsoft/onnxruntime/onnxruntime-android/1.29.0/onnxruntime-android-1.29.0.aar"
@@ -527,7 +527,7 @@
     "version": "reference-20260827-task-3.5",
     "manifest_artifact_id": "golden-vectors",
     "all_required": true,
-    "parity_thresholds_version": "fp32-parity-v1",
+    "parity_thresholds_version": "fp32-parity-v2",
     "vectors": [
       {"id": "greeting-latin", "case_ref": "tests/reference-vectors.json#/vectors/0", "audio_artifact_id": "audio-greeting-latin", "required": true, "exact_preprocessing": true},
       {"id": "greeting-cyrillic", "case_ref": "tests/reference-vectors.json#/vectors/1", "audio_artifact_id": "audio-greeting-cyrillic", "required": true, "exact_preprocessing": true},

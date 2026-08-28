@@ -35,7 +35,7 @@ local payload by `scripts/prepare_public_manifest.py`.
   contract records the exact eSpeak-NG reference fingerprints, but does not
   claim a packaged native data closure or Android qualification.
 - `test_vectors` references the expanded 26-case machine-readable vector
-  artifact and each required golden WAV artifact. It pins `fp32-parity-v1` and
+  artifact and each required golden WAV artifact. It pins `fp32-parity-v2` and
   requires exact preprocessing references. Each vector now includes the
   task-3.4 cleanup, normalized-text, IPA, token, protected-span,
   chunk-boundary, and reference-audio fields; task 3.5 adds input-limit edge
