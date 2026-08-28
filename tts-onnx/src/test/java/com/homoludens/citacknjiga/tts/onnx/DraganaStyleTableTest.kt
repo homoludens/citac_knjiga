@@ -6,7 +6,6 @@ import java.nio.ByteOrder
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertSame
 import org.junit.Test
 
 public class DraganaStyleTableTest {
@@ -29,11 +28,29 @@ public class DraganaStyleTableTest {
 
         assertEquals(1, configuration.intraOpThreads)
         assertEquals(1, configuration.interOpThreads)
-        assertSame(
-            ai.onnxruntime.OrtSession.SessionOptions.ExecutionMode.SEQUENTIAL,
-            configuration.executionMode,
-        )
+        assertEquals("sequential", configuration.executionMode)
         assertEquals("1.29.0", OnnxRuntimeContract.VERSION)
+    }
+
+    @Test
+    public fun runtimeVariantsKeepProviderAndThreadIdentityExplicit() {
+        val cpu = OnnxRuntimeConfiguration(
+            executionProvider = OnnxExecutionProvider.CPU,
+            intraOpThreads = 4,
+            interOpThreads = 1,
+            providerThreads = 4,
+        )
+        val xnnpack = OnnxRuntimeConfiguration(
+            executionProvider = OnnxExecutionProvider.XNNPACK,
+            intraOpThreads = 1,
+            interOpThreads = 1,
+            providerThreads = 2,
+        )
+
+        assertEquals("cpu-intra-4-inter-1", cpu.reportId)
+        assertEquals("xnnpack-threads-2", xnnpack.reportId)
+        assertEquals(4, cpu.providerThreads)
+        assertEquals(2, xnnpack.providerThreads)
     }
 
     private fun torchArchive(payload: ByteArray): ByteArray = ByteArrayOutputStream().also { output ->

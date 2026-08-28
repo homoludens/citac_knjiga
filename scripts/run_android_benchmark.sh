@@ -8,10 +8,26 @@ DEVICE=${DEVICE:-2555a240}
 MODEL_PACKAGE=${MODEL_PACKAGE:-}
 OUTPUT=${OUTPUT:-/tmp/citac-knjiga-android-benchmark-report.json}
 WORKLOAD_SECONDS=${WORKLOAD_SECONDS:-900}
+RUNTIME_PROVIDER=${RUNTIME_PROVIDER:-cpu}
+RUNTIME_THREADS=${RUNTIME_THREADS:-1}
+BENCHMARK_TASK=${BENCHMARK_TASK:-build-serbian-audiobook-mvp-5.1}
 APP_ID=com.homoludens.citacknjiga.debug
 TEST_ID=com.homoludens.citacknjiga.debug.test
-REMOTE=/data/local/tmp/citac-knjiga-task-5-1
+REMOTE=/data/local/tmp/citac-knjiga-runtime-measurement
 EXPECTED_PACKAGE_SHA256=58c031fd6e37a12cafe3575d26a057e10c45cdfe7c6c7605f6966e7e2406458b
+
+case "$RUNTIME_PROVIDER" in
+  cpu|xnnpack) ;;
+  *) printf '%s\n' "RUNTIME_PROVIDER must be cpu or xnnpack." >&2; exit 2 ;;
+esac
+if ! [[ "$RUNTIME_THREADS" =~ ^[1-9][0-9]*$ ]]; then
+  printf '%s\n' "RUNTIME_THREADS must be a positive integer." >&2
+  exit 2
+fi
+if [[ "$BENCHMARK_TASK" =~ [[:space:]] ]]; then
+  printf '%s\n' "BENCHMARK_TASK must not contain whitespace." >&2
+  exit 2
+fi
 
 if [[ -z "$SDK" || ! -x "$ADB" ]]; then
   printf '%s\n' "Set ANDROID_HOME or ANDROID_SDK_ROOT to an SDK containing platform-tools/adb." >&2
@@ -66,10 +82,35 @@ set +e
 "$ADB" -s "$DEVICE" shell am instrument -w -r \
   -e benchmark true \
   -e workload_seconds "$WORKLOAD_SECONDS" \
+  -e runtime_provider "$RUNTIME_PROVIDER" \
+  -e runtime_threads "$RUNTIME_THREADS" \
+  -e benchmark_task "$BENCHMARK_TASK" \
   -e class com.homoludens.citacknjiga.benchmark.AndroidBenchmarkTest#runsFifteenMinuteTypedInputBenchmark \
-  "$TEST_ID/androidx.test.runner.AndroidJUnitRunner"
+  "$TEST_ID/androidx.test.runner.AndroidJUnitRunner" \
+  2>&1 | tee "$OUTPUT.instrumentation.log"
 TEST_STATUS=$?
 set -e
 "$ADB" -s "$DEVICE" exec-out run-as "$APP_ID" cat files/benchmark-reports/android-benchmark-report.json > "$OUTPUT"
 printf 'report=%s\n' "$OUTPUT"
+if ! jq -e \
+  --arg provider "$RUNTIME_PROVIDER" \
+  --argjson threads "$RUNTIME_THREADS" \
+  --arg task "$BENCHMARK_TASK" \
+  '(
+    .status == "completed" and
+    .completed == true and
+    .task == $task and
+    .runtime.executionProvider == $provider and
+    (if $provider == "cpu"
+     then .runtime.intraOpThreads == $threads and .runtime.interOpThreads == 1
+     else .runtime.providerThreads == $threads
+     end) and
+    (.measurements.real_time_factor | type == "number" and . >= 0) and
+    (.measurements.peak_process_memory_bytes | type == "number" and . > 0) and
+    (.workload.inference_calls | type == "number" and . > 0) and
+    (.workload.audio_seconds_generated >= .workload.target_audio_seconds)
+  )' "$OUTPUT" >/dev/null 2>&1; then
+  printf 'Invalid or mismatched benchmark report: %s\n' "$OUTPUT" >&2
+  TEST_STATUS=1
+fi
 exit "$TEST_STATUS"

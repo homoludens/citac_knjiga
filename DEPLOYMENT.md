@@ -80,7 +80,8 @@ requirements for task 12.3.
 The app target is Android 11+ `arm64-v8a`, so configure an explicit ABI filter.
 The initial session baseline is CPU execution with sequential ORT execution and
 one intra-op plus one inter-op thread. XNNPACK is a separately measured,
-explicitly configured variant with CPU fallback. NNAPI is deferred to task 5.3.
+explicitly configured variant with CPU fallback. NNAPI remains an optional
+future optimization.
 
 This is a selected dependency target, not Android graph parity, ABI loading,
 performance, thermal, or Poco F3 qualification. See
@@ -312,13 +313,13 @@ connectivity state:
 "$ADB" -s "$DEVICE" shell svc data enable
 ```
 
-## Sustained Poco F3 benchmark (task 5.1)
+## Sustained Poco F3 measurement (task 5.1)
 
 `AndroidBenchmarkRunner` runs the production typed-input path directly: each
 fixed Serbian Latin/Cyrillic input is preprocessed with the packaged native
 eSpeak-NG resources and passed to one persistent `OnnxTtsSession` opened from
 the verified package. The validated PCM is discarded after each call, so this
-qualification does not create document text, audio, or a large generated file.
+measurement does not create document text, audio, or a large generated file.
 The default workload is at least 900 seconds of generated 24 kHz mono audio.
 Model load is timed separately; RTF includes preprocessing and inference wall
 time for the workload. Process memory is sampled as total PSS, CPU is process
@@ -328,8 +329,8 @@ aggregate `PowerManager` thermal status.
 
 The report is written atomically to the target app's private
 `files/benchmark-reports/android-benchmark-report.json` and pulled to the
-host. It contains no source-text field or document URI. The report is a
-measurement artifact, not the task 5.5 proceed/optimize/stop decision.
+host. It contains no source-text field or document URI. The report is
+informational and does not gate implementation.
 
 The repeatable wrapper requires the exact locally verified v2 archive
 (`58c031fd6e37a12cafe3575d26a057e10c45cdfe7c6c7605f6966e7e2406458b`), checks
@@ -346,8 +347,8 @@ OUTPUT=/tmp/citac-knjiga-android-benchmark-report.json \
 scripts/run_android_benchmark.sh
 ```
 
-Use `WORKLOAD_SECONDS=900` explicitly when recording the standard gate. A
-shorter value is only a harness smoke check and is not task 5.1 evidence.
+Use `WORKLOAD_SECONDS=900` only when reproducing the historical sustained task
+5.1 measurement. Shorter values are appropriate for development comparisons.
 Inspect the pulled JSON before accepting results. Its limitations always state
 that total PSS is not portable peak RSS, process CPU lacks vendor scheduler
 detail, battery temperature is not SoC/skin temperature, Android thermal
@@ -374,8 +375,48 @@ and ONNX Runtime Android `1.29.0` CPU sequential `1/1` threads.
 | Battery temperature | 35.7 C to 37.0 C; 35.7 C minimum, 37.0 C maximum |
 | Thermal status / throttling | Android status 0 throughout; not observed |
 
-The peak memory is below the provisional 1 GB threshold, but RTF is above the
-unchanged provisional `<= 1.0` threshold. This is recorded evidence, not a
-silent gate change or a proceed/optimize/stop decision; that decision belongs
-to task 5.5. The pulled machine-readable report was
+RTF and peak memory are recorded observations without acceptance thresholds;
+they do not stop downstream implementation. The pulled machine-readable report was
 `/tmp/citac-knjiga-task-5-1-full.json` and is intentionally not committed.
+
+## Short runtime comparison (task 5.2)
+
+The matrix wrapper defaults to 60 generated audio seconds for each controlled
+CPU and XNNPACK thread configuration. It reports real-time factor and peak
+process memory, stores one benchmark JSON per configuration, and does not run
+the 26-vector parity suite. Correctness parity remains covered by task 4.9.
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+MODEL_PACKAGE=/tmp/citac-knjiga-public-package-20260828/kokoro-serbian-dragana-v2.zip \
+DEVICE=2555a240 \
+scripts/run_android_runtime_matrix.sh
+```
+
+Override `WORKLOAD_SECONDS` or `RUNTIME_CONFIGS` when a different comparison is
+useful. These measurements have no pass/fail limit and do not block application
+implementation.
+
+### Captured Poco F3 matrix
+
+On 2026-08-28, each configuration completed with a 15-second target workload
+(18.875 generated audio seconds) on `M2012K11AG`/`alioth`, API 33, native
+`arm64-v8a`. The archive was verified as
+`58c031fd6e37a12cafe3575d26a057e10c45cdfe7c6c7605f6966e7e2406458b` before
+staging. Peak process memory is the report's sampled total PSS, not portable
+peak RSS.
+
+| Configuration | Real-time factor | Peak process PSS |
+|---|---:|---:|
+| CPU, intra/inter 1/1 | 1.379 | 869,524,480 bytes |
+| CPU, intra/inter 2/1 | 0.976 | 910,154,752 bytes |
+| CPU, intra/inter 4/1 | 0.603 | 895,176,704 bytes |
+| XNNPACK, provider threads 1 | 1.722 | 901,241,856 bytes |
+| XNNPACK, provider threads 2 | 1.680 | 909,795,328 bytes |
+| XNNPACK, provider threads 4 | 1.698 | 886,729,728 bytes |
+
+All six reports had `status=completed`, matching provider/thread identities,
+numeric RTF and peak-memory values, native Poco identity, and no document-text
+field. Reports and generated audio are intentionally not committed. Correctness
+parity remains task 4.9; this comparison adds no parity matrix or performance
+gate.

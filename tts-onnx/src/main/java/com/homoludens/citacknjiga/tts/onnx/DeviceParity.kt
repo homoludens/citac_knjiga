@@ -34,8 +34,20 @@ public data class DeviceParityRuntimeIdentity(
     val executionProvider: String = "cpu",
     val intraOpThreads: Int = 1,
     val interOpThreads: Int = 1,
+    val providerThreads: Int = 1,
     val executionMode: String = "sequential",
-)
+) {
+    public companion object {
+        public fun from(configuration: OnnxRuntimeConfiguration): DeviceParityRuntimeIdentity =
+            DeviceParityRuntimeIdentity(
+                executionProvider = configuration.executionProvider.reportName,
+                intraOpThreads = configuration.intraOpThreads,
+                interOpThreads = configuration.interOpThreads,
+                providerThreads = configuration.providerThreads,
+                executionMode = configuration.executionMode,
+            )
+    }
+}
 
 public data class DeviceParityModelIdentity(
     val packageId: String?,

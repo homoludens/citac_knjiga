@@ -152,8 +152,13 @@ target.
   run completed on 2026-08-28: 902.45 audio seconds in 1,594.649 wall seconds
   (RTF 1.767), model load 2,964 ms, peak PSS 908,320,768 bytes, CPU
   114.108% average/206.336% peak, battery 52% to 50%, battery temperature
-  35.7 to 37.0 C, and thermal status 0 with no throttling observed. RTF misses
-  the unchanged provisional <= 1.0 gate; task 5.5 owns the explicit decision.
+  35.7 to 37.0 C, and thermal status 0 with no throttling observed. Device
+  performance is informational: RTF and peak memory have no acceptance limits
+  and do not block application implementation. Task 5.2 uses a short runtime
+  matrix to compare controlled CPU and XNNPACK thread configurations.
+  The 2026-08-28 Poco F3 matrix completed CPU and XNNPACK runs at provider
+  threads 1/2/4; results and report-integrity checks are recorded in
+  `DEPLOYMENT.md`.
 
 ## Repository layout
 

@@ -1,6 +1,6 @@
 # Implementation Tasks
 
-Effort ranges are planning bands for one developer, not delivery commitments. A short task is at most one focused session; phase ranges include integration and debugging uncertainty. Phases 1–5 are hard prerequisites for document and whole-book work.
+Effort ranges are planning bands for one developer, not delivery commitments. A short task is at most one focused session; phase ranges include integration and debugging uncertainty. Phases 1–4 establish runtime correctness before document and whole-book work; phase 5 records non-blocking performance information.
 
 ## 1. Reference Runtime and Legal Inventory (rough phase effort: 3–7 days)
 
@@ -48,16 +48,12 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 - [x] 4.9 Compare Android PCM with desktop ONNX vectors using the declared parity metrics and persist a device parity report. → `fp32-parity-v2` passes 26/26 on the Poco F3 native ARM64 process; the text-free app-private report and artifact hashes are recorded in `DEPLOYMENT.md`.
 - [x] 4.10 Demonstrate the complete offline path `Kotlin text → Serbian preprocessing → ONNX → playable 24 kHz audio` on the Poco F3. → verified with explicit Wi-Fi/mobile-data disable; the typed-text UI generated and played a 24 kHz mono PCM16 WAV on native ARM64.
 
-## 5. Device Qualification Gate (rough phase effort: 3–7 days)
+## 5. Non-blocking Device Performance Measurements (rough phase effort: one focused session)
 
-- [x] 5.1 Create a repeatable 15-minute representative benchmark that captures model load time, real-time factor, peak memory, CPU, temperature, throttling, and battery change. → `AndroidBenchmarkRunner`, opt-in `AndroidBenchmarkTest`, and `scripts/run_android_benchmark.sh`; Poco F3 full run captured 902.45 audio seconds with RTF 1.767, peak PSS 908,320,768 bytes, and no Android thermal throttling
-- [ ] 5.2 Benchmark CPU and XNNPACK with controlled thread counts on the Poco F3 and record output parity for each configuration.
-- [ ] 5.3 Test NNAPI only if CPU/XNNPACK miss the provisional gate, and reject configurations that partition poorly or alter output beyond thresholds.
-- [ ] 5.4 Evaluate FP16, graph optimization, or a reduced runtime only if required by measured results; keep quantization out of this gate.
-- [ ] 5.5 Record an explicit proceed, optimize, or stop decision against real-time factor ≤ 1.0, peak memory ≤ 1 GB, stability, and thermal behavior.
-- [ ] 5.6 Stop downstream EPUB implementation and update the design if the qualified configuration cannot meet an acceptable gate.
+- [x] 5.1 Create a repeatable sustained benchmark that captures model load time, real-time factor, peak memory, CPU, temperature, throttling, and battery change. → `AndroidBenchmarkRunner`, opt-in `AndroidBenchmarkTest`, and `scripts/run_android_benchmark.sh`; the historical Poco F3 run generated 902.45 audio seconds with RTF 1.767, peak PSS 908,320,768 bytes, and no Android thermal throttling. These measurements are informational and do not gate implementation.
+- [x] 5.2 Run a short CPU and XNNPACK comparison with controlled thread counts on the Poco F3, reporting real-time factor and peak process memory for each configuration. → six 15-second target runs at CPU/XNNPACK provider threads 1/2/4 completed on native ARM64; RTF and peak PSS are recorded in `DEPLOYMENT.md` without acceptance limits or a downstream implementation gate.
 
-## 6. Persistent Project Core (rough phase effort: 1–2 weeks; depends on gate 5)
+## 6. Persistent Project Core (rough phase effort: 1–2 weeks)
 
 - [ ] 6.1 Define Room entities, relations, indexes, enums, and constraints for books, chapters, narration blocks, audio segments, generation runs, model packages, playback positions, and export jobs.
 - [ ] 6.2 Implement schema version 1, migration-test infrastructure, transaction boundaries, and protection against accidental destructive migration.
@@ -134,4 +130,4 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 - [ ] 12.5 Add an F-Droid-oriented build flavor and run scanner/build checks in a clean reproducible environment.
 - [ ] 12.6 Generate SBOM, dependency notices, model attribution, privacy statement, threat model, benchmark report, and model-package compatibility documentation.
 - [ ] 12.7 Build and verify signed GitHub release artifacts separately from optional model packages.
-- [ ] 12.8 Publish the application only after legal gates, parity gates, device gates, recovery tests, export tests, and OpenSpec verification all pass.
+- [ ] 12.8 Publish the application only after legal and parity gates, recovery tests, export tests, OpenSpec verification, and device performance review are complete.

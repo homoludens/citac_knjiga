@@ -9,12 +9,37 @@ import ai.onnxruntime.TensorInfo
 import java.nio.FloatBuffer
 import java.nio.LongBuffer
 
+public enum class OnnxExecutionProvider(public val reportName: String) {
+    CPU("cpu"),
+    XNNPACK("xnnpack"),
+}
+
 public data class OnnxRuntimeConfiguration(
+    val executionProvider: OnnxExecutionProvider = OnnxExecutionProvider.CPU,
     val intraOpThreads: Int = 1,
     val interOpThreads: Int = 1,
-    val executionMode: OrtSession.SessionOptions.ExecutionMode =
-        OrtSession.SessionOptions.ExecutionMode.SEQUENTIAL,
-)
+    val providerThreads: Int = intraOpThreads,
+    val executionMode: String = "sequential",
+) {
+    init {
+        require(intraOpThreads > 0) { "intra-op thread count must be positive" }
+        require(interOpThreads > 0) { "inter-op thread count must be positive" }
+        require(providerThreads > 0) { "provider thread count must be positive" }
+        require(executionMode == "sequential" || executionMode == "parallel") {
+            "execution mode must be sequential or parallel"
+        }
+        if (executionProvider == OnnxExecutionProvider.XNNPACK) {
+            require(intraOpThreads == 1) { "XNNPACK uses one ORT intra-op thread" }
+        }
+    }
+
+    public val reportId: String
+        get() = when (executionProvider) {
+            OnnxExecutionProvider.CPU ->
+                "cpu-intra-${intraOpThreads}-inter-${interOpThreads}"
+            OnnxExecutionProvider.XNNPACK -> "xnnpack-threads-$providerThreads"
+        }
+}
 
 public object OnnxRuntimeContract {
     public const val VERSION: String = "1.29.0"
@@ -165,7 +190,7 @@ public object OnnxAudioOutputValidator {
         throw OnnxAudioValidationException(code, message)
 }
 
-/** Owns one CPU ONNX Runtime session and the environment used to create it. */
+/** Owns one configured ONNX Runtime session and the environment used to create it. */
 public class OnnxTtsSession private constructor(
     private val environment: OrtEnvironment,
     private val session: OrtSession,
@@ -313,14 +338,25 @@ public class OnnxTtsSession private constructor(
             LongArray(buffer.remaining()) { buffer.get() }
         }
 
-        private fun createFromArtifacts(model: ByteArray, styleTable: FloatArray): OnnxTtsSession =
-            createSession(styleTable) { environment, options -> environment.createSession(model, options) }
+        private fun createFromArtifacts(
+            model: ByteArray,
+            styleTable: FloatArray,
+            configuration: OnnxRuntimeConfiguration,
+        ): OnnxTtsSession = createSession(styleTable, configuration) { environment, options ->
+            environment.createSession(model, options)
+        }
 
-        private fun createFromArtifactPath(modelPath: String, styleTable: FloatArray): OnnxTtsSession =
-            createSession(styleTable) { environment, options -> environment.createSession(modelPath, options) }
+        private fun createFromArtifactPath(
+            modelPath: String,
+            styleTable: FloatArray,
+            configuration: OnnxRuntimeConfiguration,
+        ): OnnxTtsSession = createSession(styleTable, configuration) { environment, options ->
+            environment.createSession(modelPath, options)
+        }
 
         private fun createSession(
             styleTable: FloatArray,
+            configuration: OnnxRuntimeConfiguration,
             sessionFactory: (OrtEnvironment, OrtSession.SessionOptions) -> OrtSession,
         ): OnnxTtsSession {
             require(styleTable.size == DraganaStyleTable.VALUE_COUNT) {
@@ -330,7 +366,6 @@ public class OnnxTtsSession private constructor(
             var environment: OrtEnvironment? = null
             var session: OrtSession? = null
             try {
-                val configuration = OnnxRuntimeContract.CPU_BASELINE
                 // Prefer a bounded process-wide pool; per-session pools are bounded below as well.
                 OrtEnvironment.ThreadingOptions().use { threading ->
                     threading.setGlobalIntraOpNumThreads(configuration.intraOpThreads)
@@ -347,9 +382,21 @@ public class OnnxTtsSession private constructor(
                     }
                 }
                 OrtSession.SessionOptions().use { options ->
-                    options.setExecutionMode(configuration.executionMode)
+                    options.setExecutionMode(
+                        if (configuration.executionMode == "parallel") {
+                            OrtSession.SessionOptions.ExecutionMode.PARALLEL
+                        } else {
+                            OrtSession.SessionOptions.ExecutionMode.SEQUENTIAL
+                        },
+                    )
                     options.setIntraOpNumThreads(configuration.intraOpThreads)
                     options.setInterOpNumThreads(configuration.interOpThreads)
+                    if (configuration.executionProvider == OnnxExecutionProvider.XNNPACK) {
+                        options.addConfigEntry("session.intra_op.allow_spinning", "0")
+                        options.addXnnpack(
+                            mapOf("intra_op_num_threads" to configuration.providerThreads.toString()),
+                        )
+                    }
                     session = sessionFactory(requireNotNull(environment), options)
                 }
                 val result = OnnxTtsSession(
@@ -374,19 +421,26 @@ public class OnnxTtsSession private constructor(
         public fun open(store: ModelPackageStore): OnnxTtsSession {
             val installed = store.activePackage()
                 ?: throw OnnxTtsException("No verified model package is installed")
-            return open(store, installed)
+            return open(store, installed, OnnxRuntimeContract.CPU_BASELINE)
         }
 
         /** Opens a specific package returned by [ModelPackageStore]. */
-        public fun open(store: ModelPackageStore, packageInfo: InstalledModelPackage): OnnxTtsSession {
+        public fun open(
+            store: ModelPackageStore,
+            packageInfo: InstalledModelPackage,
+            configuration: OnnxRuntimeConfiguration = OnnxRuntimeContract.CPU_BASELINE,
+        ): OnnxTtsSession {
             val styleTable = DraganaStyleTable.fromTorchArchive(store.readArtifact(packageInfo, "voice_style"))
             return store.withVerifiedArtifactFile(packageInfo, "model") { modelFile ->
-                createFromArtifactPath(modelFile.absolutePath, styleTable)
+                createFromArtifactPath(modelFile.absolutePath, styleTable, configuration)
             }
         }
 
         /** Test and package-tool entry point for already verified artifact bytes. */
-        public fun fromArtifacts(model: ByteArray, styleTable: FloatArray): OnnxTtsSession =
-            createFromArtifacts(model, styleTable)
+        public fun fromArtifacts(
+            model: ByteArray,
+            styleTable: FloatArray,
+            configuration: OnnxRuntimeConfiguration = OnnxRuntimeConfiguration(),
+        ): OnnxTtsSession = createFromArtifacts(model, styleTable, configuration)
     }
 }

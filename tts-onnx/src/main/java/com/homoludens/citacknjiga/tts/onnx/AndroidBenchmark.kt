@@ -89,6 +89,8 @@ public class AndroidBenchmarkRunner(
         reportStore: AndroidBenchmarkReportStore = AndroidBenchmarkReportStore(
             File(context.filesDir, "benchmark-reports"),
         ),
+        configuration: OnnxRuntimeConfiguration = OnnxRuntimeContract.CPU_BASELINE,
+        task: String = "build-serbian-audiobook-mvp 5.1",
     ): AndroidBenchmarkReport {
         require(targetAudioSeconds > 0) { "Benchmark duration must be positive" }
         val identity = identities(context)
@@ -104,7 +106,7 @@ public class AndroidBenchmarkRunner(
             packageInfo = store.activePackage()
                 ?: throw OnnxTtsException("No verified model package is installed")
             val loadStarted = SystemClock.elapsedRealtimeNanos()
-            OnnxTtsSession.open(store, packageInfo).use { session ->
+            OnnxTtsSession.open(store, packageInfo, configuration).use { session ->
                 loadTimeMs = (SystemClock.elapsedRealtimeNanos() - loadStarted) / NANOS_PER_MILLISECOND
                 val preprocessor = SerbianPreprocessor.fromAssets(context.assets, context.filesDir)
                 val started = sampler.beginWorkload()
@@ -141,11 +143,12 @@ public class AndroidBenchmarkRunner(
         }
 
         val report = AndroidBenchmarkReport(
+            task = task,
             status = if (failure == null) "completed" else "failed",
             completed = failure == null,
             device = identity.device,
             build = identity.build,
-            runtime = DeviceParityRuntimeIdentity(),
+            runtime = DeviceParityRuntimeIdentity.from(configuration),
             model = packageInfo?.let {
                 DeviceParityModelIdentity(it.packageId, it.packageVersion, it.identitySha256, it.modelSha256, it.voiceSha256)
             } ?: DeviceParityModelIdentity(null, null, null, null, null),
@@ -221,7 +224,7 @@ public class AndroidBenchmarkRunner(
             "Thermal status is Android's aggregate PowerManager status; vendor thermal-zone details are not exposed to the app.",
             "Battery level is an integer vendor estimate and is sampled at benchmark boundaries; charging state is not inferred.",
             "The benchmark discards validated PCM after each call and therefore does not measure file encoding or storage throughput.",
-            "The report is a measurement artifact only; task 5.5 owns the proceed, optimize, or stop decision.",
+            "Real-time factor and peak process memory are informational and do not gate implementation.",
         )
     }
 }
