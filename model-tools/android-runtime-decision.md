@@ -57,8 +57,10 @@ gate.
   and subject to the existing legal release gate. Selecting an MIT runtime
   does not clear the blocked model-weight rows or authorize their
   redistribution.
-- Do not add Sherpa-ONNX, its frontend, or eSpeak-NG to the Android dependency
-  set for this decision. The GPL eSpeak-NG constraint remains unchanged.
+- Do not add Sherpa-ONNX or its frontend to the Android dependency set for this
+  decision. eSpeak-NG is a separate, accepted native Android dependency from
+  task 3.6; its GPL source, notices, data audit, and reproducible-build
+  obligations remain tracked independently.
 
 ## Provider, ABI, And Thread Contract
 
@@ -97,8 +99,9 @@ Task 2.8 does not claim any of the following are complete:
   output, `pred_dur`, finite samples, and the declared `fp32-parity-v1`
   metrics.
 - Verify Android preprocessing and voice-row selection separately against the
-  golden intermediates. Task 3.6 still decides whether the exact eSpeak-backed
-  preprocessing can be ported legally and reproducibly.
+  golden intermediates. Task 3.6 resolved the exact eSpeak-backed preprocessing
+  as an accepted native implementation; Android execution and reproducible
+  release obligations are tracked by tasks 4.5 and 12.3/12.4.
 - Measure model load, peak memory, real-time factor, CPU, thermal behavior,
   battery use, and stability on the Poco F3. Those are task 5 device gates,
   not evidence supplied by this selection.

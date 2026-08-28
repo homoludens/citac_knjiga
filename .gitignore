@@ -10,6 +10,8 @@ __pycache__/
 # Regenerable ONNX export candidate (large; identity tracked via
 # model-tools/export/manifest.json sha256, not committed)
 model-tools/export/*.onnx
+# Optional local desktop-to-Android parity bundle (large generated WAV files).
+model-tools/parity/desktop-onnx-vectors/
 # Android/Gradle build outputs are local and reproducible.
 **/build/
 .gradle/

@@ -2,16 +2,17 @@
 
 Scope: whether the Dragana fine-tuned Kokoro weights can be publicly
 redistributed, and what attribution / license terms attach. This is a *release
-gate*, not a blocker for local development. Findings recorded 2026-08-26.
+record*, not legal advice or an independent legal opinion. Findings and
+project-owner confirmation recorded 2026-08-28.
 
 ## 1.5 — Dragana dataset (single-speaker fine-tune source)
 
 - **Dataset:** "Serbian Common Voice Style TTS Dataset"
-- **Hugging Face:** `daremc86/serbian_common_voice`
-  (https://huggingface.co/datasets/daremc86/serbian_common_voice)
+- **Authoritative source:**
+  https://huggingface.co/datasets/daremc86/serbian_common_voice
 - **Created by:** Darko Milošević (`daremc86`). **Spoken by:** Dragana.
-- **License:** **CC BY 4.0** (confirmed from the live dataset card, `tags:
-  license:cc-by-4.0`, 2026-08-26).
+- **License:** **CC BY 4.0**, confirmed by the dataset card (`license:cc-by-4.0`).
+  License text: https://creativecommons.org/licenses/by/4.0/
 - **Speaker permission (verbatim from the dataset card):**
   > "The speaker voluntarily provided explicit permission for the recordings
   > to be used, processed, and publicly released for research and open-source
@@ -21,77 +22,66 @@ gate*, not a blocker for local development. Findings recorded 2026-08-26.
 - **Attribution required (CC BY 4.0):** name the creator (Darko Milošević),
   the speaker (Dragana), the source URL, the license, and a note of any
   modifications to the data/weights.
-- **Implication for the Dragana fine-tuned weights:** The checkpoint was
-  fine-tuned on CC BY 4.0 audio. Redistribution of the *weights* is defensible
-  under CC BY 4.0 **provided** the attribution above is preserved in the model
-  package / release notes. The dataset card explicitly anticipates public
-  distribution and open-source TTS use. This is the more favorable of the two
-  datasets.
+- **Project package treatment:** the derived checkpoint, ONNX graph, voice/style
+  data, and derived test audio carry Dragana attribution and a modification note
+  in the package. The project-owner confirmation permits their public use and
+  distribution as CC BY-SA 4.0 because the Južne vesti source is also part of
+  the derivation. This is a project release declaration, not a legal conclusion.
 
 ## 1.6 — Južne vesti corpus (base adaptation source)
 
 - **Dataset:** "JuzneVesti-SR v1.0"
 - **Authors:** Peter Rupnik, Nikola Ljubešić — Jožef Stefan Institute /
   CLARIN.SI.
-- **Distribution handle:** `11356/1679` (a CLARIN.SI / handle.net identifier,
-  not a plain public Hugging Face repo path). The HF API for `11356/1679`
-  returns an authentication error — the corpus is **not** openly downloadable
-  via HF and likely requires a CLARIN.SI account / DUA. *(Verification of the
-  exact DUA was not completed — the handle.net resolver call was interrupted
-  before it returned.)*
-- **License:** **CC BY-SA 4.0** (per the training repo's
-  `THIRD_PARTY_NOTICES.md`: "Prepared transcripts/audio and redistributed
-  derivatives remain subject to attribution and ShareAlike requirements").
+- **Authoritative source:**
+  https://www.clarin.si/repository/xmlui/handle/11356/1679
+- **License:** **CC BY-SA 4.0**, confirmed for this project record.
+  License text: https://creativecommons.org/licenses/by-sa/4.0/
 - **Provenance of the underlying audio:** the corpus was assembled by crawling
   Južne vesti content (text) plus YouTube video audio (see the dataset's
   `data/raw/README.md`, project `5roop/task13`). The audio originates from
   broadcast/video material — the *original* recordings carry their own
   copyright held by Južne vesti / the performers, which the CC BY-SA 4.0
   dataset release re-licenses but does not erase.
-- **Implication for the weights:** This is the **higher-risk** source.
-  - **ShareAlike (BY-SA):** any derivative — including model weights trained
-    on the corpus — that is *redistributed* is generally expected to carry the
-    same (or a compatible) license, with attribution. This can conflict with
-    releasing the app/weights under a permissive license (e.g. MIT/Apache).
-  - **Underlying broadcast rights:** the JV content's original copyright is
-    separate from the dataset's CC BY-SA grant. A public redistribution of
-    weights that "encode" JV speech characteristics may require permission
-    beyond the dataset license.
-  - **Net:** public redistribution of the *base-adapted* weights (and by
-    extension the final Dragana checkpoint, which stacks on top) should be
-    treated as **not cleared** until a defensible legal review of the JV
-    ShareAlike + broadcast-rights position is completed.
+- **Project package treatment:** the base adaptation and final Dragana-derived
+  checkpoint, ONNX graph, voice/style data, and derived test audio are treated
+  as CC BY-SA 4.0 for public distribution. Required attribution identifies the
+  corpus, Peter Rupnik, Nikola Ljubešić, Jožef Stefan Institute, CLARIN.SI, and
+  the source URL. Modifications must identify that the corpus contributed to the
+  derived model/package. This records the confirmed project treatment and does
+  not assert facts beyond the supplied source/license record.
 
 ## 1.8 — Legal release gate (decision)
 
-Until 1.5 and 1.6 have a written, defensible outcome:
+The confirmed project release treatment is:
 
 1. **Application code and model weights are distributed separately.** The
    open-source app (Kotlin/Compose) may be published without the weights; users
    import a checksummed model package themselves.
-2. **No official public release of the model weights** (Dragana checkpoint,
-   base adaptation, or derived ONNX) until the Južne vesti ShareAlike +
-   broadcast-rights question is resolved in writing.
-3. **Attribution is mandatory in every model package** regardless of the
-   outcome: Dragana / Darko Milošević (CC BY 4.0) and, if/when the JV
-   clearance permits, the Rupnik & Ljubešić / CLARIN.SI credit (CC BY-SA 4.0).
+2. **Public derived-package treatment:** the model, ONNX graph, voice/style
+   package, and derived test audio may be publicly distributed under CC BY-SA
+   4.0, with the required attribution and modification notices above. The
+   `prepare_public_manifest.py` path records this treatment without changing
+   the blocked negative-test fixture.
+3. **Attribution is mandatory in every model package:** Dragana / Darko
+   Milošević (CC BY 4.0), the JuzneVesti-SR authors and CLARIN.SI provenance
+   (CC BY-SA 4.0), and the source URLs must be retained.
 4. **Synthetic-audio disclosure:** any released audio/weights must note that
    the voice reproduces characteristics of real people (Dragana, and JV
    speakers); no use for impersonation/fraud (mirrors the training repo's
    `THIRD_PARTY_NOTICES.md`).
-5. **Open question to close before any weight release:** obtain (a) the exact
-   CLARIN.SI DUA / terms for handle `11356/1679`, and (b) a written opinion on
-   whether the ShareAlike clause obligates the *weights* to be released
-   BY-SA-compatible, or whether the app can remain permissively licensed with
-   the weights under a separate ShareAlike license.
+5. **Release engineering condition:** final public manifests and packages must
+   be generated from the complete local payload so exact SHA-256 values and
+   sizes are recorded. No weights, package archive, or generated raw audio is
+   committed to this repository.
 
 ## Evidence captured
 
-- Dragana dataset card (license + permission text): fetched 2026-08-26 from
-  `https://huggingface.co/api/datasets/daremc86/serbian_common_voice` and
-  `.../raw/main/README.md`.
-- Južne vesti license + authors: `kokoro-serbian/THIRD_PARTY_NOTICES.md` and
-  `kokoro-serbian/data/raw/README.md` (local, training repo commit
-  `ca5590d`).
-- Južne vesti HF/handle availability: `11356/1679` → auth error (not openly
-  downloadable). Handle.net resolver lookup pending.
+- Dragana dataset card and license:
+  `https://huggingface.co/datasets/daremc86/serbian_common_voice`.
+- JuzneVesti-SR repository record and license:
+  `https://www.clarin.si/repository/xmlui/handle/11356/1679`.
+- License texts: `https://creativecommons.org/licenses/by/4.0/` and
+  `https://creativecommons.org/licenses/by-sa/4.0/`.
+- Project-owner confirmation: derived model, ONNX, and voice package may be
+  used and publicly distributed as CC BY-SA 4.0 with required attribution.

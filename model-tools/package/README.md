@@ -2,8 +2,10 @@
 
 `model-package-v1.schema.json` defines the manifest for an independently
 distributed Serbian Kokoro package. `model-package-v1.example.json` is a
-blocked, declaration-only fixture for the current Dragana epoch-005 ONNX
-candidate. It does not create the payload files or an archive.
+blocked, declaration-only negative-test fixture for the current Dragana
+epoch-005 ONNX candidate. It must not be mutated and does not create payload
+files or an archive. Public manifests are generated separately from the exact
+local payload by `scripts/prepare_public_manifest.py`.
 
 ## Contract
 
@@ -58,7 +60,9 @@ distribution, blocked model/voice/derived-audio artifacts, and outstanding
 Južne vesti DUA/broadcast-rights reviews. A schema-valid manifest is **not** a
 legal opinion, permission, or release approval. Setting `model_distribution` to
 `allowed` additionally requires `status: cleared`, evidence text, and allowed
-artifact declarations, but those fields still require human/legal review.
+artifact declarations. The public generator records the confirmed project
+treatment of derived model artifacts as CC BY-SA 4.0 with attribution; this
+manifest state is not legal advice.
 
 ## Validation
 
@@ -99,3 +103,18 @@ model-tools/.venv/bin/python model-tools/scripts/build_model_package.py \
   --payload-root path/to/payload \
   --output path/to/model-package.zip
 ```
+
+Generate a cleared/public manifest without changing the blocked fixture. The
+command hashes every declared file in the payload root and refuses missing or
+undeclared files; pass a fixed timestamp when reproducing the same manifest:
+
+```sh
+model-tools/.venv/bin/python model-tools/scripts/prepare_public_manifest.py \
+  --payload-root /path/to/local-payload \
+  --created-at 2026-08-28T00:00:00Z \
+  --output /tmp/cleared-manifest.json
+```
+
+Final artifact hashes and sizes therefore come from the local payload, not from
+a committed placeholder. Build the package with that generated manifest only
+after reviewing its attribution and release record.

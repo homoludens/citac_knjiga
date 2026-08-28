@@ -61,6 +61,7 @@ public data class DesktopOnnxParityVector(
     val channels: Int = OnnxRuntimeContract.CHANNELS,
     val tokenIds: List<Int> = emptyList(),
     val speed: Float = 1f,
+    val tokenIdChunks: List<List<Int>> = emptyList(),
 )
 
 public data class DeviceParityMeasurement(
@@ -487,7 +488,20 @@ public class AndroidDeviceParityRunner(
         return try {
             OnnxTtsSession.open(store, installed).use { session ->
                 runAndPersist(vectors, packageContext, reportStore) { vector ->
-                    session.generate(vector.tokenIds, vector.speed)
+                    val chunks = vector.tokenIdChunks.ifEmpty { listOf(vector.tokenIds) }
+                    require(chunks.isNotEmpty()) { "${vector.id}: no token IDs supplied" }
+                    val outputs = chunks.map { chunk -> session.generate(chunk, vector.speed) }
+                    val pcm = FloatArray(outputs.sumOf { it.pcm.size })
+                    val predDur = LongArray(outputs.sumOf { it.predDur.size })
+                    var pcmOffset = 0
+                    var durationOffset = 0
+                    for (output in outputs) {
+                        output.pcm.copyInto(pcm, pcmOffset)
+                        output.predDur.copyInto(predDur, durationOffset)
+                        pcmOffset += output.pcm.size
+                        durationOffset += output.predDur.size
+                    }
+                    OnnxTtsOutput(pcm, predDur)
                 }
             }
         } catch (failure: Throwable) {

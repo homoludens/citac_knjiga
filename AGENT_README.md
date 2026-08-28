@@ -16,6 +16,11 @@ target.
   tasks.
 - Task 3.1 defines the strict v1 model-package manifest, blocked legal fixture,
   SHA-256 identity, and declaration validator under `model-tools/package/`.
+  `model-tools/scripts/prepare_public_manifest.py` is the separate public
+  generation path: it hashes the actual local payload and never mutates the
+  blocked negative-test fixture. The confirmed derived-package treatment is
+  CC BY-SA 4.0 with required attribution; no weights or package archive are
+  checked in.
 - Task 3.3 expands the self-authored Serbian golden corpus to 22 pinned desktop
   reference vectors with explicit category coverage and deterministic
   regeneration metadata.
@@ -64,8 +69,8 @@ target.
    `ModelPackageStore.readArtifact` reads verified model/style payloads from the
    private archive; no model is copied into the APK. The connected boundary gate
    uses a small deterministic ONNX fixture. The ignored local production graph
-   exists, but a complete model package is not checked in because the legal gate
-   remains blocked, so Android production-graph parity is still task 4.9.
+   exists, but a complete model package is not checked in; Android
+  production-graph parity is still task 4.9.
 - Task 4.7 adds `OnnxAudioOutputValidator` at the tensor-to-PCM boundary. It
   applies the frozen 24 kHz mono, finite, strict `(-1,1)`, RMS/silence, exact
   sample-count, and speed-scaled `pred_dur` duration contracts, with typed
@@ -112,12 +117,18 @@ target.
 - Task 4.9 adds the Kotlin `DeviceParityEvaluator`, frozen `fp32-parity-v1`
   metric declarations, and `DeviceParityReportStore` for atomic app-private JSON
   reports containing device, build, runtime, model, threshold, vector metrics,
-  and status identity without document text. JVM tests and the connected API 35
-  x86_64 instrumentation fixture pass. Task 4.9 remains unchecked: the legal
-  gate leaves the production model package unavailable, the desktop runner does
-  not publish raw ONNX vector waveforms for Android consumption, and x86_64
-  fixture execution is not ARM64/device qualification. The runner persists a
-  non-passing `blocked` report instead of claiming production parity.
+  and status identity without document text. The new desktop vector exporter
+  writes a text-free audio manifest plus token/speed sidecar for all 26 IDs;
+  `DesktopOnnxParityVectorLoader` verifies that external bundle and supports
+  chunked model calls through the existing runner. JVM tests and the connected API 35
+  x86_64 instrumentation fixture pass. A separately named production test is
+  opt-in, requires native `arm64-v8a`, reads the external bundle and verified
+  package from private test paths, and persists a report with real device/build/
+  runtime/model identities. Task 4.9 remains unchecked until that test passes
+  on a native ARM64 device; the production payload/package is intentionally not
+  checked in, and the two recorded frozen threshold deviations remain deferred.
+  The runner persists a non-passing `blocked` report when no verified package is
+  installed.
 
 ## Repository layout
 

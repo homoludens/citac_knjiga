@@ -197,8 +197,8 @@ proof artifact, not durable generation or Media3 playback.
 
 ## Android parity report (task 4.9)
 
-`tts-onnx` provides `AndroidDeviceParityRunner` and
-`DeviceParityReportStore`. The runner compares caller-supplied desktop ONNX
+`tts-onnx` provides `AndroidDeviceParityRunner`, `DeviceParityReportStore`,
+and `DesktopOnnxParityVectorLoader`. The runner compares caller-supplied desktop ONNX
 waveforms with Android `OnnxTtsOutput` using every measurement in the immutable
 `fp32-parity-v1` declaration: exact sample count, waveform error, STFT cosine,
 silence, clipping, and invalid-output checks. `runAndPersist` writes
@@ -224,13 +224,28 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
 ./gradlew :tts-onnx:testDebugUnitTest :tts-onnx:connectedDebugAndroidTest
 ```
 
-Task 4.9 is not qualified. The legal release gate blocks the production model
-package and derived audio, the checked-in desktop parity report retains metrics
-but no raw ONNX waveforms for Android, and the available emulator is x86_64.
-The local ignored `model-tools/export/dragana.onnx` is not production evidence.
-The next step is to obtain legal clearance for a private test package, publish
-the matching desktop ONNX vector waveforms without document text, and run the
-full declared vector set on a native ARM64 Android device or emulator. The
-existing desktop 26-vector report also has the recorded frozen-threshold
-failures for `input-limit-at` and `paragraph-no-sentence-boundary`; those must
-be resolved without weakening `fp32-parity-v1` before a passing device report.
+Task 4.9 is not qualified. The public derived-package treatment is recorded in
+`model-tools/legal-inventory.md`, but the production payload/package remains
+local and uncommitted. The available emulator is x86_64, and fixture execution
+is not ARM64/device qualification. The local ignored
+`model-tools/export/dragana.onnx` is not production evidence.
+
+Prepare the external desktop input bundle with:
+
+```sh
+model-tools/.venv/bin/python model-tools/scripts/export_onnx_vectors.py \
+  --output-dir /tmp/citac-knjiga-desktop-onnx-vectors
+```
+
+The bundle format and Kotlin loader are documented in
+`model-tools/parity/ANDROID-INPUT-PROTOCOL.md`. Supply that bundle and a
+verified local model package to the Android runner using the exact staging,
+instrumentation, report-pull, and cleanup commands in that protocol. The
+opt-in production test runs all 26 vectors only in a native `arm64-v8a`
+process and stores the report at the test app's private
+`files/parity-reports/device-parity-report.json`. Its synthetic fixture test
+remains separate and is not production evidence.
+
+The existing desktop report records the frozen-threshold failures for
+`input-limit-at` and `paragraph-no-sentence-boundary`; they are intentionally
+deferred and must not be fixed by weakening `fp32-parity-v1`.

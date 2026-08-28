@@ -179,5 +179,6 @@ Consequences recorded:
 - GPL obligations for the linked engine and every packaged data file still
   require a file-level release audit and corresponding source/build material.
 
-This decision does not implement task 3.7 portable resources or any Android
-integration.
+The original decision did not implement task 3.7 portable resources or Android
+integration. Subsequent task 3.7 and 4.5 work records the accepted native
+implementation and its current qualification status.

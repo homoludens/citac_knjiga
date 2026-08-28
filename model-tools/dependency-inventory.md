@@ -22,7 +22,7 @@ ONNX runtime, Compose, etc.)._
 | Component | Version | License | Redistributable? | Notes |
 |---|---|---|---|---|
 | ONNX Runtime (Android) | 1.29.0 | MIT | yes | Selected task 2.8: exact Maven Central AAR; SHA-256 `e97540ca78fe36f6fe2013f82843414fb843b6c7681fb04644cba5e1406662dd`; CPU baseline with bounded XNNPACK experiment; arm64-v8a filter; not device-qualified |
-| eSpeak-NG engine + Serbian data | 1.52.0 / data closure TBD | GPL-3.0-or-later (data notices TBD) | **blocked** in app | Task 3.6 selects a native arm64/JNI candidate for exact parity; current project policy forbids linking GPL/AGPL components into the Android app. See `model-tools/phonemization-decision.md`. |
+| eSpeak-NG engine + Serbian data | 1.52.0 / checked-in closure | GPL-3.0-or-later (file-level data audit required) | yes, with GPL source/notices | Task 3.6's resolution accepts the native arm64/JNI implementation in the app. Source, build provenance, notices, and data audit remain release obligations; see `model-tools/phonemization-decision.md`. |
 | Android NDK components | TBD | BSD-3-Clause | yes | Only if retained |
 
 ## 3. Model tooling (desktop, `model-tools/`)
@@ -42,16 +42,16 @@ ONNX runtime, Compose, etc.)._
 | Component | SHA-256 (first 12) | License | Redistributable? | Notes |
 |---|---|---|---|---|
 | Kokoro-82M base weights (hexgrad) | (record at package time) | Apache-2.0 (per HF card) | **pending** | Verify base license text at packaging |
-| Dragana checkpoint `kokoro_dragana_sr.pth` | `4e6d11053886` | Derivative: CC BY 4.0 (Dragana data) + CC BY-SA 4.0 (JV base) | **blocked** | Release gate: legal-inventory.md §1.8 |
-| Voice tensor `sr_dragana.pt` | `0c16ae704368` | Same as checkpoint | **blocked** | |
+| Dragana checkpoint `kokoro_dragana_sr.pth` | `4e6d11053886` | Derived package: CC BY-SA 4.0; Dragana source CC BY 4.0 | public package path | Required attribution/modification notice; exact final hash generated locally |
+| Voice tensor `sr_dragana.pt` | `0c16ae704368` | Derived package: CC BY-SA 4.0; Dragana source CC BY 4.0 | public package path | Required attribution/modification notice; exact final hash generated locally |
 | `config.json` | `5abb01e2403b` | Project code license | yes | |
 
 ## 5. Datasets (never bundled with app; referenced for provenance)
 
 | Dataset | Source | License | Redistributable? | Notes |
 |---|---|---|---|---|
-| Serbian Common Voice Style TTS (Dragana) | `daremc86/serbian_common_voice` | CC BY 4.0 | yes (attribution) | See legal-inventory.md §1.5 |
-| Južne vesti corpus v1.0 | handle `11356/1679` (CLARIN.SI) | CC BY-SA 4.0 | **pending** | DUA terms unverified; see §1.6 |
+| Serbian Common Voice Style TTS (Dragana) | https://huggingface.co/datasets/daremc86/serbian_common_voice | CC BY 4.0 | yes (attribution) | See legal-inventory.md §1.5 |
+| JuzneVesti-SR corpus v1.0 | https://www.clarin.si/repository/xmlui/handle/11356/1679 | CC BY-SA 4.0 | yes (attribution/share-alike) | Public derived package is treated as CC BY-SA 4.0; see §1.6 |
 
 ## 6. Fonts & test fixtures
 
@@ -63,11 +63,11 @@ ONNX runtime, Compose, etc.)._
 
 ## Rules
 
-1. Any `GPL`/`AGPL` component MUST NOT be linked into the Android app
-   (F-Droid + app license conflict). eSpeak-NG remains desktop-reference only
-   until the task-3.6 native strategy is legally compatible and reproducibly
-   qualified.
-2. Any model weight row stays `blocked` until `legal-inventory.md` §1.8 gate
-   passes; the packager (task 3.2) MUST refuse to include blocked rows.
+1. GPL/AGPL components require their corresponding source, notices, license
+   text, build provenance, and any applicable data notices. The accepted native
+   eSpeak-NG implementation is linked into the Android app; Android/device and
+   release reproducibility gates remain separate qualification work.
+2. Public model-package rows are generated only through the cleared-manifest
+   path, with exact local payload hashes; the packager MUST refuse blocked rows.
 3. Every `pending` row must be resolved before the MVP release candidate
    (task 11.7).
