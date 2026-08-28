@@ -159,6 +159,11 @@ target.
   The 2026-08-28 Poco F3 matrix completed CPU and XNNPACK runs at provider
   threads 1/2/4; results and report-integrity checks are recorded in
   `DEPLOYMENT.md`.
+- Task 6.1 defines the initial Room-owned project schema in `core`: books,
+  chapters, narration blocks, audio segments, generation runs, model packages,
+  playback positions, and export jobs. Enum values persist by stable name;
+  ownership and artifact relations use explicit foreign-key actions and ordered
+  unique indexes. Database versioning and migrations remain task 6.2.
 
 ## Repository layout
 

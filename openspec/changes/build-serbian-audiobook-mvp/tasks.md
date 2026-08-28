@@ -55,7 +55,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 
 ## 6. Persistent Project Core (rough phase effort: 1–2 weeks)
 
-- [ ] 6.1 Define Room entities, relations, indexes, enums, and constraints for books, chapters, narration blocks, audio segments, generation runs, model packages, playback positions, and export jobs.
+- [x] 6.1 Define Room entities, relations, indexes, enums, and constraints for books, chapters, narration blocks, audio segments, generation runs, model packages, playback positions, and export jobs.
 - [ ] 6.2 Implement schema version 1, migration-test infrastructure, transaction boundaries, and protection against accidental destructive migration.
 - [ ] 6.3 Define the app-private directory layout and file APIs for sources, model packages, canonical text, covers, temporary files, ready audio, and diagnostics.
 - [ ] 6.4 Implement atomic temporary-write, fsync/close, validation, rename/publication, checksum, and orphan-cleanup helpers.
