@@ -148,8 +148,12 @@ target.
   The app-private JSON report contains only device/build/runtime/model
   identities, numeric timing/resource measurements, statuses, and explicit
   Android metric limitations. The wrapper verifies the locally qualified v2
-  package archive and disables Wi-Fi/mobile data for the run. The 15-minute
-  Poco measurement is the remaining completion evidence for task 5.1.
+  package archive and disables Wi-Fi/mobile data for the run. The full Poco
+  run completed on 2026-08-28: 902.45 audio seconds in 1,594.649 wall seconds
+  (RTF 1.767), model load 2,964 ms, peak PSS 908,320,768 bytes, CPU
+  114.108% average/206.336% peak, battery 52% to 50%, battery temperature
+  35.7 to 37.0 C, and thermal status 0 with no throttling observed. RTF misses
+  the unchanged provisional <= 1.0 gate; task 5.5 owns the explicit decision.
 
 ## Repository layout
 

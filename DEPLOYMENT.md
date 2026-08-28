@@ -352,3 +352,30 @@ Inspect the pulled JSON before accepting results. Its limitations always state
 that total PSS is not portable peak RSS, process CPU lacks vendor scheduler
 detail, battery temperature is not SoC/skin temperature, Android thermal
 status lacks vendor zones, and battery percentage is a rounded boundary sample.
+
+### Captured Poco F3 run
+
+The 2026-08-28 run completed with `status=completed`, 203 inference calls, and
+902.45 generated audio seconds. It used package archive SHA-256
+`58c031fd6e37a12cafe3575d26a057e10c45cdfe7c6c7605f6966e7e2406458b`, package
+identity `kokoro-serbian-dragana@1.0.0`, model SHA-256
+`f40e096e2e4112bc6f529160eda9a4ebdab5baf3fefbd584ec19c8f6592bbeb6`, voice
+SHA-256 `0c16ae704368f69e5e1467a702594f56f11a5cfdd38e9ae43b708932c1d6fb8a`,
+and ONNX Runtime Android `1.29.0` CPU sequential `1/1` threads.
+
+| Measurement | Result |
+|---|---:|
+| Model load | 2,964 ms |
+| Workload wall time | 1,594.649 s |
+| Real-time factor | 1.767 |
+| Peak process PSS | 908,320,768 bytes (887,032 KiB) |
+| Process CPU utilization | 114.108% average, 206.336% sampled peak |
+| Battery level change | 52% to 50% (-2 percentage points) |
+| Battery temperature | 35.7 C to 37.0 C; 35.7 C minimum, 37.0 C maximum |
+| Thermal status / throttling | Android status 0 throughout; not observed |
+
+The peak memory is below the provisional 1 GB threshold, but RTF is above the
+unchanged provisional `<= 1.0` threshold. This is recorded evidence, not a
+silent gate change or a proceed/optimize/stop decision; that decision belongs
+to task 5.5. The pulled machine-readable report was
+`/tmp/citac-knjiga-task-5-1-full.json` and is intentionally not committed.
