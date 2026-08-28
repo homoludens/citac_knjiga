@@ -46,7 +46,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 - [x] 4.7 Add invalid-output checks for non-finite samples, silence, clipping, sample rate, sample count, and plausible duration.
 - [x] 4.8 Build the typed Serbian text proof screen showing intermediate diagnostics, generate/cancel state, model provenance, and playable WAV output.
 - [x] 4.9 Compare Android PCM with desktop ONNX vectors using the declared parity metrics and persist a device parity report. → `fp32-parity-v2` passes 26/26 on the Poco F3 native ARM64 process; the text-free app-private report and artifact hashes are recorded in `DEPLOYMENT.md`.
-- [ ] 4.10 Demonstrate the complete offline path `Kotlin text → Serbian preprocessing → ONNX → playable 24 kHz audio` on the Poco F3.
+- [x] 4.10 Demonstrate the complete offline path `Kotlin text → Serbian preprocessing → ONNX → playable 24 kHz audio` on the Poco F3. → verified with explicit Wi-Fi/mobile-data disable; the typed-text UI generated and played a 24 kHz mono PCM16 WAV on native ARM64.
 
 ## 5. Device Qualification Gate (rough phase effort: 3–7 days)
 

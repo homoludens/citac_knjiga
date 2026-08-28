@@ -263,3 +263,51 @@ remains separate and is not production evidence.
 
 The historical v1 report and decision remain committed. The fresh v2 desktop
 report passes 26/26 and is committed alongside the versioned declaration.
+
+## Complete offline typed-text proof (task 4.10)
+
+The complete production graph path was verified on the Poco F3
+(`2555a240`, `M2012K11AG`, API 33, native `arm64-v8a`) on 2026-08-28. The
+qualified local package archive was verified before private staging with
+SHA-256 `58c031fd6e37a12cafe3575d26a057e10c45cdfe7c6c7605f6966e7e2406458b`.
+No model package, APK, or WAV is checked in.
+
+MIUI accepted the debug APK and test APK with non-streaming installation. Use
+the following shape for future device runs:
+
+```sh
+ADB=/path/to/Android/Sdk/platform-tools/adb
+DEVICE=2555a240
+
+"$ADB" -s "$DEVICE" install --no-streaming -r app/build/outputs/apk/standard/debug/app-standard-debug.apk
+"$ADB" -s "$DEVICE" install --no-streaming -r app/build/outputs/apk/androidTest/standard/debug/app-standard-debug-androidTest.apk
+"$ADB" -s "$DEVICE" shell run-as com.homoludens.citacknjiga.debug mkdir -p files/model-packages
+"$ADB" -s "$DEVICE" push /private/path/kokoro-serbian-dragana-v2.zip /data/local/tmp/model-package.zip
+"$ADB" -s "$DEVICE" shell run-as com.homoludens.citacknjiga.debug cp /data/local/tmp/model-package.zip files/model-packages/active.zip
+"$ADB" -s "$DEVICE" shell svc wifi disable
+"$ADB" -s "$DEVICE" shell svc data disable
+"$ADB" -s "$DEVICE" shell am instrument -w -r \
+  -e class com.homoludens.citacknjiga.proof.TypedTextProofAndroidTest#verifiedTextPathProducesAndPlaysTwentyFourKilohertzWav \
+  com.homoludens.citacknjiga.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+The instrumentation gate passed with networking disabled; it had also passed
+during an earlier pre-disable run. The manual proof screen showed successful
+status, cleaned/normalized text, phonemes,
+token IDs, chunk boundaries, Dragana model provenance, and `24 kHz, mono,
+PCM16`. Pressing `Пусти` created an active `AudioTrack` for the app process at
+`24000` Hz. The captured WAV metadata was PCM signed 16-bit, mono, 24 kHz,
+1.275 seconds, 61,244 bytes, SHA-256
+`7c07ef70d63d0c7cad414c4a7f5cdd079ed1475c7e9d9574fd9eb9867391ee93`.
+
+Always remove device-private proof artifacts after the run and restore the
+connectivity state:
+
+```sh
+"$ADB" -s "$DEVICE" shell am force-stop com.homoludens.citacknjiga.debug
+"$ADB" -s "$DEVICE" shell run-as com.homoludens.citacknjiga.debug rm -f files/model-packages/active.zip files/typed-proof/typed-proof.wav
+"$ADB" -s "$DEVICE" shell rm -rf /data/local/tmp/citac-knjiga-task-4-10 /data/local/tmp/model-package.zip
+"$ADB" -s "$DEVICE" shell rm -f /sdcard/Download/citac-knjiga-debug.apk
+"$ADB" -s "$DEVICE" shell svc wifi enable
+"$ADB" -s "$DEVICE" shell svc data enable
+```

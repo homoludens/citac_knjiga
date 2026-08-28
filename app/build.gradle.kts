@@ -91,4 +91,7 @@ dependencies {
     implementation(project(":playback-export"))
 
     testImplementation(libs.junit)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.runner)
 }

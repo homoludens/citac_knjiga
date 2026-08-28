@@ -1,7 +1,10 @@
 package com.homoludens.citacknjiga.proof
 
 import com.homoludens.citacknjiga.tts.onnx.WavArtifact
+import com.homoludens.citacknjiga.tts.onnx.ModelPackageStore
+import com.homoludens.citacknjiga.tts.onnx.OnnxTtsException
 import java.io.File
+import kotlin.io.path.createTempDirectory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.runBlocking
@@ -58,6 +61,21 @@ public class TypedTextProofControllerTest {
 
         assertEquals(TypedTextProofStatus.CANCELLED, controller.state.value.status)
         controller.close()
+    }
+
+    @Test
+    public fun proofEngineFailsClosedWithoutVerifiedPackage() = runBlocking {
+        val engine = AndroidTypedTextProofEngine(
+            modelStore = ModelPackageStore(createTempDirectory().toFile()),
+            preprocessorFactory = { error("preprocessing must not start") },
+            artifactDirectory = createTempDirectory().toFile(),
+        )
+
+        val failure = org.junit.Assert.assertThrows(OnnxTtsException::class.java) {
+            runBlocking { engine.generate("Dobar dan.") {} }
+        }
+
+        assertTrue(failure.message.orEmpty().contains("No verified model package"))
     }
 
     private fun fakeEngine(): TypedTextProofEngine = object : TypedTextProofEngine {

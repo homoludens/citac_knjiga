@@ -126,6 +126,15 @@ target.
   runtime/model identities. The production test passes all 26 vectors on the
   Poco F3 native ARM64 process. The runner persists a non-passing `blocked`
   report when no verified package is installed.
+- Task 4.10 is complete on the Poco F3 (`M2012K11AG`, API 33, native
+  `arm64-v8a`). With Wi-Fi and mobile data explicitly disabled, the typed-text
+  screen accepted `Dobar dan.`, showed successful Serbian preprocessing and
+  verified model provenance, generated a 24 kHz mono PCM16 WAV, and played it
+  through the local `AudioTrack` path. The captured proof WAV was 61,244 bytes,
+  1.275 seconds, and SHA-256
+  `7c07ef70d63d0c7cad414c4a7f5cdd079ed1475c7e9d9574fd9eb9867391ee93`.
+  Device staging was removed after verification; the model package and WAV
+  remain uncommitted.
 - Production model loading streams the verified model ZIP entry to a private
   temporary file before ONNX Runtime path-based session creation, avoiding the
   Java-heap copy. Torch voice archives are read through their central directory
