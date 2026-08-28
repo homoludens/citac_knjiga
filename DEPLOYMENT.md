@@ -311,3 +311,44 @@ connectivity state:
 "$ADB" -s "$DEVICE" shell svc wifi enable
 "$ADB" -s "$DEVICE" shell svc data enable
 ```
+
+## Sustained Poco F3 benchmark (task 5.1)
+
+`AndroidBenchmarkRunner` runs the production typed-input path directly: each
+fixed Serbian Latin/Cyrillic input is preprocessed with the packaged native
+eSpeak-NG resources and passed to one persistent `OnnxTtsSession` opened from
+the verified package. The validated PCM is discarded after each call, so this
+qualification does not create document text, audio, or a large generated file.
+The default workload is at least 900 seconds of generated 24 kHz mono audio.
+Model load is timed separately; RTF includes preprocessing and inference wall
+time for the workload. Process memory is sampled as total PSS, CPU is process
+elapsed CPU time divided by wall time, battery temperature comes from the
+`ACTION_BATTERY_CHANGED` battery sensor, and throttling comes from the Android
+aggregate `PowerManager` thermal status.
+
+The report is written atomically to the target app's private
+`files/benchmark-reports/android-benchmark-report.json` and pulled to the
+host. It contains no source-text field or document URI. The report is a
+measurement artifact, not the task 5.5 proceed/optimize/stop decision.
+
+The repeatable wrapper requires the exact locally verified v2 archive
+(`58c031fd6e37a12cafe3575d26a057e10c45cdfe7c6c7605f6966e7e2406458b`), checks
+that the device is the native ARM64 Poco F3, builds and installs the standard
+debug app/test APKs, disables Wi-Fi and mobile data before instrumentation,
+pulls the report, removes device-private package/report files, and restores
+the prior Wi-Fi/mobile-data settings:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+MODEL_PACKAGE=/tmp/citac-knjiga-public-package-20260828/kokoro-serbian-dragana-v2.zip \
+DEVICE=2555a240 \
+OUTPUT=/tmp/citac-knjiga-android-benchmark-report.json \
+scripts/run_android_benchmark.sh
+```
+
+Use `WORKLOAD_SECONDS=900` explicitly when recording the standard gate. A
+shorter value is only a harness smoke check and is not task 5.1 evidence.
+Inspect the pulled JSON before accepting results. Its limitations always state
+that total PSS is not portable peak RSS, process CPU lacks vendor scheduler
+detail, battery temperature is not SoC/skin temperature, Android thermal
+status lacks vendor zones, and battery percentage is a rounded boundary sample.

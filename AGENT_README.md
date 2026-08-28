@@ -141,6 +141,15 @@ target.
   because Android streaming ZIP does not reliably enumerate PyTorch stored
   entries with data descriptors. Temporary files are removed on every path.
   The measured waveform contract is 600 samples per predicted duration frame.
+- Task 5.1 now has an opt-in Android benchmark runner and SDK-`adb` wrapper.
+  It drives the existing native Serbian typed-input preprocessing and direct
+  ONNX Runtime CPU session until at least 900 seconds of validated 24 kHz PCM
+  is generated, while discarding PCM instead of creating a generated artifact.
+  The app-private JSON report contains only device/build/runtime/model
+  identities, numeric timing/resource measurements, statuses, and explicit
+  Android metric limitations. The wrapper verifies the locally qualified v2
+  package archive and disables Wi-Fi/mobile data for the run. The 15-minute
+  Poco measurement is the remaining completion evidence for task 5.1.
 
 ## Repository layout
 

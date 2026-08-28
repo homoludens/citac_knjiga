@@ -50,7 +50,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 
 ## 5. Device Qualification Gate (rough phase effort: 3–7 days)
 
-- [ ] 5.1 Create a repeatable 15-minute representative benchmark that captures model load time, real-time factor, peak memory, CPU, temperature, throttling, and battery change.
+- [ ] 5.1 Create a repeatable 15-minute representative benchmark that captures model load time, real-time factor, peak memory, CPU, temperature, throttling, and battery change. → `AndroidBenchmarkRunner`, opt-in `AndroidBenchmarkTest`, and `scripts/run_android_benchmark.sh`; full Poco F3 measurement pending
 - [ ] 5.2 Benchmark CPU and XNNPACK with controlled thread counts on the Poco F3 and record output parity for each configuration.
 - [ ] 5.3 Test NNAPI only if CPU/XNNPACK miss the provisional gate, and reject configurations that partition poorly or alter output beyond thresholds.
 - [ ] 5.4 Evaluate FP16, graph optimization, or a reduced runtime only if required by measured results; keep quantization out of this gate.
