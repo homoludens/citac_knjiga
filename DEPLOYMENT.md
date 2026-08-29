@@ -455,3 +455,19 @@ Focused verification:
 ANDROID_HOME=/home/homoludens/Android/Sdk \
   ./gradlew :core:testDebugUnitTest :core:lintDebug :core:assembleDebug
 ```
+
+## Content-addressed generation keys (task 6.5)
+
+`core/generation/GenerationKeyCalculator` emits lowercase 64-character
+SHA-256 keys. The dependency key canonicalizes verified model/voice identities,
+processing versions, lexicographically sorted inference-setting names, and the
+audio-processing version. The generation key binds the dependency key to the
+ordered `List<Int>` token IDs. Keys are pure calculations and contain no
+timestamps or unordered serialization.
+
+Focused verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+  ./gradlew :core:testDebugUnitTest --tests '*GenerationKeyTest' :core:lintDebug :core:assembleDebug
+```

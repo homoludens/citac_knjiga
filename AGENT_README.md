@@ -180,6 +180,11 @@ target.
   temporary writes, validates and hashes them before publication, requests an
   atomic move with a documented regular-move fallback, and provides stale
   temporary/orphan cleanup without inspecting Room state.
+- Task 6.5 adds `core/generation/GenerationKeyCalculator`. Dependency keys are
+  SHA-256 digests of canonical model/voice identities, preprocessing and
+  pronunciation versions, sorted inference settings, and audio-processing
+  version. Generation keys add the ordered token IDs to that dependency
+  identity; neither key includes timestamps or database state.
 
 ## Repository layout
 
