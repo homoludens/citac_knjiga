@@ -211,6 +211,14 @@ target.
   recovery needs without adding a production dependency. The experiment only
   observes security markers; enforcement remains task 7.5. Details are in
   `openspec/changes/build-serbian-audiobook-mvp/epub-importer-decision.md`.
+- Task 7.4 adds `SafEpubSourceRepository` in `document-epub`. A selected
+  `ContentResolver` URI is copied through `AtomicArtifactStore` to private
+  temporary storage, fingerprinted with SHA-256, checked against the Room-backed
+  project index, and atomically published as `sources/<projectId>/source.epub`.
+  The persisted URI is provenance only; later document work uses the private
+  `sourcePath`. Duplicate, copy, publication, and index failures leave existing
+  projects untouched and clean temporary output. Archive/XML security and EPUB
+  parsing remain tasks 7.5-7.7.
 
 ## Repository layout
 

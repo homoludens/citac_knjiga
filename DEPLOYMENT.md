@@ -528,3 +528,22 @@ tag builds `shared` and `streamer` with Readium's Gradle 9.1.0, AGP 9.0.0,
 Kotlin 2.3.20, and compile SDK 36. The experiment's size, fixture output,
 source-build evidence, and F-Droid disposition are in
 `readium-spike/README.md`; no Readium dependency is in the production app yet.
+
+## Private EPUB source import (task 7.4)
+
+`document-epub` exposes `SafEpubSourceRepository.importSelected(Uri)` for a URI
+returned by the Android document picker. `ContentResolverEpubSourceReader` opens
+that URI once; the repository copies it through `AtomicArtifactStore` into
+`temporary/`, uses the staged artifact SHA-256 as the content fingerprint, checks
+the `EpubProjectIndex`, and publishes a stable `sources/<projectId>/source.epub`
+copy atomically. The original URI is retained in `book_project.source_uri`, while
+`source_path` is the only later-use path. No EPUB archive/XML parsing or security
+limits are part of this boundary yet.
+
+Focused verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :document-epub:testDebugUnitTest --tests '*EpubSourceRepositoryTest'
+```

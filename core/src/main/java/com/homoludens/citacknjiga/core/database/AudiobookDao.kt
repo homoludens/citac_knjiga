@@ -29,6 +29,9 @@ public interface AudiobookDao {
     @Query("SELECT * FROM book_project")
     public fun findAllProjects(): List<BookProjectEntity>
 
+    @Query("SELECT * FROM book_project WHERE source_fingerprint = :fingerprint LIMIT 1")
+    public fun findProjectBySourceFingerprint(fingerprint: String): BookProjectEntity?
+
     @Query("SELECT * FROM chapter")
     public fun findAllChapters(): List<ChapterEntity>
 
