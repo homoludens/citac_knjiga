@@ -420,3 +420,21 @@ numeric RTF and peak-memory values, native Poco identity, and no document-text
 field. Reports and generated audio are intentionally not committed. Correctness
 parity remains task 4.9; this comparison adds no parity matrix or performance
 gate.
+
+## App-private storage layout (task 6.3)
+
+`core/storage/AppPrivateStorage` uses Android `filesDir` as the single private
+root. Its stable areas are `sources`, `model-packages`, `canonical-text`,
+`covers`, `temporary`, `ready-audio`, and `diagnostics`. Existing proof and
+qualification paths remain `typed-proof`, `benchmark-reports`, `parity-input`,
+and `parity-reports`; model archives remain `model-packages/active.zip` and
+`last-valid.zip`. The API only resolves contained paths; it does not perform
+file publication, syncing, checksumming, or cleanup.
+
+Focused task 6.3 verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+  ./gradlew :core:testDebugUnitTest :core:lintDebug \
+  :core:assembleDebug
+```

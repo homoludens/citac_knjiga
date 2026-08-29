@@ -1,6 +1,7 @@
 package com.homoludens.citacknjiga.tts.onnx
 
 import android.content.Context
+import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
@@ -87,7 +88,7 @@ public class AndroidBenchmarkRunner(
         context: Context,
         targetAudioSeconds: Int = DEFAULT_TARGET_AUDIO_SECONDS,
         reportStore: AndroidBenchmarkReportStore = AndroidBenchmarkReportStore(
-            File(context.filesDir, "benchmark-reports"),
+            AppPrivateStorage(context.filesDir).benchmarkReportsDirectory,
         ),
         configuration: OnnxRuntimeConfiguration = OnnxRuntimeContract.CPU_BASELINE,
         task: String = "build-serbian-audiobook-mvp 5.1",

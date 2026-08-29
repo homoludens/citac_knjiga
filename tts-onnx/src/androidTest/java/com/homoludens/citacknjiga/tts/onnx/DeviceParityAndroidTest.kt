@@ -5,6 +5,7 @@ import android.os.Process
 import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
+import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import java.io.File
 import kotlin.math.sin
 import org.junit.Assert.assertEquals
@@ -50,11 +51,12 @@ public class DeviceParityAndroidTest {
                 Build.SUPPORTED_ABIS.contentToString()
         }
 
-        val bundleDirectory = File(context.filesDir, "parity-input")
+        val storage = AppPrivateStorage(context.filesDir)
+        val bundleDirectory = storage.parityInputDirectory
         val vectors = DesktopOnnxParityVectorLoader.load(bundleDirectory)
         assertEquals("The production bundle must contain all 26 vectors", 26, vectors.size)
 
-        val reportStore = DeviceParityReportStore(File(context.filesDir, "parity-reports"))
+        val reportStore = DeviceParityReportStore(storage.parityReportsDirectory)
         val report = AndroidDeviceParityRunner().runInstalledAndPersist(
             store = ModelPackageStore(context.filesDir),
             vectors = vectors,

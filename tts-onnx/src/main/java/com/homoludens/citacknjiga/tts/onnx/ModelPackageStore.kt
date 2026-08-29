@@ -2,6 +2,7 @@ package com.homoludens.citacknjiga.tts.onnx
 
 import android.content.ContentResolver
 import android.net.Uri
+import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import java.io.File
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
@@ -59,9 +60,10 @@ public class ModelPackageStore(
     filesDir: File,
     private val compatibility: ModelPackageCompatibility = ModelPackageCompatibility(),
 ) {
-    private val packageDir = File(filesDir, "model-packages")
-    private val activeFile = File(packageDir, "active.zip")
-    private val previousFile = File(packageDir, "last-valid.zip")
+    private val privateStorage = AppPrivateStorage(filesDir)
+    private val packageDir = privateStorage.modelPackagesDirectory
+    private val activeFile = privateStorage.activeModelPackage
+    private val previousFile = privateStorage.lastValidModelPackage
 
     /** Copies a SAF document into private temporary storage before inspecting it. */
     public fun importFromSaf(contentResolver: ContentResolver, uri: Uri): InstalledModelPackage {

@@ -2,11 +2,11 @@ package com.homoludens.citacknjiga.benchmark
 
 import android.os.Build
 import androidx.test.platform.app.InstrumentationRegistry
+import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.tts.onnx.AndroidBenchmarkReportStore
 import com.homoludens.citacknjiga.tts.onnx.AndroidBenchmarkRunner
 import com.homoludens.citacknjiga.tts.onnx.OnnxExecutionProvider
 import com.homoludens.citacknjiga.tts.onnx.OnnxRuntimeConfiguration
-import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -25,7 +25,7 @@ public class AndroidBenchmarkTest {
 
         val targetSeconds = arguments.getString("workload_seconds")?.toIntOrNull() ?: 15 * 60
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val store = AndroidBenchmarkReportStore(File(context.filesDir, "benchmark-reports"))
+        val store = AndroidBenchmarkReportStore(AppPrivateStorage(context.filesDir).benchmarkReportsDirectory)
         val report = AndroidBenchmarkRunner().runAndPersist(
             context,
             targetSeconds,

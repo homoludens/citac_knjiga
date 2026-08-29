@@ -1,6 +1,7 @@
 package com.homoludens.citacknjiga
 
 import com.homoludens.citacknjiga.core.diagnostics.LocalDiagnostics
+import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.proof.AndroidTypedTextProofEngine
 import com.homoludens.citacknjiga.proof.TypedTextProofEngine
 import com.homoludens.citacknjiga.tts.onnx.ModelPackageStore
@@ -39,14 +40,15 @@ public class AppContainer(
 ) {
     public companion object {
         public fun production(filesDir: File, assets: AssetManager): AppContainer {
-            val modelStore = ModelPackageStore(filesDir)
+            val privateStorage = AppPrivateStorage(filesDir)
+            val modelStore = ModelPackageStore(privateStorage.rootDirectory)
             return AppContainer(
                 diagnostics = LocalDiagnostics(),
                 variant = AppVariant.fromBuildConfig(),
                 typedTextProofEngine = AndroidTypedTextProofEngine(
                     modelStore = modelStore,
                     preprocessorFactory = { SerbianPreprocessor.fromAssets(assets, filesDir) },
-                    artifactDirectory = File(filesDir, "typed-proof"),
+                    artifactDirectory = privateStorage.typedProofDirectory,
                 ),
             )
         }

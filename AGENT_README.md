@@ -169,6 +169,13 @@ target.
   Room transactions, and leaves destructive migration fallback disabled. The
   connected migration tests verify the exported schema and reject an unknown
   newer database version.
+- Task 6.3 centralizes app-private paths in `core/storage/AppPrivateStorage`.
+  The root remains Android `filesDir`, with stable `sources`,
+  `model-packages`, `canonical-text`, `covers`, `temporary`, `ready-audio`, and
+  `diagnostics` areas plus existing proof/benchmark/parity areas. Path methods
+  validate components and canonical containment without creating or publishing
+  files; `filesDir/model-packages/active.zip` and `last-valid.zip` remain
+  compatible with the model store.
 
 ## Repository layout
 
