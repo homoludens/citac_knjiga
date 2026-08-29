@@ -590,3 +590,28 @@ ANDROID_HOME=/home/homoludens/Android/Sdk \
 ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
   ./gradlew :document-epub:testDebugUnitTest --tests '*EpubDocumentParserTest'
 ```
+
+## Canonical EPUB text (task 7.7)
+
+`EpubMarkdownRenderer` produces stable LF-terminated UTF-8 Markdown. Chapter
+and block source locators are retained as deterministic HTML comments; headings,
+paragraphs, lists, quotations, poetry, captions, notes, scene breaks, and
+skipped blocks have explicit formatting. Skipped blocks with recovered text are
+kept in non-narrating comments and produce cleanup warnings rather than being
+silently discarded.
+
+`EpubCanonicalTextService.renderAndPersist` writes chapter Markdown through
+`AtomicArtifactStore` to `canonical-text/<projectId>/<chapterId>.md` and writes
+the actionable warning report to
+`diagnostics/<projectId>/import-warnings.json`. It snapshots existing files and
+rolls back all newly published artifacts if any chapter or report publication
+fails, so a failed import cannot leave partial canonical text.
+
+Focused verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :document-epub:testDebugUnitTest --tests '*EpubCanonicalTextTest' \
+  :document-epub:testDebugUnitTest --tests '*EpubDocumentParserTest'
+```

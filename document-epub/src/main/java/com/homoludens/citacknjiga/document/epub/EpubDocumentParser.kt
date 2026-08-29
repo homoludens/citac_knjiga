@@ -23,6 +23,7 @@ public data class EpubPublicationMetadata(
     public val language: String?,
     public val identifier: String?,
     public val additional: Map<String, List<String>> = emptyMap(),
+    public val missingFields: Set<String> = emptySet(),
 )
 
 public data class EpubCover(
@@ -36,6 +37,11 @@ public data class EpubTocEntry(
     public val target: String?,
     public val sourceLocator: String,
     public val children: List<EpubTocEntry> = emptyList(),
+)
+
+public data class EpubNavigationIssue(
+    public val message: String,
+    public val sourceLocator: String,
 )
 
 public data class EpubNarrationBlock(
@@ -65,6 +71,7 @@ public data class EpubDocument(
     public val cover: EpubCover?,
     public val tableOfContents: List<EpubTocEntry>,
     public val chapters: List<EpubChapter>,
+    public val navigationIssues: List<EpubNavigationIssue> = emptyList(),
 ) {
     /** Projection for the Room rows already defined by the persistent core. */
     public fun toRoomProjection(source: ImportedEpubSource, now: Long): EpubRoomProjection {
@@ -192,7 +199,7 @@ public class EpubDocumentParser(
             .firstOrNull { localName(it) == "spine" }
         val itemRefs = spine?.childElements()?.filter { localName(it) == "itemref" }.orEmpty()
         val cover = parseCover(zip, names, opfPath, manifest)
-        val toc = parseNavigation(zip, names, opfPath, manifest, spine)
+        val navigation = parseNavigation(zip, names, opfPath, manifest, spine)
         val chapters = itemRefs.mapIndexed { index, itemRef ->
             parseChapter(
                 zip = zip,
@@ -201,7 +208,7 @@ public class EpubDocumentParser(
                 manifest = manifest,
                 itemRef = itemRef,
                 ordinal = index,
-                toc = toc,
+                toc = navigation.entries,
                 projectId = source.projectId,
             )
         }
@@ -212,8 +219,9 @@ public class EpubDocumentParser(
             sourcePath = source.sourceFile.path,
             metadata = metadata,
             cover = cover,
-            tableOfContents = toc,
+            tableOfContents = navigation.entries,
             chapters = chapters,
+            navigationIssues = navigation.issues,
         )
     }
 
@@ -234,6 +242,9 @@ public class EpubDocumentParser(
             additional = values
                 .filterKeys { it !in setOf("title", "creator", "language", "identifier") }
                 .mapValues { it.value.toList() },
+            missingFields = listOf("title", "creator", "language")
+                .filter { values[it].isNullOrEmpty() }
+                .toSet(),
         )
     }
 
@@ -264,7 +275,8 @@ public class EpubDocumentParser(
         opfPath: String,
         manifest: Map<String, Element>,
         spine: Element?,
-    ): List<EpubTocEntry> {
+    ): NavigationResult {
+        val issues = mutableListOf<EpubNavigationIssue>()
         val navItem = manifest.values.firstOrNull {
             it.getAttribute("properties").splitWhitespace().contains("nav")
         }
@@ -273,50 +285,87 @@ public class EpubDocumentParser(
         if (navItem != null) {
             val path = resolveEntry(opfPath, navItem.getAttribute("href"))
             if (path != null && path in names) {
-                val document = parseXml(readEntry(zip, names, path), path)
-                val toc = elements(document).firstOrNull {
-                    localName(it) == "nav" && semanticTypes(it).any { type -> type == "toc" }
+                val document = runCatching { parseXml(readEntry(zip, names, path), path) }.getOrNull()
+                val toc = document?.let {
+                    elements(it).firstOrNull { element ->
+                        localName(element) == "nav" && semanticTypes(element).any { type -> type == "toc" }
+                    }
                 }
                 val list = toc?.childElements()?.firstOrNull { localName(it) == "ol" }
-                if (list != null) return parseTocList(list, path)
+                if (list != null) {
+                    val parsed = parseTocList(list, path)
+                    return NavigationResult(parsed.entries, issues + parsed.issues)
+                }
+                issues += navigationIssue(path, "EPUB 3 table of contents is missing its ordered list")
+            } else {
+                issues += navigationIssue(opfPath, "EPUB 3 navigation resource is unavailable")
             }
         }
         if (ncxItem != null) {
             val path = resolveEntry(opfPath, ncxItem.getAttribute("href"))
             if (path != null && path in names) {
-                val document = parseXml(readEntry(zip, names, path), path)
-                val map = elements(document).firstOrNull { localName(it) == "navmap" }
-                if (map != null) return parseNcxPoints(map, path)
+                val document = runCatching { parseXml(readEntry(zip, names, path), path) }.getOrNull()
+                val map = document?.let { elements(it).firstOrNull { element -> localName(element) == "navmap" } }
+                if (map != null) {
+                    val parsed = parseNcxPoints(map, path)
+                    if (parsed.entries.isEmpty()) {
+                        issues += navigationIssue(path, "The EPUB 2 navigation map contains no entries")
+                    }
+                    return NavigationResult(parsed.entries, issues + parsed.issues)
+                }
+                issues += navigationIssue(path, "EPUB 2 navigation map is missing")
+            } else {
+                issues += navigationIssue(opfPath, "EPUB 2 navigation resource is unavailable")
             }
         }
-        return emptyList()
+        return NavigationResult(emptyList(), issues)
     }
 
-    private fun parseTocList(list: Element, navigationPath: String): List<EpubTocEntry> =
-        list.childElements().filter { localName(it) == "li" }.map { li ->
+    private fun parseTocList(list: Element, navigationPath: String): NavigationResult {
+        val issues = mutableListOf<EpubNavigationIssue>()
+        val entries = list.childElements().filter { localName(it) == "li" }.map { li ->
             val link = li.childElements().firstOrNull { localName(it) == "a" }
             val target = link?.getAttribute("href")?.let { resolveTarget(navigationPath, it) }
             val childList = li.childElements().firstOrNull { localName(it) == "ol" || localName(it) == "ul" }
+            if (link == null || target == null) {
+                issues += navigationIssue(navigationPath, "A table-of-contents entry has no valid target")
+            }
+            val children = childList?.let { parseTocList(it, navigationPath) }
+            if (children != null) issues += children.issues
             EpubTocEntry(
                 title = directText(li),
                 target = target,
                 sourceLocator = sourceLocator(navigationPath, link ?: li),
-                children = childList?.let { parseTocList(it, navigationPath) }.orEmpty(),
+                children = children?.entries.orEmpty(),
             )
         }
+        if (entries.isEmpty()) issues += navigationIssue(navigationPath, "The table of contents contains no entries")
+        return NavigationResult(entries, issues)
+    }
 
-    private fun parseNcxPoints(map: Element, navigationPath: String): List<EpubTocEntry> =
-        map.childElements().filter { localName(it) == "navpoint" }.map { point ->
+    private fun parseNcxPoints(map: Element, navigationPath: String): NavigationResult {
+        val issues = mutableListOf<EpubNavigationIssue>()
+        val entries = map.childElements().filter { localName(it) == "navpoint" }.map { point ->
             val label = point.childElements().firstOrNull { localName(it) == "navlabel" }
             val content = point.childElements().firstOrNull { localName(it) == "content" }
-            val nested = point.childElements().firstOrNull { localName(it) == "navpoint" }
+            val target = content?.getAttribute("src")?.let { resolveTarget(navigationPath, it) }
+            if (content == null || target == null) {
+                issues += navigationIssue(navigationPath, "A navigation point has no valid content target")
+            }
+            val children = parseNcxPoints(point, navigationPath)
+            issues += children.issues
             EpubTocEntry(
                 title = label?.let(::textOf).orEmpty(),
-                target = content?.getAttribute("src")?.let { resolveTarget(navigationPath, it) },
+                target = target,
                 sourceLocator = sourceLocator(navigationPath, point),
-                children = nested?.let { parseNcxPoints(point, navigationPath) }.orEmpty(),
+                children = children.entries,
             )
         }
+        return NavigationResult(entries, issues)
+    }
+
+    private fun navigationIssue(path: String, message: String): EpubNavigationIssue =
+        EpubNavigationIssue(message, "$path#/navigation")
 
     private fun parseChapter(
         zip: ZipFile,
@@ -658,6 +707,11 @@ public class EpubDocumentParser(
         throw ParseFailure(code, entryPath)
 
     private class ParseFailure(val code: EpubParseFailureCode, val entryPath: String?) : Exception(null, null, false, false)
+
+    private data class NavigationResult(
+        val entries: List<EpubTocEntry>,
+        val issues: List<EpubNavigationIssue>,
+    )
 
     private companion object {
         const val EPUB_NS = "http://www.idpf.org/2007/ops"

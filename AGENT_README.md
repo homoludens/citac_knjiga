@@ -235,6 +235,14 @@ target.
   and explicit `SKIPPED` blocks for unavailable or unsupported content. It can
   project chapters and blocks into the existing Room entities; Markdown,
   diagnostics, preview, and generation remain later tasks.
+- Task 7.7 adds `EpubMarkdownRenderer` and `EpubCanonicalTextService`. Each
+  chapter is rendered as deterministic UTF-8 Markdown with source-locator
+  comments, typed block formatting, and retained recovered text for skipped
+  content. The service atomically publishes chapter files below
+  `canonical-text/<projectId>/` and an actionable warning report below
+  `diagnostics/<projectId>/import-warnings.json`; publication rollback prevents
+  partial Markdown. Metadata and navigation parser diagnostics are surfaced
+  without changing the Room schema; preview UI remains task 7.8.
 
 ## Repository layout
 

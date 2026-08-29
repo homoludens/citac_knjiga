@@ -48,6 +48,9 @@ public class AppPrivateStorage(filesDir: File) {
     public fun coverImage(projectId: String): File =
         child(coversDirectory, projectId, "cover")
 
+    public fun importWarnings(projectId: String): File =
+        child(diagnosticsDirectory, projectId, "import-warnings.json")
+
     public fun modelPackageFile(name: String): File = child(modelPackagesDirectory, name)
 
     public fun temporaryFile(ownerId: String, name: String): File =
