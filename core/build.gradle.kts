@@ -34,6 +34,7 @@ kotlin {
 
 dependencies {
     implementation(libs.androidx.room.runtime)
+    implementation(libs.kotlinx.coroutines.core)
     kapt(libs.androidx.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.room.testing)

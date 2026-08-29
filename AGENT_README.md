@@ -121,6 +121,13 @@ target.
   methods. Run/segment attempts increment when work starts, actionable failures
   remain in the existing `last_error` fields through retry, and parent ownership
   plus completion prerequisites are checked without changing schema version 1.
+- Task 8.3 adds `BoundedGenerationRunner` in `core`. It starts a queued run,
+  claims one pending segment at a time in a Room transaction, delegates bounded
+  inference/output validation through an injected suspend function, publishes
+  through `AtomicArtifactStore`, records provenance only after publication, and
+  checks persisted pause/cancel state between segments. Coroutine cancellation
+  releases an incomplete claim to `PENDING`; schedulers, notifications, playback,
+  export, and recovery hosts remain outside this task.
 - Task 4.8 adds the single-route typed Serbian proof screen. It accepts Latin and
   Cyrillic input, exposes preprocessing/model diagnostics and explicit generation
   states, writes validated app-private 24 kHz mono PCM16 WAV, and plays it with

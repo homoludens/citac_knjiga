@@ -704,3 +704,24 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
 ./gradlew :core:testDebugUnitTest :core:connectedDebugAndroidTest \
   :core:lintDebug :core:assembleDebug
 ```
+
+## Bounded generation runner (task 8.3)
+
+`core/generation/BoundedGenerationRunner` executes a queued Room run one segment
+at a time. `GenerationStateService` conditionally claims the lowest sequence
+pending segment in a transaction; the injected suspend generator supplies the
+bounded TTS output and validator. `AtomicArtifactStore` validates and publishes
+the artifact before the state service records ready status and full provenance.
+Pause/cancel state is checked before each claim, so the current segment may
+finish but no next segment starts. Coroutine cancellation releases a generating
+segment back to `PENDING`; ordinary failures record an actionable error and keep
+the segment retryable. Scheduling, notifications, recovery hosts, playback, and
+export remain outside this task.
+
+Focused verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :core:testDebugUnitTest --tests '*BoundedGenerationRunnerTest'
+```

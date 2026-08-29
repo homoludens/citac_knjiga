@@ -16,6 +16,8 @@ import com.homoludens.citacknjiga.core.database.ModelPackageStatus
 import java.util.UUID
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
@@ -52,6 +54,36 @@ public class GenerationStateRoomIntegrationTest {
     public fun tearDown() {
         if (::database.isInitialized) database.close()
         context.deleteDatabase(databaseName)
+    }
+
+    @Test
+    public fun queuedRunClaimsOnlyTheNextPendingSegmentInOrder() {
+        val dao = database.audiobookDao()
+        dao.insertNarrationBlock(
+            com.homoludens.citacknjiga.core.database.NarrationBlockEntity(
+                id = "block-2",
+                chapterId = "chapter",
+                ordinal = 1,
+                blockType = com.homoludens.citacknjiga.core.database.NarrationBlockType.PARAGRAPH,
+                sourceText = "Други текст.",
+                createdAt = 1,
+                updatedAt = 1,
+            ),
+        )
+        dao.insertAudioSegment(segment().copy(id = "segment-2", narrationBlockId = "block-2", sequence = 1))
+        val service = GenerationStateService(database) { 10L }
+
+        service.startGenerationRun("run")
+        val first = service.claimNextSegment("run")
+        assertNotNull(first)
+        assertEquals("segment", first!!.segment.id)
+        assertEquals(AudioSegmentStatus.GENERATING, dao.findAudioSegmentById("segment")!!.status)
+        service.transitionAudioSegment("segment", AudioSegmentStatus.READY)
+
+        val second = service.claimNextSegment("run")
+        assertNotNull(second)
+        assertEquals("segment-2", second!!.segment.id)
+        assertNull(service.claimNextSegment("run"))
     }
 
     @Test

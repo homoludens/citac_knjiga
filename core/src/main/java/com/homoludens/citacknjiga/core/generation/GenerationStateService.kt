@@ -9,13 +9,192 @@ import com.homoludens.citacknjiga.core.database.ChapterEntity
 import com.homoludens.citacknjiga.core.database.ChapterStatus
 import com.homoludens.citacknjiga.core.database.GenerationRunEntity
 import com.homoludens.citacknjiga.core.database.GenerationRunStatus
+import com.homoludens.citacknjiga.core.storage.PublishedArtifact
 
 /** Persists validated state changes as one transaction with their related checks. */
 public class GenerationStateService(
     private val database: AudiobookDatabase,
     private val clock: () -> Long = System::currentTimeMillis,
-) {
+) : GenerationStateGateway {
     private val dao = database.audiobookDao()
+
+    override fun findGenerationRun(runId: String): GenerationRunEntity? = dao.findGenerationRunById(runId)
+
+    override fun startGenerationRun(runId: String): GenerationRunEntity = inTransaction {
+        val run = dao.findGenerationRunById(runId) ?: missing("generation run", runId)
+        if (run.status != GenerationRunStatus.QUEUED) return@inTransaction run
+        val project = dao.findProjectById(run.bookProjectId)
+            ?: throw StateConsistencyException("Generation run $runId references missing project ${run.bookProjectId}")
+        if (project.status != BookProjectStatus.GENERATING) {
+            GenerationStateValidator.validateProject(project.status, BookProjectStatus.GENERATING)
+            checkUpdated(
+                dao.transitionProject(
+                    project.id,
+                    project.status,
+                    BookProjectStatus.GENERATING,
+                    project.lastError,
+                    clock(),
+                ),
+                "project",
+                project.id,
+            )
+        }
+        dao.findAllAudioSegments()
+            .filter { it.generationRunId == runId }
+            .map { it.chapterId }
+            .toSet()
+            .forEach { chapterId ->
+                val chapter = dao.findChapterById(chapterId)
+                    ?: throw StateConsistencyException("Audio segment references missing chapter $chapterId")
+                if (chapter.status != ChapterStatus.GENERATING) {
+                    GenerationStateValidator.validateChapter(chapter.status, ChapterStatus.GENERATING)
+                    checkUpdated(
+                        dao.transitionChapter(
+                            chapter.id,
+                            chapter.status,
+                            ChapterStatus.GENERATING,
+                            chapter.lastError,
+                            clock(),
+                        ),
+                        "chapter",
+                        chapter.id,
+                    )
+                }
+            }
+        checkUpdated(
+            dao.transitionGenerationRun(
+                runId,
+                GenerationRunStatus.QUEUED,
+                GenerationRunStatus.RUNNING,
+                attemptIncrement = 1,
+                lastError = run.lastError,
+                startedAt = clock(),
+                finishedAt = null,
+            ),
+            "generation run",
+            runId,
+        )
+        dao.findGenerationRunById(runId)!!
+    }
+
+    override fun claimNextSegment(runId: String): ClaimedGenerationSegment? = inTransaction {
+        val run = dao.findGenerationRunById(runId) ?: missing("generation run", runId)
+        if (run.status != GenerationRunStatus.RUNNING) return@inTransaction null
+        val pending = dao.findAllAudioSegments()
+            .asSequence()
+            .filter { it.generationRunId == runId && it.status == AudioSegmentStatus.PENDING }
+            .sortedWith(compareBy<AudioSegmentEntity> { it.sequence }.thenBy { it.id })
+        for (candidate in pending) {
+            val chapter = dao.findChapterById(candidate.chapterId)
+                ?: throw StateConsistencyException("Audio segment ${candidate.id} references missing chapter ${candidate.chapterId}")
+            val block = dao.findNarrationBlockById(candidate.narrationBlockId)
+                ?: throw StateConsistencyException("Audio segment ${candidate.id} references missing block ${candidate.narrationBlockId}")
+            require(chapter.status == ChapterStatus.GENERATING || chapter.status == ChapterStatus.PARTIAL) {
+                "Audio segment ${candidate.id} can generate only in a generating chapter"
+            }
+            require(block.chapterId == chapter.id) {
+                "Audio segment ${candidate.id} references a block from another chapter"
+            }
+            val claimed = dao.transitionAudioSegment(
+                candidate.id,
+                AudioSegmentStatus.PENDING,
+                AudioSegmentStatus.GENERATING,
+                attemptIncrement = 1,
+                lastError = candidate.lastError,
+                updatedAt = clock(),
+            )
+            if (claimed == 1) {
+                return@inTransaction ClaimedGenerationSegment(dao.findAudioSegmentById(candidate.id)!!, block)
+            }
+        }
+        null
+    }
+
+    override fun completeAudioSegment(
+        segmentId: String,
+        published: PublishedArtifact,
+        audio: GeneratedSegmentAudio,
+    ): AudioSegmentEntity = inTransaction {
+        val current = dao.findAudioSegmentById(segmentId) ?: missing("audio segment", segmentId)
+        GenerationStateValidator.validateSegment(current.status, AudioSegmentStatus.READY)
+        checkUpdated(
+            dao.transitionAudioSegment(
+                segmentId,
+                AudioSegmentStatus.GENERATING,
+                AudioSegmentStatus.READY,
+                attemptIncrement = 0,
+                lastError = null,
+                updatedAt = clock(),
+            ),
+            "audio segment",
+            segmentId,
+        )
+        val updated = dao.findAudioSegmentById(segmentId)!!.copy(
+            generationKey = audio.provenance.generationKey,
+            modelPackageId = audio.provenance.modelPackageId,
+            modelPackageSha256 = audio.provenance.modelPackageSha256,
+            voiceSha256 = audio.provenance.voiceSha256,
+            preprocessingVersion = audio.provenance.preprocessingVersion,
+            pronunciationVersion = audio.provenance.pronunciationVersion,
+            inferenceSettingsHash = audio.provenance.inferenceSettingsHash,
+            audioProcessingVersion = audio.provenance.audioProcessingVersion,
+            audioPath = published.file.path,
+            audioSha256 = published.sha256,
+            sizeBytes = published.sizeBytes,
+            durationMs = audio.durationMs,
+            sampleRate = audio.sampleRateHz,
+            channels = audio.channels,
+            updatedAt = clock(),
+        )
+        dao.updateAudioSegment(updated)
+        updated
+    }
+
+    override fun failAudioSegment(segmentId: String, error: GenerationError): AudioSegmentEntity = inTransaction {
+        transitionAudioSegmentInTransaction(segmentId, AudioSegmentStatus.FAILED, error)
+    }
+
+    override fun releaseAudioSegment(segmentId: String): AudioSegmentEntity = inTransaction {
+        transitionAudioSegmentInTransaction(segmentId, AudioSegmentStatus.PENDING)
+    }
+
+    override fun finishGenerationRun(runId: String): GenerationRunEntity = inTransaction {
+        val run = dao.findGenerationRunById(runId) ?: missing("generation run", runId)
+        if (run.status != GenerationRunStatus.RUNNING) return@inTransaction run
+        val assigned = dao.findAllAudioSegments().filter { it.generationRunId == runId }
+        if (assigned.any { it.status == AudioSegmentStatus.FAILED }) {
+            return@inTransaction transitionGenerationRunInTransaction(
+                run.id,
+                GenerationRunStatus.FAILED,
+                GenerationError("SEGMENTS_FAILED", "One or more audio segments failed and can be retried"),
+            )
+        }
+        if (assigned.any { it.status != AudioSegmentStatus.READY }) return@inTransaction run
+        assigned.map { it.chapterId }.toSet().forEach { chapterId ->
+            val chapter = dao.findChapterById(chapterId) ?: missing("chapter", chapterId)
+            val chapterSegments = assigned + dao.findAllAudioSegments().filter { it.chapterId == chapterId }
+            if (chapterSegments.all { it.status == AudioSegmentStatus.READY } && chapter.status != ChapterStatus.READY) {
+                GenerationStateValidator.validateChapter(chapter.status, ChapterStatus.READY)
+                checkUpdated(
+                    dao.transitionChapter(chapter.id, chapter.status, ChapterStatus.READY, null, clock()),
+                    "chapter",
+                    chapter.id,
+                )
+            }
+        }
+        val completed = transitionGenerationRunInTransaction(run.id, GenerationRunStatus.COMPLETED)
+        val chapters = dao.findAllChapters().filter { it.bookProjectId == run.bookProjectId }
+        val project = dao.findProjectById(run.bookProjectId)
+        if (project != null && project.status == BookProjectStatus.GENERATING && chapters.all { it.status == ChapterStatus.READY }) {
+            GenerationStateValidator.validateProject(project.status, BookProjectStatus.COMPLETED)
+            checkUpdated(
+                dao.transitionProject(project.id, project.status, BookProjectStatus.COMPLETED, null, clock()),
+                "project",
+                project.id,
+            )
+        }
+        completed
+    }
 
     public fun transitionProject(
         projectId: String,
@@ -81,6 +260,14 @@ public class GenerationStateService(
         to: GenerationRunStatus,
         error: GenerationError? = null,
     ): GenerationRunEntity = inTransaction {
+        transitionGenerationRunInTransaction(runId, to, error)
+    }
+
+    private fun transitionGenerationRunInTransaction(
+        runId: String,
+        to: GenerationRunStatus,
+        error: GenerationError? = null,
+    ): GenerationRunEntity {
         val current = dao.findGenerationRunById(runId) ?: missing("generation run", runId)
         val project = dao.findProjectById(current.bookProjectId)
             ?: throw StateConsistencyException("Generation run $runId references missing project ${current.bookProjectId}")
@@ -116,7 +303,7 @@ public class GenerationStateService(
             "generation run",
             runId,
         )
-        dao.findGenerationRunById(runId)!!
+        return dao.findGenerationRunById(runId)!!
     }
 
     public fun transitionAudioSegment(
@@ -124,6 +311,14 @@ public class GenerationStateService(
         to: AudioSegmentStatus,
         error: GenerationError? = null,
     ): AudioSegmentEntity = inTransaction {
+        transitionAudioSegmentInTransaction(segmentId, to, error)
+    }
+
+    private fun transitionAudioSegmentInTransaction(
+        segmentId: String,
+        to: AudioSegmentStatus,
+        error: GenerationError? = null,
+    ): AudioSegmentEntity {
         val current = dao.findAudioSegmentById(segmentId) ?: missing("audio segment", segmentId)
         val chapter = dao.findChapterById(current.chapterId)
             ?: throw StateConsistencyException("Audio segment $segmentId references missing chapter ${current.chapterId}")
@@ -163,7 +358,7 @@ public class GenerationStateService(
             "audio segment",
             segmentId,
         )
-        dao.findAudioSegmentById(segmentId)!!
+        return dao.findAudioSegmentById(segmentId)!!
     }
 
     public fun retryGenerationRun(runId: String): GenerationRunEntity =
