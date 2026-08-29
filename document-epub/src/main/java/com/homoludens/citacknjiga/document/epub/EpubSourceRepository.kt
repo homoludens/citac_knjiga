@@ -44,7 +44,10 @@ public sealed interface EpubImportResult {
 
     public data class Duplicate(public val existingProject: ExistingEpubProject) : EpubImportResult
 
-    public data class Failed(public val error: EpubImportError) : EpubImportResult
+    public data class Failed(
+        public val error: EpubImportError,
+        public val securityDiagnostic: EpubSecurityDiagnostic? = null,
+    ) : EpubImportResult
 }
 
 public enum class EpubImportError {
@@ -53,6 +56,7 @@ public enum class EpubImportError {
     PUBLICATION_FAILED,
     INDEX_LOOKUP_FAILED,
     INDEX_WRITE_FAILED,
+    SECURITY_VALIDATION_FAILED,
 }
 
 /** Durable lookup and record boundary used before a future EPUB parser owns the project. */
@@ -77,6 +81,7 @@ public class SafEpubSourceRepository(
     private val artifactStore: AtomicArtifactStore,
     private val projectIndex: EpubProjectIndex,
     private val projectIdFactory: () -> String = { UUID.randomUUID().toString() },
+    private val securityValidator: EpubSecurityValidator = EpubSecurityValidator(),
 ) : EpubSourceRepository {
     override fun importSelected(uri: Uri): EpubImportResult = importSource(uri.toString())
 
@@ -108,6 +113,13 @@ public class SafEpubSourceRepository(
         }
 
         try {
+            val security = securityValidator.validate(staging.file)
+            if (security is EpubSecurityValidation.Rejected) {
+                return EpubImportResult.Failed(
+                    error = EpubImportError.SECURITY_VALIDATION_FAILED,
+                    securityDiagnostic = security.diagnostic,
+                )
+            }
             val existing = try {
                 projectIndex.findByFingerprint(staging.sha256)
             } catch (_: Exception) {

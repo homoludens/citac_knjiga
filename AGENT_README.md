@@ -218,7 +218,16 @@ target.
   The persisted URI is provenance only; later document work uses the private
   `sourcePath`. Duplicate, copy, publication, and index failures leave existing
   projects untouched and clean temporary output. Archive/XML security and EPUB
-  parsing remain tasks 7.5-7.7.
+  parsing remain tasks 7.6-7.7.
+- Task 7.5 adds a read-only `EpubSecurityValidator` before source fingerprinting
+  and publication. Strict defaults reject 40 or more entries, 128 KiB or more
+  total expansion, 8 KiB or more per entry, 100:1 or more compression ratio,
+  XML payloads at 64 KiB, and nesting deeper than 64 elements. It rejects
+  traversal, encrypted/DRM-marked ZIPs, duplicate/malformed archives, DTD/entities,
+  external resource references, malformed XML, and unavailable XML hardening.
+  Validation never extracts entries; failures expose typed codes and clean the
+  private temporary source. These are inspection limits, not EPUB metadata or
+  content mapping, which remains task 7.6+.
 
 ## Repository layout
 

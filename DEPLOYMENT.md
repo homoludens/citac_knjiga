@@ -547,3 +547,28 @@ ANDROID_HOME=/home/homoludens/Android/Sdk \
 ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
   ./gradlew :document-epub:testDebugUnitTest --tests '*EpubSourceRepositoryTest'
 ```
+
+## EPUB archive/XML security (task 7.5)
+
+`EpubSecurityValidator` runs on the private temporary source before
+fingerprinting, index lookup, or publication. It does not extract ZIP entries
+or follow resource references. Strict default thresholds reject 40 or more
+entries, 128 KiB or more total uncompressed expansion, 8 KiB or more for one
+entry, a 100:1 or greater compression ratio, XML payloads at 64 KiB, and XML
+nesting deeper than 64 elements. It also rejects traversal/absolute entry paths,
+duplicates, encrypted entries and EPUB DRM marker files, malformed ZIP/XML data, DTD/entity declarations,
+external URI attributes, and XML parser configurations that cannot be hardened.
+
+Rejections return a typed `EpubSecurityDiagnostic` without source text or URI;
+the temporary source is deleted and no project source/index row is published.
+These limits provide bounded inspection only. EPUB structure mapping, malformed
+content recovery, and user-facing import warnings remain later tasks.
+
+Focused verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :document-epub:testDebugUnitTest --tests '*EpubSecurityValidatorTest' \
+  --tests '*EpubSourceRepositoryTest'
+```

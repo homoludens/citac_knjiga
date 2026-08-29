@@ -2,6 +2,7 @@ package com.homoludens.citacknjiga.document.epub
 
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.core.storage.AtomicArtifactStore
+import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import kotlin.io.path.createTempDirectory
@@ -13,21 +14,21 @@ import org.junit.Test
 public class EpubSourceRepositoryTest {
     @Test
     public fun importedSourceContainsContentFingerprint() {
-        val bytes = "epub bytes".toByteArray()
+        val bytes = fixtureBytes("serbian-epub3.epub")
         val index = FakeProjectIndex()
         val repository = repository(bytes, index)
 
         val result = repository.importSource("content://books/one")
 
         val imported = (result as EpubImportResult.Imported).source
-        assertEquals("227dae38658f29c3a8494e65302e70b406162c2f581845339dfa19cbfad839d4", imported.fingerprint)
+        assertEquals("e087d2f90a707bbe50693a422b2b61c0bb41e7110f5e51f65bbdffac8947cd12", imported.fingerprint)
         assertEquals(bytes.toList(), imported.sourceFile.readBytes().toList())
         assertEquals(imported, index.sources.single())
     }
 
     @Test
     public fun duplicateFingerprintDoesNotReplaceExistingSource() {
-        val bytes = "same epub".toByteArray()
+        val bytes = fixtureBytes("serbian-epub3.epub")
         val index = FakeProjectIndex()
         var id = 0
         val repository = repository(bytes, index, projectIdFactory = { "project-${++id}" })
@@ -72,7 +73,7 @@ public class EpubSourceRepositoryTest {
         storage.sourceDocumentsDirectory.writeText("not a directory")
         val index = FakeProjectIndex()
         val repository = repository(
-            bytes = "epub bytes".toByteArray(),
+            bytes = fixtureBytes("serbian-epub3.epub"),
             index = index,
             projectIdFactory = { "publication-failure" },
             storage = storage,
@@ -87,10 +88,43 @@ public class EpubSourceRepositoryTest {
     }
 
     @Test
+    public fun securityRejectionCleansStagingAndPreservesOutsideMarker() {
+        val root = createTempDirectory().toFile()
+        val outside = File(root.parentFile, "${root.name}-outside.txt").apply { writeText("unchanged") }
+        val index = FakeProjectIndex()
+        val attacks = listOf(
+            "attack-zip-slip.epub",
+            "attack-decompression-bomb.epub",
+            "attack-oversized-entry.epub",
+            "attack-entry-count.epub",
+            "attack-entity-expansion.epub",
+            "attack-external-resource.epub",
+            "attack-encrypted-entry.epub",
+        )
+        var projectNumber = 0
+        attacks.forEach { fixture ->
+            val repository = repository(
+                bytes = fixtureBytes(fixture),
+                index = index,
+                storage = AppPrivateStorage(root),
+                projectIdFactory = { "attack-${++projectNumber}" },
+            )
+
+            val failure = repository.importSource("content://books/$fixture") as EpubImportResult.Failed
+
+            assertEquals(EpubImportError.SECURITY_VALIDATION_FAILED, failure.error)
+        }
+        assertEquals("unchanged", outside.readText())
+        assertTrue(index.sources.isEmpty())
+        assertFalse(root.walkTopDown().any { it.isFile })
+        assertTrue(outside.delete())
+    }
+
+    @Test
     public fun publishedSourceAndTemporaryCopyStayWithinPrivateRoot() {
         val root = createTempDirectory().toFile()
         val storage = AppPrivateStorage(root)
-        val repository = repository("epub bytes".toByteArray(), FakeProjectIndex(), storage = storage)
+        val repository = repository(fixtureBytes("serbian-epub3.epub"), FakeProjectIndex(), storage = storage)
 
         val source = (repository.importSource("content://books/one") as EpubImportResult.Imported).source
 
@@ -111,6 +145,9 @@ public class EpubSourceRepositoryTest {
         projectIndex = index,
         projectIdFactory = projectIdFactory,
     )
+
+    private fun fixtureBytes(name: String): ByteArray =
+        checkNotNull(javaClass.getResourceAsStream("/fixtures/$name")).use { it.readBytes() }
 
     private class FakeProjectIndex : EpubProjectIndex {
         val sources = mutableListOf<ImportedEpubSource>()
