@@ -438,3 +438,20 @@ ANDROID_HOME=/home/homoludens/Android/Sdk \
   ./gradlew :core:testDebugUnitTest :core:lintDebug \
   :core:assembleDebug
 ```
+
+## Atomic private artifacts (task 6.4)
+
+`core/storage/AtomicArtifactStore` writes through a buffered private temporary
+file, flushes and calls `FileDescriptor.sync()` before close, runs the caller's
+validator, computes SHA-256, and publishes with `ATOMIC_MOVE`. If the file
+system does not support atomic moves, it falls back to a replacing regular
+move; callers must use temporary/orphan cleanup during later reconciliation
+because that fallback is not power-loss atomic. Cleanup accepts referenced
+files from the durable owner and does not access Room itself.
+
+Focused verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+  ./gradlew :core:testDebugUnitTest :core:lintDebug :core:assembleDebug
+```

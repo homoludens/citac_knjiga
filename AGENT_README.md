@@ -176,6 +176,10 @@ target.
   validate components and canonical containment without creating or publishing
   files; `filesDir/model-packages/active.zip` and `last-valid.zip` remain
   compatible with the model store.
+- Task 6.4 adds `core/storage/AtomicArtifactStore`. It buffers and syncs private
+  temporary writes, validates and hashes them before publication, requests an
+  atomic move with a documented regular-move fallback, and provides stale
+  temporary/orphan cleanup without inspecting Room state.
 
 ## Repository layout
 
