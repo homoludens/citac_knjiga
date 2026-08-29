@@ -149,15 +149,51 @@ public class EpubChapterProofServiceTest {
         override fun insertAudioSegment(segment: AudioSegmentEntity) { this.segment = segment }
         override fun findAllProjects(): List<BookProjectEntity> = listOf(project)
         override fun findProjectBySourceFingerprint(fingerprint: String): BookProjectEntity? = null
+        override fun findProjectById(projectId: String): BookProjectEntity? = project.takeIf { it.id == projectId }
         override fun findAllChapters(): List<ChapterEntity> = listOf(chapter)
+        override fun findChapterById(chapterId: String): ChapterEntity? = chapter.takeIf { it.id == chapterId }
+        override fun findNarrationBlockById(blockId: String): NarrationBlockEntity? = null
         override fun findAllGenerationRuns(): List<GenerationRunEntity> = listOf(run)
+        override fun findGenerationRunById(runId: String): GenerationRunEntity? = run.takeIf { it.id == runId }
         override fun findAllAudioSegments(): List<AudioSegmentEntity> = listOf(segment)
+        override fun findAudioSegmentById(segmentId: String): AudioSegmentEntity? = segment.takeIf { it.id == segmentId }
         override fun findActiveModelPackage(): ModelPackageEntity? = null
         override fun updateProject(project: BookProjectEntity) { this.project = project }
         override fun updateChapter(chapter: ChapterEntity) { this.chapter = chapter }
         override fun updateNarrationBlock(block: NarrationBlockEntity) { }
         override fun updateGenerationRun(run: GenerationRunEntity) { this.run = run }
         override fun updateAudioSegment(segment: AudioSegmentEntity) { this.segment = segment }
+        override fun transitionProject(
+            projectId: String,
+            fromStatus: BookProjectStatus,
+            toStatus: BookProjectStatus,
+            lastError: String?,
+            updatedAt: Long,
+        ): Int = 0
+        override fun transitionChapter(
+            chapterId: String,
+            fromStatus: ChapterStatus,
+            toStatus: ChapterStatus,
+            lastError: String?,
+            updatedAt: Long,
+        ): Int = 0
+        override fun transitionGenerationRun(
+            runId: String,
+            fromStatus: GenerationRunStatus,
+            toStatus: GenerationRunStatus,
+            attemptIncrement: Int,
+            lastError: String?,
+            startedAt: Long?,
+            finishedAt: Long?,
+        ): Int = 0
+        override fun transitionAudioSegment(
+            segmentId: String,
+            fromStatus: AudioSegmentStatus,
+            toStatus: AudioSegmentStatus,
+            attemptIncrement: Int,
+            lastError: String?,
+            updatedAt: Long,
+        ): Int = 0
         override fun findProjectWithRelations(projectId: String): BookProjectWithRelations? = null
         override fun findChapterWithRelations(chapterId: String): ChapterWithRelations? = null
         override fun findGenerationRunWithSegments(runId: String): GenerationRunWithSegments? = null

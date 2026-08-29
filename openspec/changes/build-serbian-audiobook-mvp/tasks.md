@@ -78,7 +78,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 ## 8. Durable Whole-Book Generation (rough phase effort: 3–6 weeks)
 
 - [x] 8.1 Implement sentence/clause chunking over structured blocks with protected spans, punctuation retention, configurable pauses, and verified model limits.
-- [ ] 8.2 Implement persistent project, chapter, segment, and generation-run state machines with valid transition checks and retry/error records.
+- [x] 8.2 Implement persistent project, chapter, segment, and generation-run state machines with valid transition checks and retry/error records.
 - [ ] 8.3 Implement a bounded coroutine generation runner that claims work transactionally and checks pause/cancel between atomic segments.
 - [ ] 8.4 Implement WorkManager scheduling, constraints, reboot/update reconciliation, and unique-work coordination over the Room queue.
 - [ ] 8.5 Implement foreground generation notification with book title, segment-based progress, pause, resume, cancel, and failed-item visibility.

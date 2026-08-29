@@ -684,3 +684,23 @@ The 2026-08-30 run completed with `OK (1 test)`. It validated EPUB import,
 accepted publication, one extracted chapter generation, Room `READY` segment
 state, 24 kHz mono PCM16 WAV publication, and local playback while networking
 was disabled.
+
+## Durable generation state (task 8.2)
+
+`core/generation/GenerationStateValidator` declares the allowed project,
+chapter, audio-segment, and generation-run transitions. `GenerationStateService`
+validates ownership and parent prerequisites, then persists each change in a
+Room transaction using conditional DAO updates. Starting a run or segment
+increments its attempt count; failures require a non-blank `GenerationError`
+and are stored in the existing `last_error` columns. Retry keeps the last
+actionable error until successful completion. This task does not add a schema
+migration, coroutine runner, WorkManager scheduling, or audio validation.
+
+Focused verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew :core:testDebugUnitTest :core:connectedDebugAndroidTest \
+  :core:lintDebug :core:assembleDebug
+```

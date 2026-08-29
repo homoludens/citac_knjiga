@@ -115,6 +115,12 @@ target.
   pause metadata. It measures candidates through the existing Serbian
   preprocessor and defaults to the verified 507-symbol operational cap (510
   hard limit, 512 sequence length).
+- Task 8.2 adds `GenerationStateValidator` and the transactional
+  `GenerationStateService` in `core`. Project, chapter, segment, and generation
+  run transitions are explicit and compare-and-set persisted through Room DAO
+  methods. Run/segment attempts increment when work starts, actionable failures
+  remain in the existing `last_error` fields through retry, and parent ownership
+  plus completion prerequisites are checked without changing schema version 1.
 - Task 4.8 adds the single-route typed Serbian proof screen. It accepts Latin and
   Cyrillic input, exposes preprocessing/model diagnostics and explicit generation
   states, writes validated app-private 24 kHz mono PCM16 WAV, and plays it with

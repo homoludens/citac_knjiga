@@ -32,14 +32,29 @@ public interface AudiobookDao {
     @Query("SELECT * FROM book_project WHERE source_fingerprint = :fingerprint LIMIT 1")
     public fun findProjectBySourceFingerprint(fingerprint: String): BookProjectEntity?
 
+    @Query("SELECT * FROM book_project WHERE id = :projectId LIMIT 1")
+    public fun findProjectById(projectId: String): BookProjectEntity?
+
     @Query("SELECT * FROM chapter")
     public fun findAllChapters(): List<ChapterEntity>
+
+    @Query("SELECT * FROM chapter WHERE id = :chapterId LIMIT 1")
+    public fun findChapterById(chapterId: String): ChapterEntity?
+
+    @Query("SELECT * FROM narration_block WHERE id = :blockId LIMIT 1")
+    public fun findNarrationBlockById(blockId: String): NarrationBlockEntity?
 
     @Query("SELECT * FROM generation_run")
     public fun findAllGenerationRuns(): List<GenerationRunEntity>
 
+    @Query("SELECT * FROM generation_run WHERE id = :runId LIMIT 1")
+    public fun findGenerationRunById(runId: String): GenerationRunEntity?
+
     @Query("SELECT * FROM audio_segment")
     public fun findAllAudioSegments(): List<AudioSegmentEntity>
+
+    @Query("SELECT * FROM audio_segment WHERE id = :segmentId LIMIT 1")
+    public fun findAudioSegmentById(segmentId: String): AudioSegmentEntity?
 
     @Query("SELECT * FROM model_package WHERE status = 'ACTIVE' ORDER BY imported_at DESC, id DESC LIMIT 1")
     public fun findActiveModelPackage(): ModelPackageEntity?
@@ -58,6 +73,77 @@ public interface AudiobookDao {
 
     @Update
     public fun updateAudioSegment(segment: AudioSegmentEntity)
+
+    /** Conditional updates keep a validated transition from overwriting a concurrent state change. */
+    @Query(
+        """
+        UPDATE book_project
+        SET status = :toStatus, last_error = :lastError, updated_at = :updatedAt
+        WHERE id = :projectId AND status = :fromStatus
+        """,
+    )
+    public fun transitionProject(
+        projectId: String,
+        fromStatus: BookProjectStatus,
+        toStatus: BookProjectStatus,
+        lastError: String?,
+        updatedAt: Long,
+    ): Int
+
+    @Query(
+        """
+        UPDATE chapter
+        SET status = :toStatus, last_error = :lastError, updated_at = :updatedAt
+        WHERE id = :chapterId AND status = :fromStatus
+        """,
+    )
+    public fun transitionChapter(
+        chapterId: String,
+        fromStatus: ChapterStatus,
+        toStatus: ChapterStatus,
+        lastError: String?,
+        updatedAt: Long,
+    ): Int
+
+    @Query(
+        """
+        UPDATE generation_run
+        SET status = :toStatus,
+            attempt_count = attempt_count + :attemptIncrement,
+            last_error = :lastError,
+            started_at = :startedAt,
+            finished_at = :finishedAt
+        WHERE id = :runId AND status = :fromStatus
+        """,
+    )
+    public fun transitionGenerationRun(
+        runId: String,
+        fromStatus: GenerationRunStatus,
+        toStatus: GenerationRunStatus,
+        attemptIncrement: Int,
+        lastError: String?,
+        startedAt: Long?,
+        finishedAt: Long?,
+    ): Int
+
+    @Query(
+        """
+        UPDATE audio_segment
+        SET status = :toStatus,
+            attempt_count = attempt_count + :attemptIncrement,
+            last_error = :lastError,
+            updated_at = :updatedAt
+        WHERE id = :segmentId AND status = :fromStatus
+        """,
+    )
+    public fun transitionAudioSegment(
+        segmentId: String,
+        fromStatus: AudioSegmentStatus,
+        toStatus: AudioSegmentStatus,
+        attemptIncrement: Int,
+        lastError: String?,
+        updatedAt: Long,
+    ): Int
 
     @Transaction
     @Query("SELECT * FROM book_project WHERE id = :projectId")
