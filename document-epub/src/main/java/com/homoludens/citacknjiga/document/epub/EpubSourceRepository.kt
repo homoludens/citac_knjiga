@@ -32,6 +32,15 @@ public data class ImportedEpubSource(
     public val sizeBytes: Long,
 )
 
+/** A validated source kept private while the user reviews its import preview. */
+public data class StagedEpubSource(
+    public val projectId: String,
+    public val sourceUri: String,
+    public val fingerprint: String,
+    public val sourceFile: File,
+    public val sizeBytes: Long,
+)
+
 public data class ExistingEpubProject(
     public val projectId: String,
     public val sourceUri: String,
@@ -48,6 +57,17 @@ public sealed interface EpubImportResult {
         public val error: EpubImportError,
         public val securityDiagnostic: EpubSecurityDiagnostic? = null,
     ) : EpubImportResult
+}
+
+public sealed interface EpubStageResult {
+    public data class Staged(public val source: StagedEpubSource) : EpubStageResult
+
+    public data class Duplicate(public val existingProject: ExistingEpubProject) : EpubStageResult
+
+    public data class Failed(
+        public val error: EpubImportError,
+        public val securityDiagnostic: EpubSecurityDiagnostic? = null,
+    ) : EpubStageResult
 }
 
 public enum class EpubImportError {
@@ -69,6 +89,14 @@ public interface EpubProjectIndex {
 /** Imports the validated source artifact; document parsing consumes its private copy separately. */
 public interface EpubSourceRepository {
     public fun importSelected(uri: Uri): EpubImportResult
+
+    public fun stageSelected(uri: Uri): EpubStageResult
+
+    public fun stageSource(sourceUri: String): EpubStageResult
+
+    public fun publishStaged(source: StagedEpubSource): EpubImportResult
+
+    public fun discardStaged(source: StagedEpubSource)
 }
 
 /**
@@ -87,20 +115,22 @@ public class SafEpubSourceRepository(
 
     /** String overload keeps the repository JVM-testable while production callers pass Uri. */
     public fun importSource(sourceUri: String): EpubImportResult {
-        val projectId = projectIdFactory()
-        val destination = try {
-            storage.sourceDocument(projectId)
-        } catch (_: IllegalArgumentException) {
-            return EpubImportResult.Failed(EpubImportError.PUBLICATION_FAILED)
+        return when (val staged = stageSource(sourceUri)) {
+            is EpubStageResult.Staged -> publishStaged(staged.source)
+            is EpubStageResult.Duplicate -> EpubImportResult.Duplicate(staged.existingProject)
+            is EpubStageResult.Failed -> EpubImportResult.Failed(staged.error, staged.securityDiagnostic)
         }
-        if (destination.exists()) {
-            return EpubImportResult.Failed(EpubImportError.PUBLICATION_FAILED)
-        }
+    }
 
+    override fun stageSelected(uri: Uri): EpubStageResult = stageSource(uri.toString())
+
+    /** String overload keeps the preview boundary JVM-testable while production callers pass Uri. */
+    override fun stageSource(sourceUri: String): EpubStageResult {
+        val projectId = projectIdFactory()
         val ownerId = "epub-$projectId"
         val staging = try {
             val input = sourceReader.open(sourceUri)
-                ?: return EpubImportResult.Failed(EpubImportError.SOURCE_UNAVAILABLE)
+                ?: return EpubStageResult.Failed(EpubImportError.SOURCE_UNAVAILABLE)
             input.use { stream ->
                 artifactStore.publish(
                     ownerId = ownerId,
@@ -109,13 +139,14 @@ public class SafEpubSourceRepository(
                 )
             }
         } catch (_: Exception) {
-            return EpubImportResult.Failed(EpubImportError.COPY_FAILED)
+            return EpubStageResult.Failed(EpubImportError.COPY_FAILED)
         }
 
+        var retainStaging = false
         try {
             val security = securityValidator.validate(staging.file)
             if (security is EpubSecurityValidation.Rejected) {
-                return EpubImportResult.Failed(
+                return EpubStageResult.Failed(
                     error = EpubImportError.SECURITY_VALIDATION_FAILED,
                     securityDiagnostic = security.diagnostic,
                 )
@@ -123,20 +154,60 @@ public class SafEpubSourceRepository(
             val existing = try {
                 projectIndex.findByFingerprint(staging.sha256)
             } catch (_: Exception) {
-                return EpubImportResult.Failed(EpubImportError.INDEX_LOOKUP_FAILED)
+                return EpubStageResult.Failed(EpubImportError.INDEX_LOOKUP_FAILED)
             }
             if (existing != null) {
-                return EpubImportResult.Duplicate(existing)
+                return EpubStageResult.Duplicate(existing)
             }
 
+            retainStaging = true
+            return EpubStageResult.Staged(
+                StagedEpubSource(
+                    projectId = projectId,
+                    sourceUri = sourceUri,
+                    fingerprint = staging.sha256,
+                    sourceFile = staging.file,
+                    sizeBytes = staging.sizeBytes,
+                ),
+            )
+        } catch (_: Exception) {
+            return EpubStageResult.Failed(EpubImportError.SECURITY_VALIDATION_FAILED)
+        } finally {
+            if (!retainStaging) staging.file.delete()
+        }
+    }
+
+    override fun publishStaged(source: StagedEpubSource): EpubImportResult {
+        val expectedStaging = try {
+            storage.temporaryFile("epub-${source.projectId}", "source.epub").canonicalFile
+        } catch (_: IllegalArgumentException) {
+            return EpubImportResult.Failed(EpubImportError.PUBLICATION_FAILED)
+        }
+        val staging = source.sourceFile.canonicalFile
+        if (staging != expectedStaging || !staging.isFile) {
+            discardStaged(source)
+            return EpubImportResult.Failed(EpubImportError.SOURCE_UNAVAILABLE)
+        }
+        val destination = try {
+            storage.sourceDocument(source.projectId)
+        } catch (_: IllegalArgumentException) {
+            discardStaged(source)
+            return EpubImportResult.Failed(EpubImportError.PUBLICATION_FAILED)
+        }
+        if (destination.exists()) {
+            discardStaged(source)
+            return EpubImportResult.Failed(EpubImportError.PUBLICATION_FAILED)
+        }
+
+        try {
             val published = try {
                 artifactStore.publish(
-                    ownerId = ownerId,
+                    ownerId = "epub-${source.projectId}",
                     destination = destination,
-                    writer = { output -> staging.file.inputStream().use { it.copyTo(output) } },
+                    writer = { output -> staging.inputStream().use { it.copyTo(output) } },
                     validator = { file ->
-                        require(file.length() == staging.sizeBytes) { "Published EPUB size changed" }
-                        require(artifactStore.sha256(file) == staging.sha256) {
+                        require(file.length() == source.sizeBytes) { "Published EPUB size changed" }
+                        require(artifactStore.sha256(file) == source.fingerprint) {
                             "Published EPUB fingerprint changed"
                         }
                     },
@@ -144,22 +215,29 @@ public class SafEpubSourceRepository(
             } catch (_: Exception) {
                 return EpubImportResult.Failed(EpubImportError.PUBLICATION_FAILED)
             }
-            val source = ImportedEpubSource(
-                projectId = projectId,
-                sourceUri = sourceUri,
-                fingerprint = staging.sha256,
+            val importedSource = ImportedEpubSource(
+                projectId = source.projectId,
+                sourceUri = source.sourceUri,
+                fingerprint = source.fingerprint,
                 sourceFile = published.file,
                 sizeBytes = published.sizeBytes,
             )
             try {
-                projectIndex.recordImportedSource(source)
+                projectIndex.recordImportedSource(importedSource)
             } catch (_: Exception) {
                 published.file.delete()
                 return EpubImportResult.Failed(EpubImportError.INDEX_WRITE_FAILED)
             }
-            return EpubImportResult.Imported(source)
+            return EpubImportResult.Imported(importedSource)
         } finally {
-            staging.file.delete()
+            discardStaged(source)
+        }
+    }
+
+    override fun discardStaged(source: StagedEpubSource) {
+        runCatching {
+            val expected = storage.temporaryFile("epub-${source.projectId}", "source.epub").canonicalFile
+            if (source.sourceFile.canonicalFile == expected) expected.delete()
         }
     }
 }

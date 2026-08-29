@@ -1,13 +1,20 @@
 package com.homoludens.citacknjiga
 
+import android.content.Context
 import com.homoludens.citacknjiga.core.diagnostics.LocalDiagnostics
+import com.homoludens.citacknjiga.core.database.createAudiobookDao
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
+import com.homoludens.citacknjiga.core.storage.AtomicArtifactStore
+import com.homoludens.citacknjiga.document.epub.ContentResolverEpubSourceReader
+import com.homoludens.citacknjiga.document.epub.EpubCanonicalTextService
+import com.homoludens.citacknjiga.document.epub.EpubDocumentParser
+import com.homoludens.citacknjiga.document.epub.EpubImportPreviewService
+import com.homoludens.citacknjiga.document.epub.RoomEpubProjectIndex
+import com.homoludens.citacknjiga.document.epub.SafEpubSourceRepository
 import com.homoludens.citacknjiga.proof.AndroidTypedTextProofEngine
 import com.homoludens.citacknjiga.proof.TypedTextProofEngine
 import com.homoludens.citacknjiga.tts.onnx.ModelPackageStore
 import com.homoludens.citacknjiga.tts.onnx.preprocessing.SerbianPreprocessor
-import android.content.res.AssetManager
-import java.io.File
 
 public enum class AppDistribution(public val id: String) {
     STANDARD("standard"),
@@ -37,11 +44,21 @@ public class AppContainer(
     public val diagnostics: LocalDiagnostics,
     public val variant: AppVariant,
     public val typedTextProofEngine: TypedTextProofEngine? = null,
+    public val epubImportPreviewService: EpubImportPreviewService? = null,
 ) {
     public companion object {
-        public fun production(filesDir: File, assets: AssetManager): AppContainer {
+        public fun production(context: Context): AppContainer {
+            val filesDir = context.filesDir
+            val assets = context.assets
+            val contentResolver = context.contentResolver
             val privateStorage = AppPrivateStorage(filesDir)
             val modelStore = ModelPackageStore(privateStorage.rootDirectory)
+            val sourceRepository = SafEpubSourceRepository(
+                sourceReader = ContentResolverEpubSourceReader(contentResolver),
+                storage = privateStorage,
+                artifactStore = AtomicArtifactStore(privateStorage),
+                projectIndex = RoomEpubProjectIndex(createAudiobookDao(context)),
+            )
             return AppContainer(
                 diagnostics = LocalDiagnostics(),
                 variant = AppVariant.fromBuildConfig(),
@@ -49,6 +66,11 @@ public class AppContainer(
                     modelStore = modelStore,
                     preprocessorFactory = { SerbianPreprocessor.fromAssets(assets, filesDir) },
                     artifactDirectory = privateStorage.typedProofDirectory,
+                ),
+                epubImportPreviewService = EpubImportPreviewService(
+                    sourceRepository = sourceRepository,
+                    parser = EpubDocumentParser(privateStorage),
+                    canonicalText = EpubCanonicalTextService(privateStorage, AtomicArtifactStore(privateStorage)),
                 ),
             )
         }

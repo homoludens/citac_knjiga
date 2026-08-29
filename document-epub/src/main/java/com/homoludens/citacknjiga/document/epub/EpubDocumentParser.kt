@@ -9,6 +9,7 @@ import com.homoludens.citacknjiga.core.database.NarrationBlockStatus
 import com.homoludens.citacknjiga.core.database.NarrationBlockType
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import java.io.ByteArrayInputStream
+import java.io.File
 import java.net.URI
 import java.util.zip.ZipFile
 import javax.xml.XMLConstants
@@ -163,6 +164,27 @@ public class EpubDocumentParser(
         } catch (_: IllegalArgumentException) {
             return EpubParseResult.Failed(EpubParseFailureCode.SOURCE_NOT_PRIVATE)
         }
+        return parseSource(source, expected)
+    }
+
+    /** Parses a validated temporary source without publishing it to the project area. */
+    public fun parse(source: StagedEpubSource): EpubParseResult {
+        val imported = ImportedEpubSource(
+            projectId = source.projectId,
+            sourceUri = source.sourceUri,
+            fingerprint = source.fingerprint,
+            sourceFile = source.sourceFile,
+            sizeBytes = source.sizeBytes,
+        )
+        val expected = try {
+            storage.temporaryFile("epub-${source.projectId}", "source.epub").canonicalFile
+        } catch (_: IllegalArgumentException) {
+            return EpubParseResult.Failed(EpubParseFailureCode.SOURCE_NOT_PRIVATE)
+        }
+        return parseSource(imported, expected)
+    }
+
+    private fun parseSource(source: ImportedEpubSource, expected: File): EpubParseResult {
         val actual = source.sourceFile.canonicalFile
         if (actual != expected) return EpubParseResult.Failed(EpubParseFailureCode.SOURCE_NOT_PRIVATE)
         if (!actual.isFile) return EpubParseResult.Failed(EpubParseFailureCode.SOURCE_MISSING)

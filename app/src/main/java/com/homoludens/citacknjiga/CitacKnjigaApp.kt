@@ -1,5 +1,7 @@
 package com.homoludens.citacknjiga
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,24 +24,35 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.homoludens.citacknjiga.document.epub.EpubAcceptanceResult
+import com.homoludens.citacknjiga.document.epub.EpubImportPreview
+import com.homoludens.citacknjiga.document.epub.EpubPreviewResult
+import com.homoludens.citacknjiga.document.epub.EpubImportPreviewService
 import com.homoludens.citacknjiga.proof.LocalWavPlayer
 import com.homoludens.citacknjiga.proof.TypedTextProofController
 import com.homoludens.citacknjiga.proof.TypedTextProofDiagnostics
 import com.homoludens.citacknjiga.proof.TypedTextProofEngine
 import com.homoludens.citacknjiga.proof.TypedTextProofState
 import com.homoludens.citacknjiga.proof.TypedTextProofStatus
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import android.net.Uri
 
 @Composable
 public fun CitacKnjigaApp(
     variant: AppVariant,
     proofEngine: TypedTextProofEngine? = null,
+    epubImportPreviewService: EpubImportPreviewService? = null,
     modifier: Modifier = Modifier,
 ) {
     val navController = rememberNavController()
@@ -50,7 +63,11 @@ public fun CitacKnjigaApp(
             modifier = modifier,
         ) {
             composable(AppRoute.Start.path) {
-                StartScreen(variant = variant, proofEngine = proofEngine)
+                StartScreen(
+                    variant = variant,
+                    proofEngine = proofEngine,
+                    epubImportPreviewService = epubImportPreviewService,
+                )
             }
         }
     }
@@ -58,12 +75,30 @@ public fun CitacKnjigaApp(
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun StartScreen(variant: AppVariant, proofEngine: TypedTextProofEngine?) {
+private fun StartScreen(
+    variant: AppVariant,
+    proofEngine: TypedTextProofEngine?,
+    epubImportPreviewService: EpubImportPreviewService?,
+) {
     val controller = remember(proofEngine) {
         TypedTextProofController(proofEngine ?: MissingProofEngine())
     }
     val player = remember { LocalWavPlayer() }
     val playbackScope = rememberCoroutineScope()
+    var importState by remember(epubImportPreviewService) {
+        mutableStateOf<ImportPreviewUiState>(ImportPreviewUiState.Idle)
+    }
+    val importLauncher = rememberLauncherForActivityResult(OpenDocument()) { uri: Uri? ->
+        if (uri != null && epubImportPreviewService != null) {
+            importState = ImportPreviewUiState.Loading
+            playbackScope.launch(Dispatchers.IO) {
+                val result = epubImportPreviewService.previewSelected(uri)
+                withContext(Dispatchers.Main.immediate) {
+                    importState = result.toUiState()
+                }
+            }
+        }
+    }
     DisposableEffect(controller, player) {
         onDispose {
             player.close()
@@ -74,16 +109,118 @@ private fun StartScreen(variant: AppVariant, proofEngine: TypedTextProofEngine?)
     Scaffold(
         topBar = { TopAppBar(title = { Text("Srpski tekst u govor") }) },
     ) { paddingValues ->
-        TypedTextProofContent(
-            paddingValues = paddingValues,
-            variant = variant,
-            state = state,
-            onTextChanged = controller::setText,
-            onGenerate = controller::generate,
-            onCancel = controller::cancel,
-            onPlay = { state.wav?.file?.let { player.play(it, playbackScope) } },
-            onStop = player::stop,
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState()),
+        ) {
+            EpubImportPreviewContent(
+                state = importState,
+                enabled = epubImportPreviewService != null,
+                onSelect = { importLauncher.launch(arrayOf("application/epub+zip", "application/zip")) },
+                onAccept = { preview ->
+                    importState = ImportPreviewUiState.Loading
+                    playbackScope.launch(Dispatchers.IO) {
+                        val result = epubImportPreviewService?.accept(preview)
+                        withContext(Dispatchers.Main.immediate) {
+                            importState = result.toUiState(preview)
+                        }
+                    }
+                },
+                onCancel = { preview ->
+                    epubImportPreviewService?.discard(preview)
+                    importState = ImportPreviewUiState.Idle
+                },
+            )
+            TypedTextProofContent(
+                paddingValues = PaddingValues(0.dp),
+                variant = variant,
+                state = state,
+                onTextChanged = controller::setText,
+                onGenerate = controller::generate,
+                onCancel = controller::cancel,
+                onPlay = { state.wav?.file?.let { player.play(it, playbackScope) } },
+                onStop = player::stop,
+            )
+        }
+    }
+}
+
+private sealed interface ImportPreviewUiState {
+    data object Idle : ImportPreviewUiState
+    data object Loading : ImportPreviewUiState
+    data class Ready(val preview: EpubImportPreview) : ImportPreviewUiState
+    data class Accepted(val preview: EpubImportPreview) : ImportPreviewUiState
+    data class Error(val message: String) : ImportPreviewUiState
+}
+
+private fun EpubPreviewResult.toUiState(): ImportPreviewUiState = when (this) {
+    is EpubPreviewResult.Ready -> ImportPreviewUiState.Ready(preview)
+    is EpubPreviewResult.Duplicate -> ImportPreviewUiState.Error("Овај EPUB је већ увезен.")
+    is EpubPreviewResult.Failed -> ImportPreviewUiState.Error(message)
+}
+
+private fun EpubAcceptanceResult?.toUiState(preview: EpubImportPreview): ImportPreviewUiState = when (this) {
+    is EpubAcceptanceResult.Published -> ImportPreviewUiState.Accepted(preview)
+    is EpubAcceptanceResult.Failed -> ImportPreviewUiState.Error(message)
+    null -> ImportPreviewUiState.Error("Увоз EPUB-а није доступан.")
+}
+
+@Composable
+private fun EpubImportPreviewContent(
+    state: ImportPreviewUiState,
+    enabled: Boolean,
+    onSelect: () -> Unit,
+    onAccept: (EpubImportPreview) -> Unit,
+    onCancel: (EpubImportPreview) -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Text("Увоз EPUB књиге", style = MaterialTheme.typography.headlineSmall)
+        Text(
+            "Изаберите DRM-free EPUB. Садржај се прво проверава и приказује; ништа се не чува док не прихватите преглед.",
+            style = MaterialTheme.typography.bodyMedium,
         )
+        Button(onClick = onSelect, enabled = enabled && state !is ImportPreviewUiState.Loading) {
+            Text("Изабери EPUB")
+        }
+        when (state) {
+            ImportPreviewUiState.Idle -> Unit
+            ImportPreviewUiState.Loading -> Text("Припрема прегледа…")
+            is ImportPreviewUiState.Error -> Text(state.message, color = MaterialTheme.colorScheme.error)
+            is ImportPreviewUiState.Accepted -> Text("Увоз је прихваћен и сачуван.")
+            is ImportPreviewUiState.Ready -> {
+                val preview = state.preview
+                Text(preview.document.metadata.title, style = MaterialTheme.typography.titleLarge)
+                Text("Аутор: ${preview.document.metadata.authors.joinToString().ifEmpty { "није наведен" }}")
+                Text("Језик: ${preview.document.metadata.language ?: "није наведен"}")
+                Text(
+                    "Процењено заузеће: ${preview.storage.requiredBytes} B " +
+                        "(извор ${preview.storage.sourceBytes} B, текст ${preview.storage.canonicalTextBytes} B)",
+                )
+                preview.canonical.chapters.forEachIndexed { index, chapter ->
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text("${index + 1}. ${chapter.title}", style = MaterialTheme.typography.titleMedium)
+                            Text(chapter.narrationText.ifEmpty { "Нема текста за нарацију." })
+                        }
+                    }
+                }
+                if (preview.canonical.warnings.isNotEmpty()) {
+                    Text("Упозорења", style = MaterialTheme.typography.titleMedium)
+                    preview.canonical.warnings.forEach { warning ->
+                        Text("• ${warning.message}", color = MaterialTheme.colorScheme.error)
+                    }
+                }
+                Button(onClick = { onAccept(preview) }) { Text("Прихвати и увези") }
+                OutlinedButton(onClick = { onCancel(preview) }) { Text("Откажи") }
+            }
+        }
     }
 }
 
@@ -103,8 +240,7 @@ private fun TypedTextProofContent(
             .fillMaxSize()
             .padding(paddingValues)
             .padding(horizontal = 24.dp, vertical = 32.dp)
-            .imePadding()
-            .verticalScroll(rememberScrollState()),
+            .imePadding(),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
         Text(

@@ -243,6 +243,15 @@ target.
   `diagnostics/<projectId>/import-warnings.json`; publication rollback prevents
   partial Markdown. Metadata and navigation parser diagnostics are surfaced
   without changing the Room schema; preview UI remains task 7.8.
+- Task 7.8 adds `EpubImportPreviewService`. SAF EPUBs are copied to validated
+  app-private temporary staging, parsed, and rendered in memory before acceptance.
+  The Compose start route shows metadata, spine-ordered chapter titles and
+  narration text, canonical warnings, and a source/text/cover/diagnostics
+  storage estimate. Acceptance is the first operation that publishes the
+  source, index record, canonical Markdown, and warning report; cancel and
+  parse/security failures discard staging. There is no editing UI, generation,
+  or playback behavior in this slice. Focused coverage is in
+  `EpubImportPreviewTest`.
 
 ## Repository layout
 

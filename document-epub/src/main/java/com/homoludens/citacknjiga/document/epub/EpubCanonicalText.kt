@@ -31,6 +31,20 @@ public data class CanonicalChapterArtifact(
     public val sha256: String,
 )
 
+public data class CanonicalChapterPreview(
+    public val chapterId: String,
+    public val title: String,
+    public val narrationText: String,
+    public val markdown: String,
+    public val sizeBytes: Long,
+)
+
+public data class EpubCanonicalTextPreview(
+    public val chapters: List<CanonicalChapterPreview>,
+    public val warnings: List<EpubImportWarning>,
+    public val warningReportSizeBytes: Long,
+)
+
 public sealed interface EpubCanonicalTextResult {
     public data class Published(
         public val projectId: String,
@@ -98,33 +112,58 @@ public class EpubCanonicalTextService(
     private val artifactStore: AtomicArtifactStore,
     private val renderer: EpubMarkdownRenderer = EpubMarkdownRenderer(),
 ) {
-    public fun renderAndPersist(document: EpubDocument): EpubCanonicalTextResult {
+    /** Renders the exact canonical output in memory; no private files are changed. */
+    public fun preview(document: EpubDocument): EpubCanonicalTextPreview {
         val warnings = warningsFor(document)
-        val rendered = try {
-            document.chapters.map { chapter -> chapter to renderer.render(chapter) }
+        val chapters = document.chapters.map { chapter ->
+            val markdown = renderer.render(chapter)
+            CanonicalChapterPreview(
+                chapterId = chapter.id,
+                title = chapter.title,
+                narrationText = chapter.blocks
+                    .filter { it.type != NarrationBlockType.SKIPPED && it.sourceText.isNotBlank() }
+                    .joinToString("\n\n") { it.sourceText },
+                markdown = markdown,
+                sizeBytes = markdown.toByteArray(Charsets.UTF_8).size.toLong(),
+            )
+        }
+        return EpubCanonicalTextPreview(
+            chapters = chapters,
+            warnings = warnings,
+            warningReportSizeBytes = warningReport(document.projectId, warnings)
+                .toByteArray(Charsets.UTF_8).size.toLong(),
+        )
+    }
+
+    public fun renderAndPersist(document: EpubDocument): EpubCanonicalTextResult {
+        val preview = try {
+            preview(document)
         } catch (_: Exception) {
+            val warnings = warningsFor(document)
             return EpubCanonicalTextResult.Failed(warnings, cleanupUncertain = false)
         }
-        val targets = rendered.map { (chapter, _) -> storage.canonicalChapterText(document.projectId, chapter.id) }
+        val targets = preview.chapters.map { chapter ->
+            storage.canonicalChapterText(document.projectId, chapter.chapterId)
+        }
         val warningTarget = storage.importWarnings(document.projectId)
         val previous = try {
             (targets + warningTarget).associateWith { it.takeIf(File::isFile)?.readBytes() }
         } catch (_: Exception) {
-            return EpubCanonicalTextResult.Failed(warnings, cleanupUncertain = false)
+            return EpubCanonicalTextResult.Failed(preview.warnings, cleanupUncertain = false)
         }
 
         return try {
-            val artifacts = rendered.mapIndexed { index, (chapter, markdown) ->
+            val artifacts = preview.chapters.mapIndexed { index, chapter ->
                 val published = artifactStore.publish(
                     ownerId = "canonical-${document.projectId}",
                     destination = targets[index],
-                    writer = { output -> output.write(markdown.toByteArray(Charsets.UTF_8)) },
-                    validator = { file -> require(file.readText(Charsets.UTF_8) == markdown) },
+                    writer = { output -> output.write(chapter.markdown.toByteArray(Charsets.UTF_8)) },
+                    validator = { file -> require(file.readText(Charsets.UTF_8) == chapter.markdown) },
                 )
                 CanonicalChapterArtifact(
-                    chapterId = chapter.id,
+                    chapterId = chapter.chapterId,
                     path = published.file,
-                    markdown = markdown,
+                    markdown = chapter.markdown,
                     sizeBytes = published.sizeBytes,
                     sha256 = published.sha256,
                 )
@@ -132,14 +171,14 @@ public class EpubCanonicalTextService(
             artifactStore.publish(
                 ownerId = "canonical-${document.projectId}",
                 destination = warningTarget,
-                writer = { output -> output.write(warningReport(document.projectId, warnings).toByteArray(Charsets.UTF_8)) },
+                writer = { output -> output.write(warningReport(document.projectId, preview.warnings).toByteArray(Charsets.UTF_8)) },
                 validator = { file -> require(file.length() > 0) },
             )
-            EpubCanonicalTextResult.Published(document.projectId, artifacts, warnings, warningTarget)
+            EpubCanonicalTextResult.Published(document.projectId, artifacts, preview.warnings, warningTarget)
         } catch (_: Exception) {
             val cleanupUncertain = !restore(previous)
             EpubCanonicalTextResult.Failed(
-                warnings = if (cleanupUncertain) warnings + cleanupWarning() else warnings,
+                warnings = if (cleanupUncertain) preview.warnings + cleanupWarning() else preview.warnings,
                 cleanupUncertain = cleanupUncertain,
             )
         }

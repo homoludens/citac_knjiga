@@ -615,3 +615,27 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
   ./gradlew :document-epub:testDebugUnitTest --tests '*EpubCanonicalTextTest' \
   :document-epub:testDebugUnitTest --tests '*EpubDocumentParserTest'
 ```
+
+## EPUB import preview (task 7.8)
+
+The preview flow uses the Android `OpenDocument` SAF contract for EPUB/ZIP
+sources. `EpubImportPreviewService` keeps a security-validated source under
+`temporary/epub-<projectId>/source.epub`, parses it with the direct parser, and
+renders canonical Markdown and warnings in memory. No source, Room index row,
+canonical chapter, or warning report is published until the user chooses
+`Прихвати и увези`; cancel and failed preview paths delete the staging file.
+The estimate includes source bytes, UTF-8 canonical text, cover bytes, warning
+diagnostics, and a minimum 64 KiB or 10 percent safety margin.
+
+Focused and full verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew :document-epub:testDebugUnitTest :core:testDebugUnitTest \
+  :app:testStandardDebugUnitTest :app:testFdroidDebugUnitTest \
+  :app:lintStandardDebug :app:lintFdroidDebug :core:lintDebug \
+  :document-epub:lintDebug :tts-onnx:lintDebug :playback-export:lintDebug \
+  :app:assembleStandardDebug :app:assembleStandardRelease \
+  :app:assembleFdroidDebug :app:assembleFdroidRelease
+```
