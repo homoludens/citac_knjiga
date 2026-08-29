@@ -27,6 +27,10 @@ android {
         buildConfig = true
     }
 
+    sourceSets {
+        getByName("androidTest").assets.srcDir(rootProject.file("document-epub/src/test/resources/fixtures"))
+    }
+
     flavorDimensions += "distribution"
 
     productFlavors {
@@ -92,6 +96,7 @@ dependencies {
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.room.runtime)
     androidTestImplementation(libs.androidx.test.core)
     androidTestImplementation(libs.androidx.test.runner)
 }

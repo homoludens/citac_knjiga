@@ -53,7 +53,21 @@ public data class SerbianPreprocessingOutput(
     val protectedSpans: List<TextRange>,
     val chunkBoundaries: List<TextRange>,
     val voiceRowIndex: Int,
-)
+) {
+    /** Converts a phoneme range into a complete model input with boundary tokens. */
+    public fun tokenIdsForChunk(boundary: TextRange): List<Int> {
+        val phonemeCount = phonemes.codePointCount(0, phonemes.length)
+        require(boundary.start >= 0 && boundary.end <= phonemeCount) {
+            "Chunk boundary is outside the phoneme sequence"
+        }
+        require(boundary.start < boundary.end) { "Chunk boundary must contain phonemes" }
+        return buildList(boundary.end - boundary.start + 2) {
+            add(tokenIds.first())
+            addAll(tokenIds.subList(boundary.start + 1, boundary.end + 1))
+            add(tokenIds.last())
+        }
+    }
+}
 
 public data class GoldenVector(
     val id: String,

@@ -7,6 +7,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
@@ -18,10 +19,23 @@ public class LocalWavPlayer : AutoCloseable {
     private val lock = Any()
     private var playbackJob: Job? = null
     private var track: AudioTrack? = null
+    private var playbackError: Throwable? = null
+
+    public val lastError: Throwable?
+        get() = synchronized(lock) { playbackError }
 
     public fun play(file: File, scope: CoroutineScope) {
         stop()
-        playbackJob = scope.launch(Dispatchers.IO) { stream(file) }
+        synchronized(lock) { playbackError = null }
+        playbackJob = scope.launch(Dispatchers.IO) {
+            try {
+                stream(file)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Throwable) {
+                synchronized(lock) { playbackError = failure }
+            }
+        }
     }
 
     public fun stop() {

@@ -38,6 +38,8 @@ import com.homoludens.citacknjiga.document.epub.EpubImportPreview
 import com.homoludens.citacknjiga.document.epub.EpubPreviewResult
 import com.homoludens.citacknjiga.document.epub.EpubImportPreviewService
 import com.homoludens.citacknjiga.proof.LocalWavPlayer
+import com.homoludens.citacknjiga.proof.EpubChapterGenerationResult
+import com.homoludens.citacknjiga.proof.EpubChapterProofService
 import com.homoludens.citacknjiga.proof.TypedTextProofController
 import com.homoludens.citacknjiga.proof.TypedTextProofDiagnostics
 import com.homoludens.citacknjiga.proof.TypedTextProofEngine
@@ -53,6 +55,7 @@ public fun CitacKnjigaApp(
     variant: AppVariant,
     proofEngine: TypedTextProofEngine? = null,
     epubImportPreviewService: EpubImportPreviewService? = null,
+    epubChapterProofService: EpubChapterProofService? = null,
     modifier: Modifier = Modifier,
 ) {
     val navController = rememberNavController()
@@ -67,6 +70,7 @@ public fun CitacKnjigaApp(
                     variant = variant,
                     proofEngine = proofEngine,
                     epubImportPreviewService = epubImportPreviewService,
+                    epubChapterProofService = epubChapterProofService,
                 )
             }
         }
@@ -79,6 +83,7 @@ private fun StartScreen(
     variant: AppVariant,
     proofEngine: TypedTextProofEngine?,
     epubImportPreviewService: EpubImportPreviewService?,
+    epubChapterProofService: EpubChapterProofService?,
 ) {
     val controller = remember(proofEngine) {
         TypedTextProofController(proofEngine ?: MissingProofEngine())
@@ -88,6 +93,7 @@ private fun StartScreen(
     var importState by remember(epubImportPreviewService) {
         mutableStateOf<ImportPreviewUiState>(ImportPreviewUiState.Idle)
     }
+    var chapterGeneration by remember { mutableStateOf<ChapterGenerationUiState>(ChapterGenerationUiState.Idle) }
     val importLauncher = rememberLauncherForActivityResult(OpenDocument()) { uri: Uri? ->
         if (uri != null && epubImportPreviewService != null) {
             importState = ImportPreviewUiState.Loading
@@ -95,6 +101,7 @@ private fun StartScreen(
                 val result = epubImportPreviewService.previewSelected(uri)
                 withContext(Dispatchers.Main.immediate) {
                     importState = result.toUiState()
+                    chapterGeneration = ChapterGenerationUiState.Idle
                 }
             }
         }
@@ -124,14 +131,35 @@ private fun StartScreen(
                     playbackScope.launch(Dispatchers.IO) {
                         val result = epubImportPreviewService?.accept(preview)
                         withContext(Dispatchers.Main.immediate) {
-                            importState = result.toUiState(preview)
+                            importState = result.toUiState()
+                            chapterGeneration = ChapterGenerationUiState.Idle
                         }
                     }
                 },
                 onCancel = { preview ->
                     epubImportPreviewService?.discard(preview)
                     importState = ImportPreviewUiState.Idle
+                    chapterGeneration = ChapterGenerationUiState.Idle
                 },
+                generation = chapterGeneration,
+                onGenerate = { acceptedPreview, chapterOrdinal ->
+                    if (epubChapterProofService != null) {
+                        chapterGeneration = ChapterGenerationUiState.Generating(chapterOrdinal)
+                        playbackScope.launch(Dispatchers.IO) {
+                            val result = runCatching {
+                                epubChapterProofService.generate(acceptedPreview, chapterOrdinal)
+                            }
+                            withContext(Dispatchers.Main.immediate) {
+                                chapterGeneration = result.fold(
+                                    onSuccess = { ChapterGenerationUiState.Success(it) },
+                                    onFailure = { ChapterGenerationUiState.Error(it.message ?: "Генерисање поглавља није успело.") },
+                                )
+                            }
+                        }
+                    }
+                },
+                onPlayGenerated = { result -> player.play(result.audio.file, playbackScope) },
+                onStopGenerated = player::stop,
             )
             TypedTextProofContent(
                 paddingValues = PaddingValues(0.dp),
@@ -151,8 +179,17 @@ private sealed interface ImportPreviewUiState {
     data object Idle : ImportPreviewUiState
     data object Loading : ImportPreviewUiState
     data class Ready(val preview: EpubImportPreview) : ImportPreviewUiState
-    data class Accepted(val preview: EpubImportPreview) : ImportPreviewUiState
+    data class Accepted(val accepted: EpubAcceptanceResult.Published) : ImportPreviewUiState {
+        val preview: EpubImportPreview get() = accepted.preview
+    }
     data class Error(val message: String) : ImportPreviewUiState
+}
+
+private sealed interface ChapterGenerationUiState {
+    data object Idle : ChapterGenerationUiState
+    data class Generating(val chapterOrdinal: Int) : ChapterGenerationUiState
+    data class Success(val result: EpubChapterGenerationResult) : ChapterGenerationUiState
+    data class Error(val message: String) : ChapterGenerationUiState
 }
 
 private fun EpubPreviewResult.toUiState(): ImportPreviewUiState = when (this) {
@@ -161,8 +198,8 @@ private fun EpubPreviewResult.toUiState(): ImportPreviewUiState = when (this) {
     is EpubPreviewResult.Failed -> ImportPreviewUiState.Error(message)
 }
 
-private fun EpubAcceptanceResult?.toUiState(preview: EpubImportPreview): ImportPreviewUiState = when (this) {
-    is EpubAcceptanceResult.Published -> ImportPreviewUiState.Accepted(preview)
+private fun EpubAcceptanceResult?.toUiState(): ImportPreviewUiState = when (this) {
+    is EpubAcceptanceResult.Published -> ImportPreviewUiState.Accepted(this)
     is EpubAcceptanceResult.Failed -> ImportPreviewUiState.Error(message)
     null -> ImportPreviewUiState.Error("Увоз EPUB-а није доступан.")
 }
@@ -174,6 +211,10 @@ private fun EpubImportPreviewContent(
     onSelect: () -> Unit,
     onAccept: (EpubImportPreview) -> Unit,
     onCancel: (EpubImportPreview) -> Unit,
+    generation: ChapterGenerationUiState,
+    onGenerate: (EpubAcceptanceResult.Published, Int) -> Unit,
+    onPlayGenerated: (EpubChapterGenerationResult) -> Unit,
+    onStopGenerated: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -193,7 +234,33 @@ private fun EpubImportPreviewContent(
             ImportPreviewUiState.Idle -> Unit
             ImportPreviewUiState.Loading -> Text("Припрема прегледа…")
             is ImportPreviewUiState.Error -> Text(state.message, color = MaterialTheme.colorScheme.error)
-            is ImportPreviewUiState.Accepted -> Text("Увоз је прихваћен и сачуван.")
+            is ImportPreviewUiState.Accepted -> {
+                Text("Увоз је прихваћен и сачуван.")
+                state.preview.canonical.chapters.forEachIndexed { index, chapter ->
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text("${index + 1}. ${chapter.title}", style = MaterialTheme.typography.titleMedium)
+                            Text(chapter.narrationText.ifEmpty { "Нема текста за нарацију." })
+                            Button(
+                                onClick = { onGenerate(state.accepted, index) },
+                                enabled = generation !is ChapterGenerationUiState.Generating,
+                            ) { Text("Генериши ово поглавље") }
+                            when (val current = generation) {
+                                is ChapterGenerationUiState.Generating -> if (current.chapterOrdinal == index) {
+                                    Text("Генерисање поглавља…")
+                                }
+                                is ChapterGenerationUiState.Success -> if (current.result.chapter.ordinal == index) {
+                                    Text("Проверен WAV: 24 kHz, mono, PCM16")
+                                    OutlinedButton(onClick = { onPlayGenerated(current.result) }) { Text("Пусти офлајн") }
+                                    OutlinedButton(onClick = onStopGenerated) { Text("Заустави") }
+                                }
+                                is ChapterGenerationUiState.Error -> Text(current.message, color = MaterialTheme.colorScheme.error)
+                                ChapterGenerationUiState.Idle -> Unit
+                            }
+                        }
+                    }
+                }
+            }
             is ImportPreviewUiState.Ready -> {
                 val preview = state.preview
                 Text(preview.document.metadata.title, style = MaterialTheme.typography.titleLarge)

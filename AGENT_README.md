@@ -224,8 +224,10 @@ target.
   total expansion, 8 KiB or more per entry, 100:1 or more compression ratio,
   XML payloads at 64 KiB, and nesting deeper than 64 elements. It rejects
   traversal, encrypted/DRM-marked ZIPs, duplicate/malformed archives, DTD/entities,
-  external resource references, malformed XML, and unavailable XML hardening.
-  Validation never extracts entries; failures expose typed codes and clean the
+  external resource references, and malformed XML. DTD/entity rejection,
+  bounded XML inspection, and the external resolver keep the parser safe on
+  Android implementations that do not expose the optional JAXP hardening
+  feature switches. Validation never extracts entries; failures expose typed codes and clean the
   private temporary source. These are inspection limits, not EPUB metadata or
   content mapping, which remains task 7.6+.
 - Task 7.6 adds `EpubDocumentParser`, a stdlib `ZipFile`/DOM mapper that accepts
@@ -252,6 +254,14 @@ target.
   parse/security failures discard staging. There is no editing UI, generation,
   or playback behavior in this slice. Focused coverage is in
   `EpubImportPreviewTest`.
+- Task 7.9 adds the bounded `EpubChapterProofService`. After preview acceptance
+  it maps one selected chapter into Room, generates its narratable text through
+  the existing Serbian preprocessing/ONNX proof engine, atomically publishes
+  one verified app-private 24 kHz mono PCM16 WAV, records model/voice and
+  generation provenance, and plays the result through local `AudioTrack`.
+  `EpubChapterProofAndroidTest` passed on the Poco F3 (`M2012K11AG`, API 33,
+  native `arm64-v8a`) with Wi-Fi and mobile data disabled. This is a one-shot
+  vertical proof only; durable whole-book generation remains task 8.
 
 ## Repository layout
 

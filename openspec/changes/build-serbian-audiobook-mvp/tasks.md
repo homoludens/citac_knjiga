@@ -73,7 +73,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 - [x] 7.6 Map publication metadata, cover, table of contents, spine, headings, paragraphs, lists, quotes, poetry, captions, notes, scene breaks, and skipped content into the structured IR.
 - [x] 7.7 Generate canonical per-chapter Markdown, stable source locators, cleanup diagnostics, and user-visible import warnings.
 - [x] 7.8 Build the import preview for metadata, ordered chapters, narration text, warnings, and storage estimate without an editing UI.
-- [ ] 7.9 Demonstrate import of a known EPUB, generation of one extracted chapter, and offline playback of its verified audio.
+- [x] 7.9 Demonstrate import of a known EPUB, generation of one extracted chapter, and offline playback of its verified audio. -> `EpubChapterProofAndroidTest` passes on the Poco F3 with Wi-Fi/mobile data disabled; the proof imports `serbian-epub3.epub`, generates one validated 24 kHz mono PCM16 chapter WAV, records Room provenance, and plays it through the local `AudioTrack` path.
 
 ## 8. Durable Whole-Book Generation (rough phase effort: 3–6 weeks)
 

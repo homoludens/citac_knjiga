@@ -8,7 +8,6 @@ import java.util.HashSet
 import java.util.zip.ZipEntry
 import java.util.zip.ZipException
 import java.util.zip.ZipFile
-import javax.xml.XMLConstants
 import javax.xml.parsers.SAXParserFactory
 import org.xml.sax.EntityResolver
 import org.xml.sax.ErrorHandler
@@ -292,15 +291,12 @@ public class EpubSecurityValidator(
 
         val factory = SAXParserFactory.newInstance()
         factory.isNamespaceAware = true
+        // DTD/entity markup is rejected above. The resolver below blocks external resource access;
+        // this avoids parser features that are unavailable on Android's XML implementation.
         try {
-            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
-            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
-            factory.setFeature("http://xml.org/sax/features/external-general-entities", false)
-            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
-            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
             factory.isXIncludeAware = false
-        } catch (_: Exception) {
-            reject(EpubSecurityDiagnostic(EpubSecurityFailureCode.XML_HARDENING_UNAVAILABLE, entryName))
+        } catch (_: UnsupportedOperationException) {
+            // Android's parser does not support XInclude and keeps it disabled by default.
         }
 
         try {

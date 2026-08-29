@@ -3,6 +3,7 @@ package com.homoludens.citacknjiga.proof
 import com.homoludens.citacknjiga.tts.onnx.InstalledModelPackage
 import com.homoludens.citacknjiga.tts.onnx.ModelPackageStore
 import com.homoludens.citacknjiga.tts.onnx.OnnxTtsException
+import com.homoludens.citacknjiga.tts.onnx.OnnxTtsOutput
 import com.homoludens.citacknjiga.tts.onnx.OnnxTtsSession
 import com.homoludens.citacknjiga.tts.onnx.PcmWavWriter
 import com.homoludens.citacknjiga.tts.onnx.WavArtifact
@@ -48,6 +49,7 @@ public data class TypedTextModelProvenance(
     val packageId: String,
     val packageVersion: String,
     val packageSha256: String,
+    val voiceSha256: String = "",
     val voice: String = "Dragana",
     val runtime: String = "ONNX Runtime 1.29.0 CPU (1/1 threads)",
     val preprocessing: String = "kokoro-sr-ca5590d9 / contract 1",
@@ -158,15 +160,23 @@ public class AndroidTypedTextProofEngine(
         val diagnostics = processed.diagnostics(packageInfo)
         onDiagnostics(diagnostics)
         currentCoroutineContext().ensureActive()
+        val chunkInputs = processed.chunkBoundaries.map(processed::tokenIdsForChunk)
         val output = OnnxTtsSession.open(modelStore, packageInfo).use { session ->
-            session.generate(processed.tokenIds, speed = 1f)
+            val chunks = chunkInputs.map { tokenIds ->
+                currentCoroutineContext().ensureActive()
+                session.generate(tokenIds, speed = 1f)
+            }
+            OnnxTtsOutput(
+                pcm = chunks.flatMap { it.pcm.asIterable() }.toFloatArray(),
+                predDur = chunks.flatMap { it.predDur.asIterable() }.toLongArray(),
+            )
         }
         currentCoroutineContext().ensureActive()
         val wav = withContext(ioDispatcher) {
             PcmWavWriter.writeAtomic(
                 destination = File(artifactDirectory, "typed-proof.wav"),
                 output = output,
-                expectedTokenCount = processed.tokenIds.size,
+                expectedTokenCount = output.predDur.size,
             )
         }
         TypedTextProofResult(diagnostics, wav)
@@ -185,6 +195,7 @@ public class AndroidTypedTextProofEngine(
                 packageId = packageInfo.packageId,
                 packageVersion = packageInfo.packageVersion,
                 packageSha256 = packageInfo.identitySha256,
+                voiceSha256 = packageInfo.voiceSha256,
             ),
         )
 }

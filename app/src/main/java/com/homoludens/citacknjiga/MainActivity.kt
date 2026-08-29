@@ -20,6 +20,7 @@ public class MainActivity : ComponentActivity() {
                 variant = container.variant,
                 proofEngine = container.typedTextProofEngine,
                 epubImportPreviewService = container.epubImportPreviewService,
+                epubChapterProofService = container.epubChapterProofService,
             )
         }
     }

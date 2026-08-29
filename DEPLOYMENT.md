@@ -556,8 +556,11 @@ or follow resource references. Strict default thresholds reject 40 or more
 entries, 128 KiB or more total uncompressed expansion, 8 KiB or more for one
 entry, a 100:1 or greater compression ratio, XML payloads at 64 KiB, and XML
 nesting deeper than 64 elements. It also rejects traversal/absolute entry paths,
-duplicates, encrypted entries and EPUB DRM marker files, malformed ZIP/XML data, DTD/entity declarations,
-external URI attributes, and XML parser configurations that cannot be hardened.
+duplicates, encrypted entries and EPUB DRM marker files, malformed ZIP/XML data,
+DTD/entity declarations, and external URI attributes. Android XML implementations
+that do not expose optional JAXP hardening switches remain supported because the
+validator rejects DTD/entity markup before parsing, bounds XML inspection, and
+installs an external-resource resolver.
 
 Rejections return a typed `EpubSecurityDiagnostic` without source text or URI;
 the temporary source is deleted and no project source/index row is published.
@@ -639,3 +642,45 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
   :app:assembleStandardDebug :app:assembleStandardRelease \
   :app:assembleFdroidDebug :app:assembleFdroidRelease
 ```
+
+## EPUB one-chapter vertical proof (task 7.9)
+
+`EpubChapterProofService` is the deliberately bounded bridge from accepted
+EPUB preview to one generated chapter. It selects narratable blocks from one
+chapter, uses the existing native Serbian preprocessing and direct ONNX Runtime
+proof engine, publishes a validated app-private PCM16 WAV atomically, records
+the generation/model/voice provenance in Room, and plays the chapter through
+the local `AudioTrack` path. It does not add a durable worker, whole-book queue,
+Media3, or export behavior.
+
+The repeatable instrumentation proof uses the committed
+`document-epub/src/test/resources/fixtures/serbian-epub3.epub` asset and a
+locally staged verified model package. The package used on the target device
+was `/tmp/citac-knjiga-public-package-20260828/kokoro-serbian-dragana-v2.zip`
+with SHA-256
+`58c031fd6e37a12cafe3575d26a057e10c45cdfe7c6c7605f6966e7e2406458b`.
+The package and generated WAV are not repository artifacts.
+
+On the Poco F3 (`Xiaomi M2012K11AG`, API 33, native `arm64-v8a`), disable
+networking explicitly, build and install both the application and
+instrumentation APKs, then run:
+
+```sh
+adb -s 2555a240 shell svc wifi disable
+adb -s 2555a240 shell svc data disable
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew :app:assembleStandardDebug :app:assembleStandardDebugAndroidTest
+adb -s 2555a240 push app/build/outputs/apk/standard/debug/app-standard-debug.apk /data/local/tmp/task-7-9-app.apk
+adb -s 2555a240 shell pm install -r -d /data/local/tmp/task-7-9-app.apk
+adb -s 2555a240 push app/build/outputs/apk/androidTest/standard/debug/app-standard-debug-androidTest.apk /data/local/tmp/task-7-9-test.apk
+adb -s 2555a240 shell pm install -r -d /data/local/tmp/task-7-9-test.apk
+adb -s 2555a240 shell am instrument -w -r \
+  -e class com.homoludens.citacknjiga.proof.EpubChapterProofAndroidTest#knownEpubChapterGeneratesAndPlaysOffline \
+  com.homoludens.citacknjiga.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+The 2026-08-30 run completed with `OK (1 test)`. It validated EPUB import,
+accepted publication, one extracted chapter generation, Room `READY` segment
+state, 24 kHz mono PCM16 WAV publication, and local playback while networking
+was disabled.

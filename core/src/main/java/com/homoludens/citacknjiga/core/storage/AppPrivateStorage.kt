@@ -59,6 +59,9 @@ public class AppPrivateStorage(filesDir: File) {
     public fun readySegmentAudio(projectId: String, chapterId: String, segmentId: String): File =
         child(readyAudioDirectory, projectId, chapterId, "$segmentId.m4a")
 
+    public fun readyChapterWav(projectId: String, chapterId: String): File =
+        child(readyAudioDirectory, projectId, chapterId, "chapter.wav")
+
     public fun diagnosticFile(name: String): File = child(diagnosticsDirectory, name)
 
     private fun directory(area: AppPrivateDirectory): File = child(rootDirectory, area.directoryName)

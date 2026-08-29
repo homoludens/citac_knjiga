@@ -67,6 +67,22 @@ public class SerbianPreprocessingTest {
         assertEquals(PreprocessingStage.NORMALIZED_TEXT, firstDivergentStage(expected, actual))
     }
 
+    @Test
+    public fun oversizedInputProducesCompleteModelSizedInputs() {
+        val expected = loadCorpus().vectors.last()
+        val resources = loadResources()
+        val preprocessor = SerbianPreprocessor(
+            resources = resources,
+            phonemizer = SerbianPhonemizer { expected.phonemes },
+        )
+
+        val output = preprocessor.process(expected.text)
+        val chunks = output.chunkBoundaries.map(output::tokenIdsForChunk)
+
+        assertEquals(listOf(508, 19), chunks.map { it.size })
+        assertTrue(chunks.all { it.size <= 512 && it.first() == 0 && it.last() == 0 })
+    }
+
     private fun loadCorpus(): GoldenCorpus = fixture("vectors.json").use(GoldenVectorFixtures::load)
 
     private fun loadResources(): SerbianPreprocessingResources = SerbianPreprocessingResources.fromJson(
