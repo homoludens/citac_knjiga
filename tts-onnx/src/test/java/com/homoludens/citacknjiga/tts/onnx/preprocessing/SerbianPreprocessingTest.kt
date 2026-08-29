@@ -83,6 +83,15 @@ public class SerbianPreprocessingTest {
         assertTrue(chunks.all { it.size <= 512 && it.first() == 0 && it.last() == 0 })
     }
 
+    @Test
+    public fun exposesTheVerifiedOperationalAndHardModelLimits() {
+        val limits = loadResources().modelLimits
+
+        assertEquals(507, limits.operationalPhonemeSymbols)
+        assertEquals(510, limits.hardPhonemeSymbols)
+        assertEquals(512, limits.modelMaxSequenceLength)
+    }
+
     private fun loadCorpus(): GoldenCorpus = fixture("vectors.json").use(GoldenVectorFixtures::load)
 
     private fun loadResources(): SerbianPreprocessingResources = SerbianPreprocessingResources.fromJson(

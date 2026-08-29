@@ -45,6 +45,19 @@ public object UnavailableSerbianPhonemizer : SerbianPhonemizer {
 
 public data class TextRange(val start: Int, val end: Int)
 
+/** The limits verified for the pinned Kokoro Serbian model input. */
+public data class SerbianModelLimits(
+    public val operationalPhonemeSymbols: Int = 507,
+    public val hardPhonemeSymbols: Int = 510,
+    public val modelMaxSequenceLength: Int = 512,
+) {
+    init {
+        require(operationalPhonemeSymbols > 0)
+        require(hardPhonemeSymbols >= operationalPhonemeSymbols)
+        require(modelMaxSequenceLength >= hardPhonemeSymbols + 2)
+    }
+}
+
 public data class SerbianPreprocessingOutput(
     val cleanupText: String,
     val normalizedText: String,
@@ -135,8 +148,12 @@ public class SerbianPreprocessingResources private constructor(
     internal val boundaryTokenId: Int,
     internal val operationalLimit: Int,
     internal val hardLimit: Int,
+    internal val modelSequenceLength: Int,
     internal val fallbackWidth: Int,
 ) {
+    public val modelLimits: SerbianModelLimits
+        get() = SerbianModelLimits(operationalLimit, hardLimit, modelSequenceLength)
+
     public companion object {
         public fun fromAssets(assetManager: AssetManager): SerbianPreprocessingResources =
             assetManager.open("normalization-v1.json").use { normalization ->
@@ -190,6 +207,7 @@ public class SerbianPreprocessingResources private constructor(
                 boundaryTokenId = tokenization.get("boundary_token_id").asInt,
                 operationalLimit = operationalLimit,
                 hardLimit = limits.get("hard_phoneme_symbols").asInt,
+                modelSequenceLength = limits.get("model_max_sequence_length").asInt,
                 fallbackWidth = fallbackWidth,
             )
         }
@@ -206,6 +224,9 @@ public class SerbianPreprocessor(
     private val resources: SerbianPreprocessingResources,
     private val phonemizer: SerbianPhonemizer = UnavailableSerbianPhonemizer,
 ) {
+    public val modelLimits: SerbianModelLimits
+        get() = resources.modelLimits
+
     public companion object {
         /** Android production wiring for the exact native pronunciation stage. */
         public fun fromAssets(assetManager: AssetManager, filesDir: java.io.File): SerbianPreprocessor =

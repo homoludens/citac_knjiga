@@ -108,6 +108,13 @@ target.
   pronunciation stage fails closed until native eSpeak-NG is available; tests
   inject committed reference IPA only to qualify the later Kotlin stages, not to
   claim Android phonemization parity.
+- Task 8.1 adds `SerbianNarrationChunker` for structured narration block text.
+  It prefers sentence and clause boundaries, protects Serbian abbreviations,
+  numbers, URLs, email, citations, digraphs, and grapheme clusters, preserves
+  punctuation, reports Unicode code-point source ranges, and emits configurable
+  pause metadata. It measures candidates through the existing Serbian
+  preprocessor and defaults to the verified 507-symbol operational cap (510
+  hard limit, 512 sequence length).
 - Task 4.8 adds the single-route typed Serbian proof screen. It accepts Latin and
   Cyrillic input, exposes preprocessing/model diagnostics and explicit generation
   states, writes validated app-private 24 kHz mono PCM16 WAV, and plays it with
