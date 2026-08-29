@@ -66,7 +66,7 @@ An audio generation key covers normalized model input or token hash, model and v
 
 Room stores the durable queue and state machine. A coroutine worker executes one bounded segment or batch at a time, publishes progress, and checks pause/cancel flags between atomic units. WorkManager schedules and reconciles unfinished work and constraints. Foreground execution supplies the visible notification while active work requires it.
 
-Because long-running WorkManager jobs and foreground-service rules continue to evolve, an Android 16 qualification spike compares long-running `CoroutineWorker` behavior with a user-started direct foreground service backed by the same Room queue. The queue semantics do not depend on either runner, allowing the execution host to change without migrating projects.
+Because long-running WorkManager jobs and foreground-service rules continue to evolve, an Android 16 qualification spike was planned to compare long-running `CoroutineWorker` behavior with a user-started direct foreground service backed by the same Room queue. Android 16 is not available in the current environment, so this qualification is explicitly deferred until after the MVP. The queue semantics do not depend on either runner, allowing the execution host to change without migrating projects.
 
 Media3 owns playback only; it never owns generation state. Playback observes ready audio from Room and updates its playlist at safe boundaries.
 

@@ -754,8 +754,9 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
   :core:lintDebug :core:assembleDebug
 ```
 
-`GenerationWorkSchedulerTest` requires a connected Android device for execution;
-the current environment has none attached.
+`GenerationWorkSchedulerTest` requires a connected Android device for execution.
+The available Poco F3 is Android 13; Android 16 execution-host qualification is
+explicitly deferred until an API 36 device or emulator is available.
 
 ## Foreground generation notification (task 8.5)
 
@@ -771,4 +772,4 @@ host.
 
 The app declares `POST_NOTIFICATIONS` and `FOREGROUND_SERVICE`. Runtime
 notification permission UX and Android 16 WorkManager versus direct-service
-qualification remain later work.
+qualification remain deferred post-MVP work.

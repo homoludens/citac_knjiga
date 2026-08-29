@@ -142,8 +142,9 @@ target.
   book title, ready/total segment progress, and failed-segment count, with
   explicit pause, resume, and cancel actions. Actions update the persisted run
   state before coordinating the unique WorkManager request; notification and
-  foreground-service permissions are declared, while Android 16 host
-  qualification remains task 8.6.
+  foreground-service permissions are declared. Android 16 host qualification
+   is explicitly deferred because the available Poco F3 runs Android 13; the
+   queue remains runner-independent for later qualification.
 - Task 4.8 adds the single-route typed Serbian proof screen. It accepts Latin and
   Cyrillic input, exposes preprocessing/model diagnostics and explicit generation
   states, writes validated app-private 24 kHz mono PCM16 WAV, and plays it with
