@@ -191,6 +191,11 @@ target.
   invalid, format-invalid, or stale-provenance ready segments as `STALE`.
   Chapter/project readiness is downgraded accordingly; source, model, and
   ready-audio files are never deleted by reconciliation.
+- Task 6.7 adds core coverage for persisted Room project/generation transitions
+  and relations, one-block generation-key invalidation, failed publication
+  preserving the existing ready artifact, and idempotent reconciliation through
+  the real Room adapter. The focused JVM suite and four connected emulator tests
+  pass.
 
 ## Repository layout
 

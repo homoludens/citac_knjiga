@@ -36,6 +36,8 @@ public class AtomicArtifactStoreTest {
         val storage = AppPrivateStorage(root)
         val store = AtomicArtifactStore(storage)
         val destination = storage.readySegmentAudio("book", "chapter", "bad")
+        checkNotNull(destination.parentFile).mkdirs()
+        destination.writeText("previously verified audio")
 
         val failure = runCatching {
             store.publish(
@@ -47,7 +49,7 @@ public class AtomicArtifactStoreTest {
         }.exceptionOrNull()
 
         assertTrue(failure is IllegalStateException)
-        assertFalse(destination.exists())
+        assertEquals("previously verified audio", destination.readText())
         assertFalse(storage.temporaryDirectory.walkTopDown().any { it.isFile })
     }
 

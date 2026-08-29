@@ -61,7 +61,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 - [x] 6.4 Implement atomic temporary-write, fsync/close, validation, rename/publication, checksum, and orphan-cleanup helpers.
 - [x] 6.5 Implement generation-key and dependency-key calculation from tokens, model/voice hashes, preprocessing versions, inference settings, and audio-processing version.
 - [x] 6.6 Implement startup reconciliation for interrupted database states, temporary artifacts, missing ready files, checksum failures, and stale provenance.
-- [ ] 6.7 Add unit and integration tests for Room transitions, selective invalidation, atomic publication, and reconciliation idempotence.
+- [x] 6.7 Add unit and integration tests for Room transitions, selective invalidation, atomic publication, and reconciliation idempotence.
 
 ## 7. EPUB One-Chapter Vertical Slice (rough phase effort: 2–4 weeks)
 

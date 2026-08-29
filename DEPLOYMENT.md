@@ -487,3 +487,20 @@ Focused verification:
 ANDROID_HOME=/home/homoludens/Android/Sdk \
   ./gradlew :core:testDebugUnitTest --tests '*StartupReconciliationTest' :core:lintDebug :core:assembleDebug
 ```
+
+## Project core test coverage (task 6.7)
+
+Task 6.7 adds a real Room in-memory integration test for project/generation
+status transitions, relations, and two-pass startup reconciliation. JVM tests
+also cover selective two-block key invalidation and failed publication leaving
+an existing ready artifact unchanged.
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :core:testDebugUnitTest :core:connectedDebugAndroidTest \
+  :core:lintDebug :core:assembleDebug
+```
+
+The command passed on 2026-08-29 with all core JVM tests, four connected
+instrumentation tests on `emulator-5554`, lint, and Debug assembly.

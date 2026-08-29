@@ -23,6 +23,22 @@ public class GenerationKeyTest {
     }
 
     @Test
+    public fun changingOneBlockLeavesUnchangedBlockReusable() {
+        val original = listOf(
+            GenerationKeyCalculator.calculate(input(tokens = listOf(0, 11, 0))),
+            GenerationKeyCalculator.calculate(input(tokens = listOf(0, 12, 0))),
+        )
+        val afterOneBlockChange = listOf(
+            GenerationKeyCalculator.calculate(input(tokens = listOf(0, 11, 0))),
+            GenerationKeyCalculator.calculate(input(tokens = listOf(0, 13, 0))),
+        )
+
+        assertEquals(original[0], afterOneBlockChange[0])
+        assertEquals(original[1].dependencyKey, afterOneBlockChange[1].dependencyKey)
+        assertNotEquals(original[1].generationKey, afterOneBlockChange[1].generationKey)
+    }
+
+    @Test
     public fun settingsMapOrderIsCanonicalButTokenOrderIsSignificant() {
         val first = GenerationKeyCalculator.calculate(
             input(inferenceSettings = linkedMapOf("speed" to "1.0", "pause_ms" to "120")),
