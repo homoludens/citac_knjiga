@@ -163,7 +163,12 @@ target.
   chapters, narration blocks, audio segments, generation runs, model packages,
   playback positions, and export jobs. Enum values persist by stable name;
   ownership and artifact relations use explicit foreign-key actions and ordered
-  unique indexes. Database versioning and migrations remain task 6.2.
+  unique indexes.
+- Task 6.2 publishes Room schema version 1 under `core/schemas/`, configures
+  `MigrationTestHelper` with the AndroidX test runner, wraps relation reads in
+  Room transactions, and leaves destructive migration fallback disabled. The
+  connected migration tests verify the exported schema and reject an unknown
+  newer database version.
 
 ## Repository layout
 
