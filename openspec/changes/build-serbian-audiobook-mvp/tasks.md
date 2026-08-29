@@ -65,7 +65,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 
 ## 7. EPUB One-Chapter Vertical Slice (rough phase effort: 2–4 weeks)
 
-- [ ] 7.1 Assemble redistributable EPUB 2/3 fixtures covering metadata, cover, NCX/nav, mismatched filename/spine order, nested headings, lists, notes, poetry, malformed content, and known attacks.
+- [x] 7.1 Assemble redistributable EPUB 2/3 fixtures covering metadata, cover, NCX/nav, mismatched filename/spine order, nested headings, lists, notes, poetry, malformed content, and known attacks.
 - [ ] 7.2 Spike minimal Readium `shared`/`streamer` integration and measure dependency size, API fit, source-buildability, metadata/spine fidelity, and F-Droid implications.
 - [ ] 7.3 Compare Readium with a bounded direct ZIP/XML parser experiment and record the selected importer with objective fixture results.
 - [ ] 7.4 Implement SAF EPUB selection, private temporary copy, fingerprinting, duplicate detection, and atomic source publication.

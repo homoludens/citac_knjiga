@@ -1,0 +1,148 @@
+{
+  "schema": 1,
+  "license": "CC0-1.0",
+  "provenance": "Entirely self-authored Serbian text and deterministic SVG cover; no publisher or public-book content is copied.",
+  "required_cases": [
+    "metadata",
+    "cover",
+    "ncx",
+    "nav",
+    "spine_order",
+    "nested_headings",
+    "lists",
+    "notes",
+    "poetry",
+    "malformed_content",
+    "malformed_navigation",
+    "zip_slip",
+    "compression_ratio",
+    "oversized_entry",
+    "entry_count",
+    "entity_expansion",
+    "external_resource",
+    "encrypted"
+  ],
+  "fixtures": [
+    {
+      "id": "serbian-epub2",
+      "file": "serbian-epub2.epub",
+      "epub_version": "2.0",
+      "validity": "valid",
+      "license": "CC0-1.0",
+      "provenance": "Self-authored fixture.",
+      "cases": ["metadata", "cover", "ncx", "spine_order", "nested_headings", "lists", "notes", "poetry"],
+      "navigation": "ncx",
+      "expected_spine_ids": ["chapter-second", "chapter-first"],
+      "required_markers": ["<h1>", "<h2>", "<h3>", "<ul>", "<ol>", "epub:type=\"footnote\"", "class=\"poetry\""],
+      "required_entries": ["META-INF/container.xml", "OEBPS/content.opf", "OEBPS/toc.ncx", "OEBPS/images/cover.svg"],
+      "expected_import": "Accept. Preserve metadata, cover, NCX order, and typed content blocks; use spine order rather than filename order."
+    },
+    {
+      "id": "serbian-epub3",
+      "file": "serbian-epub3.epub",
+      "epub_version": "3.0",
+      "validity": "valid",
+      "license": "CC0-1.0",
+      "provenance": "Self-authored fixture.",
+      "cases": ["metadata", "cover", "nav", "spine_order"],
+      "navigation": "nav",
+      "expected_spine_ids": ["chapter-b", "chapter-a"],
+      "required_entries": ["META-INF/container.xml", "OEBPS/content.opf", "OEBPS/nav.xhtml", "OEBPS/images/cover.svg"],
+      "expected_import": "Accept. Use EPUB 3 nav and declared spine order, retaining title, author, language, and cover."
+    },
+    {
+      "id": "malformed-content",
+      "file": "malformed-content.epub",
+      "validity": "partially-valid",
+      "license": "CC0-1.0",
+      "provenance": "Self-authored fixture.",
+      "cases": ["malformed_content"],
+      "required_entries": ["META-INF/container.xml", "OEBPS/content.opf", "OEBPS/good.xhtml", "OEBPS/bad.xhtml"],
+      "malformed_entry": "OEBPS/bad.xhtml",
+      "expected_import": "Recover the valid spine content if possible and report the malformed chapter as an import warning; never claim the bad content was parsed."
+    },
+    {
+      "id": "malformed-navigation",
+      "file": "malformed-navigation.epub",
+      "validity": "partially-valid",
+      "license": "CC0-1.0",
+      "provenance": "Self-authored fixture.",
+      "cases": ["malformed_navigation"],
+      "required_entries": ["META-INF/container.xml", "OEBPS/content.opf", "OEBPS/toc.ncx"],
+      "malformed_entry": "OEBPS/toc.ncx",
+      "expected_import": "Import recoverable spine content with an actionable malformed-navigation warning and no fabricated table of contents."
+    },
+    {
+      "id": "attack-zip-slip",
+      "file": "attack-zip-slip.epub",
+      "validity": "malicious",
+      "license": "CC0-1.0",
+      "provenance": "Self-authored security fixture; payload is inert marker text.",
+      "cases": ["zip_slip"],
+      "required_entries": ["../outside.txt"],
+      "expected_import": "Reject before extraction or publication because an entry escapes the import sandbox."
+    },
+    {
+      "id": "attack-decompression-bomb",
+      "file": "attack-decompression-bomb.epub",
+      "validity": "malicious",
+      "license": "CC0-1.0",
+      "provenance": "Self-authored security fixture; repeated ASCII marker is intentionally highly compressible.",
+      "cases": ["compression_ratio"],
+      "threshold_ratio": 100,
+      "required_entries": ["OEBPS/bomb.txt"],
+      "expected_import": "Reject before expanding an entry whose uncompressed-to-compressed ratio exceeds the configured limit."
+    },
+    {
+      "id": "attack-oversized-entry",
+      "file": "attack-oversized-entry.epub",
+      "validity": "malicious",
+      "license": "CC0-1.0",
+      "provenance": "Self-authored security fixture; deterministic filler bytes only.",
+      "cases": ["oversized_entry"],
+      "threshold_bytes": 8192,
+      "required_entries": ["OEBPS/oversized.bin"],
+      "expected_import": "Reject before reading an individual entry over the configured size limit."
+    },
+    {
+      "id": "attack-entry-count",
+      "file": "attack-entry-count.epub",
+      "validity": "malicious",
+      "license": "CC0-1.0",
+      "provenance": "Self-authored security fixture; entries contain one-byte markers.",
+      "cases": ["entry_count"],
+      "threshold_entries": 40,
+      "expected_import": "Reject before processing an archive over the configured entry-count limit."
+    },
+    {
+      "id": "attack-entity-expansion",
+      "file": "attack-entity-expansion.epub",
+      "validity": "malicious",
+      "license": "CC0-1.0",
+      "provenance": "Self-authored security fixture; tiny internal DTD entity chain, no network target.",
+      "cases": ["entity_expansion"],
+      "required_entries": ["OEBPS/entity.xhtml"],
+      "expected_import": "Reject or parse with an explicitly hardened XML configuration that disallows DTD/entity expansion."
+    },
+    {
+      "id": "attack-external-resource",
+      "file": "attack-external-resource.epub",
+      "validity": "malicious",
+      "license": "CC0-1.0",
+      "provenance": "Self-authored security fixture; references inert example/file URIs only.",
+      "cases": ["external_resource"],
+      "required_entries": ["OEBPS/external.xhtml"],
+      "expected_import": "Do not fetch external resources; reject them or skip with a diagnostic while keeping safe local text."
+    },
+    {
+      "id": "attack-encrypted-entry",
+      "file": "attack-encrypted-entry.epub",
+      "validity": "malicious",
+      "license": "CC0-1.0",
+      "provenance": "Self-authored security fixture; ZIP entry has the traditional encryption flag and inert payload.",
+      "cases": ["encrypted"],
+      "required_entries": ["OEBPS/encrypted.xhtml"],
+      "expected_import": "Reject encrypted/DRM content before attempting to import it."
+    }
+  ]
+}
