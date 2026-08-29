@@ -504,3 +504,27 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
 
 The command passed on 2026-08-29 with all core JVM tests, four connected
 instrumentation tests on `emulator-5554`, lint, and Debug assembly.
+
+## Readium EPUB spike (task 7.2)
+
+The production build intentionally does not depend on Readium yet. The isolated
+`readium-spike/` project tests the Maven Central `shared` and `streamer` AARs
+against the task-7.1 fixtures:
+
+```sh
+python3 document-epub/src/test/resources/fixtures/fixture_tool.py validate
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew -p readium-spike :app:testDebugUnitTest --tests '*ReadiumFixtureTest'
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew -p readium-spike :app:measureReadiumArtifacts :app:assembleDebug
+```
+
+The runnable compatibility control is Readium 3.1.0 with the app's Kotlin
+2.1.10, AGP 8.8.2, compile SDK 35, min SDK 30, and JDK 21 baseline. Readium
+3.3.0 resolves but its AAR metadata requires compile SDK 36. The 3.3.0 source
+tag builds `shared` and `streamer` with Readium's Gradle 9.1.0, AGP 9.0.0,
+Kotlin 2.3.20, and compile SDK 36. The experiment's size, fixture output,
+source-build evidence, and F-Droid disposition are in
+`readium-spike/README.md`; no Readium dependency is in the production app yet.

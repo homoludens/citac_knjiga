@@ -196,6 +196,14 @@ target.
   preserving the existing ready artifact, and idempotent reconciliation through
   the real Room adapter. The focused JVM suite and four connected emulator tests
   pass.
+- Task 7.2 adds an isolated `readium-spike/` consumer. Readium 3.1.0 compiles
+  and opens the EPUB2/3 fixtures through `shared`/`streamer`, preserving exact
+  metadata, cover, spine order, and NCX/nav order. The 3.3.0 Maven artifacts
+  resolve but require compile SDK 36; the 3.3.0 source checkout builds with
+  Gradle 9.1/AGP 9/Kotlin 2.3.20. Dependency size, lazy malformed-fixture
+  behavior, source-build details, and F-Droid implications are documented in
+  `readium-spike/README.md`. Readium is not added to the production importer;
+  task 7.3 owns comparison and selection.
 
 ## Repository layout
 
