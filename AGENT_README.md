@@ -204,6 +204,13 @@ target.
   behavior, source-build details, and F-Droid implications are documented in
   `readium-spike/README.md`. Readium is not added to the production importer;
   task 7.3 owns comparison and selection.
+- Task 7.3 compares that Readium control with the disposable stdlib-only
+  `epub-direct-spike/` over all 11 task-7.1 fixtures. The direct platform
+  ZIP/XML approach is selected for task 7.4 because it matches the measured
+  metadata, cover, spine, navigation, basic EPUB3 content, and malformed
+  recovery needs without adding a production dependency. The experiment only
+  observes security markers; enforcement remains task 7.5. Details are in
+  `openspec/changes/build-serbian-audiobook-mvp/epub-importer-decision.md`.
 
 ## Repository layout
 

@@ -24,9 +24,9 @@ The application must remain offline-first, handle hours of generated audio and A
 
 ### 1. Use risk-gated vertical slices
 
-Implementation proceeds through: pinned desktop reference, FP32 ONNX parity, typed-text Android inference, one known EPUB chapter, durable whole-book generation, playback, and chapter-file export. Each slice ends in a runnable demonstration and blocks dependent work if its exit criteria fail.
+Implementation proceeds through: pinned desktop reference, FP32 ONNX parity, typed-text Android inference, one known EPUB chapter, durable whole-book generation, playback, and chapter-file export. Each slice ends in a runnable demonstration. Correctness failures block dependent work; performance measurements inform later optimization but do not block implementation.
 
-Building the full Android shell first was rejected because a failed model export, incompatible phonemizer, or unacceptable thermal performance would invalidate much of that investment.
+Building the full Android shell first was rejected because a failed model export or incompatible phonemizer would invalidate much of that investment.
 
 ### 2. Start with direct ONNX Runtime Android
 
@@ -44,7 +44,7 @@ The first implementation preference is pure Kotlin tables/rules where practical.
 
 Canonical import output consists of publication metadata, ordered chapters, typed narration blocks, stable source locators, and per-chapter Markdown. Markdown is an audit/debug/export artifact, not the only internal model. UI editing is omitted, but the data model retains enough provenance for later editing and selective regeneration.
 
-Readium Kotlin Toolkit `shared` and `streamer` components are the first EPUB candidate, excluding Navigator and LCP. A direct ZIP/XML implementation is acceptable only if a fixture spike shows materially lower complexity while preserving spine, navigation, metadata, and security behavior. AnyDoc/Rust is deferred pending a later Android size, JNI, maintenance, and PDF-quality spike.
+The task-7.3 fixture comparison selects a direct platform ZIP/XML implementation, excluding Readium from production dependencies. The disposable experiment preserved metadata, cover, declared spine, navigation, basic EPUB3 content, and recoverable malformed content with no added artifact; its security markers are observation only. Task 7.4 should use `java.util.zip.ZipFile` and platform XML parsing, while task 7.5 separately implements and tests security enforcement. AnyDoc/Rust is deferred pending a later Android size, JNI, maintenance, and PDF-quality spike.
 
 ### 5. Use a small modular Android structure
 
@@ -82,17 +82,17 @@ SAF selects sources and export destinations. Successful import first copies the 
 
 The F-Droid flavor has no routine network requirement or proprietary dependencies. Model download is not part of this change; users import a checksummed model package. Public model distribution remains gated on Južne vesti and Dragana rights and attribution evidence.
 
-### 11. Define measurable gates without hiding baseline drift
+### 11. Separate correctness gates from performance reports
 
 Golden preprocessing outputs must match exactly. FP32 PyTorch, desktop ONNX, and Android ONNX numerical thresholds are declared and versioned alongside the test vectors before a candidate is evaluated; failures are investigated rather than accepted by silently loosening thresholds.
 
-The provisional Poco F3 proceed gate is sustained real-time factor at or below 1.0 and peak process memory at or below 1 GB during a representative 15-minute workload, with no crash or severe thermal collapse. The benchmark report may revise these thresholds only through an explicit design update before downstream implementation proceeds.
+A short Poco F3 comparison reports real-time factor and peak process memory for controlled CPU and XNNPACK configurations. These values have no acceptance threshold and do not gate downstream implementation. They provide a baseline for choosing a development configuration and deciding whether optimization is useful later.
 
 ## Risks / Trade-offs
 
 - [The reference phonemizer source is absent from this repository] → Restore and pin it before export; no Android port begins from observed audio alone.
 - [Kokoro export may contain unsupported or numerically unstable operations] → Export and validate subgraphs, pin opset/runtime, and keep Sherpa-ONNX as a bounded alternative.
-- [The model may be too slow, hot, or memory-heavy] → Enforce the device gate before EPUB work; then test FP16, graph optimization, thread counts, reduced ORT, and only later quantization.
+- [The model may be too slow, hot, or memory-heavy] → Record short device measurements, continue the vertical slice, and test FP16, graph optimization, other thread counts, or a reduced runtime later if actual use warrants it.
 - [A 313 MB model complicates APK and F-Droid distribution] → Keep the model outside the APK with checksummed manual import until distribution rights and packaging are settled.
 - [Readium may be larger than an extraction-only importer needs] → Depend only on required modules and compare against a bounded direct-parser fixture spike.
 - [Foreground execution rules vary by Android version and vendor] → Keep Room as the runner-independent queue, checkpoint frequently, and test Android 11, current Android, Android 16, Poco battery restrictions, reboot, and force-stop behavior.

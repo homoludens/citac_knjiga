@@ -42,6 +42,7 @@ class ReadiumFixtureTest {
             listOf("Други лист", "Први лист"),
             result.publication.tableOfContents.flatten().map { it.title }
         )
+        println("READIUM_SPIKE_CONTENT fixture=serbian-epub2 parsed=${result.publication.readingOrder.map { readContent(result.publication, it) }}")
         report("serbian-epub2", result)
         result.publication.close()
     }
@@ -62,6 +63,11 @@ class ReadiumFixtureTest {
             listOf("Поглавље Б", "Поглавље А"),
             result.publication.tableOfContents.flatten().map { it.title }
         )
+        val content = result.publication.readingOrder.map { readContent(result.publication, it) }
+        assertTrue(content.all { it != null && it.contains("<h1>") && it.contains("<p>") })
+        assertTrue(content[0]!!.contains("Бета текст."))
+        assertTrue(content[1]!!.contains("Алфа текст."))
+        println("READIUM_SPIKE_CONTENT fixture=serbian-epub3 parsed=${content.map { it != null }}")
         report("serbian-epub3", result)
         result.publication.close()
     }
@@ -112,6 +118,16 @@ class ReadiumFixtureTest {
                 "toc=${result.publication.tableOfContents.flatten().map { it.title }} " +
                 "warnings=${result.warnings.size}"
         )
+    }
+
+    private suspend fun readContent(
+        publication: org.readium.r2.shared.publication.Publication,
+        link: org.readium.r2.shared.publication.Link,
+    ): String? {
+        val resource = publication.get(link) ?: return null
+        val length = resource.length().getOrElse { return null }
+        if (length == 0L) return ""
+        return resource.read(0L..(length - 1)).getOrElse { return null }.toString(Charsets.UTF_8)
     }
 
     private data class Opened(
