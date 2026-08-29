@@ -59,14 +59,14 @@ public enum class EpubImportError {
     SECURITY_VALIDATION_FAILED,
 }
 
-/** Durable lookup and record boundary used before a future EPUB parser owns the project. */
+/** Durable lookup and record boundary used by the source import boundary. */
 public interface EpubProjectIndex {
     public fun findByFingerprint(fingerprint: String): ExistingEpubProject?
 
     public fun recordImportedSource(source: ImportedEpubSource)
 }
 
-/** Imports only the source artifact; EPUB archive parsing is intentionally a later task. */
+/** Imports the validated source artifact; document parsing consumes its private copy separately. */
 public interface EpubSourceRepository {
     public fun importSelected(uri: Uri): EpubImportResult
 }

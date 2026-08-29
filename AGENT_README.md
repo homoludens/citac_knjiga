@@ -217,8 +217,8 @@ target.
   project index, and atomically published as `sources/<projectId>/source.epub`.
   The persisted URI is provenance only; later document work uses the private
   `sourcePath`. Duplicate, copy, publication, and index failures leave existing
-  projects untouched and clean temporary output. Archive/XML security and EPUB
-  parsing remain tasks 7.6-7.7.
+  projects untouched and clean temporary output. Archive/XML security is task
+  7.5; structured parsing and cleanup continue through tasks 7.6-7.7.
 - Task 7.5 adds a read-only `EpubSecurityValidator` before source fingerprinting
   and publication. Strict defaults reject 40 or more entries, 128 KiB or more
   total expansion, 8 KiB or more per entry, 100:1 or more compression ratio,
@@ -228,6 +228,13 @@ target.
   Validation never extracts entries; failures expose typed codes and clean the
   private temporary source. These are inspection limits, not EPUB metadata or
   content mapping, which remains task 7.6+.
+- Task 7.6 adds `EpubDocumentParser`, a stdlib `ZipFile`/DOM mapper that accepts
+  only the exact published private source path and repeats security validation
+  before opening it. It emits metadata, cover bytes, recursive nav/NCX TOC,
+  spine-ordered chapters, typed narration blocks, deterministic source locators,
+  and explicit `SKIPPED` blocks for unavailable or unsupported content. It can
+  project chapters and blocks into the existing Room entities; Markdown,
+  diagnostics, preview, and generation remain later tasks.
 
 ## Repository layout
 

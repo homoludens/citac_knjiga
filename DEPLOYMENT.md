@@ -561,8 +561,8 @@ external URI attributes, and XML parser configurations that cannot be hardened.
 
 Rejections return a typed `EpubSecurityDiagnostic` without source text or URI;
 the temporary source is deleted and no project source/index row is published.
-These limits provide bounded inspection only. EPUB structure mapping, malformed
-content recovery, and user-facing import warnings remain later tasks.
+These limits provide bounded inspection only. Canonical Markdown, cleanup
+diagnostics, and user-facing import warnings remain later tasks.
 
 Focused verification:
 
@@ -571,4 +571,22 @@ ANDROID_HOME=/home/homoludens/Android/Sdk \
 ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
   ./gradlew :document-epub:testDebugUnitTest --tests '*EpubSecurityValidatorTest' \
   --tests '*EpubSourceRepositoryTest'
+```
+
+## EPUB structured IR mapping (task 7.6)
+
+`EpubDocumentParser` consumes only the exact `sources/<projectId>/source.epub`
+path published below `AppPrivateStorage`. It reruns `EpubSecurityValidator`
+before opening `ZipFile`, then maps OPF metadata, EPUB2 NCX or EPUB3 nav,
+cover bytes, spine order, and HTML headings, paragraphs, lists, quotes, poetry,
+captions, notes, and scene breaks. Unsupported media, navigation content, empty
+chapters, missing spine targets, and the authored EPUB2 double-`OEBPS/` targets
+are retained as typed `SKIPPED` IR blocks with stable entry/XPath locators.
+
+Focused verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :document-epub:testDebugUnitTest --tests '*EpubDocumentParserTest'
 ```
