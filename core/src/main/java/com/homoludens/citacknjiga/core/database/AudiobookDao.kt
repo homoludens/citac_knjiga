@@ -3,9 +3,37 @@ package com.homoludens.citacknjiga.core.database
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 
 @Dao
 public interface AudiobookDao {
+    @Query("SELECT * FROM book_project")
+    public fun findAllProjects(): List<BookProjectEntity>
+
+    @Query("SELECT * FROM chapter")
+    public fun findAllChapters(): List<ChapterEntity>
+
+    @Query("SELECT * FROM generation_run")
+    public fun findAllGenerationRuns(): List<GenerationRunEntity>
+
+    @Query("SELECT * FROM audio_segment")
+    public fun findAllAudioSegments(): List<AudioSegmentEntity>
+
+    @Query("SELECT * FROM model_package WHERE status = 'ACTIVE' ORDER BY imported_at DESC, id DESC LIMIT 1")
+    public fun findActiveModelPackage(): ModelPackageEntity?
+
+    @Update
+    public fun updateProject(project: BookProjectEntity)
+
+    @Update
+    public fun updateChapter(chapter: ChapterEntity)
+
+    @Update
+    public fun updateGenerationRun(run: GenerationRunEntity)
+
+    @Update
+    public fun updateAudioSegment(segment: AudioSegmentEntity)
+
     @Transaction
     @Query("SELECT * FROM book_project WHERE id = :projectId")
     public fun findProjectWithRelations(projectId: String): BookProjectWithRelations?

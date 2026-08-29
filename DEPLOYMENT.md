@@ -471,3 +471,19 @@ Focused verification:
 ANDROID_HOME=/home/homoludens/Android/Sdk \
   ./gradlew :core:testDebugUnitTest --tests '*GenerationKeyTest' :core:lintDebug :core:assembleDebug
 ```
+
+## Startup reconciliation (task 6.6)
+
+`core/reconciliation/StartupReconciliation` uses a Room-backed transaction
+adapter and the private artifact store. It removes only stale files under
+`filesDir/temporary`, returns interrupted `RUNNING`/`GENERATING` work to
+`QUEUED`/`PENDING`, and marks missing, checksum-invalid, or stale-provenance
+ready segments as `STALE`. It retains all source, model, and ready-audio files
+for inspection or later replacement.
+
+Focused verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+  ./gradlew :core:testDebugUnitTest --tests '*StartupReconciliationTest' :core:lintDebug :core:assembleDebug
+```

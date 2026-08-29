@@ -185,6 +185,12 @@ target.
   pronunciation versions, sorted inference settings, and audio-processing
   version. Generation keys add the ordered token IDs to that dependency
   identity; neither key includes timestamps or database state.
+- Task 6.6 adds `core/reconciliation/StartupReconciliation`. On startup it
+  removes only age-qualified files below `temporary/`, returns running runs and
+  generating segments to queued/pending states, and marks missing, checksum-
+  invalid, format-invalid, or stale-provenance ready segments as `STALE`.
+  Chapter/project readiness is downgraded accordingly; source, model, and
+  ready-audio files are never deleted by reconciliation.
 
 ## Repository layout
 
