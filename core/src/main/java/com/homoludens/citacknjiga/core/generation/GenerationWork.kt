@@ -21,6 +21,10 @@ import com.homoludens.citacknjiga.core.reconciliation.StartupReconciliation
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 public fun interface GenerationRunExecutor {
     public suspend fun execute(runId: String): BoundedGenerationResult
@@ -66,13 +70,33 @@ public class GenerationWorker(
     appContext: Context,
     workerParams: WorkerParameters,
     private val executor: GenerationRunExecutor,
+    private val notifications: GenerationNotificationController? = null,
 ) : CoroutineWorker(appContext, workerParams) {
     override suspend fun doWork(): Result {
         val runId = inputData.getString(GenerationWorkContract.RUN_ID_KEY)
             ?.takeIf(String::isNotBlank)
             ?: return Result.failure(workDataOf("error" to "Missing generation run id"))
         return try {
-            val result = executor.execute(runId)
+            notifications?.let { setForeground(it.foregroundInfo(runId)) }
+            val result = if (notifications == null) {
+                executor.execute(runId)
+            } else {
+                coroutineScope {
+                    val monitor = launch {
+                        while (isActive) {
+                            val foreground = notifications.foregroundInfo(runId)
+                            setProgress(notifications.progressData(runId))
+                            setForeground(foreground)
+                            delay(PROGRESS_REFRESH_MILLIS)
+                        }
+                    }
+                    try {
+                        executor.execute(runId)
+                    } finally {
+                        monitor.cancel()
+                    }
+                }
+            }
             val output = workDataOf(
                 GenerationWorkContract.RUN_ID_KEY to result.runId,
                 GenerationWorkContract.STATUS_KEY to result.status.name,
@@ -91,18 +115,23 @@ public class GenerationWorker(
             Result.retry()
         }
     }
+
+    private companion object {
+        const val PROGRESS_REFRESH_MILLIS = 1_000L
+    }
 }
 
 /** Supplies the runner after process recreation without coupling it to WorkManager. */
 public class GenerationWorkerFactory(
     private val executor: GenerationRunExecutor,
+    private val notifications: GenerationNotificationController? = null,
 ) : WorkerFactory() {
     override fun createWorker(
         appContext: Context,
         workerClassName: String,
         workerParameters: WorkerParameters,
     ): ListenableWorker? = if (workerClassName == GenerationWorker::class.java.name) {
-        GenerationWorker(appContext, workerParameters, executor)
+        GenerationWorker(appContext, workerParameters, executor, notifications)
     } else {
         null
     }

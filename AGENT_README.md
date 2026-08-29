@@ -133,10 +133,17 @@ target.
   work name per generation run, and applies offline, battery, and storage
   constraints with exponential retry backoff. `RoomGenerationQueue` reuses
   `StartupReconciliation` after app start, reboot, or update; the worker receives
-  its bounded runner through `GenerationWorkerFactory` and does not own
-  foreground notification policy. Android instrumentation coverage verifies
+  its bounded runner through `GenerationWorkerFactory`, while foreground policy
+  is supplied separately by task 8.5. Android instrumentation coverage verifies
   unique-work coordination and scheduling; execution on a connected device is
   still pending because no device is currently attached.
+- Task 8.5 adds `GenerationNotificationController` and the optional foreground
+  notification path for `GenerationWorker`. Room-derived notifications show the
+  book title, ready/total segment progress, and failed-segment count, with
+  explicit pause, resume, and cancel actions. Actions update the persisted run
+  state before coordinating the unique WorkManager request; notification and
+  foreground-service permissions are declared, while Android 16 host
+  qualification remains task 8.6.
 - Task 4.8 adds the single-route typed Serbian proof screen. It accepts Latin and
   Cyrillic input, exposes preprocessing/model diagnostics and explicit generation
   states, writes validated app-private 24 kHz mono PCM16 WAV, and plays it with

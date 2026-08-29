@@ -741,9 +741,9 @@ Each request requires no network, a non-low battery, and non-low storage. An
 unexpected worker exception uses exponential WorkManager backoff; a durable
 failed run returns failure with its failed segment IDs so the persisted retry
 action remains authoritative. The worker does not call `setForeground()` or
-create notifications; that policy belongs to task 8.5. The app composition root
-must provide the same `GenerationRunExecutor` through `GenerationWorkerFactory`
-when wiring the production model generator.
+create notifications unless a task-8.5 notification controller is supplied. The
+app composition root must provide the same `GenerationRunExecutor` through
+`GenerationWorkerFactory` when wiring the production model generator.
 
 Focused verification and Android-test compilation:
 
@@ -756,3 +756,19 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
 
 `GenerationWorkSchedulerTest` requires a connected Android device for execution;
 the current environment has none attached.
+
+## Foreground generation notification (task 8.5)
+
+`GenerationNotificationController` creates the low-importance generation
+channel and builds a `ForegroundInfo` from Room-derived progress. The
+notification includes the book title, ready/total segment progress, failed
+segment count, and pause/resume/cancel actions. `GenerationWorker` refreshes
+foreground state and WorkManager progress once per second while the injected
+bounded executor runs. The action receiver persists pause/resume/cancel state
+through `GenerationStateService`; resume then re-enqueues the same stable unique
+work name. It does not change queue semantics or select the Android execution
+host.
+
+The app declares `POST_NOTIFICATIONS` and `FOREGROUND_SERVICE`. Runtime
+notification permission UX and Android 16 WorkManager versus direct-service
+qualification remain later work.
