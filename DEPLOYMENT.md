@@ -725,3 +725,34 @@ ANDROID_HOME=/home/homoludens/Android/Sdk \
 ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
   ./gradlew :core:testDebugUnitTest --tests '*BoundedGenerationRunnerTest'
 ```
+
+## WorkManager generation scheduling (task 8.4)
+
+`core/generation/GenerationWorkScheduler` is the WorkManager adapter for the
+durable generation queue. It calls `RoomGenerationQueue.reconcile()` before
+enqueueing work, so interrupted `RUNNING` runs and `GENERATING` segments are
+returned to queued/pending states by `StartupReconciliation`. It re-enqueues
+queued runs using the stable name `generation-run-<run-id>` and
+`ExistingWorkPolicy.KEEP`; WorkManager therefore survives process death, reboot,
+and application update without duplicate run chains. Paused or cancelled runs
+are not automatically re-enqueued.
+
+Each request requires no network, a non-low battery, and non-low storage. An
+unexpected worker exception uses exponential WorkManager backoff; a durable
+failed run returns failure with its failed segment IDs so the persisted retry
+action remains authoritative. The worker does not call `setForeground()` or
+create notifications; that policy belongs to task 8.5. The app composition root
+must provide the same `GenerationRunExecutor` through `GenerationWorkerFactory`
+when wiring the production model generator.
+
+Focused verification and Android-test compilation:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew :core:testDebugUnitTest :core:compileDebugAndroidTestKotlin \
+  :core:lintDebug :core:assembleDebug
+```
+
+`GenerationWorkSchedulerTest` requires a connected Android device for execution;
+the current environment has none attached.

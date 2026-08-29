@@ -128,6 +128,15 @@ target.
   checks persisted pause/cancel state between segments. Coroutine cancellation
   releases an incomplete claim to `PENDING`; schedulers, notifications, playback,
   export, and recovery hosts remain outside this task.
+- Task 8.4 adds the WorkManager queue adapter in `core`. `GenerationWorkScheduler`
+  reconciles Room state before enqueueing queued runs, uses one `KEEP` unique
+  work name per generation run, and applies offline, battery, and storage
+  constraints with exponential retry backoff. `RoomGenerationQueue` reuses
+  `StartupReconciliation` after app start, reboot, or update; the worker receives
+  its bounded runner through `GenerationWorkerFactory` and does not own
+  foreground notification policy. Android instrumentation coverage verifies
+  unique-work coordination and scheduling; execution on a connected device is
+  still pending because no device is currently attached.
 - Task 4.8 adds the single-route typed Serbian proof screen. It accepts Latin and
   Cyrillic input, exposes preprocessing/model diagnostics and explicit generation
   states, writes validated app-private 24 kHz mono PCM16 WAV, and plays it with

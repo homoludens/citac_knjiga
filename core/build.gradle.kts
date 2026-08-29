@@ -34,12 +34,14 @@ kotlin {
 
 dependencies {
     implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.work.runtime)
     implementation(libs.kotlinx.coroutines.core)
     kapt(libs.androidx.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.room.testing)
     androidTestImplementation(libs.androidx.test.core)
     androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.work.testing)
 }
 
 kapt {
