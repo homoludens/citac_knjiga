@@ -70,6 +70,7 @@ public data class ReconciliationReport(
     public val interruptedSegmentIds: List<String>,
     public val invalidReadySegmentIds: List<String>,
     public val staleProvenanceSegmentIds: List<String>,
+    public val staleGenerationKeySegmentIds: List<String> = emptyList(),
 )
 
 /** Repairs durable state after a process, storage, reboot, or update interruption. */
@@ -79,7 +80,7 @@ public class StartupReconciliation(
     private val artifactStore: AtomicArtifactStore = AtomicArtifactStore(storage),
     private val temporaryMaxAgeMillis: Long = DEFAULT_TEMPORARY_MAX_AGE_MILLIS,
 ) {
-    public fun reconcile(): ReconciliationReport {
+    public fun reconcile(expectedGenerationKeys: Map<String, String> = emptyMap()): ReconciliationReport {
         val removedTemporaryFileCount = artifactStore.cleanupStaleTemporaryFiles(temporaryMaxAgeMillis)
         val snapshot = database.snapshot()
         val runsById = snapshot.generationRuns.associateBy { it.id }
@@ -92,20 +93,27 @@ public class StartupReconciliation(
             .map { it.copy(status = AudioSegmentStatus.PENDING) }
         val invalidReadySegmentIds = mutableListOf<String>()
         val staleProvenanceSegmentIds = mutableListOf<String>()
+        val staleGenerationKeySegmentIds = mutableListOf<String>()
         val changedReadySegments = snapshot.audioSegments
             .filter { it.status == AudioSegmentStatus.READY }
             .mapNotNull { segment ->
                 val integrityFailure = !hasValidArtifact(segment)
                 val provenanceFailure = !hasCurrentProvenance(segment, snapshot.activeModelPackage, runsById)
-                if (!integrityFailure && !provenanceFailure) return@mapNotNull null
+                val generationKeyFailure = expectedGenerationKeys[segment.id]?.let { expected ->
+                    !segment.generationKey.equals(expected, ignoreCase = true)
+                } ?: false
+                if (!integrityFailure && !provenanceFailure && !generationKeyFailure) return@mapNotNull null
                 if (integrityFailure) invalidReadySegmentIds += segment.id
                 if (provenanceFailure) staleProvenanceSegmentIds += segment.id
+                if (generationKeyFailure) staleGenerationKeySegmentIds += segment.id
                 val reasons = buildList {
                     if (integrityFailure) add("ready audio is missing or checksum-invalid")
                     if (provenanceFailure) add("generation provenance is stale")
+                    if (generationKeyFailure) add("generation key is stale")
                 }
                 segment.copy(
                     status = AudioSegmentStatus.STALE,
+                    attemptCount = 0,
                     lastError = reasons.joinToString("; "),
                 )
         }
@@ -158,6 +166,7 @@ public class StartupReconciliation(
             interruptedSegmentIds = changedSegments.map { it.id }.sorted(),
             invalidReadySegmentIds = invalidReadySegmentIds.sorted(),
             staleProvenanceSegmentIds = staleProvenanceSegmentIds.sorted(),
+            staleGenerationKeySegmentIds = staleGenerationKeySegmentIds.sorted(),
         )
     }
 

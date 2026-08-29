@@ -145,6 +145,14 @@ target.
   foreground-service permissions are declared. Android 16 host qualification
    is explicitly deferred because the available Poco F3 runs Android 13; the
    queue remains runner-independent for later qualification.
+- Task 8.7 adds the core `GenerationFailurePolicy` and bounded three-attempt
+  segment retry path. ONNX validation, inference, provenance, and atomic-write
+  failures retain stable actionable codes in the existing `last_error` field;
+  invalid output is rejected before ready publication. Startup reconciliation
+  accepts expected generation keys and marks only stale, corrupt, or
+  mismatched-provenance ready segments stale, leaving verified unaffected audio
+  reusable. Storage estimates, recovery qualification, and multi-chapter proof
+  remain tasks 8.8-8.10.
 - Task 4.8 adds the single-route typed Serbian proof screen. It accepts Latin and
   Cyrillic input, exposes preprocessing/model diagnostics and explicit generation
   states, writes validated app-private 24 kHz mono PCM16 WAV, and plays it with

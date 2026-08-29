@@ -1,5 +1,6 @@
 package com.homoludens.citacknjiga.tts.onnx
 
+import com.homoludens.citacknjiga.core.generation.GenerationFailureCategory
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -87,6 +88,7 @@ public class OnnxAudioOutputValidatorTest {
             OnnxAudioOutputValidator.validate(output, expectedTokenCount = 2)
         }
         assertEquals(code, exception.code)
+        assertEquals(GenerationFailureCategory.AUDIO_VALIDATION, exception.category)
     }
 
     private fun validOutput(): OnnxTtsOutput = OnnxTtsOutput(validPcm(), longArrayOf(1, 1))

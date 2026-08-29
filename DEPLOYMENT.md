@@ -773,3 +773,19 @@ host.
 The app declares `POST_NOTIFICATIONS` and `FOREGROUND_SERVICE`. Runtime
 notification permission UX and Android 16 WorkManager versus direct-service
 qualification remain deferred post-MVP work.
+
+## Audio validation and selective retry (task 8.7)
+
+`OnnxAudioOutputValidator` remains the tensor boundary gate for finite,
+non-silent, unclipped 24 kHz mono output with a plausible duration and exact
+sample count. `AtomicArtifactStore` runs the generated-file validator before
+hashing or replacing the ready artifact, so invalid audio and failed writes
+cannot publish over an existing segment.
+
+`GenerationFailurePolicy` persists stable `AUDIO_*`, `INFERENCE_FAILURE`,
+`PROVENANCE_MISMATCH`, and `WRITE_FAILURE` codes in the existing segment error
+field. Transient audio-validation, inference, and write failures are retried
+up to three total segment attempts; provenance failures are not retried.
+Attempt counts remain in Room. Reconciliation can receive the expected key for
+each segment and marks only ready segments with stale keys, provenance, or file
+integrity as `STALE`; unaffected verified ready segments remain reusable.

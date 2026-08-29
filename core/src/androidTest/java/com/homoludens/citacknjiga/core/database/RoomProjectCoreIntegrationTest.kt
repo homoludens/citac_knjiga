@@ -7,10 +7,13 @@ import java.io.File
 import java.util.UUID
 import com.homoludens.citacknjiga.core.reconciliation.RoomReconciliationDatabase
 import com.homoludens.citacknjiga.core.reconciliation.StartupReconciliation
+import com.homoludens.citacknjiga.core.generation.GenerationRetryPolicy
+import com.homoludens.citacknjiga.core.generation.GenerationStateService
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.core.storage.AtomicArtifactStore
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -118,6 +121,83 @@ public class RoomProjectCoreIntegrationTest {
         assertTrue(artifact.file.exists())
     }
 
+    @Test
+    public fun roomReconciliationKeepsAnUnaffectedReadySegmentReusable() {
+        val storage = AppPrivateStorage(storageRoot)
+        val artifactStore = AtomicArtifactStore(storage)
+        val staleArtifact = artifactStore.publish(
+            ownerId = "run",
+            destination = storage.readySegmentAudio("book", "chapter", "stale"),
+            writer = { it.write("stale candidate".toByteArray()) },
+        )
+        val reusableArtifact = artifactStore.publish(
+            ownerId = "run",
+            destination = storage.readySegmentAudio("book", "chapter", "reusable"),
+            writer = { it.write("reusable audio".toByteArray()) },
+        )
+        val dao = database.audiobookDao()
+        val project = project(BookProjectStatus.COMPLETED)
+        val chapter = chapter(ChapterStatus.READY)
+        val staleBlock = block(NarrationBlockStatus.PROCESSED, "block-stale")
+        val reusableBlock = block(NarrationBlockStatus.PROCESSED, "block-reusable", ordinal = 1)
+        val model = activeModel()
+        val run = run(GenerationRunStatus.COMPLETED)
+        val stale = segment(
+            AudioSegmentStatus.READY,
+            run.id,
+            "stale",
+            blockId = staleBlock.id,
+            audioPath = staleArtifact.file.absolutePath,
+            audioSha256 = staleArtifact.sha256,
+            sizeBytes = staleArtifact.sizeBytes,
+        )
+        val reusable = segment(
+            AudioSegmentStatus.READY,
+            run.id,
+            "reusable",
+            blockId = reusableBlock.id,
+            sequence = 1,
+            audioPath = reusableArtifact.file.absolutePath,
+            audioSha256 = reusableArtifact.sha256,
+            sizeBytes = reusableArtifact.sizeBytes,
+        )
+        insert(dao, project, chapter, staleBlock, reusableBlock, model, run, stale, reusable)
+
+        val report = StartupReconciliation(RoomReconciliationDatabase(database), storage, artifactStore).reconcile(
+            expectedGenerationKeys = mapOf(stale.id to "new-key", reusable.id to reusable.generationKey!!),
+        )
+
+        assertEquals(listOf(stale.id), report.staleGenerationKeySegmentIds)
+        assertEquals(AudioSegmentStatus.STALE, dao.findAudioSegmentById(stale.id)?.status)
+        assertEquals(AudioSegmentStatus.READY, dao.findAudioSegmentById(reusable.id)?.status)
+        assertTrue(reusableArtifact.file.exists())
+    }
+
+    @Test
+    public fun roomRetryLimitLeavesThePersistedFailedSegmentUntouched() {
+        val dao = database.audiobookDao()
+        val project = project(BookProjectStatus.GENERATING)
+        val chapter = chapter(ChapterStatus.GENERATING)
+        val block = block(NarrationBlockStatus.PROCESSED)
+        val model = activeModel()
+        val run = run(GenerationRunStatus.RUNNING)
+        val segment = segment(AudioSegmentStatus.FAILED, run.id, "failed").copy(
+            attemptCount = 3,
+            lastError = "INFERENCE_FAILURE: model unavailable",
+        )
+        insert(dao, project, chapter, block, model, run, segment)
+
+        assertThrows(IllegalStateException::class.java) {
+            GenerationStateService(database, retryPolicy = GenerationRetryPolicy(maxAttempts = 3))
+                .retryAudioSegment(segment.id)
+        }
+
+        val saved = dao.findAudioSegmentById(segment.id)!!
+        assertEquals(AudioSegmentStatus.FAILED, saved.status)
+        assertEquals(3, saved.attemptCount)
+        assertEquals(segment.lastError, saved.lastError)
+    }
+
     private fun insert(
         dao: AudiobookDao,
         project: BookProjectEntity,
@@ -207,6 +287,7 @@ public class RoomProjectCoreIntegrationTest {
         audioPath: String? = null,
         audioSha256: String? = null,
         sizeBytes: Long? = null,
+        attemptCount: Int = 0,
     ) = AudioSegmentEntity(
         id = id,
         chapterId = "chapter",
@@ -226,6 +307,7 @@ public class RoomProjectCoreIntegrationTest {
         audioPath = audioPath,
         audioSha256 = audioSha256,
         sizeBytes = sizeBytes,
+        attemptCount = attemptCount,
         createdAt = 1,
         updatedAt = 1,
     )

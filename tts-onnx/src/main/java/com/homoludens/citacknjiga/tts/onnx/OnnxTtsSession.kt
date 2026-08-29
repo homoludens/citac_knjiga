@@ -6,6 +6,8 @@ import ai.onnxruntime.OnnxValue
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
 import ai.onnxruntime.TensorInfo
+import com.homoludens.citacknjiga.core.generation.GenerationFailureCategory
+import com.homoludens.citacknjiga.core.generation.GenerationFailureException
 import java.nio.FloatBuffer
 import java.nio.LongBuffer
 
@@ -61,7 +63,12 @@ public data class OnnxTtsOutput(
     val channels: Int = OnnxRuntimeContract.CHANNELS,
 )
 
-public open class OnnxTtsException(message: String, cause: Throwable? = null) : IllegalStateException(message, cause)
+public open class OnnxTtsException(
+    message: String,
+    cause: Throwable? = null,
+    category: GenerationFailureCategory = GenerationFailureCategory.INFERENCE,
+    code: String = "INFERENCE_FAILURE",
+) : GenerationFailureException(category, code, message, cause)
 
 public enum class OnnxAudioFailureCode {
     NON_FINITE_SAMPLES,
@@ -77,7 +84,11 @@ public enum class OnnxAudioFailureCode {
 public class OnnxAudioValidationException(
     public val code: OnnxAudioFailureCode,
     message: String,
-) : OnnxTtsException(message)
+) : OnnxTtsException(
+    message = message,
+    category = GenerationFailureCategory.AUDIO_VALIDATION,
+    code = "AUDIO_${code.name}",
+)
 
 /** Applies the frozen desktop audio contract before output can leave inference. */
 public object OnnxAudioOutputValidator {

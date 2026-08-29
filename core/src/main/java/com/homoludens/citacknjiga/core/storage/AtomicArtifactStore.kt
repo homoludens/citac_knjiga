@@ -1,5 +1,7 @@
 package com.homoludens.citacknjiga.core.storage
 
+import com.homoludens.citacknjiga.core.generation.GenerationFailureCategory
+import com.homoludens.citacknjiga.core.generation.GenerationFailureException
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -38,22 +40,59 @@ public class AtomicArtifactStore(
     ): PublishedArtifact {
         val target = contained(destination)
         val parent = target.parentFile
-        require(parent != null && (parent.isDirectory || parent.mkdirs())) {
+        require(parent != null && (parent.isDirectory || parent.mkdirs() || parent.isDirectory)) {
             "Artifact destination directory is unavailable"
         }
 
         val temporary = createTemporary(ownerId, target.name)
         try {
-            FileOutputStream(temporary).use { fileStream ->
-                BufferedOutputStream(fileStream).use { bufferedStream ->
-                    writer(bufferedStream)
-                    bufferedStream.flush()
-                    fileStream.fd.sync()
+            try {
+                FileOutputStream(temporary).use { fileStream ->
+                    BufferedOutputStream(fileStream).use { bufferedStream ->
+                        writer(bufferedStream)
+                        bufferedStream.flush()
+                        fileStream.fd.sync()
+                    }
                 }
+            } catch (failure: java.util.concurrent.CancellationException) {
+                throw failure
+            } catch (failure: GenerationFailureException) {
+                throw failure
+            } catch (failure: Throwable) {
+                throw GenerationFailureException(
+                    category = GenerationFailureCategory.WRITE,
+                    stableCode = "WRITE_FAILURE",
+                    message = failure.message?.takeIf(String::isNotBlank) ?: "audio temporary write failed",
+                    cause = failure,
+                )
             }
-            validator(temporary)
+            try {
+                validator(temporary)
+            } catch (failure: java.util.concurrent.CancellationException) {
+                throw failure
+            } catch (failure: GenerationFailureException) {
+                throw failure
+            } catch (failure: Throwable) {
+                throw GenerationFailureException(
+                    category = GenerationFailureCategory.AUDIO_VALIDATION,
+                    stableCode = "AUDIO_VALIDATION_FAILURE",
+                    message = failure.message?.takeIf(String::isNotBlank) ?: "audio validation failed",
+                    cause = failure,
+                )
+            }
             val artifact = PublishedArtifact(target, temporary.length(), sha256(temporary))
-            moveIntoPlace(temporary, target)
+            try {
+                moveIntoPlace(temporary, target)
+            } catch (failure: java.util.concurrent.CancellationException) {
+                throw failure
+            } catch (failure: Throwable) {
+                throw GenerationFailureException(
+                    category = GenerationFailureCategory.WRITE,
+                    stableCode = "WRITE_FAILURE",
+                    message = failure.message?.takeIf(String::isNotBlank) ?: "audio publication failed",
+                    cause = failure,
+                )
+            }
             return artifact
         } finally {
             if (temporary.exists()) temporary.delete()

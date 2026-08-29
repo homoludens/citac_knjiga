@@ -14,6 +14,7 @@ import com.homoludens.citacknjiga.core.storage.PublishedArtifact
 /** Persists validated state changes as one transaction with their related checks. */
 public class GenerationStateService(
     private val database: AudiobookDatabase,
+    private val retryPolicy: GenerationRetryPolicy = GenerationRetryPolicy(),
     private val clock: () -> Long = System::currentTimeMillis,
 ) : GenerationStateGateway {
     private val dao = database.audiobookDao()
@@ -364,8 +365,13 @@ public class GenerationStateService(
     public fun retryGenerationRun(runId: String): GenerationRunEntity =
         transitionGenerationRun(runId, GenerationRunStatus.QUEUED)
 
-    public fun retryAudioSegment(segmentId: String): AudioSegmentEntity =
-        transitionAudioSegment(segmentId, AudioSegmentStatus.PENDING)
+    override fun retryAudioSegment(segmentId: String): AudioSegmentEntity = inTransaction {
+        val current = dao.findAudioSegmentById(segmentId) ?: missing("audio segment", segmentId)
+        check(retryPolicy.canRetry(current.attemptCount)) {
+            "Audio segment $segmentId reached the retry limit of ${retryPolicy.maxAttempts} attempts"
+        }
+        transitionAudioSegmentInTransaction(segmentId, AudioSegmentStatus.PENDING)
+    }
 
     private fun projectError(
         current: BookProjectEntity,
@@ -411,9 +417,11 @@ public class GenerationStateService(
         throw IllegalArgumentException("A $entityType failure requires an actionable error")
 
     private fun <T> inTransaction(block: () -> T): T {
-        var result: T? = null
+        var result: Any? = NO_TRANSACTION_RESULT
         database.runInTransaction { result = block() }
-        return result!!
+        check(result !== NO_TRANSACTION_RESULT) { "Database transaction did not execute" }
+        @Suppress("UNCHECKED_CAST")
+        return result as T
     }
 
     private fun checkUpdated(rows: Int, entityType: String, id: String) {
@@ -424,4 +432,8 @@ public class GenerationStateService(
 
     private fun missing(entityType: String, id: String): Nothing =
         throw StateConsistencyException("Missing $entityType $id")
+
+    private companion object {
+        private object NO_TRANSACTION_RESULT
+    }
 }

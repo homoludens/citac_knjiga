@@ -98,3 +98,9 @@ public object GenerationKeyCalculator {
 
     private fun ByteArray.toHex(): String = joinToString("") { byte -> "%02x".format(byte.toInt() and 0xff) }
 }
+
+/** Adapts per-segment inputs into keys consumed by selective reconciliation. */
+public object SelectiveRegenerationPolicy {
+    public fun expectedGenerationKeys(inputs: Map<String, GenerationKeyInput>): Map<String, String> =
+        inputs.mapValues { (_, input) -> GenerationKeyCalculator.generationKey(input) }
+}

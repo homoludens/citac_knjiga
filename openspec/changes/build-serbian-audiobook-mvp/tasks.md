@@ -83,7 +83,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 - [x] 8.4 Implement WorkManager scheduling, constraints, reboot/update reconciliation, and unique-work coordination over the Room queue. → `core/generation/GenerationWork`; Android-test compilation passes, connected execution remains pending without a device.
 - [x] 8.5 Implement foreground generation notification with book title, segment-based progress, pause, resume, cancel, and failed-item visibility. → `core/generation/GenerationNotification`; build/lint and Android-test compilation pass, connected execution remains pending without a device.
 - [x] 8.6 Defer Android 16 qualification of long-running WorkManager versus a user-started direct foreground service. The current Poco F3 is Android 13; the queue remains runner-independent and this qualification is a post-MVP follow-up.
-- [ ] 8.7 Implement audio validation, retry policy, failure categorization, and selective regeneration for a failed or stale segment.
+- [x] 8.7 Implement audio validation, retry policy, failure categorization, and selective regeneration for a failed or stale segment.
 - [ ] 8.8 Implement preflight and ongoing storage estimates with safety margins, write-failure handling, and explicit cleanup choices.
 - [ ] 8.9 Add recovery tests for forced process death during inference/write/publication, device reboot, app update, low storage, and unavailable source/export storage.
 - [ ] 8.10 Demonstrate a multi-chapter book resuming after forced termination without regenerating completed verified segments.

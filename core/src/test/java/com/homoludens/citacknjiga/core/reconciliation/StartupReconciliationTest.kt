@@ -10,6 +10,8 @@ import com.homoludens.citacknjiga.core.database.GenerationRunEntity
 import com.homoludens.citacknjiga.core.database.GenerationRunStatus
 import com.homoludens.citacknjiga.core.database.ModelPackageEntity
 import com.homoludens.citacknjiga.core.database.ModelPackageStatus
+import com.homoludens.citacknjiga.core.generation.GenerationKeyInput
+import com.homoludens.citacknjiga.core.generation.SelectiveRegenerationPolicy
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.core.storage.AtomicArtifactStore
 import java.io.File
@@ -142,6 +144,34 @@ public class StartupReconciliationTest {
         assertTrue(file.exists())
     }
 
+    @Test
+    public fun onlySegmentsWithStaleGenerationKeysAreInvalidated() {
+        val root = createTempDirectory().toFile()
+        val storage = AppPrivateStorage(root)
+        val store = AtomicArtifactStore(storage)
+        val project = project(BookProjectStatus.COMPLETED)
+        val chapter = chapter(ChapterStatus.READY)
+        val run = run(GenerationRunStatus.COMPLETED)
+        val stale = readySegment(storage, store, "stale-key", run.id)
+        val reusable = readySegment(storage, store, "reusable", run.id)
+        val database = FakeDatabase(snapshot(project, chapter, run, listOf(stale, reusable)))
+        val expectedStaleKey = SelectiveRegenerationPolicy.expectedGenerationKeys(
+            mapOf(stale.id to generationKeyInput()),
+        ).getValue(stale.id)
+
+        val report = StartupReconciliation(database, storage, store).reconcile(
+            expectedGenerationKeys = mapOf(
+                stale.id to expectedStaleKey,
+                reusable.id to reusable.generationKey!!,
+            ),
+        )
+
+        assertEquals(listOf(stale.id), report.staleGenerationKeySegmentIds)
+        assertEquals(AudioSegmentStatus.STALE, database.state.audioSegments.single { it.id == stale.id }.status)
+        assertEquals(AudioSegmentStatus.READY, database.state.audioSegments.single { it.id == reusable.id }.status)
+        assertTrue(storage.readySegmentAudio(project.id, chapter.id, reusable.id).exists())
+    }
+
     private fun snapshot(
         project: BookProjectEntity,
         chapter: ChapterEntity,
@@ -258,6 +288,16 @@ public class StartupReconciliationTest {
         packagePath = "model.zip",
         status = ModelPackageStatus.ACTIVE,
         importedAt = 1,
+    )
+
+    private fun generationKeyInput() = GenerationKeyInput(
+        tokens = listOf(0, 1, 0),
+        modelSha256 = "model-sha",
+        voiceSha256 = "voice-sha",
+        preprocessingVersion = "prep-v1",
+        pronunciationVersion = "pron-v1",
+        inferenceSettings = mapOf("speed" to "1.0"),
+        audioProcessingVersion = "audio-v1",
     )
 
     private class FakeDatabase(initialState: ReconciliationSnapshot) : ReconciliationDatabase {

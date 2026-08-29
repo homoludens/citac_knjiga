@@ -78,6 +78,8 @@ public interface GenerationStateGateway {
 
     public fun failAudioSegment(segmentId: String, error: GenerationError): AudioSegmentEntity
 
+    public fun retryAudioSegment(segmentId: String): AudioSegmentEntity
+
     public fun releaseAudioSegment(segmentId: String): AudioSegmentEntity
 
     public fun finishGenerationRun(runId: String): GenerationRunEntity
@@ -103,6 +105,7 @@ public class BoundedGenerationRunner(
     private val storage: AppPrivateStorage,
     private val artifactStore: AtomicArtifactStore,
     private val generator: SegmentGenerator,
+    private val retryPolicy: GenerationRetryPolicy = GenerationRetryPolicy(),
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     public suspend fun run(runId: String): BoundedGenerationResult = withContext(ioDispatcher) {
@@ -126,11 +129,13 @@ public class BoundedGenerationRunner(
 
             val claimed = state.claimNextSegment(runId)
                 ?: return@withContext result(state.finishGenerationRun(runId), generated, failed)
+            var failurePhase = GenerationFailurePhase.INFERENCE
             try {
                 currentCoroutineContext().ensureActive()
                 val audio = generator.generate(claimed.segment, claimed.block)
                 requireCompatibleProvenance(current, audio)
                 currentCoroutineContext().ensureActive()
+                failurePhase = GenerationFailurePhase.PUBLICATION
                 val published = artifactStore.publish(
                     ownerId = "generation-$runId-${claimed.segment.id}",
                     destination = storage.readySegmentAudio(
@@ -155,15 +160,17 @@ public class BoundedGenerationRunner(
                 withContext(NonCancellable) {
                     state.failAudioSegment(
                         claimed.segment.id,
-                        GenerationError(
-                            code = "SEGMENT_GENERATION_FAILED",
-                            message = failure.message?.takeIf(String::isNotBlank)
-                                ?: failure::class.simpleName?.takeIf(String::isNotBlank)
-                                ?: "segment generation failed",
-                        ),
+                        GenerationFailurePolicy.classify(failure, failurePhase).error,
                     )
                 }
-                failed += claimed.segment.id
+                val classified = GenerationFailurePolicy.classify(failure, failurePhase)
+                if (retryPolicy.shouldRetry(classified, claimed.segment.attemptCount)) {
+                    withContext(NonCancellable) {
+                        state.retryAudioSegment(claimed.segment.id)
+                    }
+                } else {
+                    failed += claimed.segment.id
+                }
             }
         }
         error("Generation runner loop terminated unexpectedly")
@@ -174,23 +181,21 @@ public class BoundedGenerationRunner(
         audio: GeneratedSegmentAudio,
     ) {
         val provenance = audio.provenance
-        require(run.modelPackageId == provenance.modelPackageId) {
-            "Generated segment uses a different model package"
-        }
-        require(run.preprocessingVersion == provenance.preprocessingVersion) {
-            "Generated segment uses a different preprocessing version"
-        }
-        require(run.pronunciationVersion == provenance.pronunciationVersion) {
-            "Generated segment uses a different pronunciation version"
-        }
-        require(run.inferenceSettingsHash == provenance.inferenceSettingsHash) {
-            "Generated segment uses different inference settings"
-        }
-        require(run.audioProcessingVersion == provenance.audioProcessingVersion) {
-            "Generated segment uses a different audio-processing version"
-        }
-        require(audio.sampleRateHz == 24_000 && audio.channels == 1) {
-            "Generated segment must be 24 kHz mono audio"
+        checkProvenance(run.modelPackageId == provenance.modelPackageId, "different model package")
+        checkProvenance(run.preprocessingVersion == provenance.preprocessingVersion, "different preprocessing version")
+        checkProvenance(run.pronunciationVersion == provenance.pronunciationVersion, "different pronunciation version")
+        checkProvenance(run.inferenceSettingsHash == provenance.inferenceSettingsHash, "different inference settings")
+        checkProvenance(run.audioProcessingVersion == provenance.audioProcessingVersion, "different audio-processing version")
+        checkProvenance(audio.sampleRateHz == 24_000 && audio.channels == 1, "audio is not 24 kHz mono")
+    }
+
+    private fun checkProvenance(condition: Boolean, detail: String) {
+        if (!condition) {
+            throw GenerationFailureException(
+                category = GenerationFailureCategory.PROVENANCE,
+                stableCode = "PROVENANCE_MISMATCH",
+                message = "Generated segment uses $detail",
+            )
         }
     }
 

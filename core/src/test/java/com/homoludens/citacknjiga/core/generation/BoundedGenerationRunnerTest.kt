@@ -103,7 +103,7 @@ public class BoundedGenerationRunnerTest {
     }
 
     @Test
-    public fun failedSegmentRemainsRetryableAndASecondRunCanPublishIt() = runBlocking {
+    public fun transientFailureIsRetriedAndSuccessfulAudioClearsTheError() = runBlocking {
         val fixture = fixture(listOf(segment("segment", 0)))
         var attempts = 0
         val first = fixture.runner { segment, _ ->
@@ -112,15 +112,54 @@ public class BoundedGenerationRunnerTest {
             audio(segment.id)
         }.run("run")
 
-        assertEquals(BoundedGenerationStatus.FAILED, first.status)
-        assertEquals(AudioSegmentStatus.FAILED, fixture.state.segments["segment"]!!.status)
-        assertTrue(fixture.state.segments["segment"]!!.lastError!!.contains("temporary inference failure"))
-
-        fixture.state.retrySegment()
-        val second = fixture.runner { segment, _ -> audio(segment.id) }.run("run")
-        assertEquals(BoundedGenerationStatus.COMPLETED, second.status)
+        assertEquals(BoundedGenerationStatus.COMPLETED, first.status)
         assertEquals(AudioSegmentStatus.READY, fixture.state.segments["segment"]!!.status)
         assertEquals(2, fixture.state.segments["segment"]!!.attemptCount)
+        assertEquals(null, fixture.state.segments["segment"]!!.lastError)
+    }
+
+    @Test
+    public fun retryLimitPersistsTheFinalInferenceFailure() = runBlocking {
+        val fixture = fixture(listOf(segment("segment", 0)))
+
+        val result = fixture.runner(GenerationRetryPolicy(maxAttempts = 2)) { _, _ ->
+            error("model unavailable")
+        }.run("run")
+
+        assertEquals(BoundedGenerationStatus.FAILED, result.status)
+        assertEquals(listOf("segment"), result.failedSegmentIds)
+        assertEquals(2, fixture.state.segments["segment"]!!.attemptCount)
+        assertTrue(fixture.state.segments["segment"]!!.lastError!!.startsWith("INFERENCE_FAILURE:"))
+    }
+
+    @Test
+    public fun writeFailureIsCategorizedAndNeverPublishesAnArtifact() = runBlocking {
+        val fixture = fixture(listOf(segment("segment", 0)))
+
+        val result = fixture.runner(GenerationRetryPolicy(maxAttempts = 1)) { _, _ ->
+            audio("segment").copy(writer = { error("disk full") })
+        }.run("run")
+
+        assertEquals(BoundedGenerationStatus.FAILED, result.status)
+        assertEquals("WRITE_FAILURE: disk full", fixture.state.segments["segment"]!!.lastError)
+        assertFalse(fixture.storage.readySegmentAudio("book", "chapter", "segment").exists())
+    }
+
+    @Test
+    public fun readySegmentIsReusedWhileOnlyPendingSegmentIsGenerated() = runBlocking {
+        val ready = segment("ready", 0).copy(status = AudioSegmentStatus.READY)
+        val pending = segment("pending", 1)
+        val fixture = fixture(listOf(ready, pending))
+        val generated = mutableListOf<String>()
+
+        val result = fixture.runner { segment, _ ->
+            generated += segment.id
+            audio(segment.id)
+        }.run("run")
+
+        assertEquals(BoundedGenerationStatus.COMPLETED, result.status)
+        assertEquals(listOf("pending"), generated)
+        assertEquals(AudioSegmentStatus.READY, fixture.state.segments["ready"]!!.status)
     }
 
     @Test
@@ -155,12 +194,16 @@ public class BoundedGenerationRunnerTest {
         return Fixture(storage, state, AtomicArtifactStore(storage))
     }
 
-    private fun Fixture.runner(generator: suspend (AudioSegmentEntity, NarrationBlockEntity) -> GeneratedSegmentAudio) =
+    private fun Fixture.runner(
+        retryPolicy: GenerationRetryPolicy = GenerationRetryPolicy(),
+        generator: suspend (AudioSegmentEntity, NarrationBlockEntity) -> GeneratedSegmentAudio,
+    ) =
         BoundedGenerationRunner(
             state = state,
             storage = storage,
             artifactStore = artifactStore,
             generator = SegmentGenerator(generator),
+            retryPolicy = retryPolicy,
         )
 
     private fun audio(id: String) = GeneratedSegmentAudio(
@@ -244,6 +287,7 @@ public class BoundedGenerationRunnerTest {
         ): AudioSegmentEntity {
             val completed = segments.getValue(segmentId).copy(
                 status = AudioSegmentStatus.READY,
+                lastError = null,
                 generationKey = audio.provenance.generationKey,
                 modelPackageId = audio.provenance.modelPackageId,
                 modelPackageSha256 = audio.provenance.modelPackageSha256,
@@ -269,6 +313,13 @@ public class BoundedGenerationRunnerTest {
             segments[segmentId] = failed
             run = run.copy(status = GenerationRunStatus.RUNNING)
             return failed
+        }
+
+        @Synchronized
+        override fun retryAudioSegment(segmentId: String): AudioSegmentEntity {
+            val retry = segments.getValue(segmentId).copy(status = AudioSegmentStatus.PENDING)
+            segments[segmentId] = retry
+            return retry
         }
 
         @Synchronized
@@ -301,12 +352,6 @@ public class BoundedGenerationRunnerTest {
             run = run.copy(status = GenerationRunStatus.CANCELLED)
         }
 
-        @Synchronized
-        fun retrySegment() {
-            run = run.copy(status = GenerationRunStatus.QUEUED)
-            val failed = segments.values.single()
-            segments[failed.id] = failed.copy(status = AudioSegmentStatus.PENDING)
-        }
     }
 
     private companion object {
