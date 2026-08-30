@@ -1650,3 +1650,31 @@ ANDROID_HOME=/path/to/Android/Sdk ANDROID_SDK_ROOT=/path/to/Android/Sdk \
   :app:assembleStandardDebug :app:assembleFdroidDebug \
   --no-daemon --max-workers=2
 ```
+
+## Emulator instrumentation coverage (task 12.2)
+
+`scripts/run_android_instrumentation.sh` is the reproducible named-device
+runner for the integration boundary. It requires a connected API 35 device or
+emulator, defaults to `emulator-5554`, sets `ANDROID_SERIAL`, compiles the
+instrumentation APKs, and runs the complete core, document-EPUB, and
+playback-export suites plus the model-free app recovery proof:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+DEVICE=emulator-5554 \
+scripts/run_android_instrumentation.sh
+```
+
+The coverage includes Room migration/data preservation, valid and hostile SAF
+EPUB fixtures with private-storage cleanup, deterministic generation recovery,
+real ExoPlayer position/speed restoration across Room/player recreation, and
+export destination failure isolation. Existing generation, playback, and export
+instrumentation suites run unchanged alongside the new focused tests.
+
+On 2026-08-30, the runner passed 20 core, 4 document-EPUB, 18 playback-export,
+and 1 app instrumentation test on API 35 Google x86_64 `emulator-5554`.
+Fixtures and generated files are private temporary test data and are removed
+by the tests; no model package, audio, or report artifact is committed. The
+app command intentionally excludes the existing typed-text proof because the
+verified production model package is not available in the repository.

@@ -68,6 +68,47 @@ public class AudiobookDatabaseMigrationTest {
     }
 
     @Test
+    @Throws(IOException::class)
+    public fun versionOneDataSurvivesExportCheckpointMigration() {
+        migrationTestHelper.createDatabase(DATABASE_NAME, 1).use { database ->
+            database.execSQL(
+                """
+                INSERT INTO book_project
+                    (id, title, author, source_uri, source_fingerprint, language, status, created_at, updated_at)
+                VALUES ('book', 'Book', 'Author', 'content://book', 'fingerprint', 'sr', 'READY', 1, 1)
+                """.trimIndent(),
+            )
+            database.execSQL(
+                """
+                INSERT INTO export_job
+                    (id, book_project_id, destination_uri, selected_chapter_ids_json,
+                     total_chapters, completed_chapters, status, created_at, updated_at)
+                VALUES ('job', 'book', 'content://export', '[]', 0, 0, 'QUEUED', 2, 2)
+                """.trimIndent(),
+            )
+        }
+
+        migrationTestHelper.runMigrationsAndValidate(
+            DATABASE_NAME,
+            2,
+            true,
+            AudiobookDatabase.MIGRATION_1_2,
+        ).use { database ->
+            database.query("SELECT title FROM book_project WHERE id = 'book'").use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertEquals("Book", cursor.getString(0))
+            }
+            database.query("SELECT destination_uri, manifest_name, cover_name FROM export_job WHERE id = 'job'")
+                .use { cursor ->
+                    assertTrue(cursor.moveToFirst())
+                    assertEquals("content://export", cursor.getString(0))
+                    assertTrue(cursor.isNull(1))
+                    assertTrue(cursor.isNull(2))
+                }
+        }
+    }
+
+    @Test
     public fun newerDatabaseFailsWithoutDestructiveFallback() {
         context.openOrCreateDatabase(DATABASE_NAME, 0, null).let { database ->
             try {

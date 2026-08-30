@@ -495,6 +495,13 @@ target.
   emulator orchestration. The golden validator accepts `KOKORO_SR_ROOT` so CI
   does not depend on the original developer workstation path.
 
+- Task 12.2 adds emulator coverage for v1-to-v2 Room data migration, private
+  SAF EPUB fixture import and hostile-fixture rejection, deterministic generation
+  recovery, real ExoPlayer position/speed restoration across Room/player
+  recreation, and export destination failure isolation. The named-device runner
+  is `scripts/run_android_instrumentation.sh`; it requires API 35 (default
+  `emulator-5554`) and runs without the unavailable production model package.
+
 ## Repository layout
 
 | Path | Purpose |
