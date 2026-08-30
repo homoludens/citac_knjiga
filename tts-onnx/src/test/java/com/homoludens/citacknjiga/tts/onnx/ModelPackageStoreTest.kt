@@ -152,6 +152,22 @@ public class ModelPackageStoreTest {
         assertTrue(root.resolve("model-packages").listFiles().orEmpty().none { it.name.startsWith(".model-artifact-") })
     }
 
+    @Test
+    public fun typedFailureResultUsesOnlyStableCategories() {
+        val result = store(createTempDirectory().toFile()).tryImportPackage(
+            ModelPackageSource { throw IllegalStateException("/private/raw/path") },
+        )
+
+        assertTrue(result is ModelPackageImportResult.Failure)
+        assertEquals(ModelPackageFailureCode.STORAGE, (result as ModelPackageImportResult.Failure).failure.code)
+        assertEquals(
+            ModelPackageFailureCode.ERROR,
+            ModelPackageStore.normalizeFailure(IllegalStateException("secret")).code,
+        )
+        assertTrue(result.toString().contains("STORAGE"))
+        assertFalse(result.toString().contains("/private/raw/path"))
+    }
+
     private fun store(root: File): ModelPackageStore = ModelPackageStore(
         filesDir = root,
         compatibility = ModelPackageCompatibility(minimumAndroidApi = 30),

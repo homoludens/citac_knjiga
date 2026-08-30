@@ -27,10 +27,6 @@ public enum class ModelPackageFailureCode {
     PUBLICATION,
     NO_VALID_PACKAGE,
     ERROR,
-    @Deprecated("Use STORAGE") COPY_FAILED,
-    @Deprecated("Use INVALID_ARCHIVE") ARCHIVE_INVALID,
-    @Deprecated("Use INVALID_MANIFEST") MANIFEST_INVALID,
-    @Deprecated("Use PUBLICATION") PUBLICATION_FAILED,
 }
 
 public data class ModelPackageFailure(

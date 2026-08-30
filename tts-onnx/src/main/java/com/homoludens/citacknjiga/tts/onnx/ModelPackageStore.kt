@@ -15,6 +15,7 @@ import java.util.zip.ZipFile
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import java.util.concurrent.CancellationException
 
 /** Opens a user-selected model package without retaining the provider URI. */
 public fun interface ModelPackageSource {
@@ -66,7 +67,7 @@ public class ModelPackageStore(
             File.createTempFile(".model-package-", ".tmp", packageDir)
         } catch (exception: Exception) {
             throw ModelPackageImportException(
-                ModelPackageFailureCode.COPY_FAILED,
+                ModelPackageFailureCode.STORAGE,
                 cause = exception,
             )
         }
@@ -78,7 +79,7 @@ public class ModelPackageStore(
                 }
             } catch (exception: Exception) {
                 throw ModelPackageImportException(
-                    ModelPackageFailureCode.COPY_FAILED,
+                    ModelPackageFailureCode.STORAGE,
                     cause = exception,
                 )
             }
@@ -90,6 +91,26 @@ public class ModelPackageStore(
             temporary.delete()
         }
     }
+
+    /** Returns a redacted, typed result for asynchronous application callers. */
+    public fun tryImportFromSaf(contentResolver: ContentResolver, uri: Uri): ModelPackageImportResult =
+        try {
+            ModelPackageImportResult.Success(importFromSaf(contentResolver, uri))
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (failure: Throwable) {
+            ModelPackageImportResult.Failure(normalizeFailure(failure))
+        }
+
+    /** Testable equivalent of [tryImportFromSaf] for provider-backed streams. */
+    public fun tryImportPackage(source: ModelPackageSource): ModelPackageImportResult =
+        try {
+            ModelPackageImportResult.Success(importPackage(source))
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (failure: Throwable) {
+            ModelPackageImportResult.Failure(normalizeFailure(failure))
+        }
 
     /** Returns the active package, restoring the previous verified package if needed. */
     public fun activePackage(): InstalledModelPackage? {
@@ -124,7 +145,7 @@ public class ModelPackageStore(
             )
         } catch (exception: Exception) {
             throw ModelPackageImportException(
-                ModelPackageFailureCode.PUBLICATION_FAILED,
+                ModelPackageFailureCode.PUBLICATION,
                 cause = exception,
             )
         }
@@ -136,7 +157,7 @@ public class ModelPackageStore(
         withDeclaredArtifact(packageInfo, role) { archive, artifact ->
             val entry = archive.getEntry(artifact.path)
                 ?: throw ModelPackageImportException(
-                    ModelPackageFailureCode.ARCHIVE_INVALID,
+                    ModelPackageFailureCode.INVALID_ARCHIVE,
                     "Declared artifact is missing: ${artifact.path}",
                 )
             val bytes = archive.getInputStream(entry).use { it.readBytes() }
@@ -160,7 +181,7 @@ public class ModelPackageStore(
             File.createTempFile(".model-artifact-", ".tmp", packageDir)
         } catch (exception: Exception) {
             throw ModelPackageImportException(
-                ModelPackageFailureCode.COPY_FAILED,
+                ModelPackageFailureCode.STORAGE,
                 "Could not create model artifact temporary storage",
                 exception,
             )
@@ -170,7 +191,7 @@ public class ModelPackageStore(
             withDeclaredArtifact(packageInfo, role) { archive, artifact ->
                 val entry = archive.getEntry(artifact.path)
                     ?: throw ModelPackageImportException(
-                        ModelPackageFailureCode.ARCHIVE_INVALID,
+                        ModelPackageFailureCode.INVALID_ARCHIVE,
                         "Declared artifact is missing: ${artifact.path}",
                     )
                 if (entry.size != artifact.sizeBytes) {
@@ -215,7 +236,7 @@ public class ModelPackageStore(
             ZipFile(activeFile).use { archive ->
                 val manifestEntry = archive.getEntry("manifest.json")
                     ?: throw ModelPackageImportException(
-                        ModelPackageFailureCode.MANIFEST_INVALID,
+                        ModelPackageFailureCode.INVALID_MANIFEST,
                         "Model package manifest.json is missing",
                     )
                 val manifest = archive.getInputStream(manifestEntry).use { input ->
@@ -225,7 +246,7 @@ public class ModelPackageStore(
                     .filter { artifact -> artifact.getAsJsonArray("roles").any { it.asString == role } }
                 if (candidates.size != 1) {
                     throw ModelPackageImportException(
-                        ModelPackageFailureCode.MANIFEST_INVALID,
+                        ModelPackageFailureCode.INVALID_MANIFEST,
                         "Model package must declare exactly one artifact with role $role",
                     )
                 }
@@ -243,7 +264,7 @@ public class ModelPackageStore(
             throw exception
         } catch (exception: Exception) {
             throw ModelPackageImportException(
-                ModelPackageFailureCode.ARCHIVE_INVALID,
+                ModelPackageFailureCode.INVALID_ARCHIVE,
                 "Could not read model package artifact with role $role",
                 exception,
             )
@@ -279,7 +300,7 @@ public class ModelPackageStore(
                 }
             }
             throw ModelPackageImportException(
-                ModelPackageFailureCode.PUBLICATION_FAILED,
+                ModelPackageFailureCode.PUBLICATION,
                 "Could not publish the verified model package",
                 exception,
             )
@@ -289,7 +310,7 @@ public class ModelPackageStore(
     private fun prepareDirectory() {
         if (!packageDir.isDirectory && !packageDir.mkdirs()) {
             throw ModelPackageImportException(
-                ModelPackageFailureCode.COPY_FAILED,
+                ModelPackageFailureCode.STORAGE,
                 "Could not create private model-package storage",
             )
         }
@@ -298,7 +319,7 @@ public class ModelPackageStore(
     private fun validateArchive(archiveFile: File): InstalledModelPackage {
         if (!archiveFile.isFile) {
             throw ModelPackageImportException(
-                ModelPackageFailureCode.ARCHIVE_INVALID,
+                ModelPackageFailureCode.INVALID_ARCHIVE,
                 "Model package archive does not exist",
             )
         }
@@ -308,13 +329,13 @@ public class ModelPackageStore(
                 val entries = archive.entries().asSequence().toList()
                 if (entries.isEmpty() || entries.any { it.isDirectory || !isSafePath(it.name) }) {
                     throw ModelPackageImportException(
-                        ModelPackageFailureCode.ARCHIVE_INVALID,
+                        ModelPackageFailureCode.INVALID_ARCHIVE,
                         "Model package contains an unsafe or empty ZIP entry",
                     )
                 }
                 if (entries.map { it.name }.toSet().size != entries.size) {
                     throw ModelPackageImportException(
-                        ModelPackageFailureCode.ARCHIVE_INVALID,
+                        ModelPackageFailureCode.INVALID_ARCHIVE,
                         "Model package contains duplicate ZIP entries",
                     )
                 }
@@ -335,7 +356,7 @@ public class ModelPackageStore(
                 }
                 if (manifests.size != 1) {
                     throw ModelPackageImportException(
-                        ModelPackageFailureCode.MANIFEST_INVALID,
+                        ModelPackageFailureCode.INVALID_MANIFEST,
                         "Model package must contain exactly one manifest",
                     )
                 }
@@ -347,7 +368,7 @@ public class ModelPackageStore(
                     throw exception
                 } catch (exception: Exception) {
                     throw ModelPackageImportException(
-                        ModelPackageFailureCode.MANIFEST_INVALID,
+                        ModelPackageFailureCode.INVALID_MANIFEST,
                         "Model package manifest is malformed",
                         exception,
                     )
@@ -356,7 +377,7 @@ public class ModelPackageStore(
                 val expectedNames = declared.keys + manifestPath
                 if (entries.map { it.name }.toSet() != expectedNames.toSet()) {
                     throw ModelPackageImportException(
-                        ModelPackageFailureCode.ARCHIVE_INVALID,
+                        ModelPackageFailureCode.INVALID_ARCHIVE,
                         "Model package contains undeclared or missing files",
                     )
                 }
@@ -384,13 +405,13 @@ public class ModelPackageStore(
             throw exception
         } catch (exception: ZipException) {
             throw ModelPackageImportException(
-                ModelPackageFailureCode.ARCHIVE_INVALID,
+                ModelPackageFailureCode.INVALID_ARCHIVE,
                 "Model package is not a readable ZIP archive",
                 exception,
             )
         } catch (exception: Exception) {
             throw ModelPackageImportException(
-                ModelPackageFailureCode.ARCHIVE_INVALID,
+                ModelPackageFailureCode.INVALID_ARCHIVE,
                 "Model package could not be validated",
                 exception,
             )
@@ -605,7 +626,7 @@ public class ModelPackageStore(
     }
 
     private fun failManifest(message: String): Nothing = throw ModelPackageImportException(
-        ModelPackageFailureCode.MANIFEST_INVALID,
+        ModelPackageFailureCode.INVALID_MANIFEST,
         message,
     )
 
@@ -616,7 +637,7 @@ public class ModelPackageStore(
 
     private data class Artifact(val artifactId: String, val sha256: String, val sizeBytes: Long)
 
-    private companion object {
+    public companion object {
         const val MAX_MANIFEST_BYTES = 16L * 1024L * 1024L
         val ID_PATTERN = Regex("^[a-z][a-z0-9_.-]*$")
         val VERSION_PATTERN = Regex("^[0-9]+\\.[0-9]+\\.[0-9]+$")
@@ -674,5 +695,12 @@ public class ModelPackageStore(
             .toHex()
 
         fun ByteArray.toHex(): String = joinToString("") { byte -> "%02x".format(byte) }
+
+        public fun normalizeFailure(failure: Throwable): ModelPackageFailure = ModelPackageFailure(
+            when (failure) {
+                is ModelPackageImportException -> failure.code
+                else -> ModelPackageFailureCode.ERROR
+            },
+        )
     }
 }
