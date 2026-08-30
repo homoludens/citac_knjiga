@@ -182,4 +182,9 @@
     <string name="diagnostics_export_description">The export contains only safe identities, hashes, numbers, statuses, and redacted local events. It excludes text, URIs, paths, model contents, and exceptions.</string>
     <string name="diagnostics_export_success">Diagnostics exported.</string>
     <string name="diagnostics_export_failed">Diagnostics export failed. Choose another location.</string>
+    <string name="model_import_action">Import model package</string>
+    <string name="model_import_busy">Model package import is in progress.</string>
+    <string name="diagnostics_status_invalid">invalid</string>
+    <string name="diagnostics_status_incompatible">incompatible</string>
+    <string name="diagnostics_status_error">error</string>
 </resources>

@@ -182,4 +182,9 @@
     <string name="diagnostics_export_description">Извоз садржи само безбедне идентитете, хешеве, бројеве, стања и редиговане локалне догађаје. Не садржи текст, URI, путање, садржај модела или изузетке.</string>
     <string name="diagnostics_export_success">Дијагностика је извезена.</string>
     <string name="diagnostics_export_failed">Извоз дијагностике није успео. Изаберите другу локацију.</string>
+    <string name="model_import_action">Увези пакет модела</string>
+    <string name="model_import_busy">Увоз пакета модела је у току.</string>
+    <string name="diagnostics_status_invalid">неисправно</string>
+    <string name="diagnostics_status_incompatible">некомпатибилно</string>
+    <string name="diagnostics_status_error">грешка</string>
 </resources>

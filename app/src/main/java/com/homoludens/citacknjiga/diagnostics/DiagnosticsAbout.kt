@@ -43,6 +43,8 @@ import com.homoludens.citacknjiga.core.diagnostics.LocalDiagnostics
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.tts.onnx.DeviceParityRuntimeIdentity
 import com.homoludens.citacknjiga.tts.onnx.ModelPackageStore
+import com.homoludens.citacknjiga.tts.onnx.ModelPackageFailure
+import com.homoludens.citacknjiga.tts.onnx.ModelPackageFailureCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -54,6 +56,9 @@ public enum class DiagnosticsStatus {
     LIMITED,
     MISSING,
     UNAVAILABLE,
+    INVALID,
+    INCOMPATIBLE,
+    ERROR,
 }
 
 public data class DiagnosticsModelState(
@@ -65,6 +70,10 @@ public data class DiagnosticsModelState(
     val voiceSha256: String? = null,
     val preprocessingVersion: String? = null,
     val pronunciationVersion: String? = null,
+    val runtimeId: String? = null,
+    val runtimeVersion: String? = null,
+    val preprocessingCompatibilityId: String? = null,
+    val preprocessingContractVersion: Int? = null,
     val failureCode: String? = null,
 )
 
@@ -175,7 +184,7 @@ public class DiagnosticsAboutSnapshotBuilder(
     private val modelStore: ModelPackageStore?,
     private val storage: AppPrivateStorage?,
 ) {
-    public fun build(): DiagnosticsAboutState {
+    public fun build(latestImportFailure: ModelPackageFailure? = null): DiagnosticsAboutState {
         val packageInfo = runCatching { context.packageManager.getPackageInfo(context.packageName, 0) }.getOrNull()
         val model = when (val store = modelStore) {
             null -> DiagnosticsModelState(DiagnosticsStatus.MISSING)
@@ -191,14 +200,21 @@ public class DiagnosticsAboutSnapshotBuilder(
                             voiceSha256 = it.voiceSha256,
                             preprocessingVersion = "kokoro-sr-ca5590d9/contract-1",
                             pronunciationVersion = "espeak-ng-1.52.0-sr",
+                            runtimeId = it.runtimeId,
+                            runtimeVersion = it.runtimeVersion,
+                            preprocessingCompatibilityId = it.preprocessingCompatibilityId,
+                            preprocessingContractVersion = it.preprocessingContractVersion,
+                            failureCode = latestImportFailure?.code?.name,
                         )
-                    } ?: DiagnosticsModelState(DiagnosticsStatus.MISSING)
+                    } ?: DiagnosticsModelState(
+                        status = latestImportFailure?.let(::modelStatus) ?: DiagnosticsStatus.MISSING,
+                        failureCode = latestImportFailure?.code?.name,
+                    )
                 },
                 onFailure = { failure ->
                     DiagnosticsModelState(
-                        status = DiagnosticsStatus.UNAVAILABLE,
-                        failureCode = (failure as? com.homoludens.citacknjiga.tts.onnx.ModelPackageImportException)
-                            ?.code?.name,
+                        status = modelStatus(ModelPackageStore.normalizeFailure(failure)),
+                        failureCode = ModelPackageStore.normalizeFailure(failure).code.name,
                     )
                 },
             )
@@ -240,6 +256,16 @@ public class DiagnosticsAboutSnapshotBuilder(
                 DiagnosticsEvidenceState(DiagnosticsEvidenceKind.CHAPTER_EXPORT, DiagnosticsStatus.AVAILABLE),
             ),
         )
+    }
+
+    private fun modelStatus(failure: ModelPackageFailure): DiagnosticsStatus = when (failure.code) {
+        ModelPackageFailureCode.INVALID_ARCHIVE,
+        ModelPackageFailureCode.INVALID_MANIFEST,
+        ModelPackageFailureCode.CHECKSUM_MISMATCH,
+        -> DiagnosticsStatus.INVALID
+        ModelPackageFailureCode.INCOMPATIBLE -> DiagnosticsStatus.INCOMPATIBLE
+        ModelPackageFailureCode.NO_VALID_PACKAGE -> DiagnosticsStatus.MISSING
+        else -> DiagnosticsStatus.ERROR
     }
 
     private fun storageState(value: AppPrivateStorage): DiagnosticsStorageState = runCatching {
@@ -297,6 +323,10 @@ public object DiagnosticsExport {
         state.model.voiceSha256?.let { appendRedacted("model", "voiceSha256", it) }
         state.model.preprocessingVersion?.let { appendRedacted("model", "version", it) }
         state.model.pronunciationVersion?.let { appendRedacted("model", "version", it) }
+        state.model.runtimeId?.let { appendRedacted("model", "runtime", it) }
+        state.model.runtimeVersion?.let { appendRedacted("model", "version", it) }
+        state.model.preprocessingCompatibilityId?.let { appendRedacted("model", "version", it) }
+        state.model.preprocessingContractVersion?.let { appendRedacted("model", "count", it.toString()) }
         state.model.failureCode?.let { appendRedacted("model", "errorCode", it) }
         appendRedacted("device", "count", state.device.apiLevel.toString())
         state.device.abis.firstOrNull()?.let { appendRedacted("device", "abi", it) }
@@ -350,6 +380,29 @@ public fun DiagnosticsAboutRoute(
     val scope = rememberCoroutineScope()
     var state by remember(modelPackageStore, privateStorage, variant) { mutableStateOf<DiagnosticsAboutState?>(null) }
     var exportMessage by remember { mutableStateOf<Int?>(null) }
+    var latestImportFailure by remember { mutableStateOf<ModelPackageFailure?>(null) }
+    var importBusy by remember { mutableStateOf(false) }
+    var importJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+    val importLauncher = rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri != null && modelPackageStore != null && !importBusy) {
+            importBusy = true
+            latestImportFailure = null
+            importJob = scope.launch(Dispatchers.IO) {
+                val result = modelPackageStore.tryImportFromSaf(context.contentResolver, uri)
+                withContext(Dispatchers.Main.immediate) {
+                    importBusy = false
+                    latestImportFailure = (result as? com.homoludens.citacknjiga.tts.onnx.ModelPackageImportResult.Failure)?.failure
+                    state = DiagnosticsAboutSnapshotBuilder(context, variant, modelPackageStore, privateStorage)
+                        .build(latestImportFailure)
+                }
+            }
+        }
+    }
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        onDispose { importJob?.cancel() }
+    }
     val exportLauncher = rememberLauncherForActivityResult(CreateDocument("text/plain")) { uri ->
         val current = state
         if (uri != null && current != null) {
@@ -368,7 +421,7 @@ public fun DiagnosticsAboutRoute(
     }
     LaunchedEffect(modelPackageStore, privateStorage, variant) {
         state = withContext(Dispatchers.IO) {
-            DiagnosticsAboutSnapshotBuilder(context, variant, modelPackageStore, privateStorage).build()
+            DiagnosticsAboutSnapshotBuilder(context, variant, modelPackageStore, privateStorage).build(latestImportFailure)
         }
     }
     DiagnosticsAboutScreen(
@@ -376,6 +429,9 @@ public fun DiagnosticsAboutRoute(
         exportMessage = exportMessage?.let { stringResource(it) },
         onBack = onBack,
         onExport = { exportLauncher.launch("citac-knjiga-diagnostics.txt") },
+        onImport = { importLauncher.launch(arrayOf("application/zip", "application/octet-stream")) },
+        importEnabled = modelPackageStore != null && !importBusy,
+        importBusy = importBusy,
     )
 }
 
@@ -386,6 +442,9 @@ public fun DiagnosticsAboutScreen(
     exportMessage: String? = null,
     onBack: () -> Unit = {},
     onExport: () -> Unit = {},
+    onImport: () -> Unit = {},
+    importEnabled: Boolean = true,
+    importBusy: Boolean = false,
 ) {
     Scaffold(
         topBar = {
@@ -419,11 +478,21 @@ public fun DiagnosticsAboutScreen(
                     InfoValue(stringResource(R.string.diagnostics_voice_checksum), state.model.voiceSha256)
                     InfoValue(stringResource(R.string.diagnostics_preprocessing_version), state.model.preprocessingVersion)
                     InfoValue(stringResource(R.string.diagnostics_pronunciation_version), state.model.pronunciationVersion)
-                    if (state.model.status == DiagnosticsStatus.MISSING || state.model.status == DiagnosticsStatus.UNAVAILABLE) {
+                    InfoValue(stringResource(R.string.diagnostics_runtime), state.model.runtimeId?.let { "$it ${state.model.runtimeVersion.orEmpty()}" })
+                    InfoValue(
+                        stringResource(R.string.diagnostics_preprocessing_version),
+                        state.model.preprocessingCompatibilityId?.let { "$it/${state.model.preprocessingContractVersion}" },
+                    )
+                    Button(onClick = onImport, enabled = importEnabled, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.model_import_action))
+                    }
+                    if (importBusy) {
                         Text(
-                            stringResource(R.string.diagnostics_model_action),
-                            color = MaterialTheme.colorScheme.error,
+                            stringResource(R.string.model_import_busy),
+                            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
                         )
+                    } else if (state.model.status != DiagnosticsStatus.VERIFIED) {
+                        Text(stringResource(R.string.diagnostics_model_action), color = MaterialTheme.colorScheme.error)
                     }
                 }
                 DiagnosticsSection(stringResource(R.string.diagnostics_device_section)) {
@@ -539,6 +608,9 @@ private fun statusText(status: DiagnosticsStatus): String = stringResource(
         DiagnosticsStatus.LIMITED -> R.string.diagnostics_status_limited
         DiagnosticsStatus.MISSING -> R.string.diagnostics_status_missing
         DiagnosticsStatus.UNAVAILABLE -> R.string.diagnostics_status_unavailable
+        DiagnosticsStatus.INVALID -> R.string.diagnostics_status_invalid
+        DiagnosticsStatus.INCOMPATIBLE -> R.string.diagnostics_status_incompatible
+        DiagnosticsStatus.ERROR -> R.string.diagnostics_status_error
     },
 )
 
