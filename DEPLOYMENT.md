@@ -57,6 +57,47 @@ The unsigned path is not release evidence. This checkout has no production
 keystore, signing credentials, or GitHub secret-backed workflow run, so task
 12.7 remains blocked and no fake signature has been generated.
 
+## Final publication gate (task 12.8)
+
+`scripts/check_release_gate.py` is a read-only pre-publication check. It does
+not build, sign, upload, publish, create a GitHub release, or handle signing
+credentials. It exits non-zero unless every hard gate is `PASS`; task 12.8 is
+not used as proof of its own completion.
+
+Run it from the repository root:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  python3 scripts/check_release_gate.py
+```
+
+For a future evaluation, supply only externally staged evidence and app-only
+signed artifacts. The artifact directory must be outside this repository:
+
+```sh
+python3 scripts/check_release_gate.py \
+  --artifact-dir /tmp/citac-knjiga-release-artifacts \
+  --model-manifest /secure/path/cleared-model-manifest.json \
+  --android-parity-report /secure/path/device-parity-report.json \
+  --json /tmp/citac-knjiga-release-gate.json
+```
+
+The hard gates cover signed app artifacts, model legal clearance, desktop and
+Android parity, real production-model proof, two-player external portability,
+the Android 11/current/Android 16/Poco matrix, the task 11.8 capability audit,
+dependency/privacy/F-Droid checks, recovery/export/instrumentation evidence,
+OpenSpec strict validation, and app/model/audio artifact separation. Optional
+model packages and generated audio are never release inputs or app artifacts.
+The benchmark RTF, memory, thermal, and battery measurements are reported as
+`INFO` only and do not replace the hard device qualification gate.
+
+Current evaluation result: **publication refused**. Task 12.7 has no signed
+artifact evidence, the public model-weight legal gate is open, task 10.8 has
+no two external players, task 11.4 lacks the required device matrix, and the
+task 11.8 audit says the release candidate is not ready. Keep the generated
+gate JSON and all model/audio artifacts outside the repository.
+
 Known-good steps to reproduce the desktop CPU inference path. Keep this file
 current as the environment changes.
 

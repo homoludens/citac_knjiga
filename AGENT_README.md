@@ -547,8 +547,21 @@ target.
   external or GitHub-secret-backed keystore for v2/v3 verification. Local
   unsigned inspection is explicitly labeled and cannot satisfy the release
   gate. This task remains unchecked: this checkout has no production keystore,
-  signing credentials, or GitHub secret-backed run, so no fake signature was
-  generated.
+ signing credentials, or GitHub secret-backed run, so no fake signature was
+ generated.
+
+- Task 12.8 adds the read-only `scripts/check_release_gate.py` and its focused
+  tests. It evaluates signed app artifacts, model legal clearance, desktop and
+  Android parity, real production-model proof, external-player portability,
+  Android 11/current/Android 16/Poco qualification, the 11.8 audit,
+  dependency/privacy/F-Droid checks, recovery/export/instrumentation evidence,
+  OpenSpec strict validation, and app/model/audio separation. It never builds,
+  signs, uploads, publishes, or uses signing credentials. The current result is
+  **publication refused**: task 12.7 is unsigned/unavailable, public model
+  legal clearance is open, task 10.8 and 11.4 are blocked, and task 11.8 says
+  the release candidate is not ready. Historical RTF/memory/thermal results are
+  emitted as informational only, separate from hard gates; task 12.8 remains
+  unchecked.
 
 ## Repository layout
 
