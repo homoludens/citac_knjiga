@@ -355,6 +355,13 @@ target.
   speeds. The service remains the sole ExoPlayer owner and its Room-ready
   playlist is a snapshot; position persistence, system media integration,
   dynamic queue updates, and missing-audio UX remain later tasks.
+- Task 9.4 adds `PlaybackPositionPersistence` over the existing Room
+  `playback_position` row. The Media3 service restores a saved ready
+  chapter/segment, clamps its position to the current item, falls back to the
+  first available segment when the saved target is missing, and accepts only
+  supported finite speeds. It polls once per second with a two-second write
+  throttle, also reacts to player events, and flushes on service teardown.
+  Room remains persistence-only and Media3 remains the playback owner.
 
 ## Repository layout
 

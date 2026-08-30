@@ -70,6 +70,12 @@ public interface AudiobookDao {
     @Query("SELECT * FROM playback_position ORDER BY updated_at DESC, book_project_id")
     public fun observeAllPlaybackPositions(): Flow<List<PlaybackPositionEntity>>
 
+    @Query("SELECT * FROM playback_position WHERE book_project_id = :projectId LIMIT 1")
+    public fun findPlaybackPosition(projectId: String): PlaybackPositionEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public fun savePlaybackPosition(position: PlaybackPositionEntity)
+
     /** Room is authoritative for which audio is eligible for playback. */
     @Query(
         """

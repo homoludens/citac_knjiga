@@ -17,14 +17,17 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 /** Plays a snapshot of verified Room-ready audio; generation remains a separate owner. */
 public class AudiobookPlaybackService : MediaSessionService() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val playbackScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var loadJob: Job? = null
     private lateinit var database: AudiobookDatabase
     private lateinit var readyAudio: ReadyAudioRepository
+    private lateinit var positionPersistence: PlaybackPositionPersistence
     private lateinit var resources: PlaybackResources<ExoPlayer, MediaSession>
     private var destroyed = false
 
@@ -35,6 +38,7 @@ public class AudiobookPlaybackService : MediaSessionService() {
             source = RoomReadyAudioSource(database.audiobookDao()),
             storage = AppPrivateStorage(filesDir),
         )
+        positionPersistence = PlaybackPositionPersistence(database.audiobookDao(), playbackScope)
         resources = PlaybackResourceLifecycle(
             createPlayer = {
                 ExoPlayer.Builder(this).build().apply {
@@ -60,10 +64,24 @@ public class AudiobookPlaybackService : MediaSessionService() {
             loadJob = serviceScope.launch {
                 val items = readyAudio.observeVerified(projectId).first()
                 if (items.isEmpty()) return@launch
+                val chapters = database.audiobookDao().findAllChapters()
+                    .filter { it.bookProjectId == projectId }
+                val catalog = PlaybackCatalog.from(chapters, items)
                 withContext(Dispatchers.Main.immediate) {
                     if (!destroyed) {
+                        val playerPort = Media3PlayerPort(resources.player)
                         resources.player.setMediaItems(items.map(::mediaItem))
                         resources.player.prepare()
+                        positionPersistence.restore(
+                            projectId = projectId,
+                            catalog = catalog,
+                            player = playerPort,
+                        )
+                        positionPersistence.attach(
+                            projectId = projectId,
+                            catalog = catalog,
+                            player = playerPort,
+                        )
                         resources.player.play()
                     }
                 }
@@ -77,6 +95,9 @@ public class AudiobookPlaybackService : MediaSessionService() {
     override fun onDestroy() {
         destroyed = true
         loadJob?.cancel()
+        runBlocking { positionPersistence.flush() }
+        positionPersistence.close()
+        playbackScope.cancel()
         serviceScope.cancel()
         resources.close()
         database.close()

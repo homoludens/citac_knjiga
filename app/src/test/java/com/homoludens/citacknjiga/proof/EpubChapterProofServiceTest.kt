@@ -163,6 +163,8 @@ public class EpubChapterProofServiceTest {
         override fun observeAllAudioSegments(): Flow<List<AudioSegmentEntity>> = flowOf(listOf(segment))
         override fun observeAllGenerationRuns(): Flow<List<GenerationRunEntity>> = flowOf(listOf(run))
         override fun observeAllPlaybackPositions(): Flow<List<PlaybackPositionEntity>> = flowOf(emptyList())
+        override fun findPlaybackPosition(projectId: String): PlaybackPositionEntity? = null
+        override fun savePlaybackPosition(position: PlaybackPositionEntity) { }
         override fun observeReadyAudioSegments(projectId: String): Flow<List<AudioSegmentEntity>> = flowOf(emptyList())
         override fun findAudioSegmentById(segmentId: String): AudioSegmentEntity? = segment.takeIf { it.id == segmentId }
         override fun findActiveModelPackage(): ModelPackageEntity? = null

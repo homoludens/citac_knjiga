@@ -156,7 +156,6 @@ public class AudiobookPlayerController(
         mediaController = controller
         playerPort = Media3PlayerPort(controller).also { port ->
             port.addListener(::onPlayerChanged)
-            port.setSpeed(selectedSpeed)
         }
         commands = PlaybackControlCommands(playerPort!!)
         publish()

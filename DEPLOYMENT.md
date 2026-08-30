@@ -905,3 +905,28 @@ The focused JVM and Compose instrumentation control tests pass on the API 35
 emulator. A full app instrumentation run remains blocked by the pre-existing
 task-4.10 test when no verified model package is staged; model packages are
 intentionally not repository artifacts.
+
+## Playback position persistence (task 9.4)
+
+`PlaybackPositionPersistence` uses the existing Room `playback_position` row;
+no schema migration or DataStore state is added. The Media3 service restores
+the saved book's ready chapter and segment before starting playback, clamps
+the saved position to the current item duration, and falls back to the first
+available segment at position zero when the target is no longer available.
+Unsupported or non-finite speeds use `1.0x`. While attached, the adapter polls
+the player every second and writes at most once per two seconds, while player
+events and service teardown provide additional persistence opportunities.
+
+Focused verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew :playback-export:testDebugUnitTest \
+  :playback-export:connectedDebugAndroidTest
+```
+
+The connected suite includes a file-backed Room close/reopen restore test on
+the available API 35 x86_64 emulator. This task does not add notification,
+lock-screen, headset/audio-focus/interruption, dynamic queue, missing-audio,
+or demonstration behavior.
