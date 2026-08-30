@@ -27,6 +27,20 @@ public class ModelPackageStoreTest {
     }
 
     @Test
+    public fun replacementRetainsAValidLastPackageSlot() {
+        val root = createTempDirectory().toFile()
+        val store = store(root)
+        store.importPackage(ModelPackageSource { ByteArrayInputStream(packageBytes("first")) })
+        store.importPackage(ModelPackageSource { ByteArrayInputStream(packageBytes("second")) })
+
+        assertEquals("second", store.activePackage()?.packageId)
+        assertTrue(root.resolve("model-packages/last-valid.zip").isFile)
+        assertTrue(runCatching { ModelPackageStore(root).readArtifact(
+            store.activePackage()!!, "model",
+        ) }.isSuccess)
+    }
+
+    @Test
     public fun checksumFailureDoesNotReplaceActivePackage() {
         val root = createTempDirectory().toFile()
         val store = store(root)
