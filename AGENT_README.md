@@ -151,8 +151,17 @@ target.
   invalid output is rejected before ready publication. Startup reconciliation
   accepts expected generation keys and marks only stale, corrupt, or
   mismatched-provenance ready segments stale, leaving verified unaffected audio
-  reusable. Storage estimates, recovery qualification, and multi-chapter proof
-  remain tasks 8.8-8.10.
+  reusable. Recovery qualification and the multi-chapter proof remain tasks
+  8.9-8.10.
+- Task 8.8 adds `GenerationStoragePolicy` and `GenerationStorageCleanup` in
+  `core`. Preflight estimates the largest temporary artifact plus requested
+  ready audio and applies a default 10%/64 KiB safety margin against private
+  filesystem capacity. The bounded runner can recheck that estimate around each
+  segment; a capacity drop records `INSUFFICIENT_STORAGE` without replacing
+  completed audio or changing source/project metadata. ENOSPC-style atomic
+  writes are categorized as non-retryable `STORAGE` failures. Cleanup is an
+  explicit choice limited to stale temporary or reviewed orphan ready-audio
+  files.
 - Task 4.8 adds the single-route typed Serbian proof screen. It accepts Latin and
   Cyrillic input, exposes preprocessing/model diagnostics and explicit generation
   states, writes validated app-private 24 kHz mono PCM16 WAV, and plays it with

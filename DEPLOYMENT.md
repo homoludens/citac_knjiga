@@ -789,3 +789,28 @@ up to three total segment attempts; provenance failures are not retried.
 Attempt counts remain in Room. Reconciliation can receive the expected key for
 each segment and marks only ready segments with stale keys, provenance, or file
 integrity as `STALE`; unaffected verified ready segments remain reusable.
+
+## Generation storage safeguards (task 8.8)
+
+`core/storage/GenerationStoragePolicy` estimates the largest temporary artifact
+and the total requested ready-audio bytes before generation. Its default safety
+margin is 10% with a 64 KiB minimum, and capacity is read from the private
+`filesDir` filesystem. The bounded runner can receive the same per-segment
+estimates: it refuses a queued run before changing Room state, then rechecks
+capacity before and after each segment. A capacity drop records
+`INSUFFICIENT_STORAGE` on the generation run while preserving completed ready
+segments and pending work.
+
+`AtomicArtifactStore` maps ENOSPC-style temporary/publication failures to the
+non-retryable `STORAGE` category; all other write failures remain
+`WRITE_FAILURE`. `GenerationStorageCleanup` requires an explicit choice between
+stale temporary files, orphan ready audio, or no cleanup. It never removes
+private source documents, canonical project metadata, or Room data.
+
+Focused verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+  ./gradlew :core:testDebugUnitTest --tests '*GenerationStoragePolicyTest' \
+  --tests '*BoundedGenerationRunnerTest'
+```

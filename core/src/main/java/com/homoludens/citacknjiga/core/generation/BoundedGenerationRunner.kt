@@ -6,7 +6,10 @@ import com.homoludens.citacknjiga.core.database.GenerationRunStatus
 import com.homoludens.citacknjiga.core.database.NarrationBlockEntity
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.core.storage.AtomicArtifactStore
+import com.homoludens.citacknjiga.core.storage.GenerationStoragePolicy
+import com.homoludens.citacknjiga.core.storage.GenerationStorageRequest
 import com.homoludens.citacknjiga.core.storage.PublishedArtifact
+import com.homoludens.citacknjiga.core.storage.StorageCapacityCheck
 import java.io.File
 import java.io.OutputStream
 import kotlinx.coroutines.CancellationException
@@ -82,6 +85,8 @@ public interface GenerationStateGateway {
 
     public fun releaseAudioSegment(segmentId: String): AudioSegmentEntity
 
+    public fun failGenerationRun(runId: String, error: GenerationError): GenerationRunEntity
+
     public fun finishGenerationRun(runId: String): GenerationRunEntity
 }
 
@@ -107,11 +112,15 @@ public class BoundedGenerationRunner(
     private val generator: SegmentGenerator,
     private val retryPolicy: GenerationRetryPolicy = GenerationRetryPolicy(),
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val storagePolicy: GenerationStoragePolicy? = null,
+    private val storageRequests: List<GenerationStorageRequest> = emptyList(),
 ) {
     public suspend fun run(runId: String): BoundedGenerationResult = withContext(ioDispatcher) {
+        storagePolicy?.requireCapacity(storageRequests)
         val started = state.startGenerationRun(runId)
         val generated = mutableListOf<String>()
         val failed = mutableListOf<String>()
+        val remainingStorage = storageRequests.associateBy { it.segmentId }.toMutableMap()
         if (started.status != GenerationRunStatus.RUNNING) {
             return@withContext result(started, generated, failed)
         }
@@ -127,6 +136,14 @@ public class BoundedGenerationRunner(
                 else -> return@withContext result(current, generated, failed)
             }
 
+            val capacityFailure = storagePolicy?.let { policy ->
+                policy.check(remainingStorage.values)
+                    .takeUnless(StorageCapacityCheck::hasCapacity)
+                    ?.let(policy::insufficientStorage)
+            }
+            if (capacityFailure != null) {
+                return@withContext failStorageRun(runId, capacityFailure, generated, failed)
+            }
             val claimed = state.claimNextSegment(runId)
                 ?: return@withContext result(state.finishGenerationRun(runId), generated, failed)
             var failurePhase = GenerationFailurePhase.INFERENCE
@@ -151,6 +168,15 @@ public class BoundedGenerationRunner(
                     state.completeAudioSegment(claimed.segment.id, published, audio)
                 }
                 generated += claimed.segment.id
+                remainingStorage.remove(claimed.segment.id)
+                val afterFailure = storagePolicy?.let { policy ->
+                    policy.check(remainingStorage.values)
+                        .takeUnless(StorageCapacityCheck::hasCapacity)
+                        ?.let(policy::insufficientStorage)
+                }
+                if (afterFailure != null) {
+                    return@withContext failStorageRun(runId, afterFailure, generated, failed)
+                }
             } catch (cancelled: CancellationException) {
                 withContext(NonCancellable) {
                     state.releaseAudioSegment(claimed.segment.id)
@@ -174,6 +200,22 @@ public class BoundedGenerationRunner(
             }
         }
         error("Generation runner loop terminated unexpectedly")
+    }
+
+    private suspend fun failStorageRun(
+        runId: String,
+        failure: GenerationFailureException,
+        generated: List<String>,
+        failed: List<String>,
+    ): BoundedGenerationResult = withContext(NonCancellable) {
+        result(
+            state.failGenerationRun(
+                runId,
+                GenerationFailurePolicy.classify(failure, GenerationFailurePhase.PUBLICATION).error,
+            ),
+            generated,
+            failed,
+        )
     }
 
     private fun requireCompatibleProvenance(

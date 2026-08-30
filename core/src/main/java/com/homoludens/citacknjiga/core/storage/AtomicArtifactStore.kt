@@ -5,6 +5,7 @@ import com.homoludens.citacknjiga.core.generation.GenerationFailureException
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.OutputStream
 import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files
@@ -44,7 +45,15 @@ public class AtomicArtifactStore(
             "Artifact destination directory is unavailable"
         }
 
-        val temporary = createTemporary(ownerId, target.name)
+        val temporary = try {
+            createTemporary(ownerId, target.name)
+        } catch (failure: java.util.concurrent.CancellationException) {
+            throw failure
+        } catch (failure: GenerationFailureException) {
+            throw failure
+        } catch (failure: Throwable) {
+            throw writeFailure(failure)
+        }
         try {
             try {
                 FileOutputStream(temporary).use { fileStream ->
@@ -59,12 +68,7 @@ public class AtomicArtifactStore(
             } catch (failure: GenerationFailureException) {
                 throw failure
             } catch (failure: Throwable) {
-                throw GenerationFailureException(
-                    category = GenerationFailureCategory.WRITE,
-                    stableCode = "WRITE_FAILURE",
-                    message = failure.message?.takeIf(String::isNotBlank) ?: "audio temporary write failed",
-                    cause = failure,
-                )
+                throw writeFailure(failure, "audio temporary write failed")
             }
             try {
                 validator(temporary)
@@ -86,12 +90,7 @@ public class AtomicArtifactStore(
             } catch (failure: java.util.concurrent.CancellationException) {
                 throw failure
             } catch (failure: Throwable) {
-                throw GenerationFailureException(
-                    category = GenerationFailureCategory.WRITE,
-                    stableCode = "WRITE_FAILURE",
-                    message = failure.message?.takeIf(String::isNotBlank) ?: "audio publication failed",
-                    cause = failure,
-                )
+                throw writeFailure(failure, "audio publication failed")
             }
             return artifact
         } finally {
@@ -170,6 +169,25 @@ public class AtomicArtifactStore(
         } catch (_: UnsupportedOperationException) {
             Files.move(temporary.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING)
         }
+    }
+
+    private fun writeFailure(
+        failure: Throwable,
+        fallback: String = "audio temporary file could not be created",
+    ): GenerationFailureException {
+        val message = failure.message?.takeIf(String::isNotBlank) ?: fallback
+        val storageFailure = failure is IOException && listOf(
+            "no space",
+            "enospc",
+            "not enough space",
+            "insufficient storage",
+        ).any { it in message.lowercase() }
+        return GenerationFailureException(
+            category = if (storageFailure) GenerationFailureCategory.STORAGE else GenerationFailureCategory.WRITE,
+            stableCode = if (storageFailure) "INSUFFICIENT_STORAGE" else "WRITE_FAILURE",
+            message = message,
+            cause = failure,
+        )
     }
 
     private fun contained(file: File): File {

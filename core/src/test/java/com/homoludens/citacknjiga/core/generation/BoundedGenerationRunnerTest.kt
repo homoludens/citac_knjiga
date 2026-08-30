@@ -8,8 +8,11 @@ import com.homoludens.citacknjiga.core.database.NarrationBlockEntity
 import com.homoludens.citacknjiga.core.database.NarrationBlockType
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.core.storage.AtomicArtifactStore
+import com.homoludens.citacknjiga.core.storage.GenerationStoragePolicy
+import com.homoludens.citacknjiga.core.storage.GenerationStorageRequest
 import com.homoludens.citacknjiga.core.storage.PublishedArtifact
 import java.io.File
+import java.io.IOException
 import java.util.Collections
 import kotlin.io.path.createTempDirectory
 import kotlinx.coroutines.CancellationException
@@ -146,6 +149,72 @@ public class BoundedGenerationRunnerTest {
     }
 
     @Test
+    public fun noSpaceWriteFailureIsCategorizedAsStorageFailure() = runBlocking {
+        val fixture = fixture(listOf(segment("segment", 0)))
+
+        val result = fixture.runner(GenerationRetryPolicy(maxAttempts = 1)) { _, _ ->
+            audio("segment").copy(writer = { throw IOException("No space left on device") })
+        }.run("run")
+
+        assertEquals(BoundedGenerationStatus.FAILED, result.status)
+        assertTrue(fixture.state.segments.getValue("segment").lastError!!.startsWith("INSUFFICIENT_STORAGE:"))
+    }
+
+    @Test
+    public fun insufficientPreflightDoesNotStartOrChangeRoomState() = runBlocking {
+        val fixture = fixture(listOf(segment("segment", 0)))
+        val policy = GenerationStoragePolicy(
+            storage = fixture.storage,
+            safetyMarginPercent = 0,
+            minimumSafetyMarginBytes = 0,
+            availableBytes = { 9 },
+        )
+
+        val failure = runCatching {
+            fixture.runner(
+                storagePolicy = policy,
+                storageRequests = listOf(GenerationStorageRequest("segment", 10)),
+            ) { _, _ -> error("must not infer") }.run("run")
+        }.exceptionOrNull()
+
+        assertTrue(failure is GenerationFailureException)
+        assertEquals(GenerationRunStatus.QUEUED, fixture.state.runState().status)
+        assertEquals(0, fixture.state.runState().attemptCount)
+        assertEquals(AudioSegmentStatus.PENDING, fixture.state.segments.getValue("segment").status)
+    }
+
+    @Test
+    public fun capacityDropAfterACompletedSegmentFailsTheRunWithoutLosingReadyAudio() = runBlocking {
+        val fixture = fixture(listOf(segment("first", 0), segment("second", 1)))
+        var available = 300L
+        val policy = GenerationStoragePolicy(
+            storage = fixture.storage,
+            safetyMarginPercent = 0,
+            minimumSafetyMarginBytes = 0,
+            availableBytes = { available },
+        )
+
+        val result = fixture.runner(
+            storagePolicy = policy,
+            storageRequests = listOf(
+                GenerationStorageRequest("first", 100),
+                GenerationStorageRequest("second", 100),
+            ),
+        ) { segment, _ ->
+            available = 199
+            audio(segment.id)
+        }.run("run")
+
+        assertEquals(BoundedGenerationStatus.FAILED, result.status)
+        assertEquals(listOf("first"), result.generatedSegmentIds)
+        assertEquals(AudioSegmentStatus.READY, fixture.state.segments.getValue("first").status)
+        assertEquals(AudioSegmentStatus.PENDING, fixture.state.segments.getValue("second").status)
+        assertEquals(GenerationRunStatus.FAILED, fixture.state.runState().status)
+        assertTrue(fixture.state.runState().lastError!!.startsWith("INSUFFICIENT_STORAGE:"))
+        assertTrue(fixture.storage.readySegmentAudio("book", "chapter", "first").exists())
+    }
+
+    @Test
     public fun readySegmentIsReusedWhileOnlyPendingSegmentIsGenerated() = runBlocking {
         val ready = segment("ready", 0).copy(status = AudioSegmentStatus.READY)
         val pending = segment("pending", 1)
@@ -196,6 +265,8 @@ public class BoundedGenerationRunnerTest {
 
     private fun Fixture.runner(
         retryPolicy: GenerationRetryPolicy = GenerationRetryPolicy(),
+        storagePolicy: GenerationStoragePolicy? = null,
+        storageRequests: List<GenerationStorageRequest> = emptyList(),
         generator: suspend (AudioSegmentEntity, NarrationBlockEntity) -> GeneratedSegmentAudio,
     ) =
         BoundedGenerationRunner(
@@ -204,6 +275,8 @@ public class BoundedGenerationRunnerTest {
             artifactStore = artifactStore,
             generator = SegmentGenerator(generator),
             retryPolicy = retryPolicy,
+            storagePolicy = storagePolicy,
+            storageRequests = storageRequests,
         )
 
     private fun audio(id: String) = GeneratedSegmentAudio(
@@ -330,6 +403,12 @@ public class BoundedGenerationRunnerTest {
         }
 
         @Synchronized
+        override fun failGenerationRun(runId: String, error: GenerationError): GenerationRunEntity {
+            run = run.copy(status = GenerationRunStatus.FAILED, lastError = error.record)
+            return run
+        }
+
+        @Synchronized
         override fun finishGenerationRun(runId: String): GenerationRunEntity {
             if (segments.values.any { it.status == AudioSegmentStatus.PENDING || it.status == AudioSegmentStatus.GENERATING }) {
                 return run
@@ -351,6 +430,9 @@ public class BoundedGenerationRunnerTest {
         fun cancel() {
             run = run.copy(status = GenerationRunStatus.CANCELLED)
         }
+
+        @Synchronized
+        fun runState(): GenerationRunEntity = run
 
     }
 

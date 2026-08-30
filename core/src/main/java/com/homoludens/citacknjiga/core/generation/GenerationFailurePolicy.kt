@@ -5,6 +5,7 @@ public enum class GenerationFailureCategory {
     AUDIO_VALIDATION,
     INFERENCE,
     WRITE,
+    STORAGE,
     PROVENANCE,
     UNKNOWN,
 }
@@ -66,7 +67,8 @@ public object GenerationFailurePolicy {
                 category = typed.category,
                 code = typed.stableCode,
                 message = typed.message ?: typed.stableCode,
-                retryable = typed.category != GenerationFailureCategory.PROVENANCE,
+                retryable = typed.category != GenerationFailureCategory.PROVENANCE &&
+                    typed.category != GenerationFailureCategory.STORAGE,
             )
         }
         return when (phase) {

@@ -159,6 +159,9 @@ public class GenerationStateService(
         transitionAudioSegmentInTransaction(segmentId, AudioSegmentStatus.PENDING)
     }
 
+    override fun failGenerationRun(runId: String, error: GenerationError): GenerationRunEntity =
+        transitionGenerationRun(runId, GenerationRunStatus.FAILED, error)
+
     override fun finishGenerationRun(runId: String): GenerationRunEntity = inTransaction {
         val run = dao.findGenerationRunById(runId) ?: missing("generation run", runId)
         if (run.status != GenerationRunStatus.RUNNING) return@inTransaction run
