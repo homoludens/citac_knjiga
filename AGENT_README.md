@@ -521,6 +521,15 @@ target.
   rejects unexpected native/prebuilt/model files in Android source roots while
   allowing generated `build`/`.cxx` output and the documented Gradle Wrapper
   JAR. Model packages remain user-imported and separately verified.
+- Task 12.5 formalizes the existing `fdroid` flavor with
+  `fdroid/check-config-v1.json` and `scripts/check_fdroid.py`. The checker
+  validates F-Droid merged manifests and the built release APK for permissions,
+  tracker/proprietary markers, model/audio/secrets, declared native libraries,
+  version metadata, notices, static locks, and source closure. The locked
+  offline local build passed all JVM/check/lint and standard/F-Droid
+  debug/release assembly checks. No external `fdroid`/scanner executable is
+  installed, so the result is explicitly a substitute scan rather than a real
+  F-Droid scanner result.
 
 ## Repository layout
 

@@ -1864,3 +1864,45 @@ CI action channels are not treated as application dependencies; the installed
 package revisions are checked after setup. Physical ARM64 qualification and
 source-build/release-signing work remain separate tasks and are not claimed by
 12.3.
+
+## F-Droid variant and scanner checks (task 12.5)
+
+The existing `fdroid` distribution flavor remains separate from `standard` and
+keeps its application ID suffix (`.fdroid`), version suffix (`-fdroid`), and
+empty flavor-specific dependency surface. The deterministic policy is
+`fdroid/check-config-v1.json`; it records the four assembly tasks, locked
+metadata, forbidden permissions/dependencies/payloads, allowed generated native
+libraries, and required notice assets.
+
+The scanner-like check is:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  python3 scripts/check_fdroid.py --require-build
+```
+
+It invokes the static toolchain and native source-closure checks, inspects the
+actual F-Droid merged manifests and release APK with `aapt2`/ZIP parsing, and
+checks permissions, tracker/proprietary dependency markers, embedded
+model/audio/secrets, declared native libraries, version/build metadata, and
+bundled notices. It does not create a report file, model package, audio file,
+or release artifact.
+
+On 2026-08-30, the closest available reproducible local run used the locked
+Android SDK/JDK, strict Gradle dependency verification, offline dependency
+resolution, `--rerun-tasks`, and one Gradle worker. JVM tests, `check`, all
+module/app lint tasks, offline merged-manifest verification, and standard plus
+F-Droid debug/release assemblies passed. The source closure verified seven
+eSpeak data files and 196 source files; the F-Droid APK check passed. The
+native eSpeak library is source-built; the only binary dependency exception is
+the explicitly locked Maven ONNX Runtime AAR and its generated APK libraries,
+as recorded by task 12.4.
+
+No `fdroid`, `fdroidserver`, Androguard, apktool, or JADX executable is
+installed in this environment. The checker therefore uses the repository's
+source/manifest/lock checks plus SDK `aapt2` and APK inspection. This is not a
+real F-Droid scanner run, and no claim is made that external F-Droid metadata
+or scanner policy has been evaluated. The full locked toolchain check passes
+when run with `model-tools/.venv/bin/python` (Python 3.11.14); the system
+Python 3.13 interpreter is intentionally not accepted by that lock.

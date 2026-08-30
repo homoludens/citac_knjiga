@@ -1,0 +1,108 @@
+{
+  "schema": "citac-knjiga-fdroid-check",
+  "version": 1,
+  "flavor": {
+    "name": "fdroid",
+    "application_id": "com.homoludens.citacknjiga.fdroid",
+    "version_code": 1,
+    "version_name": "0.1.0-fdroid",
+    "release_variant": "fdroidRelease"
+  },
+  "build": {
+    "gradle_tasks": [
+      ":app:assembleStandardDebug",
+      ":app:assembleFdroidDebug",
+      ":app:assembleStandardRelease",
+      ":app:assembleFdroidRelease"
+    ],
+    "offline": true,
+    "dependency_verification": "strict",
+    "toolchain_lock": "gradle/toolchain.lock.json"
+  },
+  "manifest": {
+    "forbidden_permissions": [
+      "android.permission.INTERNET",
+      "android.permission.ACCESS_NETWORK_STATE",
+      "android.permission.ACCESS_WIFI_STATE",
+      "android.permission.CHANGE_WIFI_STATE"
+    ]
+  },
+  "source": {
+    "roots": ["app", "core", "document-epub", "playback-export", "tts-onnx", "gradle"],
+    "forbidden_dependency_terms": [
+      "firebase",
+      "play-services",
+      "crashlytics",
+      "sentry",
+      "appsflyer",
+      "mixpanel",
+      "amplitude",
+      "onesignal",
+      "okhttp",
+      "retrofit",
+      "ktor-client",
+      "volley"
+    ],
+    "forbidden_network_api_terms": [
+      "java.net.URL",
+      "java.net.URLConnection",
+      "java.net.Socket",
+      "javax.net.",
+      "HttpURLConnection",
+      "WebView",
+      "android.net.http"
+    ],
+    "forbidden_artifact_suffixes": [
+      ".aar",
+      ".apk",
+      ".bin",
+      ".ckpt",
+      ".flac",
+      ".m4a",
+      ".mp3",
+      ".onnx",
+      ".ort",
+      ".pt",
+      ".pth",
+      ".safetensors",
+      ".so",
+      ".tflite",
+      ".wav",
+      ".zip"
+    ],
+    "allowed_source_artifacts": ["gradle/wrapper/gradle-wrapper.jar"]
+  },
+  "apk": {
+    "required_assets": [
+      "assets/notices/THIRD_PARTY_NOTICES.md",
+      "assets/notices/dependency-license-inventory.json"
+    ],
+    "allowed_native_libraries": [
+      "libandroidx.graphics.path.so",
+      "libcita_espeak.so",
+      "libonnxruntime.so",
+      "libonnxruntime4j_jni.so"
+    ],
+    "allowed_generated_payload_entries": ["DebugProbesKt.bin"],
+    "allowed_framework_markers": [
+      "com.google.android.gms.provider.action.PICK_IMAGES",
+      "com.google.android.gms.provider.extra.PICK_IMAGES_MAX"
+    ],
+    "forbidden_payload_suffixes": [
+      ".bin",
+      ".ckpt",
+      ".flac",
+      ".m4a",
+      ".mp3",
+      ".onnx",
+      ".ort",
+      ".pt",
+      ".pth",
+      ".safetensors",
+      ".tflite",
+      ".wav",
+      ".zip"
+    ]
+  },
+  "external_scanners": ["fdroid", "fdroidserver", "androguard", "apktool", "jadx"]
+}

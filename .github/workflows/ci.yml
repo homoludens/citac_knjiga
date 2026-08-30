@@ -117,7 +117,10 @@ jobs:
             :core:lintDebug :document-epub:lintDebug \
             :tts-onnx:lintDebug :playback-export:lintDebug \
             --no-daemon --max-workers=2 --console=plain --dependency-verification=strict
-      - name: Assemble standard and F-Droid debug APKs
+      - name: Assemble standard and F-Droid APKs
         run: |
           ./gradlew :app:assembleStandardDebug :app:assembleFdroidDebug \
+            :app:assembleStandardRelease :app:assembleFdroidRelease \
             --no-daemon --max-workers=2 --console=plain --dependency-verification=strict
+      - name: Run F-Droid-oriented scanner checks
+        run: python3 scripts/check_fdroid.py --require-build
