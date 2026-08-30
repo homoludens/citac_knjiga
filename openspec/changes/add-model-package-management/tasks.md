@@ -1,6 +1,6 @@
 ## 1. Safe Contracts
 
-- [ ] 1.1 Define safe installed-package metadata and typed import-result/failure models containing only validated identity, version, checksums, compatibility, and runtime fields; verify `./gradlew :tts-onnx:test` compiles the public contract without exposing `File` or `Uri` to app state.
+- [x] 1.1 Define safe installed-package metadata and typed import-result/failure models containing only validated identity, version, checksums, compatibility, and runtime fields; verify `./gradlew :tts-onnx:test` compiles the public contract without exposing `File` or `Uri` to app state.
 - [ ] 1.2 Normalize store failures into stable source, storage, archive, manifest, checksum, compatibility, publication, no-valid-package, and unknown-error categories; verify unit tests map every failure category deterministically and never return a raw exception message.
 - [ ] 1.3 Add model status types for `VERIFIED`, `MISSING`, `INVALID`, `INCOMPATIBLE`, and `ERROR`, and map validated store results to a redacted diagnostics snapshot; verify tests cover every state and assert paths, URIs, archive entries, payloads, raw manifests, exceptions, credentials, and tokens are absent.
 - [ ] 1.4 Keep the existing single `AndroidTypedTextProofEngine` and ONNX runtime path as the only engine boundary, with no model weights or raw checkpoints added to source, fixtures, or resources; verify `python3 scripts/check_source_closure.py` reports no unexpected model artifacts.

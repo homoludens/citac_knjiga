@@ -29,32 +29,6 @@ public data class ModelPackageCompatibility(
     val preprocessingContractVersion: Int = 1,
 )
 
-public data class InstalledModelPackage(
-    val packageId: String,
-    val packageVersion: String,
-    val identitySha256: String,
-    val modelSha256: String,
-    val voiceSha256: String,
-    val archive: File,
-)
-
-public enum class ModelPackageFailureCode {
-    SOURCE_UNAVAILABLE,
-    COPY_FAILED,
-    ARCHIVE_INVALID,
-    MANIFEST_INVALID,
-    CHECKSUM_MISMATCH,
-    INCOMPATIBLE,
-    PUBLICATION_FAILED,
-    NO_VALID_PACKAGE,
-}
-
-public class ModelPackageImportException(
-    public val code: ModelPackageFailureCode,
-    message: String,
-    cause: Throwable? = null,
-) : Exception(message, cause)
-
 /** Installs verified model archives below the application's private files directory. */
 public class ModelPackageStore(
     filesDir: File,
@@ -71,15 +45,14 @@ public class ModelPackageStore(
             contentResolver.openInputStream(uri)
                 ?: throw ModelPackageImportException(
                     ModelPackageFailureCode.SOURCE_UNAVAILABLE,
-                    "The selected model package could not be opened",
+                    cause = null,
                 )
         } catch (exception: ModelPackageImportException) {
             throw exception
         } catch (exception: Exception) {
             throw ModelPackageImportException(
                 ModelPackageFailureCode.SOURCE_UNAVAILABLE,
-                "The selected model package could not be opened",
-                exception,
+                cause = exception,
             )
         }
 
@@ -94,8 +67,7 @@ public class ModelPackageStore(
         } catch (exception: Exception) {
             throw ModelPackageImportException(
                 ModelPackageFailureCode.COPY_FAILED,
-                "Could not create model-package temporary storage",
-                exception,
+                cause = exception,
             )
         }
 
@@ -107,14 +79,13 @@ public class ModelPackageStore(
             } catch (exception: Exception) {
                 throw ModelPackageImportException(
                     ModelPackageFailureCode.COPY_FAILED,
-                    "Could not copy the selected model package",
-                    exception,
+                    cause = exception,
                 )
             }
 
             val metadata = validateArchive(temporary)
             publish(temporary)
-            return metadata.copy(archive = activeFile)
+            return metadata
         } finally {
             temporary.delete()
         }
@@ -125,7 +96,7 @@ public class ModelPackageStore(
         if (!activeFile.exists() && !previousFile.exists()) return null
         if (activeFile.exists()) {
             try {
-                return validateArchive(activeFile).copy(archive = activeFile)
+                return validateArchive(activeFile)
             } catch (_: ModelPackageImportException) {
                 // The previous archive is the only safe recovery candidate.
             }
@@ -133,7 +104,7 @@ public class ModelPackageStore(
         if (!previousFile.exists()) {
             throw ModelPackageImportException(
                 ModelPackageFailureCode.NO_VALID_PACKAGE,
-                "No valid installed model package remains",
+                cause = null,
             )
         }
 
@@ -154,11 +125,10 @@ public class ModelPackageStore(
         } catch (exception: Exception) {
             throw ModelPackageImportException(
                 ModelPackageFailureCode.PUBLICATION_FAILED,
-                "Could not roll back to the last valid model package",
-                exception,
+                cause = exception,
             )
         }
-        return metadata.copy(archive = activeFile)
+        return metadata
     }
 
     /** Reads one already verified payload artifact while keeping the ZIP private. */
@@ -242,7 +212,7 @@ public class ModelPackageStore(
         block: (ZipFile, DeclaredArtifact) -> T,
     ): T {
         try {
-            ZipFile(packageInfo.archive).use { archive ->
+            ZipFile(activeFile).use { archive ->
                 val manifestEntry = archive.getEntry("manifest.json")
                     ?: throw ModelPackageImportException(
                         ModelPackageFailureCode.MANIFEST_INVALID,
@@ -408,7 +378,7 @@ public class ModelPackageStore(
                         )
                     }
                 }
-                return metadata.copy(archive = archiveFile)
+                return metadata
             }
         } catch (exception: ModelPackageImportException) {
             throw exception
@@ -537,7 +507,6 @@ public class ModelPackageStore(
             identitySha256 = identity.get("value").asString,
             modelSha256 = modelArtifact.get("sha256").asString,
             voiceSha256 = voiceArtifact.get("sha256").asString,
-            archive = File(""),
         )
     }
 

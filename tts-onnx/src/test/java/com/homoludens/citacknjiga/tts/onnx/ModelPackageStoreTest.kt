@@ -22,7 +22,6 @@ public class ModelPackageStoreTest {
         val installed = store.importPackage(ModelPackageSource { ByteArrayInputStream(packageBytes("first")) })
 
         assertEquals("first", installed.packageId)
-        assertEquals(File(root, "model-packages/active.zip"), installed.archive)
         assertEquals(installed, store.activePackage())
     }
 
@@ -75,7 +74,7 @@ public class ModelPackageStoreTest {
         val active = store.activePackage()
 
         assertEquals("first", active?.packageId)
-        assertTrue(active?.archive?.isFile == true)
+        assertTrue(root.resolve("model-packages/active.zip").isFile)
         assertEquals("first", store.activePackage()?.packageId)
     }
 
@@ -143,7 +142,7 @@ public class ModelPackageStoreTest {
         val root = createTempDirectory().toFile()
         val store = store(root)
         val installed = store.importPackage(ModelPackageSource { ByteArrayInputStream(packageBytes("first")) })
-        installed.archive.writeBytes(packageBytes("first", corruptModel = true))
+        root.resolve("model-packages/active.zip").writeBytes(packageBytes("first", corruptModel = true))
 
         val failure = assertThrows(ModelPackageImportException::class.java) {
             store.withVerifiedArtifactFile(installed, "model") { it.readBytes() }
