@@ -118,7 +118,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 - [ ] 11.4 Run sustained generation-plus-playback tests on Android 11, a current Android release, Android 16, and the Poco F3 vendor battery-management configuration.
 - [x] 11.5 Add accessibility checks, Serbian/English string-resource readiness, large-text layout checks, and clear long-running/error-state UX. → Compose semantics/UI coverage, Serbian defaults with English fallback resources, large-text checks, localized generation/import/export progress and failure actions; lint, JVM tests, Android-test compilation, module connected tests, and standard/F-Droid debug/release assemblies pass. The full app connected suite still has the pre-existing typed-text proof failure when no verified model package is staged.
 - [x] 11.6 Add an in-app diagnostics/about view for model verification, device capability, versions, licenses, attribution, storage, and redacted log export.
-- [ ] 11.7 Perform a dependency and license audit, remove or replace incompatible/unmaintained dependencies, and generate bundled notices.
+- [x] 11.7 Perform a dependency and license audit, remove or replace incompatible/unmaintained dependencies, and generate bundled notices. -> offline audit resolves 149 Android components across standard/F-Droid release and module test graphs; all licenses are documented, no incompatible or unmaintained production dependency was found, and JSON/Markdown notices are bundled in both release APKs.
 - [ ] 11.8 Verify every capability scenario and record unresolved deviations before declaring the MVP release candidate.
 
 ## 12. CI, Reproducibility, and Release (rough phase effort: 1–3 weeks)

@@ -1566,3 +1566,27 @@ Both focused JVM/test-compilation and the two diagnostics Compose tests passed
 on 2026-08-30. The app/module lint tasks and standard/F-Droid debug/release
 assemblies also passed. No model package or generated diagnostics export is a
 repository artifact.
+
+## Dependency and license audit (task 11.7)
+
+Run the audit offline with the local Android SDK and Gradle cache:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+python3 scripts/audit_dependencies.py
+```
+
+The command resolves standard and F-Droid release graphs plus module test
+graphs, records 149 Android components, and writes the bundled assets:
+
+- `app/src/main/assets/notices/dependency-license-inventory.json`
+- `app/src/main/assets/notices/THIRD_PARTY_NOTICES.md`
+
+License metadata comes from offline Gradle-cache POMs. Guava and Hamcrest
+fallbacks are explicit because their cached POMs omit license fields; any
+remaining empty or `UNKNOWN` license fails the audit. The report found no
+incompatible or unmaintained production dependency to replace. Readium and
+Sherpa-ONNX are excluded by the recorded production decisions. The generated
+Gradle graph is temporary build output under
+`build/reports/dependency-audit/` and is not a release asset.

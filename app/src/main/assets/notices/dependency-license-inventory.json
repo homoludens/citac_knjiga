@@ -1,0 +1,3695 @@
+{
+  "components": [
+    {
+      "coordinate": "androidx.activity:activity-compose:1.10.1",
+      "group": "androidx.activity",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.activity/activity-compose/1.10.1/f8274f8ea3b51a1ce0f5467393d99ef729651f77/activity-compose-1.10.1.pom",
+        "sha256": "e64db6b7126fb512394bc3cf4332a38828009daa8dd56ecbe6c0c7300b2127f5"
+      },
+      "name": "activity-compose",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.activity/activity-compose/1.10.1/f8274f8ea3b51a1ce0f5467393d99ef729651f77/activity-compose-1.10.1.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.10.1"
+    },
+    {
+      "coordinate": "androidx.activity:activity-ktx:1.10.1",
+      "group": "androidx.activity",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.activity/activity-ktx/1.10.1/3845a707100fb003bdc5fcace4effc28618ce084/activity-ktx-1.10.1.pom",
+        "sha256": "4213490e4ce2b5750e4445246dfe9de4f6655c2123c04a79a8248cc8893e2bf4"
+      },
+      "name": "activity-ktx",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.activity/activity-ktx/1.10.1/3845a707100fb003bdc5fcace4effc28618ce084/activity-ktx-1.10.1.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.10.1"
+    },
+    {
+      "coordinate": "androidx.activity:activity:1.10.1",
+      "group": "androidx.activity",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.activity/activity/1.10.1/9d9bf2b83ed385a2150fe8e5be31ea7fc66f38c5/activity-1.10.1.pom",
+        "sha256": "0ae4de888974f5cef982660900ec32a33f10968750db7afa9438daec183f14e7"
+      },
+      "name": "activity",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.activity/activity/1.10.1/9d9bf2b83ed385a2150fe8e5be31ea7fc66f38c5/activity-1.10.1.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.10.1"
+    },
+    {
+      "coordinate": "androidx.annotation:annotation-experimental:1.4.1",
+      "group": "androidx.annotation",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.annotation/annotation-experimental/1.4.1/9e57caeeb7f02cecfe51c27d11352284b5161276/annotation-experimental-1.4.1.pom",
+        "sha256": "fe57b228417f4d7c677903dc61fb4a7cf993d603499de26d8d8113e477cc4f1b"
+      },
+      "name": "annotation-experimental",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.annotation/annotation-experimental/1.4.1/9e57caeeb7f02cecfe51c27d11352284b5161276/annotation-experimental-1.4.1.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.4.1"
+    },
+    {
+      "coordinate": "androidx.annotation:annotation-jvm:1.9.1",
+      "group": "androidx.annotation",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.annotation/annotation-jvm/1.9.1/33599f2420d44099d3d9fa410a6c855928f59e82/annotation-jvm-1.9.1.pom",
+        "sha256": "89b99c218d60019316b50aab79816707bc21696c896a030e1b1ae038961bcb8e"
+      },
+      "name": "annotation-jvm",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.annotation/annotation-jvm/1.9.1/33599f2420d44099d3d9fa410a6c855928f59e82/annotation-jvm-1.9.1.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.9.1"
+    },
+    {
+      "coordinate": "androidx.annotation:annotation:1.9.1",
+      "group": "androidx.annotation",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.annotation/annotation/1.9.1/67deed6cfcb79363aa9125ca08355b05a6571b30/annotation-1.9.1.pom",
+        "sha256": "c733881c2e17d5f7c8661cc02a9159cb160b7b2094a27d593916c87d3e250636"
+      },
+      "name": "annotation",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.annotation/annotation/1.9.1/67deed6cfcb79363aa9125ca08355b05a6571b30/annotation-1.9.1.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.9.1"
+    },
+    {
+      "coordinate": "androidx.arch.core:core-common:2.2.0",
+      "group": "androidx.arch.core",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.arch.core/core-common/2.2.0/9627f64db0ba64e3c2432a274b83d23e1c0c627e/core-common-2.2.0.pom",
+        "sha256": "1e17d4af8d6425be2a69f8af4d654a87e0456259a9eef1542869bcb023547e28"
+      },
+      "name": "core-common",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.arch.core/core-common/2.2.0/9627f64db0ba64e3c2432a274b83d23e1c0c627e/core-common-2.2.0.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.2.0"
+    },
+    {
+      "coordinate": "androidx.arch.core:core-runtime:2.2.0",
+      "group": "androidx.arch.core",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.arch.core/core-runtime/2.2.0/d9cb0beb2de910cd9922535b6028054786fea928/core-runtime-2.2.0.pom",
+        "sha256": "0f953706598140d9d8735cdd5aeb1fa35933f4e2f31c0bf3eb81a053a4c8c1a5"
+      },
+      "name": "core-runtime",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.arch.core/core-runtime/2.2.0/d9cb0beb2de910cd9922535b6028054786fea928/core-runtime-2.2.0.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.2.0"
+    },
+    {
+      "coordinate": "androidx.autofill:autofill:1.0.0",
+      "group": "androidx.autofill",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.autofill/autofill/1.0.0/52c15707a9cc4dd57f439185c52b6aebd4eee6a3/autofill-1.0.0.pom",
+        "sha256": "3677abead5d4e06cf76cbacb954151e051779c2274494451fb424e375aa9e450"
+      },
+      "name": "autofill",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.autofill/autofill/1.0.0/52c15707a9cc4dd57f439185c52b6aebd4eee6a3/autofill-1.0.0.pom",
+      "scope": "runtime",
+      "source_url": "http://source.android.com",
+      "used_in_tests": true,
+      "version": "1.0.0"
+    },
+    {
+      "coordinate": "androidx.collection:collection-jvm:1.4.2",
+      "group": "androidx.collection",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.collection/collection-jvm/1.4.2/2ee54d139ec5d569288dc61b6b3f54a88f7243c/collection-jvm-1.4.2.pom",
+        "sha256": "adbb379e2b160f08e63e341ad04bbcc7033f6d868ec51ac11e4334642a4e39ef"
+      },
+      "name": "collection-jvm",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.collection/collection-jvm/1.4.2/2ee54d139ec5d569288dc61b6b3f54a88f7243c/collection-jvm-1.4.2.pom",
+      "scope": "debug-only",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.4.2"
+    },
+    {
+      "coordinate": "androidx.collection:collection-jvm:1.4.4",
+      "group": "androidx.collection",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.collection/collection-jvm/1.4.4/f3b6a5f878279e9add14a01e7a9ca6272d93f72d/collection-jvm-1.4.4.pom",
+        "sha256": "fcf28f558dff79164f0b0810dfea9fd6070b67c2702422d721335627aaa42b00"
+      },
+      "name": "collection-jvm",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.collection/collection-jvm/1.4.4/f3b6a5f878279e9add14a01e7a9ca6272d93f72d/collection-jvm-1.4.4.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.4.4"
+    },
+    {
+      "coordinate": "androidx.collection:collection-ktx:1.4.4",
+      "group": "androidx.collection",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.collection/collection-ktx/1.4.4/6df3edc10a4b819c6e4bb9422c4bfcc35d09a1cc/collection-ktx-1.4.4.pom",
+        "sha256": "5626665b063c033acbb950312f7434a4213e9285308767c6c51e94007a95294e"
+      },
+      "name": "collection-ktx",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.collection/collection-ktx/1.4.4/6df3edc10a4b819c6e4bb9422c4bfcc35d09a1cc/collection-ktx-1.4.4.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.4.4"
+    },
+    {
+      "coordinate": "androidx.collection:collection:1.4.2",
+      "group": "androidx.collection",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.collection/collection/1.4.2/2d810dcf15ab275cd1ccfd1e04d5daf88cc804fd/collection-1.4.2.pom",
+        "sha256": "4f2615a17aeacfe12b68298214a19f2a19c68c66d590075bdbbfb659ebce2b7f"
+      },
+      "name": "collection",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.collection/collection/1.4.2/2d810dcf15ab275cd1ccfd1e04d5daf88cc804fd/collection-1.4.2.pom",
+      "scope": "debug-only",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.4.2"
+    },
+    {
+      "coordinate": "androidx.collection:collection:1.4.4",
+      "group": "androidx.collection",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.collection/collection/1.4.4/54b8f99e4b09aff3bba5e55e896a9e956082e88a/collection-1.4.4.pom",
+        "sha256": "5850a06a1c8b6381c28664d9dcaab52803e46a060887b2f50dca17a3edf75c64"
+      },
+      "name": "collection",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.collection/collection/1.4.4/54b8f99e4b09aff3bba5e55e896a9e956082e88a/collection-1.4.4.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.4.4"
+    },
+    {
+      "coordinate": "androidx.compose.animation:animation-android:1.7.8",
+      "group": "androidx.compose.animation",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.animation/animation-android/1.7.8/5a13a9f56df92c8f67abd20426bf3efc6b95abd7/animation-android-1.7.8.pom",
+        "sha256": "85c97c1c7fae1d75b7a4c8b4d0a6ef61d88d475f999bddf5f24d66380b1ebf64"
+      },
+      "name": "animation-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.animation/animation-android/1.7.8/5a13a9f56df92c8f67abd20426bf3efc6b95abd7/animation-android-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.animation:animation-core-android:1.7.8",
+      "group": "androidx.compose.animation",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.animation/animation-core-android/1.7.8/629d24dca0932bdd2dd23cd9d77983100fc62ce5/animation-core-android-1.7.8.pom",
+        "sha256": "e157cc487fbb8436011a931a67475e7564480f31b1193af24cc9778e133c60ca"
+      },
+      "name": "animation-core-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.animation/animation-core-android/1.7.8/629d24dca0932bdd2dd23cd9d77983100fc62ce5/animation-core-android-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.animation:animation-core:1.7.8",
+      "group": "androidx.compose.animation",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.animation/animation-core/1.7.8/c98e0daf18aa234b2981ae0b6739a51b8ed391b8/animation-core-1.7.8.pom",
+        "sha256": "1d8d267764e94c0c75ccba618f51bdb67f59810f797b280ebccddf7b513ab0c9"
+      },
+      "name": "animation-core",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.animation/animation-core/1.7.8/c98e0daf18aa234b2981ae0b6739a51b8ed391b8/animation-core-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.animation:animation:1.7.8",
+      "group": "androidx.compose.animation",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.animation/animation/1.7.8/d16121d166e52bb522e42098b57ff7fabb906d64/animation-1.7.8.pom",
+        "sha256": "ece53eaee5eba246dc4081b2e692db50a3dec90eb966d41d9273ca467d49eb09"
+      },
+      "name": "animation",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.animation/animation/1.7.8/d16121d166e52bb522e42098b57ff7fabb906d64/animation-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.foundation:foundation-android:1.7.8",
+      "group": "androidx.compose.foundation",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.foundation/foundation-android/1.7.8/fbbde94e99726067799b3c1cca5580868e90d3fa/foundation-android-1.7.8.pom",
+        "sha256": "6b733cf3f33149154b2c84e63a0dc9d9c588e4ff8fb8adfdf41ad649a2fb96ef"
+      },
+      "name": "foundation-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.foundation/foundation-android/1.7.8/fbbde94e99726067799b3c1cca5580868e90d3fa/foundation-android-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.foundation:foundation-layout-android:1.7.8",
+      "group": "androidx.compose.foundation",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.foundation/foundation-layout-android/1.7.8/c13fbbf78f5ef4ded30b46292b068ba90b94fb64/foundation-layout-android-1.7.8.pom",
+        "sha256": "fab44ceee772990eca049f9d841367ccbe99d6021674fe514da1f7137f673a0b"
+      },
+      "name": "foundation-layout-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.foundation/foundation-layout-android/1.7.8/c13fbbf78f5ef4ded30b46292b068ba90b94fb64/foundation-layout-android-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.foundation:foundation-layout:1.7.8",
+      "group": "androidx.compose.foundation",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.foundation/foundation-layout/1.7.8/604423e2399419772ae30ba64e55e6ffb721d2e6/foundation-layout-1.7.8.pom",
+        "sha256": "d8f499d607713bce3783fdd9d39a55e384f94330442d067d3f45895b9cb5a492"
+      },
+      "name": "foundation-layout",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.foundation/foundation-layout/1.7.8/604423e2399419772ae30ba64e55e6ffb721d2e6/foundation-layout-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.foundation:foundation:1.7.8",
+      "group": "androidx.compose.foundation",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.foundation/foundation/1.7.8/b6b32707034c2dd5419e5d8d0916341905e84d4a/foundation-1.7.8.pom",
+        "sha256": "bc6e3936e4954c60594e1d782ad0719309ecca186229900e3b3c2caf54b9ce17"
+      },
+      "name": "foundation",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.foundation/foundation/1.7.8/b6b32707034c2dd5419e5d8d0916341905e84d4a/foundation-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.material3:material3-android:1.3.1",
+      "group": "androidx.compose.material3",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.material3/material3-android/1.3.1/4c7635a22cf8e4f9ec96aaa343929a828dad169f/material3-android-1.3.1.pom",
+        "sha256": "cd214fdbb0825212488c4e02c70fcc0d7a68880766a0e2a3dd11ae3e585ddc2a"
+      },
+      "name": "material3-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.material3/material3-android/1.3.1/4c7635a22cf8e4f9ec96aaa343929a828dad169f/material3-android-1.3.1.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.3.1"
+    },
+    {
+      "coordinate": "androidx.compose.material3:material3:1.3.1",
+      "group": "androidx.compose.material3",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.material3/material3/1.3.1/61f4fa235d7c9583dff6a0d1a29c66c31675d85d/material3-1.3.1.pom",
+        "sha256": "4dc1c9f39049c264b7126de813c3252381265010d31fd93273167efabb5de602"
+      },
+      "name": "material3",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.material3/material3/1.3.1/61f4fa235d7c9583dff6a0d1a29c66c31675d85d/material3-1.3.1.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.3.1"
+    },
+    {
+      "coordinate": "androidx.compose.material:material-icons-core-android:1.7.8",
+      "group": "androidx.compose.material",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.material/material-icons-core-android/1.7.8/772256020a8d9b700b66e151e747b908bd7c9a8f/material-icons-core-android-1.7.8.pom",
+        "sha256": "df671e1144120b43f83464e1e94ff828d0ded8132b3b15b86de07f1b82d0d932"
+      },
+      "name": "material-icons-core-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.material/material-icons-core-android/1.7.8/772256020a8d9b700b66e151e747b908bd7c9a8f/material-icons-core-android-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.material:material-icons-core:1.7.8",
+      "group": "androidx.compose.material",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.material/material-icons-core/1.7.8/154df52ee5768c475436961a9a417f149e5d57dc/material-icons-core-1.7.8.pom",
+        "sha256": "eeefc6cd1c66baf21dbf4e916c46504017787784cd2327233cec23806422299a"
+      },
+      "name": "material-icons-core",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.material/material-icons-core/1.7.8/154df52ee5768c475436961a9a417f149e5d57dc/material-icons-core-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.material:material-ripple-android:1.7.8",
+      "group": "androidx.compose.material",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.material/material-ripple-android/1.7.8/6af9bca3af26e8dd8acf892d1b7aeb92691953ca/material-ripple-android-1.7.8.pom",
+        "sha256": "955f8334fe5e0343ca5bb908a91ea466bed3d85acba8591db9ffdd707d3b828d"
+      },
+      "name": "material-ripple-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.material/material-ripple-android/1.7.8/6af9bca3af26e8dd8acf892d1b7aeb92691953ca/material-ripple-android-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.material:material-ripple:1.7.8",
+      "group": "androidx.compose.material",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.material/material-ripple/1.7.8/283377b6393d7899286954d8fcb87d08ba2c3d1d/material-ripple-1.7.8.pom",
+        "sha256": "70e9d3777671cdea48a29add042d145bcf747161709c2ac9d7f0c87b0338a414"
+      },
+      "name": "material-ripple",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.material/material-ripple/1.7.8/283377b6393d7899286954d8fcb87d08ba2c3d1d/material-ripple-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.runtime:runtime-android:1.7.8",
+      "group": "androidx.compose.runtime",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.runtime/runtime-android/1.7.8/96bb212b5061c73102b3e8dce8ba9fff989be9d8/runtime-android-1.7.8.pom",
+        "sha256": "f6a8b12a6e29baa7811138d669de6f13b714eaa0e0a24f543637b4cbe80f3be5"
+      },
+      "name": "runtime-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.runtime/runtime-android/1.7.8/96bb212b5061c73102b3e8dce8ba9fff989be9d8/runtime-android-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.runtime:runtime-saveable-android:1.7.8",
+      "group": "androidx.compose.runtime",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.runtime/runtime-saveable-android/1.7.8/5b52399ea9c6123abde47f4a2f6aa928d02da3cd/runtime-saveable-android-1.7.8.pom",
+        "sha256": "44c5733a12fec98047ef9f59eb5d2cea625e3d720c3334b234e4874b08d95031"
+      },
+      "name": "runtime-saveable-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.runtime/runtime-saveable-android/1.7.8/5b52399ea9c6123abde47f4a2f6aa928d02da3cd/runtime-saveable-android-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.runtime:runtime-saveable:1.7.8",
+      "group": "androidx.compose.runtime",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.runtime/runtime-saveable/1.7.8/881fab49bddde0ad29651a34ad9bfa936e48c689/runtime-saveable-1.7.8.pom",
+        "sha256": "4963c4a3b94caf70f8e8200a054d2e4787c90bdf28feed39a9f6b07e70862ef6"
+      },
+      "name": "runtime-saveable",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.runtime/runtime-saveable/1.7.8/881fab49bddde0ad29651a34ad9bfa936e48c689/runtime-saveable-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.runtime:runtime:1.7.8",
+      "group": "androidx.compose.runtime",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.runtime/runtime/1.7.8/1149a8c001ea8ab152e6c3e708dd66ae020936e9/runtime-1.7.8.pom",
+        "sha256": "f48867af35d567567c160d270dd29e788496143dd5eab50b1690856efb2523c2"
+      },
+      "name": "runtime",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.runtime/runtime/1.7.8/1149a8c001ea8ab152e6c3e708dd66ae020936e9/runtime-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.ui:ui-android:1.7.8",
+      "group": "androidx.compose.ui",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-android/1.7.8/7816bf948c50e6f3fe87d853deff72ed9b4dd5ca/ui-android-1.7.8.pom",
+        "sha256": "0c5dd66e3fc01ae877ef49cb992178df47b17950824a3e462b80a696f143e208"
+      },
+      "name": "ui-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-android/1.7.8/7816bf948c50e6f3fe87d853deff72ed9b4dd5ca/ui-android-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.ui:ui-geometry-android:1.7.8",
+      "group": "androidx.compose.ui",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-geometry-android/1.7.8/f4b34eda7431becb82ca8e6e98a592fbd820ef9d/ui-geometry-android-1.7.8.pom",
+        "sha256": "3f3d68354c65dd4593c9732c959cded0d8d1b365b66511ad4327c216fc709f6d"
+      },
+      "name": "ui-geometry-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-geometry-android/1.7.8/f4b34eda7431becb82ca8e6e98a592fbd820ef9d/ui-geometry-android-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.ui:ui-geometry:1.7.8",
+      "group": "androidx.compose.ui",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-geometry/1.7.8/ce8cb06c57dbcf1c22974725c6397137456c196d/ui-geometry-1.7.8.pom",
+        "sha256": "63d5ae8f9836b98c9676577c1925fb2e16a998df95bf29932139963612b23b09"
+      },
+      "name": "ui-geometry",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-geometry/1.7.8/ce8cb06c57dbcf1c22974725c6397137456c196d/ui-geometry-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.ui:ui-graphics-android:1.7.8",
+      "group": "androidx.compose.ui",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-graphics-android/1.7.8/fcff9c39679f586aac341ceb136daeb5f6198d8/ui-graphics-android-1.7.8.pom",
+        "sha256": "f455e61270d51a9e19097cb86c4dd3ad8ebf63be3eb273cb468003dc1a500f6f"
+      },
+      "name": "ui-graphics-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-graphics-android/1.7.8/fcff9c39679f586aac341ceb136daeb5f6198d8/ui-graphics-android-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.ui:ui-graphics:1.7.8",
+      "group": "androidx.compose.ui",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-graphics/1.7.8/2972ce1a73dc2c1daecdb1f28df06a196e7c875d/ui-graphics-1.7.8.pom",
+        "sha256": "f2b403bcc579898407dfe4621a6e075fe17ee71a770bc8231a6f7b5a60939b00"
+      },
+      "name": "ui-graphics",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-graphics/1.7.8/2972ce1a73dc2c1daecdb1f28df06a196e7c875d/ui-graphics-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.ui:ui-text-android:1.7.8",
+      "group": "androidx.compose.ui",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-text-android/1.7.8/55c9c02d8bb4f9337550276568ccd7d314edb08c/ui-text-android-1.7.8.pom",
+        "sha256": "40bd5ccf14d30e0b9f08a62f4bea6feac02b021333f44db63918915639b6b6f4"
+      },
+      "name": "ui-text-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-text-android/1.7.8/55c9c02d8bb4f9337550276568ccd7d314edb08c/ui-text-android-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.ui:ui-text:1.7.8",
+      "group": "androidx.compose.ui",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-text/1.7.8/26d37c55617834d8d65129e673d66c2542d115cf/ui-text-1.7.8.pom",
+        "sha256": "02d48171a75bfaab1ac395a072b44b77c614e9994e0347d4886569d2b4b66906"
+      },
+      "name": "ui-text",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-text/1.7.8/26d37c55617834d8d65129e673d66c2542d115cf/ui-text-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.ui:ui-tooling-preview-android:1.7.8",
+      "group": "androidx.compose.ui",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-tooling-preview-android/1.7.8/8d2b26cdcc57c48c2cd8958465f43b4e478d47d9/ui-tooling-preview-android-1.7.8.pom",
+        "sha256": "c57475206f0ccd96a43a0897806b1895b3ba98060f5b5876dcdc143af29362a8"
+      },
+      "name": "ui-tooling-preview-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-tooling-preview-android/1.7.8/8d2b26cdcc57c48c2cd8958465f43b4e478d47d9/ui-tooling-preview-android-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.ui:ui-tooling-preview:1.7.8",
+      "group": "androidx.compose.ui",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-tooling-preview/1.7.8/919282d089fff8aba05880412358a3443f0d31e4/ui-tooling-preview-1.7.8.pom",
+        "sha256": "5bd2f51543035d64beb5e6d3d475423e2286ce5c6eb7776ffbbaea9cdc3e7595"
+      },
+      "name": "ui-tooling-preview",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-tooling-preview/1.7.8/919282d089fff8aba05880412358a3443f0d31e4/ui-tooling-preview-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.ui:ui-unit-android:1.7.8",
+      "group": "androidx.compose.ui",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-unit-android/1.7.8/38309eb5712690738790557ffc32e5e3c0294b72/ui-unit-android-1.7.8.pom",
+        "sha256": "6182d63dc5549d9a9c484652bb2b27c401e52de1cbdbafc3143c0917a3cd6c4a"
+      },
+      "name": "ui-unit-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-unit-android/1.7.8/38309eb5712690738790557ffc32e5e3c0294b72/ui-unit-android-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.ui:ui-unit:1.7.8",
+      "group": "androidx.compose.ui",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-unit/1.7.8/392b43ee3b958e8127ef834b779c1bc36bfe5a3f/ui-unit-1.7.8.pom",
+        "sha256": "fb1f4eb62a65546eafcd3fce40c84deeb9a38ef392f8c5099abec04a4b0b8a26"
+      },
+      "name": "ui-unit",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-unit/1.7.8/392b43ee3b958e8127ef834b779c1bc36bfe5a3f/ui-unit-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.ui:ui-util-android:1.7.8",
+      "group": "androidx.compose.ui",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-util-android/1.7.8/b88e2dcdfa7274a5f669a78ae970b9da36e6729/ui-util-android-1.7.8.pom",
+        "sha256": "a5e21686f646f905d38c40913762fea0cf0746e76915fcc260219432cd8ff7de"
+      },
+      "name": "ui-util-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-util-android/1.7.8/b88e2dcdfa7274a5f669a78ae970b9da36e6729/ui-util-android-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.ui:ui-util:1.7.8",
+      "group": "androidx.compose.ui",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-util/1.7.8/8271ec900d3272488b91a9f556d458b48e186ad4/ui-util-1.7.8.pom",
+        "sha256": "a87a730ee8ddcffdcc72b627fe6dc0c5372c1a4a1c6a278fb0dbeac60ab6c3f8"
+      },
+      "name": "ui-util",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-util/1.7.8/8271ec900d3272488b91a9f556d458b48e186ad4/ui-util-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose.ui:ui:1.7.8",
+      "group": "androidx.compose.ui",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui/1.7.8/8192ed214c08a5123bb25e480749df6134c8cd67/ui-1.7.8.pom",
+        "sha256": "7f640750f93d9c1d4ed143802e9c5890ef4b0c5303f23548b8b5fcc1694b71fd"
+      },
+      "name": "ui",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui/1.7.8/8192ed214c08a5123bb25e480749df6134c8cd67/ui-1.7.8.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.8"
+    },
+    {
+      "coordinate": "androidx.compose:compose-bom:2025.02.00",
+      "group": "androidx.compose",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.compose/compose-bom/2025.02.00/91b5fe5e0539daf61adad56be8dcab19450a4f76/compose-bom-2025.02.00.pom",
+        "sha256": "cb3cd5c41bd791372c44cdd13646eea042d768b4b8652e1b72fdfb81c2d42745"
+      },
+      "name": "compose-bom",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.compose/compose-bom/2025.02.00/91b5fe5e0539daf61adad56be8dcab19450a4f76/compose-bom-2025.02.00.pom",
+      "scope": "runtime",
+      "source_url": "https://developer.android.com/jetpack",
+      "used_in_tests": true,
+      "version": "2025.02.00"
+    },
+    {
+      "coordinate": "androidx.concurrent:concurrent-futures-ktx:1.1.0",
+      "group": "androidx.concurrent",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.concurrent/concurrent-futures-ktx/1.1.0/eeeec8385e5aae89599bbb49309acd677654842/concurrent-futures-ktx-1.1.0.pom",
+        "sha256": "c903f8f51e3f4ea5e7e1f0a6fe3be873c357221227d103d08d7fd042f4b7570c"
+      },
+      "name": "concurrent-futures-ktx",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.concurrent/concurrent-futures-ktx/1.1.0/eeeec8385e5aae89599bbb49309acd677654842/concurrent-futures-ktx-1.1.0.pom",
+      "scope": "runtime",
+      "source_url": "http://source.android.com",
+      "used_in_tests": true,
+      "version": "1.1.0"
+    },
+    {
+      "coordinate": "androidx.concurrent:concurrent-futures:1.1.0",
+      "group": "androidx.concurrent",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.concurrent/concurrent-futures/1.1.0/1a2c7df73a77c58e30bd0b20cbc23e9854515438/concurrent-futures-1.1.0.pom",
+        "sha256": "748a34eb5d13d19d187adecaea82667fded5f1b0b98a655e13ed2e4a8b3d8ae6"
+      },
+      "name": "concurrent-futures",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.concurrent/concurrent-futures/1.1.0/1a2c7df73a77c58e30bd0b20cbc23e9854515438/concurrent-futures-1.1.0.pom",
+      "scope": "runtime",
+      "source_url": "http://source.android.com",
+      "used_in_tests": true,
+      "version": "1.1.0"
+    },
+    {
+      "coordinate": "androidx.core:core-ktx:1.13.1",
+      "group": "androidx.core",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.core/core-ktx/1.13.1/54a5c92a6c9ad8d80f9262980b2c0d990c722695/core-ktx-1.13.1.pom",
+        "sha256": "31cc345b8c6cdd2046dcf67872df8a8cb4f44ea0cade4df80002caa7e3b71809"
+      },
+      "name": "core-ktx",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.core/core-ktx/1.13.1/54a5c92a6c9ad8d80f9262980b2c0d990c722695/core-ktx-1.13.1.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.13.1"
+    },
+    {
+      "coordinate": "androidx.core:core-viewtree:1.0.0",
+      "group": "androidx.core",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.core/core-viewtree/1.0.0/4867db2b46b603ace8f822e6d476977300c98c21/core-viewtree-1.0.0.pom",
+        "sha256": "d4f2ed1176fa8c5612b80f74c952a8799142a9ed36022a1a238fde5b140580d9"
+      },
+      "name": "core-viewtree",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.core/core-viewtree/1.0.0/4867db2b46b603ace8f822e6d476977300c98c21/core-viewtree-1.0.0.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.0.0"
+    },
+    {
+      "coordinate": "androidx.core:core:1.12.0",
+      "group": "androidx.core",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.core/core/1.12.0/13e7da54eaddca269cf27c7fc339c187f0c46ef3/core-1.12.0.pom",
+        "sha256": "475f6e2210eb079471607693e65f65b333c080030d5aa22a1972c513015aa255"
+      },
+      "name": "core",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.core/core/1.12.0/13e7da54eaddca269cf27c7fc339c187f0c46ef3/core-1.12.0.pom",
+      "scope": "debug-only",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.12.0"
+    },
+    {
+      "coordinate": "androidx.core:core:1.13.1",
+      "group": "androidx.core",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.core/core/1.13.1/9ca2e920780344b9f4b38c3967f88f780a69e966/core-1.13.1.pom",
+        "sha256": "527abfa5a8d6af748b37e1c0162d1633a2d5ea4387b0205a8b436b6214ba1cf6"
+      },
+      "name": "core",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.core/core/1.13.1/9ca2e920780344b9f4b38c3967f88f780a69e966/core-1.13.1.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.13.1"
+    },
+    {
+      "coordinate": "androidx.customview:customview-poolingcontainer:1.0.0",
+      "group": "androidx.customview",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.customview/customview-poolingcontainer/1.0.0/474789a5ab58d304a413b3d89a8f14edeb6be5c3/customview-poolingcontainer-1.0.0.pom",
+        "sha256": "9fa62196c4c4e79b6a58dbb38a8c022bef8db21989d7dae2da0f6f5b66289a9c"
+      },
+      "name": "customview-poolingcontainer",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.customview/customview-poolingcontainer/1.0.0/474789a5ab58d304a413b3d89a8f14edeb6be5c3/customview-poolingcontainer-1.0.0.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.0.0"
+    },
+    {
+      "coordinate": "androidx.emoji2:emoji2:1.3.0",
+      "group": "androidx.emoji2",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.emoji2/emoji2/1.3.0/ed727398c81d0c60b769905a0264cee48b319914/emoji2-1.3.0.pom",
+        "sha256": "14ebbea8234f013211965fdd08b42ee907ce0075af321018c8c2865c2e5db0eb"
+      },
+      "name": "emoji2",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.emoji2/emoji2/1.3.0/ed727398c81d0c60b769905a0264cee48b319914/emoji2-1.3.0.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.3.0"
+    },
+    {
+      "coordinate": "androidx.exifinterface:exifinterface:1.3.6",
+      "group": "androidx.exifinterface",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.exifinterface/exifinterface/1.3.6/594369551096a9e3eb15081e5806a2d57a7053f6/exifinterface-1.3.6.pom",
+        "sha256": "59cfe5bd98506c27617b778143eb09a6b986a5417a0b1b0fd8b875eaa8db4bab"
+      },
+      "name": "exifinterface",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.exifinterface/exifinterface/1.3.6/594369551096a9e3eb15081e5806a2d57a7053f6/exifinterface-1.3.6.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.3.6"
+    },
+    {
+      "coordinate": "androidx.graphics:graphics-path:1.0.1",
+      "group": "androidx.graphics",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.graphics/graphics-path/1.0.1/2a6c8471f30c0b4dc898723d23d5f43ab3fac687/graphics-path-1.0.1.pom",
+        "sha256": "866fb357c7146f5f7678ad44e4bc6c2823d568defce1ed2805bb6c899606b228"
+      },
+      "name": "graphics-path",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.graphics/graphics-path/1.0.1/2a6c8471f30c0b4dc898723d23d5f43ab3fac687/graphics-path-1.0.1.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.0.1"
+    },
+    {
+      "coordinate": "androidx.interpolator:interpolator:1.0.0",
+      "group": "androidx.interpolator",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.interpolator/interpolator/1.0.0/dfa9c6b5826fbf2f910e1720ce2b0421d7aafec3/interpolator-1.0.0.pom",
+        "sha256": "0ddc07cc39699f48ecd9ec894b5830c0f09e22e82959294edf37217224c88b7b"
+      },
+      "name": "interpolator",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.interpolator/interpolator/1.0.0/dfa9c6b5826fbf2f910e1720ce2b0421d7aafec3/interpolator-1.0.0.pom",
+      "scope": "runtime",
+      "source_url": "http://source.android.com",
+      "used_in_tests": true,
+      "version": "1.0.0"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-common-java8:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-common-java8/2.8.3/4a9123e355cb89f97d72cb4b8f7b97c2d940c00c/lifecycle-common-java8-2.8.3.pom",
+        "sha256": "bc3e11c0eac5268d5a5b0d58e9ff4b08df5ac3a34475afab8509f0874199d633"
+      },
+      "name": "lifecycle-common-java8",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-common-java8/2.8.3/4a9123e355cb89f97d72cb4b8f7b97c2d940c00c/lifecycle-common-java8-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-common-jvm:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-common-jvm/2.8.3/689e041c5d6ef09e23fc6f035fdaf013128bfeb7/lifecycle-common-jvm-2.8.3.pom",
+        "sha256": "c0d50fb2f174d6aefc60643fd997d6029ccba922bc9c2902597402ee2585e238"
+      },
+      "name": "lifecycle-common-jvm",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-common-jvm/2.8.3/689e041c5d6ef09e23fc6f035fdaf013128bfeb7/lifecycle-common-jvm-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-common:2.6.2",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-common/2.6.2/d7d9a39defa00b6c6d3f9a83734a025840b58640/lifecycle-common-2.6.2.pom",
+        "sha256": "57304cdac4da289a6ecdd0738e16b1d8858f1ef8e9fabe2d65a963719fd81dba"
+      },
+      "name": "lifecycle-common",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-common/2.6.2/d7d9a39defa00b6c6d3f9a83734a025840b58640/lifecycle-common-2.6.2.pom",
+      "scope": "debug-only",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.6.2"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-common:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-common/2.8.3/d53b409bf25919ab8b9c8baff2d7e77c9195c26d/lifecycle-common-2.8.3.pom",
+        "sha256": "e502f879f42ec1beb73d5dba484ef4565eac07ed90bab2ab0bf569cb785355fe"
+      },
+      "name": "lifecycle-common",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-common/2.8.3/d53b409bf25919ab8b9c8baff2d7e77c9195c26d/lifecycle-common-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-livedata-core-ktx/2.8.3/78d4ac951b3f23afd62edebb6a0f6240a2b89079/lifecycle-livedata-core-ktx-2.8.3.pom",
+        "sha256": "439674fd93df3da7cd561dba93db636a465f2434e0ac0278bb3eeeeea7886f6e"
+      },
+      "name": "lifecycle-livedata-core-ktx",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-livedata-core-ktx/2.8.3/78d4ac951b3f23afd62edebb6a0f6240a2b89079/lifecycle-livedata-core-ktx-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-livedata-core:2.6.2",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-livedata-core/2.6.2/c4e92a29b4a97220adea00883a7956846383bd56/lifecycle-livedata-core-2.6.2.pom",
+        "sha256": "1faf8ebf53f28b2f0ae2c2095371ae67d0ca16ac328fce7f163609a43214b5a4"
+      },
+      "name": "lifecycle-livedata-core",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-livedata-core/2.6.2/c4e92a29b4a97220adea00883a7956846383bd56/lifecycle-livedata-core-2.6.2.pom",
+      "scope": "debug-only",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.6.2"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-livedata-core:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-livedata-core/2.8.3/ae5afcd94a38df85d3017a74255bd22d29b323e2/lifecycle-livedata-core-2.8.3.pom",
+        "sha256": "b33aff9cc073354f37c974cc9eb80c39d3ddd3c877aee0ab30087eed60572908"
+      },
+      "name": "lifecycle-livedata-core",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-livedata-core/2.8.3/ae5afcd94a38df85d3017a74255bd22d29b323e2/lifecycle-livedata-core-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-livedata:2.6.2",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-livedata/2.6.2/f580539c364992999aa142f4638e37f32059d475/lifecycle-livedata-2.6.2.pom",
+        "sha256": "d7c9e019cf68779387481877878f6c499d1786b85f2c0480e9264dd5097c51c0"
+      },
+      "name": "lifecycle-livedata",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-livedata/2.6.2/f580539c364992999aa142f4638e37f32059d475/lifecycle-livedata-2.6.2.pom",
+      "scope": "debug-only",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.6.2"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-livedata:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-livedata/2.8.3/85fc348818aad011a0f15c0d580f63e19edaf199/lifecycle-livedata-2.8.3.pom",
+        "sha256": "7bf6bee1e2cd17f1534257a48165058915a8718d0898421e3b0bafd2c3ee596e"
+      },
+      "name": "lifecycle-livedata",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-livedata/2.8.3/85fc348818aad011a0f15c0d580f63e19edaf199/lifecycle-livedata-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-process:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-process/2.8.3/15acbb8fcaa5aaf8ec01940c77fb5ad58643c998/lifecycle-process-2.8.3.pom",
+        "sha256": "b7cdac0df2ef71c1da9f58df719d266d606d493be9a45bd780b5c1e26459168e"
+      },
+      "name": "lifecycle-process",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-process/2.8.3/15acbb8fcaa5aaf8ec01940c77fb5ad58643c998/lifecycle-process-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-runtime-android:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-runtime-android/2.8.3/a7d5bdea596c02ea346e5905a1721518432b2c43/lifecycle-runtime-android-2.8.3.pom",
+        "sha256": "2809519b23bf3399f2fe0883a16c624a6f9dd69c4c5ad262a0e84cce82ae14ae"
+      },
+      "name": "lifecycle-runtime-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-runtime-android/2.8.3/a7d5bdea596c02ea346e5905a1721518432b2c43/lifecycle-runtime-android-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-runtime-compose-android:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-runtime-compose-android/2.8.3/e7472664bfee609c4690742ed2ac70047cfee07/lifecycle-runtime-compose-android-2.8.3.pom",
+        "sha256": "c26148a8239ec47b5a361106a8bba38ac83bb7d197926626945b6f896152a06d"
+      },
+      "name": "lifecycle-runtime-compose-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-runtime-compose-android/2.8.3/e7472664bfee609c4690742ed2ac70047cfee07/lifecycle-runtime-compose-android-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-runtime-compose:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-runtime-compose/2.8.3/bd9aa9c63fd43a96494f539aa3d3510099c70fff/lifecycle-runtime-compose-2.8.3.pom",
+        "sha256": "84d14f05fa85a67c98ccb0822c403f822e017d8798b8a6db601e13ac55298de5"
+      },
+      "name": "lifecycle-runtime-compose",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-runtime-compose/2.8.3/bd9aa9c63fd43a96494f539aa3d3510099c70fff/lifecycle-runtime-compose-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-runtime-ktx-android:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-runtime-ktx-android/2.8.3/eff2bd1c09d406066f81f13d8705a462ad44ac4c/lifecycle-runtime-ktx-android-2.8.3.pom",
+        "sha256": "47d8e07dad62c97a70ca2e018af898ff8da02492e5b27c1daf3a84f48f2f1079"
+      },
+      "name": "lifecycle-runtime-ktx-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-runtime-ktx-android/2.8.3/eff2bd1c09d406066f81f13d8705a462ad44ac4c/lifecycle-runtime-ktx-android-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-runtime-ktx:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-runtime-ktx/2.8.3/b5c4bfa2bfea9ac9962d2f2c2e51c309c111abc4/lifecycle-runtime-ktx-2.8.3.pom",
+        "sha256": "609bd5cb3e85aa86f449fe560394d7c8cc97c1a4092308ea98993e6f2b1d7c73"
+      },
+      "name": "lifecycle-runtime-ktx",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-runtime-ktx/2.8.3/b5c4bfa2bfea9ac9962d2f2c2e51c309c111abc4/lifecycle-runtime-ktx-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-runtime:2.6.2",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-runtime/2.6.2/215a04540686cebedbcc96d6ba95cf413f2ab9dd/lifecycle-runtime-2.6.2.pom",
+        "sha256": "8175255546e2a5f510865f84ace680660954730240b1905d9175b4345beda977"
+      },
+      "name": "lifecycle-runtime",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-runtime/2.6.2/215a04540686cebedbcc96d6ba95cf413f2ab9dd/lifecycle-runtime-2.6.2.pom",
+      "scope": "debug-only",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.6.2"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-runtime:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-runtime/2.8.3/dd66ce5475f157b27463a9788369bab34f40b410/lifecycle-runtime-2.8.3.pom",
+        "sha256": "7caf9b604a8e0f44d6bfa5fb0a0b4a6403c2e0c33014bc8e96f74285d686c72a"
+      },
+      "name": "lifecycle-runtime",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-runtime/2.8.3/dd66ce5475f157b27463a9788369bab34f40b410/lifecycle-runtime-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-service:2.6.2",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-service/2.6.2/bfa6056622b4fd6641df5d695e88ef49677c7ffe/lifecycle-service-2.6.2.pom",
+        "sha256": "e08ddd03d513516efe360953219074e2ede09b0c9c2490cdafe141292fb37eb8"
+      },
+      "name": "lifecycle-service",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-service/2.6.2/bfa6056622b4fd6641df5d695e88ef49677c7ffe/lifecycle-service-2.6.2.pom",
+      "scope": "debug-only",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.6.2"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-service:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-service/2.8.3/c9acbdcb756d677a6327e00179089a2e2eb7264/lifecycle-service-2.8.3.pom",
+        "sha256": "819d6804b272bd303d07b672a84b15386683f0ca5c1530445f8abdc42e05940d"
+      },
+      "name": "lifecycle-service",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-service/2.8.3/c9acbdcb756d677a6327e00179089a2e2eb7264/lifecycle-service-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-viewmodel-android:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-viewmodel-android/2.8.3/4bc6c802c50175e163e8fa3c67cc4e73d8834285/lifecycle-viewmodel-android-2.8.3.pom",
+        "sha256": "77b8abb857ca4e93974e46246b6c8c12618264280a09090c4a2b3ce73522cbb6"
+      },
+      "name": "lifecycle-viewmodel-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-viewmodel-android/2.8.3/4bc6c802c50175e163e8fa3c67cc4e73d8834285/lifecycle-viewmodel-android-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-viewmodel-compose-android:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-viewmodel-compose-android/2.8.3/bca72b6bb9c5f36cb2ba7558319eca423b95b9b7/lifecycle-viewmodel-compose-android-2.8.3.pom",
+        "sha256": "148a8f99603114ae8125eb658f99c49ff92e895130d94acb537059151679058f"
+      },
+      "name": "lifecycle-viewmodel-compose-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-viewmodel-compose-android/2.8.3/bca72b6bb9c5f36cb2ba7558319eca423b95b9b7/lifecycle-viewmodel-compose-android-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-viewmodel-compose:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-viewmodel-compose/2.8.3/eff7b7f340f610f0a353569b10b139683e6b57d0/lifecycle-viewmodel-compose-2.8.3.pom",
+        "sha256": "c04809a933e09a603ff089724cab8ff279bd1765ad00ebba2a9ac8f88a8cff70"
+      },
+      "name": "lifecycle-viewmodel-compose",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-viewmodel-compose/2.8.3/eff7b7f340f610f0a353569b10b139683e6b57d0/lifecycle-viewmodel-compose-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-viewmodel-ktx/2.8.3/53c9ce714e5d1624d35bc1e32df1e288608d42b6/lifecycle-viewmodel-ktx-2.8.3.pom",
+        "sha256": "8b9e81d1762675c792575e7a094d72dedd781519c0180516819d4994e358f3ec"
+      },
+      "name": "lifecycle-viewmodel-ktx",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-viewmodel-ktx/2.8.3/53c9ce714e5d1624d35bc1e32df1e288608d42b6/lifecycle-viewmodel-ktx-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-viewmodel-savedstate/2.8.3/ddb79493a0895378d0dac1094b613aad43914bf3/lifecycle-viewmodel-savedstate-2.8.3.pom",
+        "sha256": "5f2305f6f65edb322cc3e12076708e70dd4f609d5a095e9600040600b0e6045a"
+      },
+      "name": "lifecycle-viewmodel-savedstate",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-viewmodel-savedstate/2.8.3/ddb79493a0895378d0dac1094b613aad43914bf3/lifecycle-viewmodel-savedstate-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.lifecycle:lifecycle-viewmodel:2.8.3",
+      "group": "androidx.lifecycle",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-viewmodel/2.8.3/4abeb376efb22b8007d9dbfcabb4454875d136af/lifecycle-viewmodel-2.8.3.pom",
+        "sha256": "5341619a184ea4be8a7858626317a0b655bc4a132a281cef20fca76413f0f051"
+      },
+      "name": "lifecycle-viewmodel",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.lifecycle/lifecycle-viewmodel/2.8.3/4abeb376efb22b8007d9dbfcabb4454875d136af/lifecycle-viewmodel-2.8.3.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.3"
+    },
+    {
+      "coordinate": "androidx.media3:media3-common:1.5.1",
+      "group": "androidx.media3",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-common/1.5.1/97a68a80e379ba408fceda93cc16c23cd0367e34/media3-common-1.5.1.pom",
+        "sha256": "30cf313224e9a199bd6ee03f9700ebd2e4e3473c6e76e7afcfa7329237ab0562"
+      },
+      "name": "media3-common",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-common/1.5.1/97a68a80e379ba408fceda93cc16c23cd0367e34/media3-common-1.5.1.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/androidx/media",
+      "used_in_tests": true,
+      "version": "1.5.1"
+    },
+    {
+      "coordinate": "androidx.media3:media3-container:1.5.1",
+      "group": "androidx.media3",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-container/1.5.1/d1ff95a40acb55114e122321330637ee0564cb1e/media3-container-1.5.1.pom",
+        "sha256": "87764108ed7530e8c08e53412a935f6ca3207b62b0d7a8bec0fa773661d738ee"
+      },
+      "name": "media3-container",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-container/1.5.1/d1ff95a40acb55114e122321330637ee0564cb1e/media3-container-1.5.1.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/androidx/media",
+      "used_in_tests": true,
+      "version": "1.5.1"
+    },
+    {
+      "coordinate": "androidx.media3:media3-database:1.5.1",
+      "group": "androidx.media3",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-database/1.5.1/dcf94f84ac4d8b27a07ebae07529292644e3e81e/media3-database-1.5.1.pom",
+        "sha256": "cb80a2dbf60e61996737e7b6642bdaacd58cfd12a345216efada70b7b9b9f9a3"
+      },
+      "name": "media3-database",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-database/1.5.1/dcf94f84ac4d8b27a07ebae07529292644e3e81e/media3-database-1.5.1.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/androidx/media",
+      "used_in_tests": true,
+      "version": "1.5.1"
+    },
+    {
+      "coordinate": "androidx.media3:media3-datasource:1.5.1",
+      "group": "androidx.media3",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-datasource/1.5.1/7a0ccccf3589a16f4030f743ff0a201816453a61/media3-datasource-1.5.1.pom",
+        "sha256": "2ea4ca87911495f4f50b6ef67ab66680a2ec01921536cd90a596e2be81c5979e"
+      },
+      "name": "media3-datasource",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-datasource/1.5.1/7a0ccccf3589a16f4030f743ff0a201816453a61/media3-datasource-1.5.1.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/androidx/media",
+      "used_in_tests": true,
+      "version": "1.5.1"
+    },
+    {
+      "coordinate": "androidx.media3:media3-decoder:1.5.1",
+      "group": "androidx.media3",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-decoder/1.5.1/ce53739e3889ba0e11adfe9b99d9518f2b27c980/media3-decoder-1.5.1.pom",
+        "sha256": "9b5188cff90964e5af9cd45926d680d00a4078df78190b554d76b100bb76dc92"
+      },
+      "name": "media3-decoder",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-decoder/1.5.1/ce53739e3889ba0e11adfe9b99d9518f2b27c980/media3-decoder-1.5.1.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/androidx/media",
+      "used_in_tests": true,
+      "version": "1.5.1"
+    },
+    {
+      "coordinate": "androidx.media3:media3-exoplayer:1.5.1",
+      "group": "androidx.media3",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-exoplayer/1.5.1/b02cffbff3ba3a57aecd0bea094d1531d45e2779/media3-exoplayer-1.5.1.pom",
+        "sha256": "846ceec396039626bf181451307829700a4f368a9339867670a88fe70217a0a6"
+      },
+      "name": "media3-exoplayer",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-exoplayer/1.5.1/b02cffbff3ba3a57aecd0bea094d1531d45e2779/media3-exoplayer-1.5.1.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/androidx/media",
+      "used_in_tests": true,
+      "version": "1.5.1"
+    },
+    {
+      "coordinate": "androidx.media3:media3-extractor:1.5.1",
+      "group": "androidx.media3",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-extractor/1.5.1/f1311b6ca53f931108e2b9df7315c70d6b77e064/media3-extractor-1.5.1.pom",
+        "sha256": "6e691121e610ee2c9be818b6954e3c4b5505fb01b198e73cc43259468e47e1d3"
+      },
+      "name": "media3-extractor",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-extractor/1.5.1/f1311b6ca53f931108e2b9df7315c70d6b77e064/media3-extractor-1.5.1.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/androidx/media",
+      "used_in_tests": true,
+      "version": "1.5.1"
+    },
+    {
+      "coordinate": "androidx.media3:media3-session:1.5.1",
+      "group": "androidx.media3",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-session/1.5.1/e58637396e2eb6158275c1d2e9c09eeaad484318/media3-session-1.5.1.pom",
+        "sha256": "e06b859c8baa4d43699d2a794320907aec767e41da00319cc2fd460818c990c4"
+      },
+      "name": "media3-session",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.media3/media3-session/1.5.1/e58637396e2eb6158275c1d2e9c09eeaad484318/media3-session-1.5.1.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/androidx/media",
+      "used_in_tests": true,
+      "version": "1.5.1"
+    },
+    {
+      "coordinate": "androidx.media:media:1.7.0",
+      "group": "androidx.media",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.media/media/1.7.0/67222da6e0a8ec2eed38c7061d34a37a99d46c42/media-1.7.0.pom",
+        "sha256": "696656b7e3ebdeef216edb2d8bbaa0f395248864c2fc34b199fbc24f3266b8e1"
+      },
+      "name": "media",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.media/media/1.7.0/67222da6e0a8ec2eed38c7061d34a37a99d46c42/media-1.7.0.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.7.0"
+    },
+    {
+      "coordinate": "androidx.navigation:navigation-common-ktx:2.8.7",
+      "group": "androidx.navigation",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.navigation/navigation-common-ktx/2.8.7/f2072d05f22efc5fe09bfe7237b409ad8f5ff321/navigation-common-ktx-2.8.7.pom",
+        "sha256": "18f6d3e5a5727e50e2404fe7ae679c0f70891fd580ffdfb6bae8880fd82a9217"
+      },
+      "name": "navigation-common-ktx",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.navigation/navigation-common-ktx/2.8.7/f2072d05f22efc5fe09bfe7237b409ad8f5ff321/navigation-common-ktx-2.8.7.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.7"
+    },
+    {
+      "coordinate": "androidx.navigation:navigation-common:2.8.7",
+      "group": "androidx.navigation",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.navigation/navigation-common/2.8.7/53d1715b2e637ed0b9012f3e04e6edc021aadcc6/navigation-common-2.8.7.pom",
+        "sha256": "c07263b227d96b9bd0204f655c3aad9857d695085c329866008feb066a89cde1"
+      },
+      "name": "navigation-common",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.navigation/navigation-common/2.8.7/53d1715b2e637ed0b9012f3e04e6edc021aadcc6/navigation-common-2.8.7.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.7"
+    },
+    {
+      "coordinate": "androidx.navigation:navigation-compose:2.8.7",
+      "group": "androidx.navigation",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.navigation/navigation-compose/2.8.7/28db3b631c22ce5696cc7b47e83ebafdf9989fdc/navigation-compose-2.8.7.pom",
+        "sha256": "3212b17db03e89b568f41ac286294b7702ab7c9ac087f1bcab06c838ad108448"
+      },
+      "name": "navigation-compose",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.navigation/navigation-compose/2.8.7/28db3b631c22ce5696cc7b47e83ebafdf9989fdc/navigation-compose-2.8.7.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.7"
+    },
+    {
+      "coordinate": "androidx.navigation:navigation-runtime-ktx:2.8.7",
+      "group": "androidx.navigation",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.navigation/navigation-runtime-ktx/2.8.7/c1126000dbdedc7ce27910abee558356fb1d12bd/navigation-runtime-ktx-2.8.7.pom",
+        "sha256": "86d0228744a031f832cd6a8d8151d106904d1c35a64600a4408e5d7188388685"
+      },
+      "name": "navigation-runtime-ktx",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.navigation/navigation-runtime-ktx/2.8.7/c1126000dbdedc7ce27910abee558356fb1d12bd/navigation-runtime-ktx-2.8.7.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.7"
+    },
+    {
+      "coordinate": "androidx.navigation:navigation-runtime:2.8.7",
+      "group": "androidx.navigation",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.navigation/navigation-runtime/2.8.7/df7befbf748c57c29a06037e12461d12f3ad4406/navigation-runtime-2.8.7.pom",
+        "sha256": "b725108fbb05bc111c13707b51b4c087ecaa45c3a55f4d62f2bf8239d2d066ff"
+      },
+      "name": "navigation-runtime",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.navigation/navigation-runtime/2.8.7/df7befbf748c57c29a06037e12461d12f3ad4406/navigation-runtime-2.8.7.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.8.7"
+    },
+    {
+      "coordinate": "androidx.profileinstaller:profileinstaller:1.3.0",
+      "group": "androidx.profileinstaller",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.profileinstaller/profileinstaller/1.3.0/825ac5337fde3d3569edeb0eabce4de9eef86360/profileinstaller-1.3.0.pom",
+        "sha256": "12cbc01c8a5ae4b412caf3c5a0662ccd28002dedcff1dbe6c2ab3665be9f758c"
+      },
+      "name": "profileinstaller",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.profileinstaller/profileinstaller/1.3.0/825ac5337fde3d3569edeb0eabce4de9eef86360/profileinstaller-1.3.0.pom",
+      "scope": "debug-only",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.3.0"
+    },
+    {
+      "coordinate": "androidx.profileinstaller:profileinstaller:1.4.0",
+      "group": "androidx.profileinstaller",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.profileinstaller/profileinstaller/1.4.0/ce5ab72a997e0ddfb08e1cbdc39f77ac5ed315cf/profileinstaller-1.4.0.pom",
+        "sha256": "d5fe39981a3b4b7c39585130da0bfc93835054c834a438d3e63e065e5f78be55"
+      },
+      "name": "profileinstaller",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.profileinstaller/profileinstaller/1.4.0/ce5ab72a997e0ddfb08e1cbdc39f77ac5ed315cf/profileinstaller-1.4.0.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.4.0"
+    },
+    {
+      "coordinate": "androidx.room:room-common-jvm:2.7.0",
+      "group": "androidx.room",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.room/room-common-jvm/2.7.0/41cf8d32e1034e03e17d5d902b5a7719cd24798c/room-common-jvm-2.7.0.pom",
+        "sha256": "8ea01b5d78a7eee5697975ab5d0ef5b8aad1f9566dc915b1807858f6b9270be8"
+      },
+      "name": "room-common-jvm",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.room/room-common-jvm/2.7.0/41cf8d32e1034e03e17d5d902b5a7719cd24798c/room-common-jvm-2.7.0.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.7.0"
+    },
+    {
+      "coordinate": "androidx.room:room-common:2.7.0",
+      "group": "androidx.room",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.room/room-common/2.7.0/19742ee67d1d43e368890aa9a07dfb4fc5458ada/room-common-2.7.0.pom",
+        "sha256": "fcd1cc684505349166185be740015279331cfad6fc81ba7a0f0a9ce5b1d8be33"
+      },
+      "name": "room-common",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.room/room-common/2.7.0/19742ee67d1d43e368890aa9a07dfb4fc5458ada/room-common-2.7.0.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.7.0"
+    },
+    {
+      "coordinate": "androidx.room:room-ktx:2.7.0",
+      "group": "androidx.room",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.room/room-ktx/2.7.0/a93bd6eebe85c36320007f7e9e89a88b13280d33/room-ktx-2.7.0.pom",
+        "sha256": "0bc08055cdae57d03255016ac9a9d822cf14273bb30c8e0372d755925ed48350"
+      },
+      "name": "room-ktx",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.room/room-ktx/2.7.0/a93bd6eebe85c36320007f7e9e89a88b13280d33/room-ktx-2.7.0.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.7.0"
+    },
+    {
+      "coordinate": "androidx.room:room-migration-jvm:2.7.0",
+      "group": "androidx.room",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.room/room-migration-jvm/2.7.0/89a03e9fdb15de7bd34cbbd13f956b44154f2b00/room-migration-jvm-2.7.0.pom",
+        "sha256": "0714f7df0ea38d74479b14a942bff4f2462c47c8f18b13c965af155fcfab9a27"
+      },
+      "name": "room-migration-jvm",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.room/room-migration-jvm/2.7.0/89a03e9fdb15de7bd34cbbd13f956b44154f2b00/room-migration-jvm-2.7.0.pom",
+      "scope": "test-only",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.7.0"
+    },
+    {
+      "coordinate": "androidx.room:room-migration:2.7.0",
+      "group": "androidx.room",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.room/room-migration/2.7.0/76b807e3f3605348fa746328ff34c1b07ea4597b/room-migration-2.7.0.pom",
+        "sha256": "f69db8e9b4091d1aaa633f3e913e5836204bda7df8bf7905647e76ed4f20d82f"
+      },
+      "name": "room-migration",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.room/room-migration/2.7.0/76b807e3f3605348fa746328ff34c1b07ea4597b/room-migration-2.7.0.pom",
+      "scope": "test-only",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.7.0"
+    },
+    {
+      "coordinate": "androidx.room:room-runtime-android:2.7.0",
+      "group": "androidx.room",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.room/room-runtime-android/2.7.0/6b4c21be2079620bf5a9bc1f6f0dc8a3966801c1/room-runtime-android-2.7.0.pom",
+        "sha256": "f592f541a9c19e506ab2b033d589a6124887aff58156ceb747db4cae4f1e83b0"
+      },
+      "name": "room-runtime-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.room/room-runtime-android/2.7.0/6b4c21be2079620bf5a9bc1f6f0dc8a3966801c1/room-runtime-android-2.7.0.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.7.0"
+    },
+    {
+      "coordinate": "androidx.room:room-runtime:2.7.0",
+      "group": "androidx.room",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.room/room-runtime/2.7.0/6c74757a3f7daf96a4d5f06658ae791bef74419a/room-runtime-2.7.0.pom",
+        "sha256": "9ff1c390ac3cd0818c23a011676b9b83e3e2ddbd1b64a45761f05d0013f11af0"
+      },
+      "name": "room-runtime",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.room/room-runtime/2.7.0/6c74757a3f7daf96a4d5f06658ae791bef74419a/room-runtime-2.7.0.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.7.0"
+    },
+    {
+      "coordinate": "androidx.room:room-testing-android:2.7.0",
+      "group": "androidx.room",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.room/room-testing-android/2.7.0/f75b2bca5a3a7b390859204023d17da38f031785/room-testing-android-2.7.0.pom",
+        "sha256": "af188f7f4b15e20d5bfa6029db2403897cf673fb10b8a7c1137e326b9398e6c6"
+      },
+      "name": "room-testing-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.room/room-testing-android/2.7.0/f75b2bca5a3a7b390859204023d17da38f031785/room-testing-android-2.7.0.pom",
+      "scope": "test-only",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.7.0"
+    },
+    {
+      "coordinate": "androidx.room:room-testing:2.7.0",
+      "group": "androidx.room",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.room/room-testing/2.7.0/9e10f43675fcac31369cbd80f86b9e0add8be287/room-testing-2.7.0.pom",
+        "sha256": "1ee398f160d079afaf3afb136f5ec05dfb1cda22a85919af2390c4f8ff88d1a7"
+      },
+      "name": "room-testing",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.room/room-testing/2.7.0/9e10f43675fcac31369cbd80f86b9e0add8be287/room-testing-2.7.0.pom",
+      "scope": "test-only",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.7.0"
+    },
+    {
+      "coordinate": "androidx.savedstate:savedstate-ktx:1.2.1",
+      "group": "androidx.savedstate",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.savedstate/savedstate-ktx/1.2.1/a5fe896789ff12b746f0c502579bc34516be7d2a/savedstate-ktx-1.2.1.pom",
+        "sha256": "d09553211f6703b19aefd608d6007c77132d27a281556a8e689d92764ec27d3b"
+      },
+      "name": "savedstate-ktx",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.savedstate/savedstate-ktx/1.2.1/a5fe896789ff12b746f0c502579bc34516be7d2a/savedstate-ktx-1.2.1.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.2.1"
+    },
+    {
+      "coordinate": "androidx.savedstate:savedstate:1.2.1",
+      "group": "androidx.savedstate",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.savedstate/savedstate/1.2.1/5e0129ba74cc5915d14be13f07790b4a2470d7ea/savedstate-1.2.1.pom",
+        "sha256": "0d33bc285df1e12f22780f1624a6f0b38ea2a6181b0955ec6641caf620c50cbf"
+      },
+      "name": "savedstate",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.savedstate/savedstate/1.2.1/5e0129ba74cc5915d14be13f07790b4a2470d7ea/savedstate-1.2.1.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.2.1"
+    },
+    {
+      "coordinate": "androidx.sqlite:sqlite-android:2.5.0",
+      "group": "androidx.sqlite",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.sqlite/sqlite-android/2.5.0/4fb69b47de1fb1392503864401b5ba1f79830b2/sqlite-android-2.5.0.pom",
+        "sha256": "e5dc07ce1a335bcd127c3d04b594dd2a83f61887a5e933327373866cc4edbf30"
+      },
+      "name": "sqlite-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.sqlite/sqlite-android/2.5.0/4fb69b47de1fb1392503864401b5ba1f79830b2/sqlite-android-2.5.0.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.5.0"
+    },
+    {
+      "coordinate": "androidx.sqlite:sqlite-framework-android:2.5.0",
+      "group": "androidx.sqlite",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.sqlite/sqlite-framework-android/2.5.0/6511de844a899fc8e7e1493f1b70d3472bfd28b7/sqlite-framework-android-2.5.0.pom",
+        "sha256": "8d1f2657347e05d7145990bdc84d091a296a2ce1eccc007c25e71ebaef02ceec"
+      },
+      "name": "sqlite-framework-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.sqlite/sqlite-framework-android/2.5.0/6511de844a899fc8e7e1493f1b70d3472bfd28b7/sqlite-framework-android-2.5.0.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.5.0"
+    },
+    {
+      "coordinate": "androidx.sqlite:sqlite-framework:2.5.0",
+      "group": "androidx.sqlite",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.sqlite/sqlite-framework/2.5.0/af47e11f44997f8dab5096d787bf60976c3c7c9d/sqlite-framework-2.5.0.pom",
+        "sha256": "51fcf2f5947198fc738527301d4d489a6537fb8947eef47998d981c9e105f197"
+      },
+      "name": "sqlite-framework",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.sqlite/sqlite-framework/2.5.0/af47e11f44997f8dab5096d787bf60976c3c7c9d/sqlite-framework-2.5.0.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.5.0"
+    },
+    {
+      "coordinate": "androidx.sqlite:sqlite:2.5.0",
+      "group": "androidx.sqlite",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.sqlite/sqlite/2.5.0/8ea48f343c320bba058cd1186a680f6552a292a4/sqlite-2.5.0.pom",
+        "sha256": "ad3f6e8f4aac2428d2fec6dc99876004a98b788d0410a8f4b169ab57826d563f"
+      },
+      "name": "sqlite",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.sqlite/sqlite/2.5.0/8ea48f343c320bba058cd1186a680f6552a292a4/sqlite-2.5.0.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.5.0"
+    },
+    {
+      "coordinate": "androidx.startup:startup-runtime:1.1.1",
+      "group": "androidx.startup",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.startup/startup-runtime/1.1.1/1ee5722679a9f73d27bb12d0ed4711745d4345b9/startup-runtime-1.1.1.pom",
+        "sha256": "f4114b5c6859bb1bc3caf281cb6d6f25998fa7f7292c64ceaea74a93210e746b"
+      },
+      "name": "startup-runtime",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.startup/startup-runtime/1.1.1/1ee5722679a9f73d27bb12d0ed4711745d4345b9/startup-runtime-1.1.1.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.1.1"
+    },
+    {
+      "coordinate": "androidx.test.services:storage:1.5.0",
+      "group": "androidx.test.services",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.test.services/storage/1.5.0/34110712033a5c731575a6ce3ae598eae7951e6b/storage-1.5.0.pom",
+        "sha256": "81aa4b6bacb955c15edbe9bb2ed600b7e97d2c094b0369f4eec86eca3b23465d"
+      },
+      "name": "storage",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.test.services/storage/1.5.0/34110712033a5c731575a6ce3ae598eae7951e6b/storage-1.5.0.pom",
+      "scope": "test-only",
+      "source_url": "https://developer.android.com/testing",
+      "used_in_tests": true,
+      "version": "1.5.0"
+    },
+    {
+      "coordinate": "androidx.test:core:1.6.1",
+      "group": "androidx.test",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.test/core/1.6.1/da1698665e6ff7b92f365b0b9e276656f61b42f8/core-1.6.1.pom",
+        "sha256": "44d102e5879664a4a4e1006881f2e6d886af99db362d20cb9a659d997b32464b"
+      },
+      "name": "core",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.test/core/1.6.1/da1698665e6ff7b92f365b0b9e276656f61b42f8/core-1.6.1.pom",
+      "scope": "test-only",
+      "source_url": "https://developer.android.com/testing",
+      "used_in_tests": true,
+      "version": "1.6.1"
+    },
+    {
+      "coordinate": "androidx.test:monitor:1.7.2",
+      "group": "androidx.test",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.test/monitor/1.7.2/2a847332cb0d8b88ebea9e6655343be4ffb9a82e/monitor-1.7.2.pom",
+        "sha256": "388fe58cf6062ffcce209853ac5c006d1d6efee9ba76b16fabfb45a7f26521ce"
+      },
+      "name": "monitor",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.test/monitor/1.7.2/2a847332cb0d8b88ebea9e6655343be4ffb9a82e/monitor-1.7.2.pom",
+      "scope": "test-only",
+      "source_url": "https://developer.android.com/testing",
+      "used_in_tests": true,
+      "version": "1.7.2"
+    },
+    {
+      "coordinate": "androidx.test:runner:1.6.2",
+      "group": "androidx.test",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.test/runner/1.6.2/e566b9e65d214cefd8c56967bfff00b2b455f3e3/runner-1.6.2.pom",
+        "sha256": "e6abf0cb643a79f3e120b3d6a03dd8906f8d6a9edb73cfbb7a64048d073a4f16"
+      },
+      "name": "runner",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.test/runner/1.6.2/e566b9e65d214cefd8c56967bfff00b2b455f3e3/runner-1.6.2.pom",
+      "scope": "test-only",
+      "source_url": "https://developer.android.com/testing",
+      "used_in_tests": true,
+      "version": "1.6.2"
+    },
+    {
+      "coordinate": "androidx.tracing:tracing-ktx:1.2.0",
+      "group": "androidx.tracing",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.tracing/tracing-ktx/1.2.0/b4ff2671cd314e5a32657c1a72d15957fa8ffe68/tracing-ktx-1.2.0.pom",
+        "sha256": "8958b5a0153c1a82cb133703d3d11155898738280a354e92ca1817d7ca6f4cb7"
+      },
+      "name": "tracing-ktx",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.tracing/tracing-ktx/1.2.0/b4ff2671cd314e5a32657c1a72d15957fa8ffe68/tracing-ktx-1.2.0.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.2.0"
+    },
+    {
+      "coordinate": "androidx.tracing:tracing:1.2.0",
+      "group": "androidx.tracing",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.tracing/tracing/1.2.0/141eea2b77be286c2f1821af2c5b4992aaef964a/tracing-1.2.0.pom",
+        "sha256": "f34bec4eb58871d31002901377108aaa1ebfe77fa6d882b8b86200b158e26ea1"
+      },
+      "name": "tracing",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.tracing/tracing/1.2.0/141eea2b77be286c2f1821af2c5b4992aaef964a/tracing-1.2.0.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "1.2.0"
+    },
+    {
+      "coordinate": "androidx.versionedparcelable:versionedparcelable:1.1.1",
+      "group": "androidx.versionedparcelable",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.versionedparcelable/versionedparcelable/1.1.1/301263729256e9f19b144ce00f83d600ba14c38b/versionedparcelable-1.1.1.pom",
+        "sha256": "5f51e65873ca612de3838fa90d2ee95b8d040efd31b9c390a19bf94d615cdb2f"
+      },
+      "name": "versionedparcelable",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.versionedparcelable/versionedparcelable/1.1.1/301263729256e9f19b144ce00f83d600ba14c38b/versionedparcelable-1.1.1.pom",
+      "scope": "runtime",
+      "source_url": "http://source.android.com",
+      "used_in_tests": true,
+      "version": "1.1.1"
+    },
+    {
+      "coordinate": "androidx.work:work-runtime-ktx:2.10.1",
+      "group": "androidx.work",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.work/work-runtime-ktx/2.10.1/ee7e443b5a513358085c2856a6ef2f30e06c0961/work-runtime-ktx-2.10.1.pom",
+        "sha256": "0b9fb7194ea6a198d7dacd69218bbf2c4369a7337c066a6c6e433c669e15da8d"
+      },
+      "name": "work-runtime-ktx",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.work/work-runtime-ktx/2.10.1/ee7e443b5a513358085c2856a6ef2f30e06c0961/work-runtime-ktx-2.10.1.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.10.1"
+    },
+    {
+      "coordinate": "androidx.work:work-runtime:2.10.1",
+      "group": "androidx.work",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.work/work-runtime/2.10.1/8017450d035cbbcda9c6db633af1a36aac882d14/work-runtime-2.10.1.pom",
+        "sha256": "05c300906f138ca6f893b79a5d5747a175097d1eb34cb2833be8622889ca450f"
+      },
+      "name": "work-runtime",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.work/work-runtime/2.10.1/8017450d035cbbcda9c6db633af1a36aac882d14/work-runtime-2.10.1.pom",
+      "scope": "runtime",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.10.1"
+    },
+    {
+      "coordinate": "androidx.work:work-testing:2.10.1",
+      "group": "androidx.work",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/androidx.work/work-testing/2.10.1/96e232dcf95f7ca0f441740fd7a25d521a2258f9/work-testing-2.10.1.pom",
+        "sha256": "3556bcb78efb08e31ad95ca8efde074deccb095d2f3f387de82183a0f1fd9c4c"
+      },
+      "name": "work-testing",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/androidx.work/work-testing/2.10.1/96e232dcf95f7ca0f441740fd7a25d521a2258f9/work-testing-2.10.1.pom",
+      "scope": "test-only",
+      "source_url": "https://cs.android.com/androidx/platform/frameworks/support",
+      "used_in_tests": true,
+      "version": "2.10.1"
+    },
+    {
+      "coordinate": "com.google.code.gson:gson:2.10.1",
+      "group": "com.google.code.gson",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "Apache-2.0"
+      ],
+      "license_urls": [
+        "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.10.1/ce159faf33c1e665e1f3a785a5d678a2b20151bc/gson-2.10.1.pom",
+        "sha256": "d2b115634f5c085db4b9c9ffc2658e89e231fdbfbe2242121a1cd95d4d948dd7"
+      },
+      "name": "gson",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.10.1/ce159faf33c1e665e1f3a785a5d678a2b20151bc/gson-2.10.1.pom",
+      "scope": "runtime",
+      "source_url": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+      "used_in_tests": true,
+      "version": "2.10.1"
+    },
+    {
+      "coordinate": "com.google.guava:failureaccess:1.0.2",
+      "group": "com.google.guava",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "Apache License 2.0"
+      ],
+      "license_urls": [
+        "https://www.apache.org/licenses/LICENSE-2.0"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/com.google.guava/failureaccess/1.0.2/2df7ebe307b885a222be352d3bffd5fcf0428ad4/failureaccess-1.0.2.pom",
+        "sha256": "19ebc6f4bdb4edbb3d07b6ee994f846b54ef295582a9b5634719ffa9f31d03b2"
+      },
+      "name": "failureaccess",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/com.google.guava/failureaccess/1.0.2/2df7ebe307b885a222be352d3bffd5fcf0428ad4/failureaccess-1.0.2.pom; license fallback from upstream project metadata because POM omitted license",
+      "scope": "runtime",
+      "source_url": "https://github.com/google/guava",
+      "used_in_tests": true,
+      "version": "1.0.2"
+    },
+    {
+      "coordinate": "com.google.guava:guava:33.3.1-android",
+      "group": "com.google.guava",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "Apache License 2.0"
+      ],
+      "license_urls": [
+        "https://www.apache.org/licenses/LICENSE-2.0"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/33.3.1-android/d06497aead4f2c87559a3149eefbb00c72ece9f0/guava-33.3.1-android.pom",
+        "sha256": "c728db6f2705ca3ea6a3cf2cf1260dbeff3a4524249a1b1b900edcfe9d72142f"
+      },
+      "name": "guava",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/33.3.1-android/d06497aead4f2c87559a3149eefbb00c72ece9f0/guava-33.3.1-android.pom; license fallback from upstream project metadata because POM omitted license",
+      "scope": "runtime",
+      "source_url": "https://github.com/google/guava",
+      "used_in_tests": true,
+      "version": "33.3.1-android"
+    },
+    {
+      "coordinate": "com.google.guava:listenablefuture:1.0",
+      "group": "com.google.guava",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "Apache License 2.0"
+      ],
+      "license_urls": [
+        "https://www.apache.org/licenses/LICENSE-2.0"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/com.google.guava/listenablefuture/1.0/3e71124fc28b44e29eaa31abbc267faef7ee7d40/listenablefuture-1.0.pom",
+        "sha256": "53873caf26bc1ed8a567ea6c939ab2aaa3f47a5e32d5cade95ddf5080d23238a"
+      },
+      "name": "listenablefuture",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/com.google.guava/listenablefuture/1.0/3e71124fc28b44e29eaa31abbc267faef7ee7d40/listenablefuture-1.0.pom; license fallback from upstream project metadata because POM omitted license",
+      "scope": "debug-only",
+      "source_url": "https://github.com/google/guava",
+      "used_in_tests": true,
+      "version": "1.0"
+    },
+    {
+      "coordinate": "com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava",
+      "group": "com.google.guava",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "Apache License 2.0"
+      ],
+      "license_urls": [
+        "https://www.apache.org/licenses/LICENSE-2.0"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/com.google.guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/1b77ba79f9b2b7dfd4e15ea7bb0d568d5eb9cb8d/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.pom",
+        "sha256": "18d4b1db26153d4e55079ce1f76bb1fe05cdb862ef9954a88cbcc4ff38b8679b"
+      },
+      "name": "listenablefuture",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/com.google.guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/1b77ba79f9b2b7dfd4e15ea7bb0d568d5eb9cb8d/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.pom; license fallback from upstream project metadata because POM omitted license",
+      "scope": "runtime",
+      "source_url": "https://github.com/google/guava",
+      "used_in_tests": true,
+      "version": "9999.0-empty-to-avoid-conflict-with-guava"
+    },
+    {
+      "coordinate": "com.microsoft.onnxruntime:onnxruntime-android:1.29.0",
+      "group": "com.microsoft.onnxruntime",
+      "license_ids": [
+        "MIT"
+      ],
+      "license_names": [
+        "MIT License"
+      ],
+      "license_urls": [
+        "https://opensource.org/licenses/MIT"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/com.microsoft.onnxruntime/onnxruntime-android/1.29.0/39756f4d2b7a2411e4e75625a400af6623f84ebb/onnxruntime-android-1.29.0.pom",
+        "sha256": "bcc919c351bc9f60d7de973a7d20dc6c73233b885db5a7cad958972fb191f635"
+      },
+      "name": "onnxruntime-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/com.microsoft.onnxruntime/onnxruntime-android/1.29.0/39756f4d2b7a2411e4e75625a400af6623f84ebb/onnxruntime-android-1.29.0.pom",
+      "scope": "runtime",
+      "source_url": "http://github.com/microsoft/onnxruntime",
+      "used_in_tests": true,
+      "version": "1.29.0"
+    },
+    {
+      "coordinate": "junit:junit:4.13.2",
+      "group": "junit",
+      "license_ids": [
+        "EPL-1.0"
+      ],
+      "license_names": [
+        "Eclipse Public License 1.0"
+      ],
+      "license_urls": [
+        "http://www.eclipse.org/legal/epl-v10.html"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/junit/junit/4.13.2/73bc5be628edeb297a1caf421a5a2e494798b92f/junit-4.13.2.pom",
+        "sha256": "569b6977ee4603c965c1c46c3058fa6e969291b0160eb6964dd092cd89eadd94"
+      },
+      "name": "junit",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/junit/junit/4.13.2/73bc5be628edeb297a1caf421a5a2e494798b92f/junit-4.13.2.pom",
+      "scope": "test-only",
+      "source_url": "https://github.com/junit-team/junit4",
+      "used_in_tests": true,
+      "version": "4.13.2"
+    },
+    {
+      "coordinate": "org.hamcrest:hamcrest-core:1.3",
+      "group": "org.hamcrest",
+      "license_ids": [
+        "BSD-3-Clause"
+      ],
+      "license_names": [
+        "BSD 3-Clause License"
+      ],
+      "license_urls": [
+        "https://opensource.org/licenses/BSD-3-Clause"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/872e413497b906e7c9fa85ccc96046c5d1ef7ece/hamcrest-core-1.3.pom",
+        "sha256": "fde386a7905173a1b103de6ab820727584b50d0e32282e2797787c20a64ffa93"
+      },
+      "name": "hamcrest-core",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/872e413497b906e7c9fa85ccc96046c5d1ef7ece/hamcrest-core-1.3.pom; license fallback from upstream project metadata because POM omitted license",
+      "scope": "test-only",
+      "source_url": "https://github.com/hamcrest/JavaHamcrest",
+      "used_in_tests": true,
+      "version": "1.3"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-bom:1.8.0",
+      "group": "org.jetbrains.kotlin",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-bom/1.8.0/a253c3d63fcb05f163a105ea92a35d9ba2f71ce6/kotlin-bom-1.8.0.pom",
+        "sha256": "681f9878548c0a149c678092fd8b1f4cc7c5c41ba1b24397101c1073a6c76dda"
+      },
+      "name": "kotlin-bom",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-bom/1.8.0/a253c3d63fcb05f163a105ea92a35d9ba2f71ce6/kotlin-bom-1.8.0.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/JetBrains/kotlin",
+      "used_in_tests": true,
+      "version": "1.8.0"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-stdlib-common:2.1.10",
+      "group": "org.jetbrains.kotlin",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/2.1.10/57258d8a215853035cc3f43d7f490a36532f2e94/kotlin-stdlib-common-2.1.10.pom",
+        "sha256": "bbcc5fad3f7ede4b469d49dba6c03e1993133655b5e81713b5e6a1bedd1ceb42"
+      },
+      "name": "kotlin-stdlib-common",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/2.1.10/57258d8a215853035cc3f43d7f490a36532f2e94/kotlin-stdlib-common-2.1.10.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/JetBrains/kotlin",
+      "used_in_tests": true,
+      "version": "2.1.10"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.20",
+      "group": "org.jetbrains.kotlin",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.8.20/e613a7635e90125d25b100b636a85639b4487ac4/kotlin-stdlib-jdk7-1.8.20.pom",
+        "sha256": "3622d106578cddcc0a9ec20f8ce815f7f49ff542f640228d2141fcaf80616b06"
+      },
+      "name": "kotlin-stdlib-jdk7",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.8.20/e613a7635e90125d25b100b636a85639b4487ac4/kotlin-stdlib-jdk7-1.8.20.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/JetBrains/kotlin",
+      "used_in_tests": true,
+      "version": "1.8.20"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20",
+      "group": "org.jetbrains.kotlin",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.8.20/f9dac9f21106bd224ea78c78b56f4e401d7df56f/kotlin-stdlib-jdk8-1.8.20.pom",
+        "sha256": "3a462214a336e995687769531b1e37b0c81d8e10c9949cd5ea7ae1d7803a0232"
+      },
+      "name": "kotlin-stdlib-jdk8",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.8.20/f9dac9f21106bd224ea78c78b56f4e401d7df56f/kotlin-stdlib-jdk8-1.8.20.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/JetBrains/kotlin",
+      "used_in_tests": true,
+      "version": "1.8.20"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-stdlib:2.1.10",
+      "group": "org.jetbrains.kotlin",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.1.10/2dacdd6fa22033bd2beef9d3292d8f0d84a2e132/kotlin-stdlib-2.1.10.pom",
+        "sha256": "4922121d3f0bc60ce407f372de42d02a0b7e94e75d0c3d1508b6835721f249ef"
+      },
+      "name": "kotlin-stdlib",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.1.10/2dacdd6fa22033bd2beef9d3292d8f0d84a2e132/kotlin-stdlib-2.1.10.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/JetBrains/kotlin",
+      "used_in_tests": true,
+      "version": "2.1.10"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3",
+      "group": "org.jetbrains.kotlinx",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-android/1.7.3/24c62e9584cd03c6cdabbad9dd5b5e4a32e1887e/kotlinx-coroutines-android-1.7.3.pom",
+        "sha256": "020515246d19e176d5626eb118f80f97f7876d1accd8cec15b1a4159257d5054"
+      },
+      "name": "kotlinx-coroutines-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-android/1.7.3/24c62e9584cd03c6cdabbad9dd5b5e4a32e1887e/kotlinx-coroutines-android-1.7.3.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/Kotlin/kotlinx.coroutines",
+      "used_in_tests": true,
+      "version": "1.7.3"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.7.3",
+      "group": "org.jetbrains.kotlinx",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-bom/1.7.3/6563a4ccb53e4678a32841c5dbb0dae1c026aa0f/kotlinx-coroutines-bom-1.7.3.pom",
+        "sha256": "4e5d1900e6379ef3f5970d04a8f30529adc82f859e8cc107c21ce8149ef666c4"
+      },
+      "name": "kotlinx-coroutines-bom",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-bom/1.7.3/6563a4ccb53e4678a32841c5dbb0dae1c026aa0f/kotlinx-coroutines-bom-1.7.3.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/Kotlin/kotlinx.coroutines",
+      "used_in_tests": true,
+      "version": "1.7.3"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3",
+      "group": "org.jetbrains.kotlinx",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.7.3/62079ae5c1ab9b0fa65dac10ef343200a5f2137a/kotlinx-coroutines-core-jvm-1.7.3.pom",
+        "sha256": "753858753decbbb2397343e2b871f062f697812e9422e41c9ee46a66b93eee30"
+      },
+      "name": "kotlinx-coroutines-core-jvm",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.7.3/62079ae5c1ab9b0fa65dac10ef343200a5f2137a/kotlinx-coroutines-core-jvm-1.7.3.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/Kotlin/kotlinx.coroutines",
+      "used_in_tests": true,
+      "version": "1.7.3"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3",
+      "group": "org.jetbrains.kotlinx",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core/1.7.3/8404b56934d4a074e025ef4c4a4655b04a19c21a/kotlinx-coroutines-core-1.7.3.pom",
+        "sha256": "ed6eb0398717035e29f1c1d60a4e3ddbb89858f3db9e07b57ad759d374dae829"
+      },
+      "name": "kotlinx-coroutines-core",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core/1.7.3/8404b56934d4a074e025ef4c4a4655b04a19c21a/kotlinx-coroutines-core-1.7.3.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/Kotlin/kotlinx.coroutines",
+      "used_in_tests": true,
+      "version": "1.7.3"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-serialization-bom:1.6.3",
+      "group": "org.jetbrains.kotlinx",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-serialization-bom/1.6.3/7c5582389dc60169a84cb882bed09b4ab68833bf/kotlinx-serialization-bom-1.6.3.pom",
+        "sha256": "29d69842bb7d449be2aa4ade6a4a7ce6aa55827d0ab13d168745fe6d95739332"
+      },
+      "name": "kotlinx-serialization-bom",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-serialization-bom/1.6.3/7c5582389dc60169a84cb882bed09b4ab68833bf/kotlinx-serialization-bom-1.6.3.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/Kotlin/kotlinx.serialization",
+      "used_in_tests": true,
+      "version": "1.6.3"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.6.3",
+      "group": "org.jetbrains.kotlinx",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-serialization-core-jvm/1.6.3/885c15b316e671529562a9565b86995bb345271a/kotlinx-serialization-core-jvm-1.6.3.pom",
+        "sha256": "2b4aa89499fc01b30d1c107596698e0af4340412d54019c501d9ba6b293ba2ba"
+      },
+      "name": "kotlinx-serialization-core-jvm",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-serialization-core-jvm/1.6.3/885c15b316e671529562a9565b86995bb345271a/kotlinx-serialization-core-jvm-1.6.3.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/Kotlin/kotlinx.serialization",
+      "used_in_tests": true,
+      "version": "1.6.3"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.3",
+      "group": "org.jetbrains.kotlinx",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-serialization-core/1.6.3/38183eabf85b110b6b571a6ca2eef6570ad1227e/kotlinx-serialization-core-1.6.3.pom",
+        "sha256": "d2dbf6fc15364c8969d6aab6e3eccc75139953f2cc057b730e35267465b3b57e"
+      },
+      "name": "kotlinx-serialization-core",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-serialization-core/1.6.3/38183eabf85b110b6b571a6ca2eef6570ad1227e/kotlinx-serialization-core-1.6.3.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/Kotlin/kotlinx.serialization",
+      "used_in_tests": true,
+      "version": "1.6.3"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.6.3",
+      "group": "org.jetbrains.kotlinx",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm/1.6.3/15f297dd7f80e49304c115efb29ee2b73df22afe/kotlinx-serialization-json-jvm-1.6.3.pom",
+        "sha256": "78df67d064d3baaf1af4e862e981469776297c6c878bb7bf1b42e3932f6faf8f"
+      },
+      "name": "kotlinx-serialization-json-jvm",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm/1.6.3/15f297dd7f80e49304c115efb29ee2b73df22afe/kotlinx-serialization-json-jvm-1.6.3.pom",
+      "scope": "test-only",
+      "source_url": "https://github.com/Kotlin/kotlinx.serialization",
+      "used_in_tests": true,
+      "version": "1.6.3"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3",
+      "group": "org.jetbrains.kotlinx",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-serialization-json/1.6.3/c9b0a7f7b05481f2ad7aa56ef82804b1580a93c5/kotlinx-serialization-json-1.6.3.pom",
+        "sha256": "29c2217618e531d7d832cc880aea6ed1a8f40773e437f5a41d70bd15468d3ce3"
+      },
+      "name": "kotlinx-serialization-json",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-serialization-json/1.6.3/c9b0a7f7b05481f2ad7aa56ef82804b1580a93c5/kotlinx-serialization-json-1.6.3.pom",
+      "scope": "test-only",
+      "source_url": "https://github.com/Kotlin/kotlinx.serialization",
+      "used_in_tests": true,
+      "version": "1.6.3"
+    },
+    {
+      "coordinate": "org.jetbrains:annotations:23.0.0",
+      "group": "org.jetbrains",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "https://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/23.0.0/deb853be3c9e05ed99fbbf83e49d349d08a6d10e/annotations-23.0.0.pom",
+        "sha256": "c9490f655132328df2cfbcfdf743f53fc3916d6c1d10437175a6ca6e3a67771c"
+      },
+      "name": "annotations",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/23.0.0/deb853be3c9e05ed99fbbf83e49d349d08a6d10e/annotations-23.0.0.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/JetBrains/java-annotations",
+      "used_in_tests": true,
+      "version": "23.0.0"
+    },
+    {
+      "coordinate": "org.jspecify:jspecify:1.0.0",
+      "group": "org.jspecify",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.jspecify/jspecify/1.0.0/fae4a252aeee8a649653b2f239067bcead8f80cb/jspecify-1.0.0.pom",
+        "sha256": "cdab929a3b95211f43d2090c5e2d0dfe8465960e378bc32b35841dab324433a6"
+      },
+      "name": "jspecify",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.jspecify/jspecify/1.0.0/fae4a252aeee8a649653b2f239067bcead8f80cb/jspecify-1.0.0.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/jspecify/jspecify/",
+      "used_in_tests": true,
+      "version": "1.0.0"
+    }
+  ],
+  "constraints": {
+    "license_source": "local Gradle POM metadata when available",
+    "offline": true,
+    "release_flavors": [
+      "standard",
+      "fdroid"
+    ],
+    "runtime_modules": [
+      "app",
+      "core",
+      "tts-onnx",
+      "document-epub",
+      "playback-export"
+    ]
+  },
+  "findings": {
+    "excluded_candidates": [
+      "Readium Kotlin Toolkit: rejected for production; direct platform ZIP/XML parser selected",
+      "Sherpa-ONNX: rejected because Serbian frontend/tokenization does not preserve the verified boundary"
+    ],
+    "network_runtime_artifacts": [],
+    "proprietary_services": [],
+    "qualification_limitations": [
+      "The external model package is not bundled; its legal payload gate remains in model-tools/legal-inventory.md.",
+      "eSpeak-NG source/data closure requires GPL source offer and file-level data review for each release.",
+      "No project model, dataset, generated audio, or private document content is copied into the notice assets."
+    ]
+  },
+  "generated_by": "scripts/audit_dependencies.py",
+  "gradle_graph": {
+    "configurations": [
+      {
+        "name": ":app:fdroidReleaseRuntimeClasspath",
+        "scope": "runtime"
+      },
+      {
+        "name": ":app:fdroidReleaseUnitTestRuntimeClasspath",
+        "scope": "test"
+      },
+      {
+        "name": ":app:standardReleaseRuntimeClasspath",
+        "scope": "runtime"
+      },
+      {
+        "name": ":app:standardReleaseUnitTestRuntimeClasspath",
+        "scope": "test"
+      },
+      {
+        "name": ":core:debugAndroidTestRuntimeClasspath",
+        "scope": "test"
+      },
+      {
+        "name": ":core:releaseRuntimeClasspath",
+        "scope": "runtime"
+      },
+      {
+        "name": ":core:releaseUnitTestRuntimeClasspath",
+        "scope": "test"
+      },
+      {
+        "name": ":document-epub:debugAndroidTestRuntimeClasspath",
+        "scope": "test"
+      },
+      {
+        "name": ":document-epub:releaseRuntimeClasspath",
+        "scope": "runtime"
+      },
+      {
+        "name": ":document-epub:releaseUnitTestRuntimeClasspath",
+        "scope": "test"
+      },
+      {
+        "name": ":playback-export:debugAndroidTestRuntimeClasspath",
+        "scope": "test"
+      },
+      {
+        "name": ":playback-export:releaseRuntimeClasspath",
+        "scope": "runtime"
+      },
+      {
+        "name": ":playback-export:releaseUnitTestRuntimeClasspath",
+        "scope": "test"
+      },
+      {
+        "name": ":tts-onnx:debugAndroidTestRuntimeClasspath",
+        "scope": "test"
+      },
+      {
+        "name": ":tts-onnx:releaseRuntimeClasspath",
+        "scope": "runtime"
+      },
+      {
+        "name": ":tts-onnx:releaseUnitTestRuntimeClasspath",
+        "scope": "test"
+      }
+    ],
+    "schema": "citac-knjiga-resolved-dependency-graph"
+  },
+  "non_maven_assets": [
+    {
+      "bundled": true,
+      "coordinate": "project:citac-knjiga:0.1.0",
+      "license_ids": [
+        "GPL-3.0-or-later"
+      ],
+      "license_urls": [
+        "https://www.gnu.org/licenses/gpl-3.0.html"
+      ],
+      "provenance": "Application source is combined with the linked GPL eSpeak-NG engine; project license decision in model-tools/phonemization-decision.md.",
+      "scope": "runtime",
+      "source_url": null,
+      "status": "requires GPL source and notices",
+      "version": "0.1.0"
+    },
+    {
+      "bundled": true,
+      "coordinate": "native:espeak-ng:1.52.0",
+      "license_ids": [
+        "GPL-3.0-or-later"
+      ],
+      "license_urls": [
+        "https://github.com/espeak-ng/espeak-ng/blob/1.52.0/COPYING"
+      ],
+      "provenance": "model-tools/native/NOTICE.md; source commit 4870adfa25b1a32b4361592f1be8a40337c58d6c; no local patch",
+      "scope": "runtime",
+      "source_url": "https://github.com/espeak-ng/espeak-ng/tree/4870adfa25b1a32b4361592f1be8a40337c58d6c",
+      "status": "GPL source offer required",
+      "version": "1.52.0"
+    },
+    {
+      "bundled": true,
+      "coordinate": "native:espeak-ng-data:1",
+      "license_ids": [
+        "GPL-3.0-or-later"
+      ],
+      "license_urls": [
+        "https://github.com/espeak-ng/espeak-ng/blob/1.52.0/COPYING"
+      ],
+      "provenance": "model-tools/native/espeak-data-manifest-v1.json; checked-in seven-file Serbian data closure",
+      "scope": "runtime",
+      "source_url": "https://github.com/espeak-ng/espeak-ng/tree/4870adfa25b1a32b4361592f1be8a40337c58d6c",
+      "status": "file-level data audit retained",
+      "version": "1"
+    },
+    {
+      "bundled": true,
+      "coordinate": "project:preprocessing-resources:v1",
+      "license_ids": [
+        "GPL-3.0-or-later"
+      ],
+      "license_urls": [
+        "https://www.gnu.org/licenses/gpl-3.0.html"
+      ],
+      "provenance": "model-tools/preprocessing/; self-authored resources bound by preprocessing-contract-v1.json",
+      "scope": "runtime",
+      "source_url": null,
+      "status": "audited",
+      "version": "v1"
+    },
+    {
+      "bundled": false,
+      "coordinate": "model:kokoro-82m-base:external",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_urls": [
+        "https://huggingface.co/hexgrad/Kokoro-82M"
+      ],
+      "provenance": "model-tools/dependency-inventory.md; package is external and no model payload is checked in",
+      "scope": "external-runtime",
+      "source_url": "https://huggingface.co/hexgrad/Kokoro-82M",
+      "status": "not bundled; HF card license must be rechecked at package publication",
+      "version": "external"
+    },
+    {
+      "bundled": false,
+      "coordinate": "model:kokoro-serbian-dragana:external",
+      "license_ids": [
+        "CC-BY-SA-4.0"
+      ],
+      "license_urls": [
+        "https://creativecommons.org/licenses/by/4.0/",
+        "https://creativecommons.org/licenses/by-sa/4.0/"
+      ],
+      "provenance": "model-tools/legal-inventory.md; derived package treatment confirmed by project owner; no archive is checked in",
+      "scope": "external-runtime",
+      "source_url": "https://huggingface.co/datasets/daremc86/serbian_common_voice",
+      "status": "not bundled; attribution and synthetic-audio disclosure required",
+      "version": "external"
+    },
+    {
+      "bundled": false,
+      "coordinate": "dataset:serbian-common-voice-dragana:external",
+      "license_ids": [
+        "CC-BY-4.0"
+      ],
+      "license_urls": [
+        "https://creativecommons.org/licenses/by/4.0/"
+      ],
+      "provenance": "model-tools/legal-inventory.md section 1.5; provenance only, never bundled",
+      "scope": "external-provenance",
+      "source_url": "https://huggingface.co/datasets/daremc86/serbian_common_voice",
+      "status": "audited",
+      "version": "external"
+    },
+    {
+      "bundled": false,
+      "coordinate": "dataset:juzne-vesti-sr:external",
+      "license_ids": [
+        "CC-BY-SA-4.0"
+      ],
+      "license_urls": [
+        "https://creativecommons.org/licenses/by-sa/4.0/"
+      ],
+      "provenance": "model-tools/legal-inventory.md section 1.6; provenance only, never bundled",
+      "scope": "external-provenance",
+      "source_url": "https://www.clarin.si/repository/xmlui/handle/11356/1679",
+      "status": "source recording rights remain a qualification limitation",
+      "version": "v1.0"
+    },
+    {
+      "bundled": false,
+      "coordinate": "fixtures:epub-import:1",
+      "license_ids": [
+        "CC0-1.0"
+      ],
+      "license_urls": [
+        "https://creativecommons.org/publicdomain/zero/1.0/"
+      ],
+      "provenance": "document-epub/src/test/resources/fixtures/README.md; self-authored compact EPUB archives",
+      "scope": "test-only",
+      "source_url": null,
+      "status": "audited",
+      "version": "1"
+    },
+    {
+      "bundled": false,
+      "coordinate": "fixtures:serbian-golden-vectors:1",
+      "license_ids": [
+        "GPL-3.0-or-later"
+      ],
+      "license_urls": [
+        "https://www.gnu.org/licenses/gpl-3.0.html"
+      ],
+      "provenance": "model-tools/reference/README.md; self-authored text and derived test vectors",
+      "scope": "test-only",
+      "source_url": null,
+      "status": "audited",
+      "version": "1"
+    },
+    {
+      "bundled": false,
+      "coordinate": "font:application-default:absent",
+      "license_ids": [],
+      "license_urls": [],
+      "provenance": "No bundled third-party font; the app uses platform font resources.",
+      "scope": "not-present",
+      "source_url": null,
+      "status": "audited",
+      "version": "absent"
+    }
+  ],
+  "schema": "citac-knjiga-license-inventory",
+  "version": 1
+}

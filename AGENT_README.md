@@ -465,6 +465,14 @@ target.
   rerunnable inventory are in `reports/task-11-4-android-qualification.md` and
   `scripts/run_android_qualification_matrix.sh`; no sustained production
   generation qualification is claimed.
+- Task 11.7 adds `scripts/audit_dependencies.py` and the root
+  `writeResolvedDependencyInventory` Gradle task. The offline audit covers
+  standard/F-Droid release graphs plus module test graphs, resolves 149 Android
+  components, records local POM hashes and license metadata, and bundles the
+  JSON inventory and Markdown notices under `app/src/main/assets/notices/`.
+  No incompatible or unmaintained production dependency was found; Readium and
+  Sherpa-ONNX remain intentionally excluded. Missing Guava/Hamcrest POM license
+  fields use explicit upstream fallbacks, and unknown licenses fail the audit.
 
 ## Repository layout
 
