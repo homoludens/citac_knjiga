@@ -6,16 +6,20 @@ import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import java.io.File
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
+import java.nio.channels.FileChannel
 import java.nio.file.Files
+import java.nio.file.StandardOpenOption
 import java.nio.file.StandardCopyOption
+import java.nio.file.AtomicMoveNotSupportedException
+import java.io.FileOutputStream
 import java.security.MessageDigest
-import java.util.UUID
 import java.util.zip.ZipException
 import java.util.zip.ZipFile
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import java.util.concurrent.CancellationException
+import java.util.concurrent.locks.ReentrantReadWriteLock
 
 /** Opens a user-selected model package without retaining the provider URI. */
 public fun interface ModelPackageSource {
@@ -39,6 +43,8 @@ public class ModelPackageStore(
     private val packageDir = privateStorage.modelPackagesDirectory
     private val activeFile = privateStorage.activeModelPackage
     private val previousFile = privateStorage.lastValidModelPackage
+    private val transactionFile = File(packageDir, ".model-package-transaction")
+    private val processLock = ReentrantReadWriteLock()
 
     /** Copies a SAF document into private temporary storage before inspecting it. */
     public fun importFromSaf(contentResolver: ContentResolver, uri: Uri): InstalledModelPackage {
@@ -62,23 +68,9 @@ public class ModelPackageStore(
 
     /** Testable equivalent of [importFromSaf] for a provider-backed stream. */
     public fun importPackage(source: ModelPackageSource): InstalledModelPackage {
-        prepareDirectory()
-        val temporary = try {
-            File.createTempFile(".model-package-", ".tmp", packageDir)
-        } catch (exception: Exception) {
-            throw ModelPackageImportException(
-                ModelPackageFailureCode.STORAGE,
-                cause = exception,
-            )
-        }
-
-        try {
-            try {
-                source.openStream().use { input ->
-                    temporary.outputStream().use { output -> input.copyTo(output) }
-                }
-            } catch (cancelled: CancellationException) {
-                throw cancelled
+        return withWriteOperation {
+            val temporary = try {
+                File.createTempFile(".model-package-", ".tmp", packageDir)
             } catch (exception: Exception) {
                 throw ModelPackageImportException(
                     ModelPackageFailureCode.STORAGE,
@@ -86,11 +78,26 @@ public class ModelPackageStore(
                 )
             }
 
-            val metadata = validateArchive(temporary)
-            publish(temporary)
-            return metadata
-        } finally {
-            temporary.delete()
+            try {
+                try {
+                    source.openStream().use { input ->
+                        temporary.outputStream().use { output -> input.copyTo(output) }
+                    }
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (exception: Exception) {
+                    throw ModelPackageImportException(
+                        ModelPackageFailureCode.STORAGE,
+                        cause = exception,
+                    )
+                }
+
+                val metadata = validateArchive(temporary)
+                publish(temporary)
+                metadata
+            } finally {
+                temporary.delete()
+            }
         }
     }
 
@@ -116,6 +123,11 @@ public class ModelPackageStore(
 
     /** Returns the active package, restoring the previous verified package if needed. */
     public fun activePackage(): InstalledModelPackage? {
+        return withWriteOperation { activePackageLocked() }
+    }
+
+    private fun activePackageLocked(): InstalledModelPackage? {
+        recoverTransaction()
         if (!activeFile.exists() && !previousFile.exists()) return null
         if (activeFile.exists()) {
             try {
@@ -134,17 +146,10 @@ public class ModelPackageStore(
         val metadata = validateArchive(previousFile)
         try {
             if (activeFile.exists()) {
-                Files.move(
-                    activeFile.toPath(),
-                    File(packageDir, "invalid-${UUID.randomUUID()}.zip").toPath(),
-                    StandardCopyOption.REPLACE_EXISTING,
-                )
+                Files.deleteIfExists(activeFile.toPath())
             }
-            Files.move(
-                previousFile.toPath(),
-                activeFile.toPath(),
-                StandardCopyOption.REPLACE_EXISTING,
-            )
+            moveComplete(previousFile, activeFile)
+            syncFile(activeFile)
         } catch (exception: Exception) {
             throw ModelPackageImportException(
                 ModelPackageFailureCode.PUBLICATION,
@@ -156,7 +161,7 @@ public class ModelPackageStore(
 
     /** Reads one already verified payload artifact while keeping the ZIP private. */
     public fun readArtifact(packageInfo: InstalledModelPackage, role: String): ByteArray =
-        withDeclaredArtifact(packageInfo, role) { archive, artifact ->
+        withReadOperation { withDeclaredArtifact(packageInfo, role) { archive, artifact ->
             val entry = archive.getEntry(artifact.path)
                 ?: throw ModelPackageImportException(
                     ModelPackageFailureCode.INVALID_ARCHIVE,
@@ -170,7 +175,7 @@ public class ModelPackageStore(
                 )
             }
             bytes
-        }
+        } }
 
     /** Streams one verified artifact to a private file for APIs that accept a path. */
     public fun <T> withVerifiedArtifactFile(
@@ -178,19 +183,19 @@ public class ModelPackageStore(
         role: String,
         block: (File) -> T,
     ): T {
-        prepareDirectory()
-        val temporary = try {
-            File.createTempFile(".model-artifact-", ".tmp", packageDir)
-        } catch (exception: Exception) {
-            throw ModelPackageImportException(
-                ModelPackageFailureCode.STORAGE,
-                "Could not create model artifact temporary storage",
-                exception,
-            )
-        }
+        return withReadOperation {
+            val temporary = try {
+                File.createTempFile(".model-artifact-", ".tmp", packageDir)
+            } catch (exception: Exception) {
+                throw ModelPackageImportException(
+                    ModelPackageFailureCode.STORAGE,
+                    "Could not create model artifact temporary storage",
+                    exception,
+                )
+            }
 
-        try {
-            withDeclaredArtifact(packageInfo, role) { archive, artifact ->
+            try {
+                withDeclaredArtifact(packageInfo, role) { archive, artifact ->
                 val entry = archive.getEntry(artifact.path)
                     ?: throw ModelPackageImportException(
                         ModelPackageFailureCode.INVALID_ARCHIVE,
@@ -223,9 +228,10 @@ public class ModelPackageStore(
                     )
                 }
             }
-            return block(temporary)
-        } finally {
-            temporary.delete()
+                block(temporary)
+            } finally {
+                temporary.delete()
+            }
         }
     }
 
@@ -283,29 +289,21 @@ public class ModelPackageStore(
     private data class DeclaredArtifact(val path: String, val sha256: String, val sizeBytes: Long)
 
     private fun publish(temporary: File) {
+        writeTransactionMarker()
         var movedPrevious = false
         try {
             if (activeFile.exists()) {
-                Files.move(
-                    activeFile.toPath(),
-                    previousFile.toPath(),
-                    StandardCopyOption.REPLACE_EXISTING,
-                )
+                moveComplete(activeFile, previousFile)
                 movedPrevious = true
             }
-            Files.move(
-                temporary.toPath(),
-                activeFile.toPath(),
-                StandardCopyOption.REPLACE_EXISTING,
-            )
+            moveComplete(temporary, activeFile)
+            syncFile(activeFile)
+            transactionFile.delete()
+            cleanupTemporaryCandidates()
         } catch (exception: Exception) {
             if (movedPrevious && !activeFile.exists() && previousFile.exists()) {
                 runCatching {
-                    Files.move(
-                        previousFile.toPath(),
-                        activeFile.toPath(),
-                        StandardCopyOption.REPLACE_EXISTING,
-                    )
+                    moveComplete(previousFile, activeFile)
                 }
             }
             throw ModelPackageImportException(
@@ -314,6 +312,75 @@ public class ModelPackageStore(
                 exception,
             )
         }
+    }
+
+    private fun recoverTransaction() {
+        if (!transactionFile.isFile) return
+        val active = runCatching { validateArchive(activeFile) }.getOrNull()
+        val previous = runCatching { validateArchive(previousFile) }.getOrNull()
+        when {
+            active != null -> {
+                if (previousFile.exists() && previous == null) previousFile.delete()
+                transactionFile.delete()
+            }
+            previous != null -> {
+                if (activeFile.exists()) Files.deleteIfExists(activeFile.toPath())
+                moveComplete(previousFile, activeFile)
+                syncFile(activeFile)
+                transactionFile.delete()
+            }
+            else -> throw ModelPackageImportException(ModelPackageFailureCode.NO_VALID_PACKAGE)
+        }
+    }
+
+    private fun writeTransactionMarker() {
+        try {
+            FileOutputStream(transactionFile).use { output ->
+                output.write("model-package-transaction-v1".toByteArray(StandardCharsets.US_ASCII))
+                output.fd.sync()
+            }
+        } catch (exception: Exception) {
+            throw ModelPackageImportException(ModelPackageFailureCode.PUBLICATION, cause = exception)
+        }
+    }
+
+    private fun cleanupTemporaryCandidates() {
+        packageDir.listFiles().orEmpty()
+            .filter { it.name.startsWith(".model-package-") }
+            .forEach { it.delete() }
+    }
+
+    private fun <T> withWriteOperation(block: () -> T): T = withOperation(processLock.writeLock(), block)
+
+    private fun <T> withReadOperation(block: () -> T): T = withOperation(processLock.readLock(), block)
+
+    private fun <T> withOperation(lock: java.util.concurrent.locks.Lock, block: () -> T): T {
+        prepareDirectory()
+        lock.lock()
+        return try {
+            FileChannel.open(
+                File(packageDir, ".model-package.lock").toPath(),
+                StandardOpenOption.CREATE,
+                StandardOpenOption.WRITE,
+            ).use { channel -> channel.lock().use { block() } }
+        } finally {
+            lock.unlock()
+        }
+    }
+
+    private fun moveComplete(source: File, destination: File) {
+        try {
+            Files.move(
+                source.toPath(), destination.toPath(),
+                StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING,
+            )
+        } catch (_: AtomicMoveNotSupportedException) {
+            Files.move(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING)
+        }
+    }
+
+    private fun syncFile(file: File) {
+        FileOutputStream(file, true).use { it.fd.sync() }
     }
 
     private fun prepareDirectory() {
