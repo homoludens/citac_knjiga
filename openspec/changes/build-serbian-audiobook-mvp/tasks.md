@@ -86,7 +86,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 - [x] 8.7 Implement audio validation, retry policy, failure categorization, and selective regeneration for a failed or stale segment.
 - [x] 8.8 Implement preflight and ongoing storage estimates with safety margins, write-failure handling, and explicit cleanup choices.
 - [x] 8.9 Add recovery tests for forced process death during inference/write/publication, device reboot, app update, low storage, and unavailable source/export storage.
-- [ ] 8.10 Demonstrate a multi-chapter book resuming after forced termination without regenerating completed verified segments.
+- [x] 8.10 Demonstrate a multi-chapter book resuming after forced termination without regenerating completed verified segments. → `MultiChapterResumeAndroidTest` imports the two-chapter EPUB fixture, injects a persisted in-flight crash snapshot after the first verified segment, reopens/reconciles Room, and proves only pending segments generate on resume; OS force-stop/Poco production inference is not claimed.
 
 ## 9. Playback (rough phase effort: 2–3 weeks)
 

@@ -175,6 +175,14 @@ target.
   and SAF export-destination loss were not executed. Export is intentionally
   unimplemented until task 10; those device-only cases are not claimed as
   proven.
+- Task 8.10 adds `MultiChapterResumeAndroidTest`, an EPUB-backed two-chapter
+  instrumentation demonstration with four deterministic segment fixtures. It
+  stops after the first segment is verified, injects the durable
+  `RUNNING`/`GENERATING` crash snapshot, reopens and reconciles file-backed Room,
+  then resumes only pending segments while asserting the completed segment's
+  path, bytes, and SHA-256 are unchanged. The generator is a deterministic test
+  double rather than production ONNX audio; no Poco is attached, so OS-level
+  force-stop and real model inference are not claimed.
 - Task 4.8 adds the single-route typed Serbian proof screen. It accepts Latin and
   Cyrillic input, exposes preprocessing/model diagnostics and explicit generation
   states, writes validated app-private 24 kHz mono PCM16 WAV, and plays it with

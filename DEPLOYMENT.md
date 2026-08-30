@@ -847,3 +847,35 @@ the persisted reconciliation and fault-handling contracts, not those device
 operations. Portable export is not implemented yet (task 10), so export
 destination disappearance/capacity instrumentation is explicitly unexecuted
 and no export proof is claimed here.
+
+## Multi-chapter resume demonstration (task 8.10)
+
+`MultiChapterResumeAndroidTest` uses the self-authored
+`document-epub/src/test/resources/fixtures/serbian-epub3.epub` fixture. It
+accepts and parses its two spine-ordered chapters, creates four deterministic
+segment rows, starts the bounded runner, and holds the second segment after the
+first segment has been atomically published and checked into Room. The test
+then safely stops the coroutine, reopens Room, injects the persisted
+`RUNNING`/`GENERATING` crash snapshot that an abrupt process death would leave,
+closes/reopens the database again, and runs `StartupReconciliation`. Resume is
+asserted to generate exactly the three pending segment IDs. The first segment's
+private file path, bytes, and SHA-256 are compared before and after resume.
+
+Run the deterministic instrumentation proof with the attached emulator:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew :app:connectedStandardDebugAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.class=com.homoludens.citacknjiga.generation.MultiChapterResumeAndroidTest
+```
+
+This is a Room/filesystem recovery demonstration, not production audio
+qualification: its `SegmentGenerator` writes deterministic test bytes through
+the normal atomic artifact path and does not load the model package or ONNX
+runtime. The available target was API 35 x86_64 `emulator-5554`; no Poco F3 was
+attached, and no `adb force-stop`, kill, physical reboot, package update, or
+production model inference was run for this task. Therefore the test does not
+claim real force-stop proof or Poco evidence. The test cleans its unique Room
+database, private source, canonical text, diagnostics, and ready-audio files in
+`finally`; it creates no committed WAV, model package, report, or export.
