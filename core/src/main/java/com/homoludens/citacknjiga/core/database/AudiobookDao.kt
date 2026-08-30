@@ -2,6 +2,7 @@ package com.homoludens.citacknjiga.core.database
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
@@ -12,10 +13,10 @@ public interface AudiobookDao {
     @Insert
     public fun insertProject(project: BookProjectEntity)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     public fun insertChapter(chapter: ChapterEntity)
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     public fun insertNarrationBlock(block: NarrationBlockEntity)
 
     @Insert
@@ -30,6 +31,9 @@ public interface AudiobookDao {
     @Query("SELECT * FROM book_project")
     public fun findAllProjects(): List<BookProjectEntity>
 
+    @Query("SELECT * FROM book_project ORDER BY updated_at DESC, id DESC")
+    public fun observeAllProjects(): Flow<List<BookProjectEntity>>
+
     @Query("SELECT * FROM book_project WHERE source_fingerprint = :fingerprint LIMIT 1")
     public fun findProjectBySourceFingerprint(fingerprint: String): BookProjectEntity?
 
@@ -38,6 +42,9 @@ public interface AudiobookDao {
 
     @Query("SELECT * FROM chapter")
     public fun findAllChapters(): List<ChapterEntity>
+
+    @Query("SELECT * FROM chapter ORDER BY book_project_id, ordinal")
+    public fun observeAllChapters(): Flow<List<ChapterEntity>>
 
     @Query("SELECT * FROM chapter WHERE id = :chapterId LIMIT 1")
     public fun findChapterById(chapterId: String): ChapterEntity?
@@ -53,6 +60,15 @@ public interface AudiobookDao {
 
     @Query("SELECT * FROM audio_segment")
     public fun findAllAudioSegments(): List<AudioSegmentEntity>
+
+    @Query("SELECT * FROM audio_segment ORDER BY chapter_id, sequence, id")
+    public fun observeAllAudioSegments(): Flow<List<AudioSegmentEntity>>
+
+    @Query("SELECT * FROM generation_run ORDER BY requested_at DESC, id DESC")
+    public fun observeAllGenerationRuns(): Flow<List<GenerationRunEntity>>
+
+    @Query("SELECT * FROM playback_position ORDER BY updated_at DESC, book_project_id")
+    public fun observeAllPlaybackPositions(): Flow<List<PlaybackPositionEntity>>
 
     /** Room is authoritative for which audio is eligible for playback. */
     @Query(

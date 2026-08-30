@@ -19,6 +19,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -33,6 +34,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.homoludens.citacknjiga.core.database.AudiobookDao
 import com.homoludens.citacknjiga.document.epub.EpubAcceptanceResult
 import com.homoludens.citacknjiga.document.epub.EpubImportPreview
 import com.homoludens.citacknjiga.document.epub.EpubPreviewResult
@@ -45,7 +49,13 @@ import com.homoludens.citacknjiga.proof.TypedTextProofDiagnostics
 import com.homoludens.citacknjiga.proof.TypedTextProofEngine
 import com.homoludens.citacknjiga.proof.TypedTextProofState
 import com.homoludens.citacknjiga.proof.TypedTextProofStatus
+import com.homoludens.citacknjiga.library.LibraryController
+import com.homoludens.citacknjiga.library.LibraryScreen
+import com.homoludens.citacknjiga.library.LibraryViewState
+import com.homoludens.citacknjiga.library.BookDetailScreen
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.net.Uri
@@ -53,6 +63,7 @@ import android.net.Uri
 @Composable
 public fun CitacKnjigaApp(
     variant: AppVariant,
+    audiobookDao: AudiobookDao? = null,
     proofEngine: TypedTextProofEngine? = null,
     epubImportPreviewService: EpubImportPreviewService? = null,
     epubChapterProofService: EpubChapterProofService? = null,
@@ -68,9 +79,21 @@ public fun CitacKnjigaApp(
             composable(AppRoute.Start.path) {
                 StartScreen(
                     variant = variant,
+                    audiobookDao = audiobookDao,
                     proofEngine = proofEngine,
                     epubImportPreviewService = epubImportPreviewService,
                     epubChapterProofService = epubChapterProofService,
+                    onOpenBook = { id -> navController.navigate(AppRoute.Book.forId(id)) },
+                )
+            }
+            composable(
+                route = AppRoute.Book.path,
+                arguments = listOf(navArgument(AppRoute.Book.argument) { type = NavType.StringType }),
+            ) { entry ->
+                BookRoute(
+                    audiobookDao = audiobookDao,
+                    bookId = entry.arguments?.getString(AppRoute.Book.argument),
+                    onBack = navController::popBackStack,
                 )
             }
         }
@@ -81,10 +104,15 @@ public fun CitacKnjigaApp(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun StartScreen(
     variant: AppVariant,
+    audiobookDao: AudiobookDao?,
     proofEngine: TypedTextProofEngine?,
     epubImportPreviewService: EpubImportPreviewService?,
     epubChapterProofService: EpubChapterProofService?,
+    onOpenBook: (String) -> Unit,
 ) {
+    val libraryController = remember(audiobookDao) { audiobookDao?.let(::LibraryController) }
+    val libraryFlow: Flow<LibraryViewState> = libraryController?.state ?: flowOf(LibraryViewState())
+    val libraryState by libraryFlow.collectAsState(initial = LibraryViewState())
     val controller = remember(proofEngine) {
         TypedTextProofController(proofEngine ?: MissingProofEngine())
     }
@@ -112,6 +140,9 @@ private fun StartScreen(
             controller.close()
         }
     }
+    DisposableEffect(libraryController) {
+        onDispose { libraryController?.close() }
+    }
     val state by controller.state.collectAsState()
     Scaffold(
         topBar = { TopAppBar(title = { Text("Srpski tekst u govor") }) },
@@ -122,6 +153,11 @@ private fun StartScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState()),
         ) {
+            LibraryScreen(
+                state = libraryState,
+                onBookClick = onOpenBook,
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 20.dp),
+            )
             EpubImportPreviewContent(
                 state = importState,
                 enabled = epubImportPreviewService != null,
@@ -172,6 +208,34 @@ private fun StartScreen(
                 onStop = player::stop,
             )
         }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun BookRoute(
+    audiobookDao: AudiobookDao?,
+    bookId: String?,
+    onBack: () -> Unit,
+) {
+    val libraryController = remember(audiobookDao) { audiobookDao?.let(::LibraryController) }
+    val libraryFlow: Flow<LibraryViewState> = libraryController?.state ?: flowOf(LibraryViewState())
+    val libraryState by libraryFlow.collectAsState(initial = LibraryViewState())
+    DisposableEffect(libraryController) {
+        onDispose { libraryController?.close() }
+    }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Књига") },
+                navigationIcon = { TextButton(onClick = onBack) { Text("Назад") } },
+            )
+        },
+    ) { paddingValues ->
+        BookDetailScreen(
+            book = libraryState.books.firstOrNull { it.project.id == bookId },
+            modifier = Modifier.padding(paddingValues),
+        )
     }
 }
 

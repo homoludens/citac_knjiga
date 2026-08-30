@@ -6,4 +6,11 @@ public sealed interface AppRoute {
     public data object Start : AppRoute {
         override val path: String = "start"
     }
+
+    public data object Book : AppRoute {
+        public const val argument: String = "bookId"
+        override val path: String = "book/{$argument}"
+
+        public fun forId(id: String): String = "book/$id"
+    }
 }

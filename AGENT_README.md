@@ -344,6 +344,11 @@ target.
   `playback-export` dependency. JVM lifecycle/repository tests and the API 35
   x86_64 connected Room-source test pass; queue updates, controls, position
   persistence, and invalid-audio UX remain later playback tasks.
+- Task 9.2 adds a Room-backed library controller and Compose library/book views.
+  Accepted EPUBs now project title, author, cover, ordered chapters, and
+  narration blocks into Room. Views map chapter/segment readiness, generation
+  progress and failures, available listening position, and private storage use;
+  player controls and position persistence remain later playback tasks.
 
 ## Repository layout
 

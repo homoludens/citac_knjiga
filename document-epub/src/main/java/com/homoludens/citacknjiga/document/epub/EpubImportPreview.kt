@@ -67,8 +67,24 @@ public class EpubImportPreviewService(
             val failure = published as EpubImportResult.Failed
             return EpubAcceptanceResult.Failed(failure.error, failure.error.displayMessage())
         }
-        return when (canonicalText.renderAndPersist(preview.document)) {
-            is EpubCanonicalTextResult.Published -> EpubAcceptanceResult.Published(published.source, preview)
+        return when (val canonical = canonicalText.renderAndPersist(preview.document)) {
+            is EpubCanonicalTextResult.Published -> {
+                runCatching {
+                    sourceRepository.recordAcceptedDocument(
+                        source = published.source,
+                        document = preview.document,
+                        canonicalChapterPaths = canonical.chapters.associate { it.chapterId to it.path.path },
+                    )
+                }.fold(
+                    onSuccess = { EpubAcceptanceResult.Published(published.source, preview) },
+                    onFailure = {
+                        EpubAcceptanceResult.Failed(
+                            EpubImportError.INDEX_WRITE_FAILED,
+                            "The accepted EPUB could not be recorded.",
+                        )
+                    },
+                )
+            }
             is EpubCanonicalTextResult.Failed -> EpubAcceptanceResult.Failed(
                 EpubImportError.PUBLICATION_FAILED,
                 "Canonical chapter text could not be published.",

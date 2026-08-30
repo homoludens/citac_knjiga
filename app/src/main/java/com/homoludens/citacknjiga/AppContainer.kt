@@ -1,6 +1,7 @@
 package com.homoludens.citacknjiga
 
 import android.content.Context
+import com.homoludens.citacknjiga.core.database.AudiobookDao
 import com.homoludens.citacknjiga.core.diagnostics.LocalDiagnostics
 import com.homoludens.citacknjiga.core.database.createAudiobookDao
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
@@ -44,6 +45,7 @@ public data class AppVariant(
 public class AppContainer(
     public val diagnostics: LocalDiagnostics,
     public val variant: AppVariant,
+    public val audiobookDao: AudiobookDao? = null,
     public val typedTextProofEngine: TypedTextProofEngine? = null,
     public val epubImportPreviewService: EpubImportPreviewService? = null,
     public val epubChapterProofService: EpubChapterProofService? = null,
@@ -70,6 +72,7 @@ public class AppContainer(
             return AppContainer(
                 diagnostics = LocalDiagnostics(),
                 variant = AppVariant.fromBuildConfig(),
+                audiobookDao = dao,
                 typedTextProofEngine = proofEngine,
                 epubImportPreviewService = EpubImportPreviewService(
                     sourceRepository = sourceRepository,

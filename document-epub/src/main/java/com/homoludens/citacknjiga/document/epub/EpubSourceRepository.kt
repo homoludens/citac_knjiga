@@ -84,6 +84,15 @@ public interface EpubProjectIndex {
     public fun findByFingerprint(fingerprint: String): ExistingEpubProject?
 
     public fun recordImportedSource(source: ImportedEpubSource)
+
+    public fun recordAcceptedDocument(
+        source: ImportedEpubSource,
+        document: EpubDocument,
+        coverPath: String?,
+        canonicalChapterPaths: Map<String, String>,
+    ) {
+        // Source-only indexes do not need to project the accepted document.
+    }
 }
 
 /** Imports the validated source artifact; document parsing consumes its private copy separately. */
@@ -97,6 +106,15 @@ public interface EpubSourceRepository {
     public fun publishStaged(source: StagedEpubSource): EpubImportResult
 
     public fun discardStaged(source: StagedEpubSource)
+
+    /** Completes the Room projection after the user accepts the parsed preview. */
+    public fun recordAcceptedDocument(
+        source: ImportedEpubSource,
+        document: EpubDocument,
+        canonicalChapterPaths: Map<String, String>,
+    ) {
+        // Preview-only implementations can keep their existing behavior.
+    }
 }
 
 /**
@@ -240,6 +258,22 @@ public class SafEpubSourceRepository(
             if (source.sourceFile.canonicalFile == expected) expected.delete()
         }
     }
+
+    override fun recordAcceptedDocument(
+        source: ImportedEpubSource,
+        document: EpubDocument,
+        canonicalChapterPaths: Map<String, String>,
+    ) {
+        val coverPath = document.cover?.let { cover ->
+            artifactStore.publish(
+                ownerId = "cover-${source.projectId}",
+                destination = storage.coverImage(source.projectId),
+                writer = { output -> output.write(cover.bytes) },
+                validator = { file -> require(file.length() == cover.bytes.size.toLong()) },
+            ).file.path
+        }
+        projectIndex.recordAcceptedDocument(source, document, coverPath, canonicalChapterPaths)
+    }
 }
 
 /** Room-backed source fingerprint index for the import boundary. */
@@ -271,5 +305,30 @@ public class RoomEpubProjectIndex(
                 updatedAt = now,
             ),
         )
+    }
+
+    override fun recordAcceptedDocument(
+        source: ImportedEpubSource,
+        document: EpubDocument,
+        coverPath: String?,
+        canonicalChapterPaths: Map<String, String>,
+    ) {
+        val now = clock()
+        val projection = document.toRoomProjection(source, now)
+        val current = dao.findProjectById(source.projectId)
+        dao.updateProject(
+            (current ?: projection.project).copy(
+                title = projection.project.title,
+                author = projection.project.author,
+                language = projection.project.language,
+                coverPath = coverPath,
+                status = BookProjectStatus.READY,
+                updatedAt = now,
+            ),
+        )
+        projection.chapters.forEach { chapter ->
+            dao.insertChapter(chapter.copy(canonicalMarkdownPath = canonicalChapterPaths[chapter.id]))
+        }
+        projection.narrationBlocks.forEach(dao::insertNarrationBlock)
     }
 }

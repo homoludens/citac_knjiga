@@ -18,6 +18,7 @@ public class MainActivity : ComponentActivity() {
         setContent {
             CitacKnjigaApp(
                 variant = container.variant,
+                audiobookDao = container.audiobookDao,
                 proofEngine = container.typedTextProofEngine,
                 epubImportPreviewService = container.epubImportPreviewService,
                 epubChapterProofService = container.epubChapterProofService,

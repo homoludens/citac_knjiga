@@ -150,14 +150,19 @@ public class EpubChapterProofServiceTest {
         override fun insertGenerationRun(run: GenerationRunEntity) { this.run = run }
         override fun insertAudioSegment(segment: AudioSegmentEntity) { this.segment = segment }
         override fun findAllProjects(): List<BookProjectEntity> = listOf(project)
+        override fun observeAllProjects(): Flow<List<BookProjectEntity>> = flowOf(listOf(project))
         override fun findProjectBySourceFingerprint(fingerprint: String): BookProjectEntity? = null
         override fun findProjectById(projectId: String): BookProjectEntity? = project.takeIf { it.id == projectId }
         override fun findAllChapters(): List<ChapterEntity> = listOf(chapter)
+        override fun observeAllChapters(): Flow<List<ChapterEntity>> = flowOf(listOf(chapter))
         override fun findChapterById(chapterId: String): ChapterEntity? = chapter.takeIf { it.id == chapterId }
         override fun findNarrationBlockById(blockId: String): NarrationBlockEntity? = null
         override fun findAllGenerationRuns(): List<GenerationRunEntity> = listOf(run)
         override fun findGenerationRunById(runId: String): GenerationRunEntity? = run.takeIf { it.id == runId }
         override fun findAllAudioSegments(): List<AudioSegmentEntity> = listOf(segment)
+        override fun observeAllAudioSegments(): Flow<List<AudioSegmentEntity>> = flowOf(listOf(segment))
+        override fun observeAllGenerationRuns(): Flow<List<GenerationRunEntity>> = flowOf(listOf(run))
+        override fun observeAllPlaybackPositions(): Flow<List<PlaybackPositionEntity>> = flowOf(emptyList())
         override fun observeReadyAudioSegments(projectId: String): Flow<List<AudioSegmentEntity>> = flowOf(emptyList())
         override fun findAudioSegmentById(segmentId: String): AudioSegmentEntity? = segment.takeIf { it.id == segmentId }
         override fun findActiveModelPackage(): ModelPackageEntity? = null
