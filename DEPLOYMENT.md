@@ -421,6 +421,62 @@ field. Reports and generated audio are intentionally not committed. Correctness
 parity remains task 4.9; this comparison adds no parity matrix or performance
 gate.
 
+## Android AAC/M4A benchmark (task 10.1)
+
+`AndroidAacBenchmarkRunner` is a separate, opt-in platform-codec harness. It
+does not load a model, require a model package, or change production playback
+or export behavior. `AacBenchmarkFixture` creates the same deterministic 24 kHz
+mono PCM16 input on every run: eight 0.5-second synthetic windows labelled for
+`s`, `z`, `š`, `ž`, `č`, `ć`, `đ`, and `lj/nj/dž`. The full four-second input and
+each independently bounded segment are encoded with Android `MediaCodec` and
+`MediaMuxer` as AAC-LC/M4A at 64, 80, and 96 kbps by default. The harness records
+codec availability/name, encode elapsed time, output size, MediaExtractor track
+duration, and positive gap/trim/drift at the eight segment boundaries. Scratch
+WAV/M4A files remain in app cache and are deleted before the JSON report is
+published; the host report and instrumentation log default to `/tmp`.
+
+The reproducible command is:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+DEVICE=emulator-5554 \
+OUTPUT=/tmp/citac-knjiga-android-aac-benchmark-report.json \
+scripts/run_android_aac_benchmark.sh
+```
+
+The script disables Wi-Fi/mobile data for the run, restores their prior state,
+and returns exit code 3 when no requested platform bitrate is available. Use
+`AAC_BITRATES_BPS=64000,80000,96000` to override the default list. This is a
+measurement harness only; it makes no bitrate, grouping, fallback, silence, or
+PCM cleanup decision for task 10.2.
+
+### Captured emulator run
+
+On 2026-08-30, the available API 35 Google x86_64 emulator (`sdk_gphone64_x86_64`,
+`emu64xa`) reported `c2.android.aac.encoder` available at all three rates. The
+fixture identity was `serbian-consonants-synthetic-v1`, 96,000 samples,
+4,000,000 microseconds, PCM SHA-256
+`ff31007a018fb9019096c2cc4a19dcfda9624e773e2a3566c7bb7750aea96649`, and WAV
+SHA-256 `2fb8f5e8e69b400a96459eae78bf9818e609e721f65a42e5be1a69ab5573068e`.
+
+| Requested bitrate | M4A size | Encoded duration | Encode time | Boundary gap | Boundary trim | Max drift |
+|---:|---:|---:|---:|---:|---:|---:|
+| 64 kbps | 35,123 B | 3.968 s | 1,026 ms | 0 us | 245,336 us | 30,667 us |
+| 80 kbps | 42,970 B | 3.968 s | 981 ms | 0 us | 245,336 us | 30,667 us |
+| 96 kbps | 50,855 B | 3.968 s | 984 ms | 0 us | 245,336 us | 30,667 us |
+
+Quality evidence decodes each full M4A, aligns decoded PCM to the WAV reference
+by maximum normalized correlation within +/-4,096 samples, and reports RMS
+ratio plus zero-crossing rate for each labelled window. The run aligned at
+2,048 samples and produced measurements for all eight windows. The report keeps
+manual quality status as `manual_listening_pending`: for natural Serbian
+speech, listen to matched WAV/M4A windows in randomized A/B order and record a
+1-5 score for consonant identity, sibilant sharpness, affricate attack, and
+boundary clicks. The synthetic fixture is useful for repeatable codec stress,
+but cannot establish phoneme intelligibility or substitute for a later natural
+Serbian speech evaluation. The emulator result is not a Poco F3 ARM64 result
+and does not select the final MVP bitrate.
+
 ## App-private storage layout (task 6.3)
 
 `core/storage/AppPrivateStorage` uses Android `filesDir` as the single private

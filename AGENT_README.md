@@ -234,6 +234,15 @@ target.
   The 2026-08-28 Poco F3 matrix completed CPU and XNNPACK runs at provider
   threads 1/2/4; results and report-integrity checks are recorded in
   `DEPLOYMENT.md`.
+- Task 10.1 now has a separate opt-in Android `MediaCodec`/`MediaMuxer`
+  AAC-LC/M4A benchmark that needs no model package. It uses one deterministic
+  24 kHz mono PCM16 synthetic Serbian-consonant fixture, tests 64/80/96 kbps,
+  measures availability, size, encode/track duration, independent-segment
+  boundary drift, and decoded WAV-relative RMS/zero-crossing metrics. The
+  available API 35 x86_64 emulator completed all three rates on
+  `c2.android.aac.encoder`; the measured run and its synthetic/natural-speech
+  limitations are recorded in `DEPLOYMENT.md`. No final bitrate or production
+  encoder policy was selected.
 - Task 6.1 defines the initial Room-owned project schema in `core`: books,
   chapters, narration blocks, audio segments, generation runs, model packages,
   playback positions, and export jobs. Enum values persist by stable name;
