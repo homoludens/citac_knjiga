@@ -523,6 +523,38 @@ abandoned temporary files are handled by the existing 24-hour stale-temporary
 reconciliation. Source documents, canonical text, Room state, and verified
 ready audio are not implicit cleanup targets.
 
+## Verified PCM-to-M4A publication (task 10.3)
+
+`AndroidMediaCodecAacEncoder` in `tts-onnx` accepts only a private, validated
+24 kHz mono PCM16 WAV, requests the regular platform AAC-LC encoder at nominal
+64 kbps, and writes MediaMuxer output below temporary storage. `AndroidM4aValidator`
+checks the M4A boxes, AAC-LC track, 24 kHz mono metadata, positive duration, and
+MediaExtractor readability. `AudioArtifactPublisher` then uses the existing
+atomic artifact store to checksum and publish the candidate before completing
+the Room `READY` provenance checkpoint.
+
+Replacement candidates use a unique ready-audio filename rather than replacing
+the path held by the current Room row. Therefore encode, validation, publication,
+or Room-checkpoint failure preserves the old verified file; staging PCM remains
+available for retry. When no ready artifact exists, AAC failure can select a
+validated private `.wav` fallback. Portable callers pass `portable = true`,
+which reports the actionable AAC failure and never selects that fallback.
+
+Focused and connected verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew :tts-onnx:testDebugUnitTest \
+  :tts-onnx:compileDebugAndroidTestKotlin \
+  :tts-onnx:connectedDebugAndroidTest \
+  :tts-onnx:lintDebug
+```
+
+The API 35 Google x86_64 emulator passed the real MediaCodec/M4A validation and
+fallback instrumentation tests. The Poco F3 ARM64 vendor AAC path remains
+unqualified; no generated audio artifact is committed.
+
 ## App-private storage layout (task 6.3)
 
 `core/storage/AppPrivateStorage` uses Android `filesDir` as the single private

@@ -56,8 +56,15 @@ public class AppPrivateStorage(filesDir: File) {
     public fun temporaryFile(ownerId: String, name: String): File =
         child(temporaryDirectory, ownerId, name)
 
-    public fun readySegmentAudio(projectId: String, chapterId: String, segmentId: String): File =
-        child(readyAudioDirectory, projectId, chapterId, "$segmentId.m4a")
+    public fun readySegmentAudio(
+        projectId: String,
+        chapterId: String,
+        segmentId: String,
+        fileName: String = "$segmentId.m4a",
+    ): File = child(readyAudioDirectory, projectId, chapterId, fileName)
+
+    public fun readySegmentWav(projectId: String, chapterId: String, segmentId: String): File =
+        child(readyAudioDirectory, projectId, chapterId, "$segmentId.wav")
 
     public fun readyChapterWav(projectId: String, chapterId: String): File =
         child(readyAudioDirectory, projectId, chapterId, "chapter.wav")

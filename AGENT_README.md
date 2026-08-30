@@ -251,6 +251,15 @@ target.
   Room `READY` checkpoint. The decision is provisional: the task-10.1 fixture is
   synthetic, manual natural-speech listening is pending, and API 35 x86_64
   emulator results do not qualify the Poco F3 ARM64 AAC path.
+- Task 10.3 adds reusable `AndroidMediaCodecAacEncoder` and
+  `AudioArtifactPublisher` components. They validate private 24 kHz mono PCM16
+  WAV input, encode nominal 64 kbps AAC-LC through MediaCodec/MediaMuxer, check
+  M4A structure plus Android MediaExtractor metadata, then publish and record
+  Room provenance. Replacement candidates use unique ready paths, preserving a
+  previous ready artifact and staging PCM through encode, validation,
+  publication, or Room failures. A segment without an existing artifact can
+  use a validated private WAV fallback. Real AAC output and fallback pass on
+  the API 35 x86_64 emulator; ARM64 vendor qualification remains open.
 - Task 6.1 defines the initial Room-owned project schema in `core`: books,
   chapters, narration blocks, audio segments, generation runs, model packages,
   playback positions, and export jobs. Enum values persist by stable name;

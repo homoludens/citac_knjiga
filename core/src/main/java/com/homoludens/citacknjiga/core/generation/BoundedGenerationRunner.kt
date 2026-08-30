@@ -12,6 +12,7 @@ import com.homoludens.citacknjiga.core.storage.PublishedArtifact
 import com.homoludens.citacknjiga.core.storage.StorageCapacityCheck
 import java.io.File
 import java.io.OutputStream
+import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -155,11 +156,7 @@ public class BoundedGenerationRunner(
                 failurePhase = GenerationFailurePhase.PUBLICATION
                 val published = artifactStore.publish(
                     ownerId = "generation-$runId-${claimed.segment.id}",
-                    destination = storage.readySegmentAudio(
-                        current.bookProjectId,
-                        claimed.segment.chapterId,
-                        claimed.segment.id,
-                    ),
+                    destination = publicationDestination(current, claimed.segment),
                     writer = audio.writer,
                     validator = audio.validator,
                 )
@@ -229,6 +226,24 @@ public class BoundedGenerationRunner(
         checkProvenance(run.inferenceSettingsHash == provenance.inferenceSettingsHash, "different inference settings")
         checkProvenance(run.audioProcessingVersion == provenance.audioProcessingVersion, "different audio-processing version")
         checkProvenance(audio.sampleRateHz == 24_000 && audio.channels == 1, "audio is not 24 kHz mono")
+    }
+
+    /** Never overwrite a file retained by a previous verified Room checkpoint. */
+    private fun publicationDestination(
+        run: GenerationRunEntity,
+        segment: AudioSegmentEntity,
+    ): File {
+        val preferred = storage.readySegmentAudio(run.bookProjectId, segment.chapterId, segment.id)
+        return if (segment.audioPath.isNullOrBlank() && !preferred.isFile) {
+            preferred
+        } else {
+            storage.readySegmentAudio(
+                run.bookProjectId,
+                segment.chapterId,
+                segment.id,
+                "${segment.id}-${UUID.randomUUID()}.m4a",
+            )
+        }
     }
 
     private fun checkProvenance(condition: Boolean, detail: String) {
