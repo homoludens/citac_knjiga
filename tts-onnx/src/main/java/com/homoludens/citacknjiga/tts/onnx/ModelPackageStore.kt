@@ -534,6 +534,9 @@ public class ModelPackageStore(
             ?: failManifest("Model artifact is not declared")
         val voiceArtifact = artifactById[manifest.getAsJsonObject("voice_style").get("artifact_id").asString]
             ?: failManifest("Voice artifact is not declared")
+        if (!modelArtifact.get("path").asString.endsWith(".onnx")) {
+            failManifest("The model role must reference an ONNX artifact")
+        }
         return InstalledModelPackage(
             packageId = packageId,
             packageVersion = packageVersion,
