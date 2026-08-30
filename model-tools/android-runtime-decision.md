@@ -50,9 +50,9 @@ gate.
 - The inspected AAR has SHA-256
   `e97540ca78fe36f6fe2013f82843414fb843b6c7681fb04644cba5e1406662dd` and
   Maven SHA-1 `22c4a984c9c6f86c188b4d5ae792527db4527889`. Record the AAR
-  SHA-256 in Gradle dependency verification when the Android project is
-  created, and keep dependency locking and checksum verification required for
-  release task 12.3.
+  SHA-256 is enforced by `gradle/verification-metadata.xml`; dependency locks
+  and the complete toolchain contract are checked by
+  `scripts/verify_toolchain.py`.
 - Keep the ONNX model and Dragana voice package outside the application APK
   and subject to the existing legal release gate. Selecting an MIT runtime
   does not clear the blocked model-weight rows or authorize their

@@ -3,5 +3,8 @@ name = "dragana-deployable-files"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
-dependencies = []
+requires-python = "==3.11.14"
+dependencies = [
+    "kokoro @ git+https://github.com/semidark/kokoro.git@b96fef95e6a746495f92443fac7c688f90fc57fc",
+    "soundfile==0.14.0",
+]

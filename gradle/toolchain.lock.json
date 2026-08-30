@@ -1,0 +1,71 @@
+{
+  "schema": "citac-knjiga-toolchain-lock",
+  "version": 1,
+  "gradle": {
+    "version": "8.10.2",
+    "distribution_url": "https://services.gradle.org/distributions/gradle-8.10.2-bin.zip",
+    "sha256": "31c55713e40233a8303827ceb42ca48a47267a0ad4bab9177123121e71524c26"
+  },
+  "android": {
+    "min_sdk": "30",
+    "compile_sdk": "35",
+    "target_sdk": "35",
+    "build_tools": "35.0.0",
+    "platform_tools": "37.0.1",
+    "cmake": "3.22.1",
+    "ndk": "26.1.10909125",
+    "abis": ["x86_64", "arm64-v8a"]
+  },
+  "jdk": {
+    "distribution": "temurin",
+    "version": "21.0.7",
+    "build": "21.0.7+6"
+  },
+  "python": {
+    "version": "3.11.14",
+    "uv": "0.10.12",
+    "espeak_ng": "1.52.0"
+  },
+  "model_tools": {
+    "kokoro_commit": "b96fef95e6a746495f92443fac7c688f90fc57fc",
+    "kokoro_version": "0.9.4",
+    "kokoro_sr_commit": "ca5590d9576f63b0763e51a73de0596d47f05425",
+    "onnx": "1.22.0",
+    "onnxruntime": "1.29.0",
+    "onnxscript": "0.7.1",
+    "torch": "2.13.0",
+    "soundfile": "0.14.0",
+    "jsonschema": "4.26.0",
+    "pytest": "8.4.2",
+    "pyyaml": "6.0.3"
+  },
+  "android_dependencies": {
+    "agp": "8.8.2",
+    "kotlin": "2.1.10",
+    "jvm": "21",
+    "minSdk": "30",
+    "compileSdk": "35",
+    "targetSdk": "35",
+    "buildTools": "35.0.0",
+    "platformTools": "37.0.1",
+    "cmake": "3.22.1",
+    "ndk": "26.1.10909125",
+    "onnxruntime": "1.29.0",
+    "composeBom": "2025.02.00",
+    "activityCompose": "1.10.1",
+    "navigationCompose": "2.8.7",
+    "junit": "4.13.2",
+    "gson": "2.10.1",
+    "androidxTestCore": "1.6.1",
+    "androidxTestRunner": "1.6.2",
+    "coroutines": "1.7.3",
+    "room": "2.7.0",
+    "work": "2.10.1",
+    "media3": "1.5.1"
+  },
+  "artifacts": {
+    "onnxruntime_android_aar_sha256": "e97540ca78fe36f6fe2013f82843414fb843b6c7681fb04644cba5e1406662dd",
+    "espeak_ng_commit": "4870adfa25b1a32b4361592f1be8a40337c58d6c",
+    "espeak_ng_library_sha256": "6843c8e0afc47cd7c61dfe9487bd6da9da4ae48cbf09363b030913f5099f0b5e"
+  }
+}

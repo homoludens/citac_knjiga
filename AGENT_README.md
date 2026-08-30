@@ -502,6 +502,17 @@ target.
   is `scripts/run_android_instrumentation.sh`; it requires API 35 (default
   `emulator-5554`) and runs without the unavailable production model package.
 
+- Task 12.3 adds `gradle/toolchain.lock.json` as the checked-in toolchain
+  contract. Gradle 8.10.2 uses its distribution SHA-256, strict dependency
+  verification metadata, and per-module dependency lockfiles. The version
+  catalog is the Android dependency source of truth; the lock contract checks
+  its AGP/Kotlin/Compose/AndroidX/ONNX/native tool versions. Python 3.11.14,
+  uv 0.10.12, exact model-tool dependencies, the pinned Kokoro/eSpeak-NG
+  commits, Android API 35/build-tools 35.0.0, CMake 3.22.1, NDK 26.1.10909125,
+  JDK Temurin 21.0.7, and the ONNX Runtime Android AAR SHA-256 are verified by
+  `scripts/verify_toolchain.py`. Generated caches, model payloads, and audio
+  remain excluded; unavailable required tools fail verification explicitly.
+
 ## Repository layout
 
 | Path | Purpose |

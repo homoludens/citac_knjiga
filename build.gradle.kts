@@ -10,6 +10,12 @@ plugins {
     alias(libs.plugins.kotlin.kapt) apply false
 }
 
+allprojects {
+    dependencyLocking {
+        lockAllConfigurations()
+    }
+}
+
 tasks.register("writeResolvedDependencyInventory") {
     description = "Writes the resolved runtime and test dependency graph for the license audit."
     group = "verification"

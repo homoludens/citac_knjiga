@@ -15,6 +15,14 @@ concurrency:
 
 env:
   KOKORO_SR_COMMIT: ca5590d9576f63b0763e51a73de0596d47f05425
+  TOOLCHAIN_PYTHON: '3.11.14'
+  TOOLCHAIN_UV: '0.10.12'
+  TOOLCHAIN_ESPEAK: '1.52.0'
+  TOOLCHAIN_JAVA: '21.0.7'
+  TOOLCHAIN_ANDROID_API: '35'
+  TOOLCHAIN_BUILD_TOOLS: '35.0.0'
+  TOOLCHAIN_CMAKE: '3.22.1'
+  TOOLCHAIN_NDK: '26.1.10909125'
 
 jobs:
   formatting:
@@ -37,16 +45,18 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: ${{ env.TOOLCHAIN_PYTHON }}
       - name: Set up uv
         uses: astral-sh/setup-uv@v6
         with:
+          version: ${{ env.TOOLCHAIN_UV }}
           enable-cache: true
           cache-dependency-glob: model-tools/uv.lock
       - name: Install phonemizer
         run: |
           sudo apt-get update
           sudo apt-get install --yes espeak-ng
+          espeak-ng --version | grep -F "${{ env.TOOLCHAIN_ESPEAK }}"
       - name: Check out pinned kokoro_sr source
         run: |
           source_root="$RUNNER_TEMP/kokoro-serbian"
@@ -57,7 +67,9 @@ jobs:
           echo "KOKORO_SR_ROOT=$source_root/src" >> "$GITHUB_ENV"
       - name: Install locked model-tool test dependencies
         working-directory: model-tools
-        run: uv sync --locked --only-group dev
+        run: uv sync --locked --python "${{ env.TOOLCHAIN_PYTHON }}"
+      - name: Verify locked model toolchain
+        run: python scripts/verify_toolchain.py --scope model
       - name: Run golden preprocessing tests
         run: |
           model-tools/.venv/bin/pytest \
@@ -79,7 +91,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: ${{ env.TOOLCHAIN_JAVA }}
           cache: gradle
           cache-dependency-path: |
             **/*.gradle*
@@ -89,18 +101,21 @@ jobs:
         uses: android-actions/setup-android@v3
       - name: Install declared Android toolchain
         run: |
-          sdkmanager "platform-tools" "platforms;android-35" \
-            "build-tools;35.0.0" "cmake;3.22.1" "ndk;26.1.10909125"
+          sdkmanager "platform-tools" "platforms;android-${TOOLCHAIN_ANDROID_API}" \
+            "build-tools;${TOOLCHAIN_BUILD_TOOLS}" "cmake;${TOOLCHAIN_CMAKE}" \
+            "ndk;${TOOLCHAIN_NDK}"
+      - name: Verify locked Android toolchain
+        run: python3 scripts/verify_toolchain.py --scope android
       - name: Run JVM tests
-        run: ./gradlew test --no-daemon --max-workers=2 --console=plain
+        run: ./gradlew test --no-daemon --max-workers=2 --console=plain --dependency-verification=strict
       - name: Run static analysis and Android lint
         run: |
           ./gradlew check \
             :app:lintStandardDebug :app:lintFdroidDebug \
             :core:lintDebug :document-epub:lintDebug \
             :tts-onnx:lintDebug :playback-export:lintDebug \
-            --no-daemon --max-workers=2 --console=plain
+            --no-daemon --max-workers=2 --console=plain --dependency-verification=strict
       - name: Assemble standard and F-Droid debug APKs
         run: |
           ./gradlew :app:assembleStandardDebug :app:assembleFdroidDebug \
-            --no-daemon --max-workers=2 --console=plain
+            --no-daemon --max-workers=2 --console=plain --dependency-verification=strict

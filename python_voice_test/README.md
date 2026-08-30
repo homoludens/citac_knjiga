@@ -5,7 +5,7 @@ either Latin or Cyrillic and writes a 24 kHz WAV file.
 
 ## Install once
 
-Use Python 3.11 (or another version supported by the pinned Kokoro package),
+Use Python 3.11.14,
 then install eSpeak NG and the Python packages:
 
 ```bash

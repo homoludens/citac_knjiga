@@ -125,7 +125,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 
 - [x] 12.1 Configure CI for formatting, static analysis, JVM tests, Android lint, golden preprocessing tests, model-package validation, and debug APK assembly. → `.github/workflows/ci.yml`; no model payload or emulator orchestration required.
 - [x] 12.2 Add emulator instrumentation tests for Room migrations, SAF fixtures, generation recovery, Media3 position restore, and export failure paths. -> `scripts/run_android_instrumentation.sh`; API 35 emulator coverage passes with deterministic fixtures and no production model package.
-- [ ] 12.3 Pin Gradle, Android SDK/build-tools, NDK if retained, JDK, Python, ONNX, and native dependency versions with checksum or lock verification.
+- [x] 12.3 Pin Gradle, Android SDK/build-tools, NDK if retained, JDK, Python, ONNX, and native dependency versions with checksum or lock verification. -> `gradle/toolchain.lock.json`, Gradle dependency lockfiles/verification metadata, exact `uv.lock`/Python pins, and `scripts/verify_toolchain.py`; limitations and commands are recorded in `DEPLOYMENT.md`.
 - [ ] 12.4 Produce source-build instructions for native/runtime artifacts and ensure no undeclared prebuilt binary is required by the F-Droid flavor.
 - [ ] 12.5 Add an F-Droid-oriented build flavor and run scanner/build checks in a clean reproducible environment.
 - [ ] 12.6 Generate SBOM, dependency notices, model attribution, privacy statement, threat model, benchmark report, and model-package compatibility documentation.

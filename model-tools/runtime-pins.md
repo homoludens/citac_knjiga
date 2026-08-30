@@ -69,6 +69,12 @@ this machine on 2026-08-26.
   (Implication for Android: phonemization is eSpeak-NG-backed — this is the
   key input to task 3.6's pure-Kotlin-vs-native decision.)
 
+The complete build/runtime version contract is `gradle/toolchain.lock.json`.
+It pins Python 3.11.14, uv 0.10.12, ONNX 1.22.0, ONNX Runtime 1.29.0,
+ONNX Script 0.7.1, Torch 2.13.0, SoundFile 0.14.0, and the exact eSpeak-NG
+version/source commit. `scripts/verify_toolchain.py` checks these values and
+fails when the required local executable or lock entry is missing.
+
 ## 4. Voice bundle (model + voice tensors)
 
 - **Bundle directory (this repo):** `kokoro_sr_dragana_voice/`

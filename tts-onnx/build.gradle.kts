@@ -7,12 +7,12 @@ android {
     namespace = "com.homoludens.citacknjiga.tts.onnx"
     compileSdk = libs.versions.compileSdk.get().toInt()
     buildToolsVersion = libs.versions.buildTools.get()
-    ndkVersion = "26.1.10909125"
+    ndkVersion = libs.versions.ndk.get()
 
     externalNativeBuild {
         cmake {
             path = file("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
+            version = libs.versions.cmake.get()
         }
     }
 

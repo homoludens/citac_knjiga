@@ -1678,3 +1678,77 @@ Fixtures and generated files are private temporary test data and are removed
 by the tests; no model package, audio, or report artifact is committed. The
 app command intentionally excludes the existing typed-text proof because the
 verified production model package is not available in the repository.
+
+## Reproducible toolchain locks (task 12.3)
+
+`gradle/toolchain.lock.json` is the checked-in contract for external build and
+runtime tools. The Android dependency versions remain centralized in
+`gradle/libs.versions.toml`; the lock contract checks that catalog, while Gradle
+also enforces exact resolved versions through the five module `gradle.lockfile`
+files and `settings-gradle.lockfile`. `gradle.properties` enables strict Gradle dependency verification. The
+Gradle 8.10.2 wrapper verifies its distribution SHA-256, and
+`gradle/verification-metadata.xml` verifies all resolved artifacts, including the
+ONNX Runtime Android 1.29.0 AAR.
+
+The desktop environment is exact Python 3.11.14 and uv 0.10.12. `uv.lock`
+contains hashes for all registry artifacts and the Kokoro git revision. Direct
+ONNX, ONNX Runtime, ONNX Script, Torch, SoundFile, and test dependencies are
+exactly pinned in `model-tools/pyproject.toml`; `model-tools/.python-version`
+prevents interpreter drift. eSpeak-NG 1.52.0 and its Android source commit,
+CMake/NDK versions, data closure checksums, and observed native-library checksum
+are recorded in `model-tools/native/espeak-data-manifest-v1.json`.
+
+Verify all static locks and locally installed tools with the exact environment:
+
+```sh
+uv python install 3.11.14
+(cd model-tools && uv sync --locked --python 3.11.14)
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  model-tools/.venv/bin/python scripts/verify_toolchain.py --scope all
+```
+
+The verifier checks wrapper/catalog/lockfile consistency, strict dependency
+verification, Python/uv/eSpeak versions, JDK Temurin 21.0.7, installed Android
+platform 35, build-tools 35.0.0, platform-tools 37.0.1, CMake 3.22.1, NDK
+26.1.10909125, the eSpeak-NG git pin, and the ONNX Runtime AAR checksum. It
+exits non-zero with the missing or mismatched requirement rather than selecting
+latest. It does not inspect model bytes, generated audio, or build caches.
+
+The model lock and declaration checks are:
+
+```sh
+(cd model-tools && uv lock --check && uv sync --locked --python 3.11.14)
+model-tools/.venv/bin/python scripts/verify_toolchain.py --scope model
+model-tools/.venv/bin/python model-tools/scripts/validate_model_package_manifest.py
+```
+
+The Android wrapper/toolchain, JVM tests, Android-test compilation, lint, and
+standard/F-Droid debug/release assembly checks are:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  python3 scripts/verify_toolchain.py --scope android
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew test --no-daemon --max-workers=1 --console=plain --dependency-verification=strict
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew \
+    :app:compileStandardDebugAndroidTestKotlin :app:compileFdroidDebugAndroidTestKotlin \
+    :core:compileDebugAndroidTestKotlin :document-epub:compileDebugAndroidTestKotlin \
+    :tts-onnx:compileDebugAndroidTestKotlin :playback-export:compileDebugAndroidTestKotlin \
+    :app:lintStandardDebug :app:lintFdroidDebug :core:lintDebug \
+    :document-epub:lintDebug :tts-onnx:lintDebug :playback-export:lintDebug \
+    :app:assembleStandardDebug :app:assembleStandardRelease \
+    :app:assembleFdroidDebug :app:assembleFdroidRelease \
+    --no-daemon --max-workers=1 --console=plain --dependency-verification=strict
+```
+
+The Android CI job installs the same API/build-tools/CMake/NDK revisions and
+runs the Android scope verifier before its Gradle checks. The SDK manager and
+CI action channels are not treated as application dependencies; the installed
+package revisions are checked after setup. Physical ARM64 qualification and
+source-build/release-signing work remain separate tasks and are not claimed by
+12.3.
