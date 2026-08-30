@@ -19,6 +19,17 @@ public interface AudiobookDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     public fun insertNarrationBlock(block: NarrationBlockEntity)
 
+    @Transaction
+    public fun insertDocument(
+        project: BookProjectEntity,
+        chapters: List<ChapterEntity>,
+        blocks: List<NarrationBlockEntity>,
+    ) {
+        insertProject(project)
+        chapters.forEach(::insertChapter)
+        blocks.forEach(::insertNarrationBlock)
+    }
+
     @Insert
     public fun insertModelPackage(modelPackage: ModelPackageEntity)
 

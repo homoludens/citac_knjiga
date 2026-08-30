@@ -30,6 +30,7 @@ public class AppPrivateStorageTest {
         val storage = AppPrivateStorage(root)
 
         assertEquals(File(root, "sources/book-1/source.epub"), storage.sourceDocument("book-1"))
+        assertEquals(File(root, "sources/book-1/source.pdf"), storage.sourcePdf("book-1"))
         assertEquals(
             File(root, "canonical-text/book-1/chapter-2.md"),
             storage.canonicalChapterText("book-1", "chapter-2"),

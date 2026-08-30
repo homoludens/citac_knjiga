@@ -1,0 +1,132 @@
+{
+  "schema": "citac-knjiga-pdf-qualification-v1",
+  "qualification": "no-pass",
+  "selected_candidate": null,
+  "production_pdf_enabled": false,
+  "fixtures": {
+    "source": "pdf-qualification/fixtures/fixture_manifest.json",
+    "loaded_locally": true,
+    "count": 13,
+    "sha256": {
+      "latin-unicode": "e522f332b7663517ab0614d8114ae5b7fda50aaccd900790ef4fe6913ffae543",
+      "cyrillic-unicode": "b0dd42572575b141717516b30c8228ad5b2005dc43df388a0650a1d8b63ed2fe",
+      "soft-wrapping": "ecf6e48ba524dc024c0b847fa610d66d1268d0ef08a7c18a63acd2a1ee958f18",
+      "one-column": "d8e3599aa7e2d7aa1c0206488cd70a12edffed8bba778d4bd39f94a36f405c54",
+      "separated-columns": "dd8dc3a416f75c7de5d9470d64ec089b977572075db44930d04bd3f7656a57c8",
+      "overlapping-columns": "07f83e2d800d85e22d38eacdea0f3e7ea457dbf90175a274ee01bfbcaf0459e1",
+      "empty-page": "f2f92721c8a56105296e2f269545754c3c496e21bb4d982ffa4edee231e573e3",
+      "image-only-page": "395366d5c7a427311fa165b938c68a6491460e8a04ab77720fd0f1b274c33d6f",
+      "repeated-decoration": "e106b24b8d9a4401d5bc55dd51d74a10c9d07b2b3122f71574eb595b700b1062",
+      "protected": "707ee3719261bdeea66ab5682693d1080130e0ad33cacec8250238069d72aa72",
+      "malformed-truncated": "9a1753deb4ff002f911e12277b906a40bd6fb7edbd1d78c5179651507915d242",
+      "unsupported-encoding": "191a527bedd6d609c6765c98d55fc508ca2bcd57586acbfc85cedfff052fc229",
+      "external-reference": "48b0f3d23a93f23425525920132de4be78da8aa1fa3fad8463e15db24ec899eb"
+    }
+  },
+  "matrix": {
+    "androidx-pdf": {
+      "30": {
+        "status": "failed",
+        "reason": "Android API image unavailable in this checkout",
+        "fixture_count": 13,
+        "external_resources_opened": false,
+        "cancellation_checked": true,
+        "deadline_checked": true
+      },
+      "35": {
+        "status": "failed",
+        "reason": "no approved text-and-geometry adapter is wired into the disposable consumer",
+        "fixture_count": 13,
+        "external_resources_opened": false,
+        "cancellation_checked": true,
+        "deadline_checked": true
+      },
+      "36": {
+        "status": "failed",
+        "reason": "Android API image unavailable in this checkout",
+        "fixture_count": 13,
+        "external_resources_opened": false,
+        "cancellation_checked": true,
+        "deadline_checked": true
+      }
+    },
+    "pdfbox-android": {
+      "30": {
+        "status": "failed",
+        "reason": "Android API image unavailable in this checkout",
+        "fixture_count": 13,
+        "external_resources_opened": false,
+        "cancellation_checked": true,
+        "deadline_checked": true
+      },
+      "35": {
+        "status": "failed",
+        "reason": "no approved text-and-geometry adapter is wired into the disposable consumer",
+        "fixture_count": 13,
+        "external_resources_opened": false,
+        "cancellation_checked": true,
+        "deadline_checked": true
+      },
+      "36": {
+        "status": "failed",
+        "reason": "Android API image unavailable in this checkout",
+        "fixture_count": 13,
+        "external_resources_opened": false,
+        "cancellation_checked": true,
+        "deadline_checked": true
+      }
+    },
+    "platform-pdf-renderer": {
+      "30": {
+        "status": "failed",
+        "reason": "Android API image unavailable in this checkout",
+        "fixture_count": 13,
+        "external_resources_opened": false,
+        "cancellation_checked": true,
+        "deadline_checked": true
+      },
+      "35": {
+        "status": "failed",
+        "reason": "no approved text-and-geometry adapter is wired into the disposable consumer",
+        "fixture_count": 13,
+        "external_resources_opened": false,
+        "cancellation_checked": true,
+        "deadline_checked": true
+      },
+      "36": {
+        "status": "failed",
+        "reason": "Android API image unavailable in this checkout",
+        "fixture_count": 13,
+        "external_resources_opened": false,
+        "cancellation_checked": true,
+        "deadline_checked": true
+      }
+    }
+  },
+  "gates": {
+    "text_fidelity_and_geometry": false,
+    "failure_closed": false,
+    "cancellation_and_deadline": false,
+    "external_resource_isolation": true,
+    "source_license_closure": false,
+    "offline_reproducibility": true,
+    "api_30": "unavailable",
+    "api_35": "executed-failed-no-adapter",
+    "api_36": "unavailable"
+  },
+  "measurements": {
+    "embedded_external_resource_behavior": "not-applicable-no-adapter",
+    "memory_time": "not-measured-no-qualified-candidate",
+    "apk_delta_bytes": 0,
+    "integration_cost": "not-applicable-no-selected-candidate",
+    "maintenance": "not-applicable-no-selected-candidate",
+    "dependency_locking": "no-production-dependency",
+    "verification_metadata": "no-production-dependency",
+    "fdroid_source_build": "no-production-dependency"
+  },
+  "notes": [
+    "The platform renderer has no text or block geometry API.",
+    "Candidate dependencies are intentionally absent from the production Gradle graph.",
+    "A no-pass result keeps the PDF picker and parser disabled."
+  ]
+}

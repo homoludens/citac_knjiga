@@ -665,3 +665,18 @@ target.
 - The Android wrapper and dependency checksums live under `gradle/`; local SDK
   discovery uses `ANDROID_HOME` or `ANDROID_SDK_ROOT` rather than committing a
   machine-specific `local.properties`.
+
+## PDF page import change
+
+- OpenSpec change `add-text-pdf-page-import` adds the format-neutral document IR,
+  exact immutable PDF limits, private SAF staging, cleanup-safe preview
+  boundaries, deterministic geometry diagnostics, and existing Room/Markdown
+  projection helpers under `core/` and `document-pdf/`.
+- The disposable `pdf-qualification/` consumer records a binary `no-pass`
+  result. API 35 has a negative gate record; API 30 and API 36 images are not
+  available. No PDF parser dependency, picker, OCR surface, or network/resource
+  resolver is wired into production until a candidate passes every gate.
+- PDF preview safety now derives displayed text from geometry-ordered blocks,
+  preserves adapter diagnostics and warnings, reports deadline expiry as a
+  bounded timeout, and validates the projected document against its preview
+  before acceptance.

@@ -2029,3 +2029,32 @@ the source/toolchain/package/legal/parity/benchmark input hashes, exact SBOM
 coordinates, notice hashes, output set, and redaction rules. It does not sign,
 publish, or approve an application or model package; those are tasks 12.7 and
 12.8.
+
+## PDF parser qualification and disabled production gate
+
+The PDF change intentionally keeps production PDF import unavailable until a
+candidate passes the complete qualification matrix. The disposable consumer
+has no PDF dependency and generates local fixture inputs without network access.
+Run:
+
+```sh
+python3 pdf-qualification/qualify.py
+python3 scripts/check_pdf_qualification.py
+```
+
+The checked-in report is `pdf-qualification/qualification-report.json`. It is a
+binary `no-pass`: API 35 is recorded as an executed negative check because no
+approved text-and-geometry adapter is wired; API 30 and API 36 are unavailable
+images in this environment. `document-pdf` contains only the fail-closed
+adapter and safety contracts, is not an app dependency, and adds no parser
+coordinate, lock entry, checksum, notice, picker, OCR, or network behavior.
+
+Focused PDF checks:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew :core:testDebugUnitTest :document-pdf:testDebugUnitTest \
+  :document-pdf:compileDebugAndroidTestKotlin \
+  :document-pdf:lintDebug :document-pdf:assembleRelease
+```

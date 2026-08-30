@@ -45,6 +45,11 @@ tasks.register("writeResolvedDependencyInventory") {
                 "releaseUnitTestRuntimeClasspath",
                 "debugAndroidTestRuntimeClasspath",
             ),
+            ":document-pdf" to setOf(
+                "releaseRuntimeClasspath",
+                "releaseUnitTestRuntimeClasspath",
+                "debugAndroidTestRuntimeClasspath",
+            ),
             ":playback-export" to setOf(
                 "releaseRuntimeClasspath",
                 "releaseUnitTestRuntimeClasspath",

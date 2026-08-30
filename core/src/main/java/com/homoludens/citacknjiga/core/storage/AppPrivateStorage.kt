@@ -42,6 +42,9 @@ public class AppPrivateStorage(filesDir: File) {
     public fun sourceDocument(projectId: String): File =
         child(sourceDocumentsDirectory, projectId, "source.epub")
 
+    public fun sourcePdf(projectId: String): File =
+        child(sourceDocumentsDirectory, projectId, "source.pdf")
+
     public fun canonicalChapterText(projectId: String, chapterId: String): File =
         child(canonicalTextDirectory, projectId, "$chapterId.md")
 
