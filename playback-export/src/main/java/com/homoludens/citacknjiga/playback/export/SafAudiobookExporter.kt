@@ -1,0 +1,272 @@
+package com.homoludens.citacknjiga.playback.export
+
+import android.net.Uri
+import com.homoludens.citacknjiga.core.database.AudioSegmentEntity
+import com.homoludens.citacknjiga.core.database.AudioSegmentStatus
+import com.homoludens.citacknjiga.core.database.BookProjectEntity
+import com.homoludens.citacknjiga.core.database.ChapterEntity
+import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
+import com.homoludens.citacknjiga.core.storage.AtomicArtifactStore
+import java.io.File
+
+public val DEFAULT_ATTRIBUTION_REFS: List<ExportAttributionReference> = listOf(
+    ExportAttributionReference(
+        id = "dragana-dataset",
+        subject = "Serbian Common Voice Style TTS Dataset; speaker Dragana; creator Darko Milosevic",
+        sourceUrl = "https://huggingface.co/datasets/daremc86/serbian_common_voice",
+        licenseId = "cc-by-4.0",
+        required = true,
+    ),
+    ExportAttributionReference(
+        id = "juzne-vesti-corpus",
+        subject = "JuzneVesti-SR corpus; Peter Rupnik and Nikola Ljubesic; CLARIN.SI",
+        sourceUrl = "https://www.clarin.si/repository/xmlui/handle/11356/1679",
+        licenseId = "cc-by-sa-4.0",
+        required = true,
+    ),
+)
+
+public data class ExportChapterInput(
+    public val chapter: ChapterEntity,
+    public val segments: List<AudioSegmentEntity>,
+)
+
+public data class ExportRequest(
+    public val project: BookProjectEntity,
+    public val chapters: List<ExportChapterInput>,
+    public val attributionRefs: List<ExportAttributionReference> = DEFAULT_ATTRIBUTION_REFS,
+)
+
+public data class PlannedExportFile(
+    public val name: String,
+    public val baseName: String,
+    public val mimeType: String,
+    public val sourceFiles: List<File>,
+    public val sourceSegments: List<AudioSegmentEntity> = emptyList(),
+)
+
+public class ExportPlan internal constructor(
+    public val request: ExportRequest,
+    public val files: List<PlannedExportFile>,
+    public val manifest: ExportManifest,
+    public val collisions: List<String>,
+    public val overwriteExisting: Boolean,
+    internal val destination: SafDocumentTree,
+    private val exporter: SafAudiobookExporter,
+) {
+    public val hasCollisions: Boolean get() = collisions.isNotEmpty()
+
+    /** Rebuilds the same plan with explicit replacement enabled. */
+    public fun withOverwriteConfirmation(): ExportPlan = exporter.plan(destination, request, overwriteExisting = true)
+}
+
+public data class ExportedAudiobook(
+    public val manifestUri: Uri,
+    public val writtenNames: List<String>,
+)
+
+public class IncompleteExportException(
+    public val missingChapterIds: List<String>,
+    public val missingSegmentIds: List<String>,
+) : IllegalArgumentException(
+    "Export requires every selected chapter and segment to be ready; " +
+        "missing chapters=${missingChapterIds.joinToString()} segments=${missingSegmentIds.joinToString()}",
+)
+
+/** Writes verified private artifacts to a user-selected SAF tree without assuming paths or rename. */
+public class SafAudiobookExporter(
+    private val storage: AppPrivateStorage,
+    private val artifactStore: AtomicArtifactStore = AtomicArtifactStore(storage),
+    private val sourceValidator: (File, AudioSegmentEntity) -> Unit = { file, segment ->
+        require(file.isFile) { "Verified audio file is missing" }
+        require(segment.sizeBytes != null && file.length() == segment.sizeBytes) { "Verified audio size does not match Room" }
+        require(!segment.audioSha256.isNullOrBlank() && artifactStore.sha256(file) == segment.audioSha256) {
+            "Verified audio checksum does not match Room"
+        }
+    },
+) {
+    public fun plan(
+        destination: SafDocumentTree,
+        request: ExportRequest,
+        overwriteExisting: Boolean = false,
+    ): ExportPlan {
+        require(request.chapters.isNotEmpty()) { "At least one chapter must be selected" }
+        val chapters = request.chapters.sortedBy { it.chapter.ordinal }.map { input ->
+            input.copy(chapter = input.chapter.copy(title = input.chapter.title.ifBlank { "Chapter ${input.chapter.ordinal + 1}" }))
+        }
+        val exportRequest = request.copy(
+            project = request.project.copy(
+                title = request.project.title.ifBlank { "Untitled audiobook" },
+                author = request.project.author?.takeIf(String::isNotBlank),
+                language = request.project.language.ifBlank { "sr" },
+                coverPath = request.project.coverPath?.takeIf(String::isNotBlank),
+            ),
+            chapters = chapters,
+        )
+        val expectedOrdinals = chapters.indices.toList()
+        require(chapters.map { it.chapter.ordinal } == expectedOrdinals) {
+            "Exported chapter ordinals must be contiguous and start at zero"
+        }
+        val existing = destination.listChildren()
+            .associateBy { it.name.lowercase() }
+        val occupied = existing.keys.toMutableSet()
+        val collisions = mutableListOf<String>()
+        val files = mutableListOf<PlannedExportFile>()
+        chapters.forEach { input ->
+            val segments = input.segments.sortedWith(compareBy<AudioSegmentEntity> { it.sequence }.thenBy { it.id })
+            val missing = segments.filter { it.status != AudioSegmentStatus.READY || it.audioPath.isNullOrBlank() }
+            if (missing.isNotEmpty()) {
+                throw IncompleteExportException(listOf(input.chapter.id), missing.map { it.id })
+            }
+            if (segments.isEmpty()) throw IncompleteExportException(listOf(input.chapter.id), emptyList())
+            segments.forEach { segment ->
+                val source = verifiedSource(segment)
+                val extension = source.extension.lowercase().ifEmpty { "bin" }
+                require(extension in setOf("m4a", "mp4", "wav")) { "Unsupported ready audio extension" }
+                val baseName = ExportFileNaming.chapterFileName(
+                    input.chapter.ordinal,
+                    input.chapter.title,
+                    segment.sequence,
+                    extension,
+                )
+                val name = if (overwriteExisting) baseName else {
+                    val safe = ExportFileNaming.collisionSafeName(baseName, occupied)
+                    if (safe != baseName) collisions += baseName
+                    safe
+                }
+                if (overwriteExisting && baseName.lowercase() in occupied) collisions += baseName
+                occupied += name.lowercase()
+                files += PlannedExportFile(
+                    name = name,
+                    baseName = baseName,
+                    mimeType = if (extension == "wav") "audio/wav" else "audio/mp4",
+                    sourceFiles = listOf(source),
+                    sourceSegments = listOf(segment),
+                )
+            }
+        }
+        exportRequest.project.coverPath?.let { coverPath ->
+            val cover = verifiedCover(exportRequest.project.id, coverPath)
+            val baseName = "cover.${coverExtension(cover)}"
+            val name = if (overwriteExisting) baseName else {
+                val safe = ExportFileNaming.collisionSafeName(baseName, occupied)
+                if (safe != baseName) collisions += baseName
+                safe
+            }
+            if (overwriteExisting && baseName.lowercase() in occupied) collisions += baseName
+            occupied += name.lowercase()
+            files += PlannedExportFile(name, baseName, coverMime(cover), listOf(cover))
+        }
+        val manifestBaseName = "manifest.json"
+        val manifestName = if (overwriteExisting) manifestBaseName else {
+            val safe = ExportFileNaming.collisionSafeName(manifestBaseName, occupied)
+            if (safe != manifestBaseName) collisions += manifestBaseName
+            safe
+        }
+        if (overwriteExisting && manifestBaseName.lowercase() in occupied) collisions += manifestBaseName
+        val manifest = ExportManifestFactory.fromRoom(
+            project = exportRequest.project,
+            chapters = chapters.map { it.chapter },
+            filesByChapter = chapters.associate { input ->
+                input.chapter.id to input.segments.sortedWith(compareBy<AudioSegmentEntity> { it.sequence }.thenBy { it.id })
+                    .map { segment ->
+                        val planned = files.first { it.sourceSegments.singleOrNull()?.id == segment.id }
+                        ExportManifestFile.fromReadySegment(segment, planned.name, planned.mimeType)
+                    }
+            },
+            attributionRefs = exportRequest.attributionRefs.ifEmpty { DEFAULT_ATTRIBUTION_REFS },
+        )
+        ExportManifestValidator.validate(manifest)
+        val finalFiles = files + PlannedExportFile(manifestName, manifestBaseName, "application/json", emptyList())
+        return ExportPlan(exportRequest, finalFiles, manifest, collisions.distinct(), overwriteExisting, destination, this)
+    }
+
+    public fun export(plan: ExportPlan, overwriteConfirmed: Boolean = false): ExportedAudiobook {
+        require(!plan.overwriteExisting || overwriteConfirmed) {
+            "Replacing an existing export requires explicit confirmation"
+        }
+        val written = mutableListOf<String>()
+        var manifestUri: Uri? = null
+        plan.files.forEach { planned ->
+            val target = findOrCreate(plan, planned)
+            require(target != null) { "Provider could not create ${planned.name}" }
+            write(target, plan, planned)
+            written += planned.name
+            if (planned == plan.files.last()) manifestUri = target
+        }
+        return ExportedAudiobook(requireNotNull(manifestUri), written)
+    }
+
+    private fun verifiedSource(segment: AudioSegmentEntity): File {
+        require(segment.status == AudioSegmentStatus.READY) { "Only READY audio can be exported" }
+        val file = File(requireNotNull(segment.audioPath)).canonicalFile
+        require(file.toPath().startsWith(storage.readyAudioDirectory.canonicalFile.toPath())) {
+            "Export source must remain below private ready audio storage"
+        }
+        sourceValidator(file, segment)
+        return file
+    }
+
+    private fun verifiedCover(projectId: String, path: String): File {
+        val file = File(path).canonicalFile
+        val expected = storage.coverImage(projectId).canonicalFile
+        require(file == expected && file.isFile) { "Export cover is not the project's private cover" }
+        return file
+    }
+
+    private fun findOrCreate(plan: ExportPlan, planned: PlannedExportFile): Uri? {
+        val existing = plan.destination.listChildren().firstOrNull { it.name.equals(planned.name, ignoreCase = true) }
+        if (existing != null) {
+            require(plan.overwriteExisting && !existing.isDirectory) {
+                "Export filename collision requires a new name or explicit overwrite"
+            }
+            return existing.uri
+        }
+        return plan.destination.createFile(planned.name, planned.mimeType)
+    }
+
+    private fun write(uri: Uri, plan: ExportPlan, planned: PlannedExportFile) {
+        val output = plan.destination.openForWrite(uri) ?: error("Provider could not open ${planned.name} for writing")
+        output.use { stream ->
+            if (planned == plan.files.last()) {
+                stream.write(ExportManifestCodec.encode(plan.manifest).toByteArray(Charsets.UTF_8))
+            } else {
+                planned.sourceFiles.single().inputStream().use { input -> input.copyTo(stream) }
+            }
+        }
+    }
+
+    private fun coverExtension(file: File): String {
+        val bytes = file.inputStream().use { input ->
+            val prefix = ByteArray(16)
+            var size = 0
+            while (size < prefix.size) {
+                val count = input.read(prefix, size, prefix.size - size)
+                if (count <= 0) break
+                size += count
+            }
+            prefix.copyOf(size)
+        }
+        return when {
+            bytes.startsWith(byteArrayOf(0xFF.toByte(), 0xD8.toByte(), 0xFF.toByte())) -> "jpg"
+            bytes.startsWith(byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47)) -> "png"
+            bytes.startsWith("GIF8".toByteArray()) -> "gif"
+            bytes.startsWith("RIFF".toByteArray()) && bytes.size >= 12 && bytes.copyOfRange(8, 12).contentEquals("WEBP".toByteArray()) -> "webp"
+            bytes.toString(Charsets.UTF_8).trimStart().startsWith("<") -> "svg"
+            else -> "bin"
+        }
+    }
+
+    private fun coverMime(file: File): String = when (coverExtension(file)) {
+        "jpg" -> "image/jpeg"
+        "png" -> "image/png"
+        "gif" -> "image/gif"
+        "webp" -> "image/webp"
+        "svg" -> "image/svg+xml"
+        else -> "application/octet-stream"
+    }
+
+    private fun ByteArray.startsWith(prefix: ByteArray): Boolean =
+        size >= prefix.size && copyOf(prefix.size).contentEquals(prefix)
+
+}

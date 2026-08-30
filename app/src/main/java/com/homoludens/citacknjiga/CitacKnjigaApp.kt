@@ -2,6 +2,7 @@ package com.homoludens.citacknjiga
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
+import androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -31,6 +33,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -50,6 +53,9 @@ import com.homoludens.citacknjiga.proof.TypedTextProofEngine
 import com.homoludens.citacknjiga.proof.TypedTextProofState
 import com.homoludens.citacknjiga.proof.TypedTextProofStatus
 import com.homoludens.citacknjiga.playback.export.AudiobookPlayerController
+import com.homoludens.citacknjiga.playback.export.ExportPlan
+import com.homoludens.citacknjiga.playback.export.RoomAudiobookExportService
+import com.homoludens.citacknjiga.playback.export.SafDocumentTreePermissions
 import com.homoludens.citacknjiga.playback.export.PlayerControlState
 import com.homoludens.citacknjiga.player.AudiobookPlayerControls
 import com.homoludens.citacknjiga.library.LibraryController
@@ -71,6 +77,7 @@ public fun CitacKnjigaApp(
     epubImportPreviewService: EpubImportPreviewService? = null,
     epubChapterProofService: EpubChapterProofService? = null,
     playbackController: AudiobookPlayerController? = null,
+    audiobookExportService: RoomAudiobookExportService? = null,
     modifier: Modifier = Modifier,
 ) {
     val navController = rememberNavController()
@@ -97,6 +104,7 @@ public fun CitacKnjigaApp(
                 BookRoute(
                     audiobookDao = audiobookDao,
                     playbackController = playbackController,
+                    audiobookExportService = audiobookExportService,
                     bookId = entry.arguments?.getString(AppRoute.Book.argument),
                     onBack = navController::popBackStack,
                 )
@@ -221,9 +229,44 @@ private fun StartScreen(
 private fun BookRoute(
     audiobookDao: AudiobookDao?,
     playbackController: AudiobookPlayerController?,
+    audiobookExportService: RoomAudiobookExportService?,
     bookId: String?,
     onBack: () -> Unit,
 ) {
+    val context = LocalContext.current
+    val exportScope = rememberCoroutineScope()
+    var exportPlan by remember { mutableStateOf<ExportPlan?>(null) }
+    var exportMessage by remember { mutableStateOf<String?>(null) }
+    val exportLauncher = rememberLauncherForActivityResult(OpenDocumentTree()) { uri ->
+        if (uri != null && bookId != null && audiobookExportService != null) {
+            SafDocumentTreePermissions.persistWritePermission(context.contentResolver, uri)
+            exportScope.launch(Dispatchers.IO) {
+                val result = runCatching {
+                    audiobookExportService.planForProject(uri, bookId)
+                }
+                withContext(Dispatchers.Main.immediate) {
+                    result.fold(
+                        onSuccess = { plan ->
+                            exportMessage = null
+                            if (plan.hasCollisions) exportPlan = plan
+                            else {
+                                exportScope.launch(Dispatchers.IO) {
+                                    val export = runCatching { audiobookExportService.export(plan) }
+                                    withContext(Dispatchers.Main.immediate) {
+                                        exportMessage = export.fold(
+                                            onSuccess = { "Извоз је сачуван (${it.writtenNames.size} датотека)." },
+                                            onFailure = { it.message ?: "Извоз није успео." },
+                                        )
+                                    }
+                                }
+                            }
+                        },
+                        onFailure = { exportMessage = it.message ?: "Извоз није успео." },
+                    )
+                }
+            }
+        }
+    }
     val libraryController = remember(audiobookDao) { audiobookDao?.let(::LibraryController) }
     val libraryFlow: Flow<LibraryViewState> = libraryController?.state ?: flowOf(LibraryViewState())
     val libraryState by libraryFlow.collectAsState(initial = LibraryViewState())
@@ -250,6 +293,13 @@ private fun BookRoute(
     ) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
             BookDetailScreen(book = book, modifier = Modifier.weight(1f))
+            if (book != null && audiobookExportService != null) {
+                Button(
+                    onClick = { exportLauncher.launch(null) },
+                    modifier = Modifier.padding(horizontal = 24.dp),
+                ) { Text("Извези аудио") }
+            }
+            exportMessage?.let { Text(it, modifier = Modifier.padding(24.dp)) }
             if (book != null && playbackController != null) {
                 AudiobookPlayerControls(
                     state = playerState,
@@ -266,6 +316,43 @@ private fun BookRoute(
                 )
             }
         }
+    }
+    exportPlan?.let { plan ->
+        AlertDialog(
+            onDismissRequest = { exportPlan = null },
+            title = { Text("Постојећи извоз") },
+            text = { Text("Неколико назива већ постоји. Можете сачувати нове датотеке или заменити постојеће.") },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = {
+                    exportPlan = null
+                    exportScope.launch(Dispatchers.IO) {
+                        val export = runCatching {
+                            audiobookExportService!!.export(plan.withOverwriteConfirmation(), overwriteConfirmed = true)
+                        }
+                        withContext(Dispatchers.Main.immediate) {
+                            exportMessage = export.fold(
+                                onSuccess = { "Извоз је сачуван (${it.writtenNames.size} датотека)." },
+                                onFailure = { it.message ?: "Извоз није успео." },
+                            )
+                        }
+                    }
+                }) { Text("Замени постојеће") }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = {
+                    exportPlan = null
+                    exportScope.launch(Dispatchers.IO) {
+                        val export = runCatching { audiobookExportService!!.export(plan) }
+                        withContext(Dispatchers.Main.immediate) {
+                            exportMessage = export.fold(
+                                onSuccess = { "Извоз је сачуван новим називима (${it.writtenNames.size} датотека)." },
+                                onFailure = { it.message ?: "Извоз није успео." },
+                            )
+                        }
+                    }
+                }) { Text("Сачувај нове") }
+            },
+        )
     }
 }
 

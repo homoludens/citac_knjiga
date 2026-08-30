@@ -571,9 +571,10 @@ source URLs, not copied document text.
 The JVM codec/validator tests use the committed
 `playback-export/src/test/resources/export-manifest-v1.json` fixture. Validation
 also checks chapter/file duration sums, unique IDs and paths, contiguous order,
-required provenance, and rejects private URI paths or unknown JSON fields. This
-task defines data and validation only; SAF destination selection, naming,
-metadata writing, progress/retry, and export UI remain later tasks.
+required provenance, and rejects private URI paths or unknown JSON fields.
+SAF destination selection, naming, metadata writing, progress/retry, and export
+UI are implemented in the task-10.5 section below; durable progress/retry and
+destination recovery remain task 10.6.
 
 Focused verification:
 
@@ -582,6 +583,31 @@ ANDROID_HOME=/home/homoludens/Android/Sdk \
 ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
 ./gradlew :playback-export:testDebugUnitTest \
   :playback-export:compileDebugAndroidTestKotlin \
+  :playback-export:lintDebug
+```
+
+## SAF audiobook export (task 10.5)
+
+`playback-export` now exposes `ContentResolverDocumentTree` for an
+`ACTION_OPEN_DOCUMENT_TREE` result and attempts to persist read/write access.
+The exporter never converts a tree URI to a filesystem path. It enumerates
+provider children, creates files with `DocumentsContract`, and writes through
+the provider's output stream. Chapter audio names are deterministic
+`0001-001-sanitized-title.m4a`/`.wav` values (chapter and segment order are
+one-based and zero-padded); case-insensitive collisions use `-2`, `-3`, and so
+on. Existing names are not replaced unless an overwrite plan is explicitly
+confirmed. Available private covers are copied with detected image MIME/extension,
+and `manifest.json` contains the canonical export-manifest-v1 metadata and
+provenance. No generated export is checked in.
+
+Focused verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :playback-export:testDebugUnitTest \
+  :playback-export:compileDebugAndroidTestKotlin \
+  :playback-export:connectedDebugAndroidTest \
   :playback-export:lintDebug
 ```
 

@@ -471,6 +471,16 @@ target.
   `model-tools/preprocessing/preprocessing-contract-v1.json` has identity
   `4b4991dda9e26d7edf9d35f41bce395fcd9215fa771c4bc453a190560a897213` and
   binds three checked-in JSON resources to the 26-vector exact-stage contract.
+- Task 10.5 adds the one-shot SAF export boundary in `playback-export`.
+  `ContentResolverDocumentTree` uses `DocumentsContract` child queries and
+  provider streams, while `SafAudiobookExporter` accepts only Room `READY`
+  audio below private `ready-audio/` with matching size/SHA-256. Files use
+  one-based zero-padded chapter and segment order plus sanitized titles;
+  collisions get deterministic numeric suffixes unless the caller explicitly
+  confirms replacement. The export writes verified audio, an inferred cover
+  image when available, and canonical manifest-v1 JSON. Persistent progress,
+  retry, destination-loss recovery, and capacity estimation remain task 10.6+
+  work.
 
 ## Conventions
 

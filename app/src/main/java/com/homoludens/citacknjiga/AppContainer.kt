@@ -21,6 +21,8 @@ import com.homoludens.citacknjiga.playback.export.ReadyAudioRepository
 import com.homoludens.citacknjiga.playback.export.RoomReadyAudioSource
 import com.homoludens.citacknjiga.playback.export.MediaExtractorPlaybackAudioFormatValidator
 import com.homoludens.citacknjiga.playback.export.RoomPlaybackValidationContextSource
+import com.homoludens.citacknjiga.playback.export.RoomAudiobookExportService
+import com.homoludens.citacknjiga.playback.export.SafAudiobookExporter
 import com.homoludens.citacknjiga.tts.onnx.ModelPackageStore
 import com.homoludens.citacknjiga.tts.onnx.preprocessing.SerbianPreprocessor
 
@@ -56,6 +58,7 @@ public class AppContainer(
     public val epubImportPreviewService: EpubImportPreviewService? = null,
     public val epubChapterProofService: EpubChapterProofService? = null,
     public val playbackController: AudiobookPlayerController? = null,
+    public val audiobookExportService: RoomAudiobookExportService? = null,
 ) {
     public companion object {
         public fun production(context: Context): AppContainer {
@@ -100,6 +103,11 @@ public class AppContainer(
                     proofEngine = proofEngine,
                 ),
                 playbackController = AudiobookPlayerController(context, readyAudio),
+                audiobookExportService = RoomAudiobookExportService(
+                    dao = dao,
+                    exporter = SafAudiobookExporter(privateStorage),
+                    contentResolver = contentResolver,
+                ),
             )
         }
     }

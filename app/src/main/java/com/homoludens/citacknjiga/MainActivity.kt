@@ -23,6 +23,7 @@ public class MainActivity : ComponentActivity() {
                 epubImportPreviewService = container.epubImportPreviewService,
                 epubChapterProofService = container.epubChapterProofService,
                 playbackController = container.playbackController,
+                audiobookExportService = container.audiobookExportService,
             )
         }
     }
