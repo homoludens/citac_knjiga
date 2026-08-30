@@ -41,6 +41,34 @@ public class ModelPackageStoreTest {
     }
 
     @Test
+    public fun transactionRecoveryKeepsCompletedActiveOrRestoresPrevious() {
+        val root = createTempDirectory().toFile()
+        val store = store(root)
+        store.importPackage(ModelPackageSource { ByteArrayInputStream(packageBytes("first")) })
+        store.importPackage(ModelPackageSource { ByteArrayInputStream(packageBytes("second")) })
+        root.resolve("model-packages/.model-package-transaction").writeText("pending")
+
+        assertEquals("second", ModelPackageStore(root).activePackage()?.packageId)
+        assertFalse(root.resolve("model-packages/.model-package-transaction").exists())
+
+        root.resolve("model-packages/active.zip").writeBytes(byteArrayOf(1))
+        root.resolve("model-packages/.model-package-transaction").writeText("pending")
+        assertEquals("first", ModelPackageStore(root).activePackage()?.packageId)
+    }
+
+    @Test
+    public fun twoCorruptSlotsReportNoValidPackage() {
+        val root = createTempDirectory().toFile()
+        val directory = root.resolve("model-packages").apply { mkdirs() }
+        directory.resolve("active.zip").writeBytes(byteArrayOf(1))
+        directory.resolve("last-valid.zip").writeBytes(byteArrayOf(2))
+
+        val failure = assertThrows(ModelPackageImportException::class.java) { ModelPackageStore(root).activePackage() }
+
+        assertEquals(ModelPackageFailureCode.NO_VALID_PACKAGE, failure.code)
+    }
+
+    @Test
     public fun checksumFailureDoesNotReplaceActivePackage() {
         val root = createTempDirectory().toFile()
         val store = store(root)

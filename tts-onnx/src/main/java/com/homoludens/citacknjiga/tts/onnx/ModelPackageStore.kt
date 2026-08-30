@@ -143,7 +143,11 @@ public class ModelPackageStore(
             )
         }
 
-        val metadata = validateArchive(previousFile)
+        val metadata = try {
+            validateArchive(previousFile)
+        } catch (failure: ModelPackageImportException) {
+            throw ModelPackageImportException(ModelPackageFailureCode.NO_VALID_PACKAGE, cause = failure)
+        }
         try {
             if (activeFile.exists()) {
                 Files.deleteIfExists(activeFile.toPath())

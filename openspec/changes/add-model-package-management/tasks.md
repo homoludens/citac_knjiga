@@ -16,7 +16,7 @@
 
 - [x] 3.1 Add one process-level serialization mechanism plus a private file lock around imports, active-package reads, and publication, and define a verified read snapshot/session-open boundary; verify concurrent import/read tests show no partial archive or mixed metadata is observable.
 - [x] 3.2 Implement the private transaction marker and complete-package-slot publication sequence: validate candidate, mark transaction, move the prior active archive to `last-valid.zip`, atomically install `active.zip`, sync/clear the marker, then clean stale temporary files; verify a successful replacement leaves both the new active and prior last-valid package valid.
-- [ ] 3.3 Implement startup and `activePackage()` marker recovery by validating both slots, retaining a completed valid active slot, restoring the valid previous slot when needed, and reporting `NO_VALID_PACKAGE` when neither validates; verify tests cover interrupted publication, each slot independently corrupt, both slots corrupt, and process-restart recovery.
+- [x] 3.3 Implement startup and `activePackage()` marker recovery by validating both slots, retaining a completed valid active slot, restoring the valid previous slot when needed, and reporting `NO_VALID_PACKAGE` when neither validates; verify tests cover interrupted publication, each slot independently corrupt, both slots corrupt, and process-restart recovery.
 - [ ] 3.4 Preserve the previous active package through copy, validation, storage, move, cleanup, and rollback failures, and never publish a failed candidate; verify fault-injection tests assert the old package remains usable and no partial candidate is treated as active.
 
 ## 4. Runtime Snapshot Boundary
