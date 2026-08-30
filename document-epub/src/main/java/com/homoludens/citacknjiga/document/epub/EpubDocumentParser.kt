@@ -9,8 +9,9 @@ import com.homoludens.citacknjiga.core.database.NarrationBlockStatus
 import com.homoludens.citacknjiga.core.database.NarrationBlockType
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
-import java.net.URI
+import java.security.MessageDigest
 import java.util.zip.ZipFile
 import javax.xml.parsers.DocumentBuilderFactory
 import org.w3c.dom.Document
@@ -53,6 +54,12 @@ public data class EpubNarrationBlock(
     public val sourceLocator: String,
     public val headingLevel: Int? = null,
     public val skippedReason: String? = null,
+    public val externalLinks: List<EpubExternalHyperlink> = emptyList(),
+)
+
+public data class EpubExternalHyperlink(
+    public val value: String,
+    public val sourceLocator: String,
 )
 
 public data class EpubChapter(
@@ -191,8 +198,12 @@ public class EpubDocumentParser(
         if (!actual.isFile) return EpubParseResult.Failed(EpubParseFailureCode.SOURCE_MISSING)
         if (actual.length() != source.sizeBytes) return EpubParseResult.Failed(EpubParseFailureCode.SOURCE_CHANGED)
 
-        when (val validation = securityValidator.validate(actual)) {
+        if (source.fingerprint.matches(Regex("[0-9a-fA-F]{64}")) && sha256(actual) != source.fingerprint) {
+            return EpubParseResult.Failed(EpubParseFailureCode.SOURCE_CHANGED)
+        }
+        when (val validation = source.validation ?: securityValidator.validateDetailed(actual)) {
             EpubSecurityValidation.Accepted -> Unit
+            is EpubSecurityValidation.AcceptedWithWarnings -> Unit
             is EpubSecurityValidation.Rejected -> return EpubParseResult.Rejected(validation.diagnostic)
         }
 
@@ -206,7 +217,9 @@ public class EpubDocumentParser(
     }
 
     private fun parseArchive(zip: ZipFile, source: ImportedEpubSource): EpubDocument {
-        val names = zip.entries().asSequence().map { it.name }.toSet()
+        val names = zip.entries().asSequence().flatMap { entry ->
+            sequenceOf(entry.name, ArchivePathResolver.normalizeEntry(entry.name) ?: entry.name)
+        }.toSet()
         val containerPath = "META-INF/container.xml"
         val container = parseXml(readEntry(zip, names, containerPath), containerPath)
         val rootfile = elements(container).firstOrNull { localName(it) == "rootfile" }
@@ -289,7 +302,7 @@ public class EpubDocumentParser(
         val item = coverIds.asSequence().mapNotNull(manifest::get).firstOrNull() ?: return null
         val path = resolveEntry(opfPath, item.getAttribute("href")) ?: return null
         if (path !in names) return null
-        return EpubCover(path, item.getAttribute("media-type"), readEntry(zip, names, path))
+        return EpubCover(path, item.getAttribute("media-type"), readEntry(zip, names, path, EpubProductionLimits.MAX_COVER_BYTES))
     }
 
     private fun parseNavigation(
@@ -547,6 +560,7 @@ public class EpubDocumentParser(
         sourceText = if (preserveBreaks) text else normalize(text),
         sourceLocator = sourceLocator(entryPath, element),
         headingLevel = headingLevel,
+        externalLinks = externalLinks(element, entryPath),
     )
 
     private fun skippedChapter(
@@ -585,6 +599,25 @@ public class EpubDocumentParser(
         val factory = DocumentBuilderFactory.newInstance()
         factory.isNamespaceAware = true
         factory.isExpandEntityReferences = false
+        try {
+            runCatching { factory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true) }.getOrElse {
+                if (!isAndroidRuntime()) throw it
+            }
+            runCatching { factory.setFeature("http://xml.org/sax/features/external-general-entities", false) }.getOrElse {
+                if (!isAndroidRuntime()) throw it
+            }
+            runCatching { factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false) }.getOrElse {
+                if (!isAndroidRuntime()) throw it
+            }
+            runCatching { factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false) }.getOrElse {
+                if (!isAndroidRuntime()) throw it
+            }
+            runCatching { factory.isXIncludeAware = false }.getOrElse {
+                if (!isAndroidRuntime()) throw it
+            }
+        } catch (_: Exception) {
+            fail(EpubParseFailureCode.INVALID_PACKAGE, entryPath)
+        }
         return try {
             val builder = factory.newDocumentBuilder()
             builder.setEntityResolver(EntityResolver { _, _ ->
@@ -596,9 +629,25 @@ public class EpubDocumentParser(
         }
     }
 
-    private fun readEntry(zip: ZipFile, names: Set<String>, path: String): ByteArray {
+    private fun readEntry(zip: ZipFile, names: Set<String>, path: String, maxBytes: Long = EpubProductionLimits.MAX_XML_TEXT_BYTES): ByteArray {
         if (path !in names) fail(EpubParseFailureCode.INVALID_CONTAINER, path)
-        return zip.getInputStream(zip.getEntry(path)).use { it.readBytes() }
+        val entry = zip.entries().asSequence().firstOrNull {
+            it.name == path || ArchivePathResolver.normalizeEntry(it.name) == path
+        } ?: fail(EpubParseFailureCode.INVALID_CONTAINER, path)
+        val output = ByteArrayOutputStream()
+        zip.getInputStream(entry).use { input ->
+            val buffer = ByteArray(32 * 1024)
+            var size = 0L
+            while (true) {
+                val count = input.read(buffer)
+                if (count < 0) break
+                if (count == 0) continue
+                size += count
+                if (size > maxBytes) fail(EpubParseFailureCode.INVALID_PACKAGE, path)
+                output.write(buffer, 0, count)
+            }
+        }
+        return output.toByteArray()
     }
 
     private fun resolveTarget(base: String, href: String): String? {
@@ -607,25 +656,34 @@ public class EpubDocumentParser(
         return if (fragment == null) path else "$path#$fragment"
     }
 
-    private fun resolveEntry(base: String, href: String): String? {
-        if (href.isEmpty()) return base
-        if (href.startsWith("/") || href.contains("://")) return null
-        val decoded = try {
-            URI(null, null, href, null).path
-        } catch (_: Exception) {
-            return null
-        }
-        val parts = (base.substringBeforeLast('/', "") + "/" + decoded).split('/')
-        val resolved = ArrayDeque<String>()
-        parts.forEach { part ->
-            when (part) {
-                "", "." -> Unit
-                ".." -> if (resolved.isEmpty()) return null else resolved.removeLast()
-                else -> resolved.addLast(part)
+    private fun resolveEntry(base: String, href: String): String? =
+        ArchivePathResolver.resolve(base, href).getOrNull()
+
+    private fun sha256(file: File): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        file.inputStream().use { input ->
+            val buffer = ByteArray(32 * 1024)
+            while (true) {
+                val count = input.read(buffer)
+                if (count < 0) break
+                if (count > 0) digest.update(buffer, 0, count)
             }
         }
-        return resolved.joinToString("/").takeIf { it.isNotEmpty() }
+        return digest.digest().joinToString("") { "%02x".format(it.toInt() and 0xff) }
     }
+
+    private fun externalLinks(element: Element, entryPath: String): List<EpubExternalHyperlink> =
+        (0 until element.getElementsByTagName("*").length)
+            .map { element.getElementsByTagName("*").item(it) }
+            .filterIsInstance<Element>()
+            .filter { localName(it) == "a" }
+            .mapNotNull { anchor ->
+            val value = anchor.getAttribute("href")
+            val external = ArchivePathResolver.external(value)
+            if (external != null && external.scheme in setOf("http", "https", "mailto") &&
+                (external.scheme == "mailto" || external.authority != null)
+            ) EpubExternalHyperlink(value, sourceLocator(entryPath, anchor)) else null
+        }
 
     private fun elements(document: Document): List<Element> {
         val result = mutableListOf<Element>()
@@ -717,8 +775,10 @@ public class EpubDocumentParser(
 
     private fun normalize(value: String): String = value.replace(Regex("\\s+"), " ").trim()
 
-    private fun localName(node: Node): String =
-        (node.localName ?: node.nodeName).substringAfterLast(':').lowercase()
+private fun localName(node: Node): String =
+    (node.localName ?: node.nodeName).substringAfterLast(':').lowercase()
+
+private fun isAndroidRuntime(): Boolean = runCatching { Class.forName("android.os.Build") }.isSuccess
 
     private fun fail(code: EpubParseFailureCode, entryPath: String? = null): Nothing =
         throw ParseFailure(code, entryPath)

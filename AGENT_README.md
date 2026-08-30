@@ -6,6 +6,19 @@ target.
 
 ## Status
 
+- OpenSpec change `fix-real-world-epub-import` is implemented across the
+  `document-epub` and `app` modules. It now uses immutable production limits,
+  bounded ZIP/XML validation, lexical reference resolution, one controlled
+  compatibility retry, structured diagnostics, private-source cleanup, parser
+  integration, and Serbian/English diagnostic formatting.
+- The JVM EPUB suite, document-EPUB connected instrumentation suite on the API
+  35 x86_64 emulator, affected-module lint, and release assembly all pass.
+  The full app connected suite has one unrelated model-dependent proof failure
+  because no verified model package is installed; EPUB scenarios pass.
+- Strict validation passes with `openspec validate fix-real-world-epub-import
+  --type change --strict`. Existing unrelated worktree changes and generated
+  build directories remain uncommitted.
+
 - OpenSpec change `build-serbian-audiobook-mvp` is in progress:
   `openspec/changes/build-serbian-audiobook-mvp/` (proposal, design, 6 specs,
   12 task phases).

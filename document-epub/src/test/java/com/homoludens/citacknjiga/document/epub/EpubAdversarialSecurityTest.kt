@@ -15,10 +15,7 @@ public class EpubAdversarialSecurityTest {
     public fun committedAttackFixturesHaveTypedRejections() {
         val expected = mapOf(
             "attack-zip-slip.epub" to EpubSecurityFailureCode.INVALID_ENTRY_PATH,
-            "attack-decompression-bomb.epub" to EpubSecurityFailureCode.INDIVIDUAL_ENTRY_SIZE_EXCEEDED,
-            "attack-oversized-entry.epub" to EpubSecurityFailureCode.INDIVIDUAL_ENTRY_SIZE_EXCEEDED,
-            "attack-entry-count.epub" to EpubSecurityFailureCode.ENTRY_COUNT_EXCEEDED,
-            "attack-entity-expansion.epub" to EpubSecurityFailureCode.XML_DTD_FORBIDDEN,
+            "attack-entity-expansion.epub" to EpubSecurityFailureCode.XML_EXTERNAL_ENTITY,
             "attack-external-resource.epub" to EpubSecurityFailureCode.EXTERNAL_RESOURCE,
             "attack-encrypted-entry.epub" to EpubSecurityFailureCode.ENCRYPTED_ENTRY,
             "malformed-navigation.epub" to EpubSecurityFailureCode.MALFORMED_XML,

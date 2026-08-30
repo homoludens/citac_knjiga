@@ -8,7 +8,9 @@ import com.homoludens.citacknjiga.core.database.BookProjectStatus
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.core.storage.AtomicArtifactStore
 import java.io.File
+import java.io.IOException
 import java.io.InputStream
+import java.io.OutputStream
 import java.util.UUID
 
 /** Opens a source selected through SAF without giving the importer provider ownership. */
@@ -30,6 +32,7 @@ public data class ImportedEpubSource(
     public val fingerprint: String,
     public val sourceFile: File,
     public val sizeBytes: Long,
+    public val validation: EpubAcceptedValidation? = null,
 )
 
 /** A validated source kept private while the user reviews its import preview. */
@@ -39,6 +42,7 @@ public data class StagedEpubSource(
     public val fingerprint: String,
     public val sourceFile: File,
     public val sizeBytes: Long,
+    public val validation: EpubAcceptedValidation? = null,
 )
 
 public data class ExistingEpubProject(
@@ -107,6 +111,11 @@ public interface EpubSourceRepository {
 
     public fun discardStaged(source: StagedEpubSource)
 
+    /** Removes a newly published source when later preview artifacts cannot be committed. */
+    public fun discardImported(source: ImportedEpubSource) {
+        // Preview-only implementations can keep their existing behavior.
+    }
+
     /** Completes the Room projection after the user accepts the parsed preview. */
     public fun recordAcceptedDocument(
         source: ImportedEpubSource,
@@ -146,6 +155,7 @@ public class SafEpubSourceRepository(
     override fun stageSource(sourceUri: String): EpubStageResult {
         val projectId = projectIdFactory()
         val ownerId = "epub-$projectId"
+        var sourceDiagnostic: EpubSecurityDiagnostic? = null
         val staging = try {
             val input = sourceReader.open(sourceUri)
                 ?: return EpubStageResult.Failed(EpubImportError.SOURCE_UNAVAILABLE)
@@ -153,21 +163,28 @@ public class SafEpubSourceRepository(
                 artifactStore.publish(
                     ownerId = ownerId,
                     destination = storage.temporaryFile(ownerId, "source.epub"),
-                    writer = { output -> stream.copyTo(output) },
+                    writer = { output -> stream.copyTo(SourceCountingOutputStream(output)) },
                 )
             }
-        } catch (_: Exception) {
-            return EpubStageResult.Failed(EpubImportError.COPY_FAILED)
+        } catch (failure: Exception) {
+            sourceDiagnostic = findSourceLimit(failure)
+            null
         }
+        if (staging == null) return EpubStageResult.Failed(EpubImportError.COPY_FAILED, sourceDiagnostic)
 
         var retainStaging = false
         try {
-            val security = securityValidator.validate(staging.file)
+            val security = securityValidator.validateDetailed(staging.file)
             if (security is EpubSecurityValidation.Rejected) {
                 return EpubStageResult.Failed(
                     error = EpubImportError.SECURITY_VALIDATION_FAILED,
                     securityDiagnostic = security.diagnostic,
                 )
+            }
+            val accepted = when (security) {
+                EpubSecurityValidation.Accepted -> null
+                is EpubSecurityValidation.AcceptedWithWarnings -> EpubAcceptedValidation(security.catalog, security.warnings)
+                is EpubSecurityValidation.Rejected -> null
             }
             val existing = try {
                 projectIndex.findByFingerprint(staging.sha256)
@@ -186,6 +203,7 @@ public class SafEpubSourceRepository(
                     fingerprint = staging.sha256,
                     sourceFile = staging.file,
                     sizeBytes = staging.sizeBytes,
+                    validation = accepted,
                 ),
             )
         } catch (_: Exception) {
@@ -239,6 +257,7 @@ public class SafEpubSourceRepository(
                 fingerprint = source.fingerprint,
                 sourceFile = published.file,
                 sizeBytes = published.sizeBytes,
+                validation = source.validation,
             )
             try {
                 projectIndex.recordImportedSource(importedSource)
@@ -252,9 +271,25 @@ public class SafEpubSourceRepository(
         }
     }
 
+    private fun findSourceLimit(failure: Throwable): EpubSecurityDiagnostic? {
+        var current: Throwable? = failure
+        while (current != null) {
+            if (current is SourceLimitExceeded) return current.diagnostic
+            current = current.cause
+        }
+        return null
+    }
+
     override fun discardStaged(source: StagedEpubSource) {
         runCatching {
             val expected = storage.temporaryFile("epub-${source.projectId}", "source.epub").canonicalFile
+            if (source.sourceFile.canonicalFile == expected) expected.delete()
+        }
+    }
+
+    override fun discardImported(source: ImportedEpubSource) {
+        runCatching {
+            val expected = storage.sourceDocument(source.projectId).canonicalFile
             if (source.sourceFile.canonicalFile == expected) expected.delete()
         }
     }
@@ -264,16 +299,65 @@ public class SafEpubSourceRepository(
         document: EpubDocument,
         canonicalChapterPaths: Map<String, String>,
     ) {
-        val coverPath = document.cover?.let { cover ->
-            artifactStore.publish(
-                ownerId = "cover-${source.projectId}",
-                destination = storage.coverImage(source.projectId),
-                writer = { output -> output.write(cover.bytes) },
-                validator = { file -> require(file.length() == cover.bytes.size.toLong()) },
-            ).file.path
+        var coverPath: String? = null
+        try {
+            coverPath = document.cover?.let { cover ->
+                artifactStore.publish(
+                    ownerId = "cover-${source.projectId}",
+                    destination = storage.coverImage(source.projectId),
+                    writer = { output -> output.write(cover.bytes) },
+                    validator = { file -> require(file.length() == cover.bytes.size.toLong()) },
+                ).file.path
+            }
+            projectIndex.recordAcceptedDocument(source, document, coverPath, canonicalChapterPaths)
+        } catch (failure: Throwable) {
+            coverPath?.let { File(it).delete() }
+            throw failure
         }
-        projectIndex.recordAcceptedDocument(source, document, coverPath, canonicalChapterPaths)
     }
+}
+
+private class SourceLimitExceeded(val diagnostic: EpubSecurityDiagnostic) : IOException(diagnostic.rule)
+
+private class SourceCountingOutputStream(private val delegate: OutputStream) : OutputStream() {
+    private var count = 0L
+
+    override fun write(value: Int) {
+        if (count >= EpubProductionLimits.MAX_SOURCE_BYTES) throw SourceLimitExceeded(
+            EpubSecurityDiagnostic(
+                code = EpubSecurityFailureCode.MALFORMED_ARCHIVE,
+                observed = EpubProductionLimits.MAX_SOURCE_BYTES + 1,
+                limit = EpubProductionLimits.MAX_SOURCE_BYTES,
+                rule = "archive.source-bytes",
+                observedUnit = "bytes",
+            ),
+        )
+        delegate.write(value)
+        count++
+    }
+
+    override fun write(bytes: ByteArray, offset: Int, length: Int) {
+        if (length < 0 || offset < 0 || offset > bytes.size - length) throw IndexOutOfBoundsException()
+        val remaining = EpubProductionLimits.MAX_SOURCE_BYTES - count
+        if (length.toLong() > remaining) {
+            if (remaining > 0) delegate.write(bytes, offset, remaining.toInt())
+            count = EpubProductionLimits.MAX_SOURCE_BYTES
+            throw SourceLimitExceeded(
+                EpubSecurityDiagnostic(
+                    code = EpubSecurityFailureCode.MALFORMED_ARCHIVE,
+                    observed = EpubProductionLimits.MAX_SOURCE_BYTES + 1,
+                    limit = EpubProductionLimits.MAX_SOURCE_BYTES,
+                    rule = "archive.source-bytes",
+                    observedUnit = "bytes",
+                ),
+            )
+        }
+        delegate.write(bytes, offset, length)
+        count += length
+    }
+
+    override fun flush() = delegate.flush()
+    override fun close() = delegate.close()
 }
 
 /** Room-backed source fingerprint index for the import boundary. */

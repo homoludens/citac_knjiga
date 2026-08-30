@@ -43,6 +43,7 @@ public data class EpubCanonicalTextPreview(
     public val chapters: List<CanonicalChapterPreview>,
     public val warnings: List<EpubImportWarning>,
     public val warningReportSizeBytes: Long,
+    public val securityWarnings: List<EpubSecurityDiagnostic> = emptyList(),
 )
 
 public sealed interface EpubCanonicalTextResult {
@@ -113,7 +114,10 @@ public class EpubCanonicalTextService(
     private val renderer: EpubMarkdownRenderer = EpubMarkdownRenderer(),
 ) {
     /** Renders the exact canonical output in memory; no private files are changed. */
-    public fun preview(document: EpubDocument): EpubCanonicalTextPreview {
+    public fun preview(
+        document: EpubDocument,
+        securityWarnings: List<EpubSecurityDiagnostic> = emptyList(),
+    ): EpubCanonicalTextPreview {
         val warnings = warningsFor(document)
         val chapters = document.chapters.map { chapter ->
             val markdown = renderer.render(chapter)
@@ -130,14 +134,18 @@ public class EpubCanonicalTextService(
         return EpubCanonicalTextPreview(
             chapters = chapters,
             warnings = warnings,
-            warningReportSizeBytes = warningReport(document.projectId, warnings)
+            warningReportSizeBytes = warningReport(document.projectId, warnings, securityWarnings)
                 .toByteArray(Charsets.UTF_8).size.toLong(),
+            securityWarnings = securityWarnings,
         )
     }
 
-    public fun renderAndPersist(document: EpubDocument): EpubCanonicalTextResult {
+    public fun renderAndPersist(
+        document: EpubDocument,
+        securityWarnings: List<EpubSecurityDiagnostic> = emptyList(),
+    ): EpubCanonicalTextResult {
         val preview = try {
-            preview(document)
+            preview(document, securityWarnings)
         } catch (_: Exception) {
             val warnings = warningsFor(document)
             return EpubCanonicalTextResult.Failed(warnings, cleanupUncertain = false)
@@ -171,7 +179,7 @@ public class EpubCanonicalTextService(
             artifactStore.publish(
                 ownerId = "canonical-${document.projectId}",
                 destination = warningTarget,
-                writer = { output -> output.write(warningReport(document.projectId, preview.warnings).toByteArray(Charsets.UTF_8)) },
+                writer = { output -> output.write(warningReport(document.projectId, preview.warnings, preview.securityWarnings).toByteArray(Charsets.UTF_8)) },
                 validator = { file -> require(file.length() > 0) },
             )
             EpubCanonicalTextResult.Published(document.projectId, artifacts, preview.warnings, warningTarget)
@@ -267,7 +275,11 @@ public class EpubCanonicalTextService(
         }.isSuccess
     }
 
-    private fun warningReport(projectId: String, warnings: List<EpubImportWarning>): String = buildString {
+    private fun warningReport(
+        projectId: String,
+        warnings: List<EpubImportWarning>,
+        securityWarnings: List<EpubSecurityDiagnostic> = emptyList(),
+    ): String = buildString {
         append("{\n  \"schema\": 1,\n  \"project_id\": \"")
         append(jsonSafe(projectId))
         append("\",\n  \"warnings\": [")
@@ -284,6 +296,17 @@ public class EpubCanonicalTextService(
             append("\"}")
         }
         if (warnings.isNotEmpty()) append('\n')
+        append("  ],\n  \"security_warnings\": [")
+        securityWarnings.forEachIndexed { index, warning ->
+            if (index > 0) append(',')
+            append("\n    {")
+            warning.asSafeMap().entries.filter { it.value != null }.forEachIndexed { fieldIndex, (key, value) ->
+                if (fieldIndex > 0) append(',')
+                append('"').append(key).append("\":\"").append(jsonSafe(value.toString())).append('"')
+            }
+            append("}")
+        }
+        if (securityWarnings.isNotEmpty()) append('\n')
         append("  ]\n}\n")
     }
 

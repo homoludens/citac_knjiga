@@ -85,6 +85,7 @@ import kotlinx.coroutines.CancellationException
 import com.homoludens.citacknjiga.playback.export.DestinationUnavailableException
 import com.homoludens.citacknjiga.tts.onnx.ModelPackageStore
 import com.homoludens.citacknjiga.diagnostics.DiagnosticsAboutRoute
+import com.homoludens.citacknjiga.diagnostics.EpubImportDiagnosticFormatter
 
 @Composable
 public fun CitacKnjigaApp(
@@ -496,6 +497,7 @@ private sealed interface ImportPreviewUiState {
     data class Error(
         val error: com.homoludens.citacknjiga.document.epub.EpubImportError? = null,
         val duplicate: Boolean = false,
+        val diagnostics: List<com.homoludens.citacknjiga.document.epub.EpubSecurityDiagnostic> = emptyList(),
     ) : ImportPreviewUiState
 }
 
@@ -509,12 +511,12 @@ private sealed interface ChapterGenerationUiState {
 private fun EpubPreviewResult.toUiState(): ImportPreviewUiState = when (this) {
     is EpubPreviewResult.Ready -> ImportPreviewUiState.Ready(preview)
     is EpubPreviewResult.Duplicate -> ImportPreviewUiState.Error(duplicate = true)
-    is EpubPreviewResult.Failed -> ImportPreviewUiState.Error(error)
+    is EpubPreviewResult.Failed -> ImportPreviewUiState.Error(error, diagnostics = securityDiagnostics)
 }
 
 private fun EpubAcceptanceResult?.toUiState(): ImportPreviewUiState = when (this) {
     is EpubAcceptanceResult.Published -> ImportPreviewUiState.Accepted(this)
-    is EpubAcceptanceResult.Failed -> ImportPreviewUiState.Error(error)
+    is EpubAcceptanceResult.Failed -> ImportPreviewUiState.Error(error, diagnostics = securityDiagnostics)
     null -> ImportPreviewUiState.Error()
 }
 
@@ -570,11 +572,19 @@ private fun EpubImportPreviewContent(
                 )
                 OutlinedButton(onClick = onCancelLoading) { Text(stringResource(R.string.cancel_import)) }
             }
-            is ImportPreviewUiState.Error -> Text(
-                epubErrorMessage(state),
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
-            )
+            is ImportPreviewUiState.Error -> {
+                Text(
+                    epubErrorMessage(state),
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
+                )
+                state.diagnostics.forEach { diagnostic ->
+                    Text(
+                        EpubImportDiagnosticFormatter.formatSerbian(diagnostic),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
             is ImportPreviewUiState.Accepted -> {
                 Text(stringResource(R.string.import_accepted))
                 val noNarration = stringResource(R.string.no_narration_text)
@@ -642,6 +652,12 @@ private fun EpubImportPreviewContent(
                     preview.canonical.warnings.forEach { warning ->
                         Text("• ${warning.message}", color = MaterialTheme.colorScheme.error)
                     }
+                }
+                preview.securityWarnings.forEach { diagnostic ->
+                    Text(
+                        EpubImportDiagnosticFormatter.formatSerbian(diagnostic),
+                        color = MaterialTheme.colorScheme.error,
+                    )
                 }
                 Button(onClick = { onAccept(preview) }) { Text(stringResource(R.string.accept_import)) }
                 OutlinedButton(onClick = { onCancel(preview) }) { Text(stringResource(R.string.cancel)) }

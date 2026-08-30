@@ -17,6 +17,7 @@ public data class EpubImportPreview(
     public val document: EpubDocument,
     public val canonical: EpubCanonicalTextPreview,
     public val storage: EpubStorageEstimate,
+    public val securityWarnings: List<EpubSecurityDiagnostic> = emptyList(),
 )
 
 public sealed interface EpubPreviewResult {
@@ -28,6 +29,7 @@ public sealed interface EpubPreviewResult {
         public val error: EpubImportError,
         public val message: String,
         public val securityDiagnostic: EpubSecurityDiagnostic? = null,
+        public val securityDiagnostics: List<EpubSecurityDiagnostic> = emptyList(),
     ) : EpubPreviewResult
 }
 
@@ -37,7 +39,11 @@ public sealed interface EpubAcceptanceResult {
         public val preview: EpubImportPreview,
     ) : EpubAcceptanceResult
 
-    public data class Failed(public val error: EpubImportError, public val message: String) : EpubAcceptanceResult
+    public data class Failed(
+        public val error: EpubImportError,
+        public val message: String,
+        public val securityDiagnostics: List<EpubSecurityDiagnostic> = emptyList(),
+    ) : EpubAcceptanceResult
 }
 
 /** Coordinates the uncommitted preview with the existing private source and canonical stores. */
@@ -56,6 +62,7 @@ public class EpubImportPreviewService(
                 error = staged.error,
                 message = staged.error.displayMessage(),
                 securityDiagnostic = staged.securityDiagnostic,
+                securityDiagnostics = listOfNotNull(staged.securityDiagnostic),
             )
             is EpubStageResult.Staged -> previewStaged(staged.source)
         }
@@ -65,9 +72,9 @@ public class EpubImportPreviewService(
         val published = sourceRepository.publishStaged(preview.stagedSource)
         if (published !is EpubImportResult.Imported) {
             val failure = published as EpubImportResult.Failed
-            return EpubAcceptanceResult.Failed(failure.error, failure.error.displayMessage())
+            return EpubAcceptanceResult.Failed(failure.error, failure.error.displayMessage(), listOfNotNull(failure.securityDiagnostic))
         }
-        return when (val canonical = canonicalText.renderAndPersist(preview.document)) {
+        return when (val canonical = canonicalText.renderAndPersist(preview.document, preview.securityWarnings)) {
             is EpubCanonicalTextResult.Published -> {
                 runCatching {
                     sourceRepository.recordAcceptedDocument(
@@ -78,6 +85,7 @@ public class EpubImportPreviewService(
                 }.fold(
                     onSuccess = { EpubAcceptanceResult.Published(published.source, preview) },
                     onFailure = {
+                        sourceRepository.discardImported(published.source)
                         EpubAcceptanceResult.Failed(
                             EpubImportError.INDEX_WRITE_FAILED,
                             "The accepted EPUB could not be recorded.",
@@ -85,10 +93,13 @@ public class EpubImportPreviewService(
                     },
                 )
             }
-            is EpubCanonicalTextResult.Failed -> EpubAcceptanceResult.Failed(
-                EpubImportError.PUBLICATION_FAILED,
-                "Canonical chapter text could not be published.",
-            )
+            is EpubCanonicalTextResult.Failed -> {
+                sourceRepository.discardImported(published.source)
+                EpubAcceptanceResult.Failed(
+                    EpubImportError.PUBLICATION_FAILED,
+                    "Canonical chapter text could not be published.",
+                )
+            }
         }
     }
 
@@ -100,7 +111,7 @@ public class EpubImportPreviewService(
         return when (val parsed = parser.parse(source)) {
             is EpubParseResult.Parsed -> {
                 val canonical = try {
-                    canonicalText.preview(parsed.document)
+                    canonicalText.preview(parsed.document, source.validation?.warnings.orEmpty())
                 } catch (_: Exception) {
                     sourceRepository.discardStaged(source)
                     return EpubPreviewResult.Failed(
@@ -114,6 +125,7 @@ public class EpubImportPreviewService(
                         document = parsed.document,
                         canonical = canonical,
                         storage = storageEstimate(source, parsed.document, canonical),
+                        securityWarnings = canonical.securityWarnings,
                     ),
                 )
             }
@@ -123,6 +135,7 @@ public class EpubImportPreviewService(
                     EpubImportError.SECURITY_VALIDATION_FAILED,
                     "The EPUB failed its security validation.",
                     parsed.diagnostic,
+                    listOf(parsed.diagnostic),
                 )
             }
             is EpubParseResult.Failed -> {

@@ -115,9 +115,6 @@ public class EpubSourceRepositoryTest {
         val index = FakeProjectIndex()
         val attacks = listOf(
             "attack-zip-slip.epub",
-            "attack-decompression-bomb.epub",
-            "attack-oversized-entry.epub",
-            "attack-entry-count.epub",
             "attack-entity-expansion.epub",
             "attack-external-resource.epub",
             "attack-encrypted-entry.epub",

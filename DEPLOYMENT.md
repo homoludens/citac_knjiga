@@ -1,5 +1,31 @@
 # Deployment & Environment — citac_knjiga
 
+## EPUB import verification
+
+The affected-module gate for `fix-real-world-epub-import` is:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew :document-epub:testDebugUnitTest \
+  :document-epub:lintDebug \
+  :document-epub:assembleRelease \
+  :app:lintStandardDebug \
+  :app:assembleRelease
+```
+
+Document-EPUB connected tests require an attached API 35 emulator or device:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew :document-epub:connectedDebugAndroidTest
+```
+
+The complete app connected suite also contains a separate typed-text proof that
+requires a verified private model package; its absence is not an EPUB import
+failure.
+
 ## Signed app release artifacts (task 12.7)
 
 `scripts/release_artifacts.py` is the app-only release gate. It builds the
