@@ -1590,3 +1590,28 @@ incompatible or unmaintained production dependency to replace. Readium and
 Sherpa-ONNX are excluded by the recorded production decisions. The generated
 Gradle graph is temporary build output under
 `build/reports/dependency-audit/` and is not a release asset.
+
+## MVP capability audit (task 11.8)
+
+Task 11.8 was audited on 2026-08-30 and remains **blocked and unchecked**.
+The redacted requirement/scenario/task matrix is
+`reports/task-11-8-mvp-capability-matrix.md`. It maps all 37 requirements and
+43 scenarios in the six change specs, plus every task from 1.x through 11.x,
+to reproducible evidence, results, limitations, and release impact.
+
+The audit ran OpenSpec strict validation, 39 desktop model-tool tests, all 11
+EPUB fixture validations, direct-parser tests, ONNX graph validation, package
+manifest/hash validation, root JVM tests, all module lint tasks, offline
+release-manifest checks, core/TTS/EPUB/export connected suites, focused app
+accessibility/diagnostics/player/recovery tests, dependency audit, AAC fixture
+benchmark, and standard/F-Droid debug/release assemblies. These available
+checks passed except for the expected full-app typed-text proof failure when
+the intentionally unstaged verified model package is absent. The fresh full
+desktop parity rerun timed out; the committed v2 report remains the recorded
+26/26 parity evidence.
+
+The release-candidate decision is **no**. Task 10.8 still lacks two external
+Android audio players. Task 11.4 still lacks Android 11/API 30, Android
+16/API 36, and physical Poco F3 vendor battery-management qualification. The
+natural Serbian AAC listening/Poco AAC check and public model legal gate also
+remain open. No model, audio, or generated report is committed.

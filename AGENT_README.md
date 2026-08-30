@@ -474,6 +474,18 @@ target.
   Sherpa-ONNX remain intentionally excluded. Missing Guava/Hamcrest POM license
   fields use explicit upstream fallbacks, and unknown licenses fail the audit.
 
+- Task 11.8 performed the MVP capability audit on 2026-08-30. The redacted
+  matrix is `reports/task-11-8-mvp-capability-matrix.md`; it maps all 37 spec
+  requirements, 43 scenarios, and every task from 1.x through 11.x to evidence
+  and limitations. OpenSpec strict validation, desktop/fixture/JVM checks,
+  available connected suites, manifest/privacy checks, dependency audit, and
+  standard/F-Droid assemblies passed within their stated boundaries. The
+  release-candidate decision is **no**: task 10.8 lacks two external players,
+  task 11.4 lacks API 30/API 36 and physical Poco F3 qualification, the
+  intentionally unstaged production model blocks the current app TTS proof,
+  and natural Serbian AAC/Poco AAC listening remains pending. Task 11.8 stays
+  unchecked.
+
 ## Repository layout
 
 | Path | Purpose |
