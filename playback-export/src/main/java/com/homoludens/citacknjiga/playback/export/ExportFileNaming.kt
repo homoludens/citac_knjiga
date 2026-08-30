@@ -7,17 +7,14 @@ public object ExportFileNaming {
     public fun chapterFileName(
         chapterOrdinal: Int,
         chapterTitle: String?,
-        segmentSequence: Int,
         extension: String,
     ): String {
         require(chapterOrdinal >= 0) { "Chapter ordinal cannot be negative" }
-        require(segmentSequence >= 0) { "Segment sequence cannot be negative" }
         val title = sanitize(chapterTitle.orEmpty(), "chapter")
         val safeExtension = sanitizeExtension(extension)
-        return "%04d-%03d-%s.%s".format(
+        return "%04d-%s.%s".format(
             Locale.ROOT,
             chapterOrdinal + 1,
-            segmentSequence + 1,
             title,
             safeExtension,
         )

@@ -593,12 +593,15 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
 The exporter never converts a tree URI to a filesystem path. It enumerates
 provider children, creates files with `DocumentsContract`, and writes through
 the provider's output stream. Chapter audio names are deterministic
-`0001-001-sanitized-title.m4a`/`.wav` values (chapter and segment order are
-one-based and zero-padded); case-insensitive collisions use `-2`, `-3`, and so
-on. Existing names are not replaced unless an overwrite plan is explicitly
-confirmed. Available private covers are copied with detected image MIME/extension,
-and `manifest.json` contains the canonical export-manifest-v1 metadata and
-provenance. No generated export is checked in.
+`0001-sanitized-title.m4a`/`.wav` values (chapter order is one-based and
+zero-padded); each selected chapter produces exactly one physical audio file.
+WAV segments are streamed into one validated WAV. M4A or mixed inputs are
+decoded and re-encoded at chapter scope, never byte-concatenated. The manifest
+retains ordered source segment IDs. Case-insensitive collisions use `-2`, `-3`,
+and so on. Existing names are not replaced unless an overwrite plan is
+explicitly confirmed. Available private covers are copied with detected image
+MIME/extension, and `manifest.json` contains the canonical export-manifest-v1
+metadata and provenance. No generated export is checked in.
 
 Focused verification:
 

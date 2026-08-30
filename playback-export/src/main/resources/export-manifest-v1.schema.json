@@ -78,6 +78,7 @@
         "duration_ms": { "type": "integer", "minimum": 1 },
         "sample_rate_hz": { "const": 24000 },
         "channels": { "const": 1 },
+        "source_segment_ids": { "type": "array", "items": { "$ref": "#/$defs/id" } },
         "generation": { "$ref": "#/$defs/generation" }
       }
     },

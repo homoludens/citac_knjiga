@@ -11,11 +11,14 @@ import com.homoludens.citacknjiga.core.database.ChapterEntity
 import com.homoludens.citacknjiga.core.database.ChapterStatus
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.core.storage.AtomicArtifactStore
+import com.homoludens.citacknjiga.tts.onnx.AndroidMediaCodecAacEncoder
+import com.homoludens.citacknjiga.tts.onnx.AndroidM4aValidator
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.After
 import org.junit.Before
@@ -24,6 +27,7 @@ import org.junit.Test
 public class SafAudiobookExporterAndroidTest {
     private lateinit var storage: AppPrivateStorage
     private lateinit var source: java.io.File
+    private lateinit var secondSource: java.io.File
     private lateinit var tree: FakeSafTree
 
     @Before
@@ -32,7 +36,11 @@ public class SafAudiobookExporterAndroidTest {
         storage = AppPrivateStorage(java.io.File(context.cacheDir, "export-${System.nanoTime()}"))
         source = storage.readySegmentWav("book", "chapter", "segment").apply {
             parentFile!!.mkdirs()
-            writeBytes(validWav())
+            writeBytes(validWav(2_000))
+        }
+        secondSource = storage.readySegmentWav("book", "chapter", "segment-2").apply {
+            parentFile!!.mkdirs()
+            writeBytes(validWav(3_000))
         }
         storage.coverImage("book").apply {
             parentFile!!.mkdirs()
@@ -50,7 +58,7 @@ public class SafAudiobookExporterAndroidTest {
     public fun createsProviderFilesWithCoverAndManifestWithoutOverwritingCollision() {
         val request = request()
         val exporter = SafAudiobookExporter(storage)
-        val baseName = "0001-001-Citanje_knjige.wav"
+        val baseName = "0001-Citanje_knjige.wav"
         tree.addExisting(baseName, "old audio".toByteArray())
 
         val plan = exporter.plan(tree, request)
@@ -58,7 +66,19 @@ public class SafAudiobookExporterAndroidTest {
         val result = exporter.export(plan)
 
         assertArrayEquals("old audio".toByteArray(), tree.bytes(baseName))
-        assertTrue(result.writtenNames.any { it == "0001-001-Citanje_knjige-2.wav" })
+        assertEquals(1, result.writtenNames.count { it.endsWith(".wav") })
+        assertTrue(result.writtenNames.any { it == "0001-Citanje_knjige-2.wav" })
+        val merged = tree.bytes("0001-Citanje_knjige-2.wav")
+        assertEquals(source.length() + secondSource.length() - 88L, merged.size.toLong() - 44L)
+        assertArrayEquals(source.readBytes().copyOfRange(44, source.length().toInt()), merged.copyOfRange(44, 44 + source.length().toInt() - 44))
+        assertArrayEquals(
+            secondSource.readBytes().copyOfRange(44, secondSource.length().toInt()),
+            merged.copyOfRange(44 + source.length().toInt() - 44, merged.size),
+        )
+        val manifest = ExportManifestCodec.decode(tree.bytes("manifest.json").decodeToString())
+        assertEquals(1, manifest.chapters.single().files.size)
+        assertEquals(listOf("segment", "segment-2"), manifest.chapters.single().files.single().sourceSegmentIds)
+        assertEquals(40L, manifest.chapters.single().durationMs)
         assertTrue(tree.bytes("manifest.json").decodeToString().contains("Book"))
         assertArrayEquals(
             byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A),
@@ -70,23 +90,76 @@ public class SafAudiobookExporterAndroidTest {
     public fun replacementNeedsExplicitConfirmationAndThenReplacesSelectedFiles() {
         val exporter = SafAudiobookExporter(storage)
         val request = request()
-        tree.addExisting("0001-001-Citanje_knjige.wav", "old audio".toByteArray())
+        tree.addExisting("0001-Citanje_knjige.wav", "old audio".toByteArray())
         val plan = exporter.plan(tree, request, overwriteExisting = true)
 
         assertTrue(runCatching { exporter.export(plan) }.isFailure)
-        assertArrayEquals("old audio".toByteArray(), tree.bytes("0001-001-Citanje_knjige.wav"))
+        assertArrayEquals("old audio".toByteArray(), tree.bytes("0001-Citanje_knjige.wav"))
         exporter.export(plan, overwriteConfirmed = true)
-        assertArrayEquals(source.readBytes(), tree.bytes("0001-001-Citanje_knjige.wav"))
+        val merged = tree.bytes("0001-Citanje_knjige.wav")
+        assertEquals(source.length() + secondSource.length() - 88L, merged.size.toLong() - 44L)
+        assertArrayEquals(source.readBytes().copyOfRange(44, source.length().toInt()), merged.copyOfRange(44, 44 + source.length().toInt() - 44))
     }
 
-    private fun request(): ExportRequest {
+    @Test
+    public fun m4aSegmentsAreDecodedAndReencodedAsOneChapter() {
+        val firstWav = validWavFile(4_800, 2_000)
+        val secondWav = validWavFile(4_800, 3_000)
+        val firstM4a = storage.readySegmentAudio("book", "chapter", "m4a-1").apply { parentFile!!.mkdirs() }
+        val secondM4a = storage.readySegmentAudio("book", "chapter", "m4a-2").apply { parentFile!!.mkdirs() }
+        AndroidMediaCodecAacEncoder().encode(firstWav, firstM4a)
+        AndroidMediaCodecAacEncoder().encode(secondWav, secondM4a)
+        val exporter = SafAudiobookExporter(storage)
+        val request = request(listOf(segment("m4a-1", 0, firstM4a, 200L), segment("m4a-2", 1, secondM4a, 200L)))
+
+        val plan = exporter.plan(tree, request)
+        val result = exporter.export(plan)
+
+        assertEquals(1, result.writtenNames.count { it.endsWith(".m4a") })
+        val output = storage.temporaryFile("test", "chapter.m4a").apply {
+            parentFile!!.mkdirs()
+            writeBytes(tree.bytes("0001-Citanje_knjige.m4a"))
+        }
+        val info = AndroidM4aValidator().validate(output)
+        assertTrue(info.durationMs > 200L)
+        assertTrue(ExportManifestCodec.decode(tree.bytes("manifest.json").decodeToString()).chapters.single().durationMs > 200L)
+    }
+
+    @Test
+    public fun failedAssemblyLeavesReadySourcesUntouched() {
+        val before = source.readBytes()
+        val exporter = SafAudiobookExporter(
+            storage = storage,
+            chapterAssembler = ChapterAudioAssembler { _, _, _ -> error("simulated chapter failure") },
+        )
+
+        assertTrue(runCatching { exporter.plan(tree, request()) }.isFailure)
+        assertArrayEquals(before, source.readBytes())
+    }
+
+    private fun request(segments: List<AudioSegmentEntity> = listOf(
+        segment("segment", 0, source, 20L),
+        segment("segment-2", 1, secondSource, 20L),
+    )): ExportRequest {
+        return ExportRequest(
+            project = project(),
+            chapters = listOf(
+                ExportChapterInput(
+                    ChapterEntity("chapter", "book", 0, "Čitanje knjige", status = ChapterStatus.READY, createdAt = 1L, updatedAt = 1L),
+                    segments,
+                ),
+            ),
+        )
+    }
+
+    private fun segment(id: String, sequence: Int, file: java.io.File, durationMs: Long): AudioSegmentEntity {
         val artifactStore = AtomicArtifactStore(storage)
-        val segment = AudioSegmentEntity(
-            id = "segment",
+        return AudioSegmentEntity(
+            id = id,
             chapterId = "chapter",
             narrationBlockId = "block",
-            sequence = 0,
-            chunkOrdinal = 0,
+            sequence = sequence,
+            chunkOrdinal = sequence,
             generationKey = HASH,
             generationRunId = "run",
             modelPackageId = "model",
@@ -97,35 +170,55 @@ public class SafAudiobookExporterAndroidTest {
             inferenceSettingsHash = HASH,
             audioProcessingVersion = "audio-v1",
             status = AudioSegmentStatus.READY,
-            audioPath = source.path,
-            audioSha256 = artifactStore.sha256(source),
-            sizeBytes = source.length(),
-            durationMs = 20L,
+            audioPath = file.path,
+            audioSha256 = artifactStore.sha256(file),
+            sizeBytes = file.length(),
+            durationMs = durationMs,
             sampleRate = 24_000,
             channels = 1,
             createdAt = 1L,
             updatedAt = 1L,
         )
-        return ExportRequest(
-            project = BookProjectEntity(
-                id = "book",
-                title = "Book",
-                author = "Author",
-                sourceUri = "content://private",
-                sourceFingerprint = HASH,
-                coverPath = storage.coverImage("book").path,
-                language = "sr",
-                status = BookProjectStatus.COMPLETED,
-                createdAt = 1L,
-                updatedAt = 1L,
-            ),
-            chapters = listOf(
-                ExportChapterInput(
-                    ChapterEntity("chapter", "book", 0, "Čitanje knjige", status = ChapterStatus.READY, createdAt = 1L, updatedAt = 1L),
-                    listOf(segment),
-                ),
-            ),
-        )
+    }
+
+    private fun project(): BookProjectEntity = BookProjectEntity(
+        id = "book",
+        title = "Book",
+        author = "Author",
+        sourceUri = "content://private",
+        sourceFingerprint = HASH,
+        coverPath = storage.coverImage("book").path,
+        language = "sr",
+        status = BookProjectStatus.COMPLETED,
+        createdAt = 1L,
+        updatedAt = 1L,
+    )
+
+    private fun validWavFile(sampleCount: Int, value: Short): java.io.File = storage.temporaryFile(
+        "test",
+        "${sampleCount}-${value}.wav",
+    ).apply {
+        parentFile!!.mkdirs()
+        writeBytes(validWav(value, sampleCount))
+    }
+
+    private fun validWav(value: Short, sampleCount: Int = 480): ByteArray {
+        val dataSize = sampleCount * 2
+        return ByteBuffer.allocate(44 + dataSize).order(ByteOrder.LITTLE_ENDIAN).apply {
+            put("RIFF".toByteArray())
+            putInt(36 + dataSize)
+            put("WAVEfmt ".toByteArray())
+            putInt(16)
+            putShort(1)
+            putShort(1)
+            putInt(24_000)
+            putInt(48_000)
+            putShort(2)
+            putShort(16)
+            put("data".toByteArray())
+            putInt(dataSize)
+            repeat(sampleCount) { putShort(if (it % 2 == 0) value else (-value).toShort()) }
+        }.array()
     }
 
     private class FakeSafTree : SafDocumentTree {
@@ -157,24 +250,6 @@ public class SafAudiobookExporterAndroidTest {
         override fun delete(uri: Uri): Boolean = values.remove(uri.lastPathSegment) != null
     }
 
-    private fun validWav(): ByteArray {
-        val dataSize = 480 * 2
-        return ByteBuffer.allocate(44 + dataSize).order(ByteOrder.LITTLE_ENDIAN).apply {
-            put("RIFF".toByteArray())
-            putInt(36 + dataSize)
-            put("WAVEfmt ".toByteArray())
-            putInt(16)
-            putShort(1)
-            putShort(1)
-            putInt(24_000)
-            putInt(48_000)
-            putShort(2)
-            putShort(16)
-            put("data".toByteArray())
-            putInt(dataSize)
-            repeat(480) { putShort(if (it % 2 == 0) 2_000 else -2_000) }
-        }.array()
-    }
 
     private companion object {
         const val HASH = "1111111111111111111111111111111111111111111111111111111111111111"

@@ -475,8 +475,11 @@ target.
   `ContentResolverDocumentTree` uses `DocumentsContract` child queries and
   provider streams, while `SafAudiobookExporter` accepts only Room `READY`
   audio below private `ready-audio/` with matching size/SHA-256. Files use
-  one-based zero-padded chapter and segment order plus sanitized titles;
-  collisions get deterministic numeric suffixes unless the caller explicitly
+  one-based zero-padded chapter order plus sanitized titles; each selected
+  chapter produces exactly one physical audio file while the manifest retains
+  ordered source segment IDs. WAV segments are streamed into one validated WAV;
+  M4A or mixed inputs are decoded and re-encoded rather than byte-concatenated.
+  Collisions get deterministic numeric suffixes unless the caller explicitly
   confirms replacement. The export writes verified audio, an inferred cover
   image when available, and canonical manifest-v1 JSON. Persistent progress,
   retry, destination-loss recovery, and capacity estimation remain task 10.6+

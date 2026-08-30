@@ -104,6 +104,7 @@ public data class ExportManifestFile(
     public val sampleRateHz: Int,
     public val channels: Int,
     public val generation: ExportGenerationProvenance,
+    public val sourceSegmentIds: List<String> = emptyList(),
 ) {
     public companion object {
         /** Adapts a verified Room segment without copying its private audio path. */
@@ -124,6 +125,35 @@ public data class ExportManifestFile(
                 sampleRateHz = segment.sampleRate,
                 channels = segment.channels,
                 generation = ExportGenerationProvenance.fromReadySegment(segment),
+                sourceSegmentIds = listOf(segment.id),
+            )
+        }
+
+        public fun fromReadySegments(
+            chapterId: String,
+            segments: List<AudioSegmentEntity>,
+            path: String,
+            mediaType: String,
+            sha256: String,
+            sizeBytes: Long,
+            durationMs: Long,
+        ): ExportManifestFile {
+            require(segments.isNotEmpty()) { "A chapter file needs a ready segment" }
+            require(segments.all { it.status == AudioSegmentStatus.READY }) {
+                "Only READY segments can enter an export manifest"
+            }
+            return ExportManifestFile(
+                id = "$chapterId-file",
+                sequence = 0,
+                path = path,
+                mediaType = mediaType,
+                sha256 = sha256,
+                sizeBytes = sizeBytes,
+                durationMs = durationMs,
+                sampleRateHz = ExportManifestSchema.SAMPLE_RATE_HZ,
+                channels = ExportManifestSchema.CHANNELS,
+                generation = ExportGenerationProvenance.fromReadySegment(segments.first()),
+                sourceSegmentIds = segments.map { it.id },
             )
         }
     }
@@ -198,6 +228,7 @@ public object ExportManifestValidator {
         }
         val fileIds = mutableSetOf<String>()
         val paths = mutableSetOf<String>()
+        val sourceSegmentIds = mutableSetOf<String>()
         manifest.chapters.forEach { chapter ->
             requireId(chapter.id, "chapter id")
             require(chapter.title.isNotBlank()) { "Chapter title cannot be blank" }
@@ -209,6 +240,13 @@ public object ExportManifestValidator {
             chapter.files.forEach { file ->
                 require(fileIds.add(file.id)) { "File identifiers must be unique" }
                 require(paths.add(file.path)) { "Manifest file paths must be unique" }
+                require(file.sourceSegmentIds.distinct().size == file.sourceSegmentIds.size) {
+                    "Source segment identifiers must be unique"
+                }
+                file.sourceSegmentIds.forEach {
+                    requireId(it, "source segment id")
+                    require(sourceSegmentIds.add(it)) { "Source segment identifiers must be unique" }
+                }
                 validateFile(file)
             }
             require(chapter.durationMs == chapter.files.sumOf { it.durationMs }) {
@@ -360,6 +398,9 @@ public object ExportManifestCodec {
         addProperty("sample_rate_hz", file.sampleRateHz)
         addProperty("channels", file.channels)
         add("generation", generationJson(file.generation))
+        if (file.sourceSegmentIds.isNotEmpty()) {
+            add("source_segment_ids", JsonArray().apply { file.sourceSegmentIds.forEach { add(it) } })
+        }
     }
 
     private fun generationJson(generation: ExportGenerationProvenance): JsonObject = JsonObject().apply {
@@ -411,7 +452,7 @@ public object ExportManifestCodec {
 
     private fun parseFile(value: JsonElement): ExportManifestFile {
         val objectValue = value.asObjectStrict()
-        objectValue.requireKeys("file", setOf("id", "sequence", "path", "media_type", "sha256", "size_bytes", "duration_ms", "sample_rate_hz", "channels", "generation"))
+        objectValue.requireKeys("file", setOf("id", "sequence", "path", "media_type", "sha256", "size_bytes", "duration_ms", "sample_rate_hz", "channels", "generation", "source_segment_ids"))
         return ExportManifestFile(
             id = objectValue.requiredString("id"),
             sequence = objectValue.requiredInt("sequence"),
@@ -423,6 +464,7 @@ public object ExportManifestCodec {
             sampleRateHz = objectValue.requiredInt("sample_rate_hz"),
             channels = objectValue.requiredInt("channels"),
             generation = parseGeneration(objectValue.requiredObject("generation")),
+            sourceSegmentIds = objectValue.optionalStringArray("source_segment_ids"),
         )
     }
 
@@ -497,5 +539,13 @@ public object ExportManifestCodec {
         it.asJsonArray
     }
 
-    private val OPTIONAL_FIELDS = setOf("author", "language", "model_package_id")
+    private fun JsonObject.optionalStringArray(name: String): List<String> = get(name)?.let {
+        require(it.isJsonArray) { "Invalid field $name" }
+        it.asJsonArray.map { value ->
+            require(value.isJsonPrimitive && value.asJsonPrimitive.isString) { "Invalid field $name" }
+            value.asString
+        }
+    }.orEmpty()
+
+    private val OPTIONAL_FIELDS = setOf("author", "language", "model_package_id", "source_segment_ids")
 }

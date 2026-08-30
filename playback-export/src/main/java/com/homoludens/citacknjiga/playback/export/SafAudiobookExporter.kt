@@ -8,6 +8,7 @@ import com.homoludens.citacknjiga.core.database.ChapterEntity
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.core.storage.AtomicArtifactStore
 import java.io.File
+import java.util.UUID
 
 public val DEFAULT_ATTRIBUTION_REFS: List<ExportAttributionReference> = listOf(
     ExportAttributionReference(
@@ -35,6 +36,7 @@ public data class ExportRequest(
     public val project: BookProjectEntity,
     public val chapters: List<ExportChapterInput>,
     public val attributionRefs: List<ExportAttributionReference> = DEFAULT_ATTRIBUTION_REFS,
+    public val audioFormat: ExportAudioFormat = ExportAudioFormat.AUTO,
 )
 
 public data class PlannedExportFile(
@@ -43,6 +45,7 @@ public data class PlannedExportFile(
     public val mimeType: String,
     public val sourceFiles: List<File>,
     public val sourceSegments: List<AudioSegmentEntity> = emptyList(),
+    public val assembledDurationMs: Long = 0L,
 )
 
 public class ExportPlan internal constructor(
@@ -77,6 +80,7 @@ public class IncompleteExportException(
 public class SafAudiobookExporter(
     private val storage: AppPrivateStorage,
     private val artifactStore: AtomicArtifactStore = AtomicArtifactStore(storage),
+    private val chapterAssembler: ChapterAudioAssembler = AndroidChapterAudioAssembler(),
     private val sourceValidator: (File, AudioSegmentEntity) -> Unit = { file, segment ->
         require(file.isFile) { "Verified audio file is missing" }
         require(segment.sizeBytes != null && file.length() == segment.sizeBytes) { "Verified audio size does not match Room" }
@@ -112,39 +116,51 @@ public class SafAudiobookExporter(
         val occupied = existing.keys.toMutableSet()
         val collisions = mutableListOf<String>()
         val files = mutableListOf<PlannedExportFile>()
-        chapters.forEach { input ->
+        val chapterFiles = chapters.map { input ->
             val segments = input.segments.sortedWith(compareBy<AudioSegmentEntity> { it.sequence }.thenBy { it.id })
             val missing = segments.filter { it.status != AudioSegmentStatus.READY || it.audioPath.isNullOrBlank() }
             if (missing.isNotEmpty()) {
                 throw IncompleteExportException(listOf(input.chapter.id), missing.map { it.id })
             }
             if (segments.isEmpty()) throw IncompleteExportException(listOf(input.chapter.id), emptyList())
-            segments.forEach { segment ->
-                val source = verifiedSource(segment)
-                val extension = source.extension.lowercase().ifEmpty { "bin" }
-                require(extension in setOf("m4a", "mp4", "wav")) { "Unsupported ready audio extension" }
-                val baseName = ExportFileNaming.chapterFileName(
-                    input.chapter.ordinal,
-                    input.chapter.title,
-                    segment.sequence,
-                    extension,
-                )
-                val name = if (overwriteExisting) baseName else {
-                    val safe = ExportFileNaming.collisionSafeName(baseName, occupied)
-                    if (safe != baseName) collisions += baseName
-                    safe
-                }
-                if (overwriteExisting && baseName.lowercase() in occupied) collisions += baseName
-                occupied += name.lowercase()
-                files += PlannedExportFile(
-                    name = name,
-                    baseName = baseName,
-                    mimeType = if (extension == "wav") "audio/wav" else "audio/mp4",
-                    sourceFiles = listOf(source),
-                    sourceSegments = listOf(segment),
-                )
+            val sources = segments.map(::verifiedSource)
+            require(sources.all { it.extension.lowercase() in setOf("m4a", "mp4", "wav") }) {
+                "Unsupported ready audio extension"
             }
+            val temporary = storage.temporaryFile("export", "chapter-${UUID.randomUUID()}.audio")
+            val assembled = if (chapterAssembler is DurationAwareChapterAudioAssembler) {
+                chapterAssembler.assemble(
+                    sources,
+                    temporary,
+                    exportRequest.audioFormat,
+                    segments.map { it.durationMs ?: error("Ready segment duration is missing") },
+                )
+            } else {
+                chapterAssembler.assemble(sources, temporary, exportRequest.audioFormat)
+            }
+            val extension = when (assembled.format) {
+                ExportAudioFormat.WAV -> "wav"
+                ExportAudioFormat.M4A -> "m4a"
+                ExportAudioFormat.AUTO -> error("Assembler must resolve the export format")
+            }
+            val baseName = ExportFileNaming.chapterFileName(input.chapter.ordinal, input.chapter.title, extension)
+            val name = if (overwriteExisting) baseName else {
+                val safe = ExportFileNaming.collisionSafeName(baseName, occupied)
+                if (safe != baseName) collisions += baseName
+                safe
+            }
+            if (overwriteExisting && baseName.lowercase() in occupied) collisions += baseName
+            occupied += name.lowercase()
+            PlannedExportFile(
+                name = name,
+                baseName = baseName,
+                mimeType = if (extension == "wav") "audio/wav" else "audio/mp4",
+                sourceFiles = listOf(assembled.file),
+                sourceSegments = segments,
+                assembledDurationMs = assembled.durationMs,
+            )
         }
+        files += chapterFiles
         exportRequest.project.coverPath?.let { coverPath ->
             val cover = verifiedCover(exportRequest.project.id, coverPath)
             val baseName = "cover.${coverExtension(cover)}"
@@ -167,12 +183,19 @@ public class SafAudiobookExporter(
         val manifest = ExportManifestFactory.fromRoom(
             project = exportRequest.project,
             chapters = chapters.map { it.chapter },
-            filesByChapter = chapters.associate { input ->
-                input.chapter.id to input.segments.sortedWith(compareBy<AudioSegmentEntity> { it.sequence }.thenBy { it.id })
-                    .map { segment ->
-                        val planned = files.first { it.sourceSegments.singleOrNull()?.id == segment.id }
-                        ExportManifestFile.fromReadySegment(segment, planned.name, planned.mimeType)
-                    }
+            filesByChapter = chapters.zip(chapterFiles).associate { (input, planned) ->
+                val assembled = planned.sourceFiles.single()
+                input.chapter.id to listOf(
+                    ExportManifestFile.fromReadySegments(
+                        chapterId = input.chapter.id,
+                        segments = planned.sourceSegments,
+                        path = planned.name,
+                        mediaType = planned.mimeType,
+                        sha256 = artifactStore.sha256(assembled),
+                        sizeBytes = assembled.length(),
+                        durationMs = planned.assembledDurationMs,
+                    ),
+                )
             },
             attributionRefs = exportRequest.attributionRefs.ifEmpty { DEFAULT_ATTRIBUTION_REFS },
         )

@@ -8,8 +8,8 @@ public class ExportFileNamingTest {
     @Test
     public fun namesUseOneBasedZeroPaddedOrderAndSanitizedMetadata() {
         assertEquals(
-            "0001-003-Citanje_knjige.wav",
-            ExportFileNaming.chapterFileName(0, "Čitanje / knjige", 2, ".WAV"),
+            "0001-Citanje_knjige.wav",
+            ExportFileNaming.chapterFileName(0, "Čitanje / knjige", ".WAV"),
         )
     }
 

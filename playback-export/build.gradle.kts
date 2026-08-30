@@ -29,6 +29,7 @@ kotlin {
 
 dependencies {
     implementation(project(":core"))
+    implementation(project(":tts-onnx"))
     implementation(libs.gson)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.media3.exoplayer)

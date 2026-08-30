@@ -89,6 +89,7 @@ public class ExportManifestTest {
         val encoded = ExportManifestCodec.encode(manifest)
 
         assertTrue(encoded.contains("chapters/0001.wav"))
+        assertTrue(encoded.contains("source_segment_ids"))
         assertFalse(encoded.contains("content://private/document-with-sensitive-path"))
         assertFalse(encoded.contains("/data/user/0"))
     }
