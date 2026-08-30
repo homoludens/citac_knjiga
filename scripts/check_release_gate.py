@@ -21,6 +21,7 @@ DESKTOP_PARITY = ROOT / "model-tools/parity/fp32-parity-v2-report.json"
 RELEASE_DOCS_CHECK = ROOT / "scripts/validate_release_docs.py"
 FDROID_CHECK = ROOT / "scripts/check_fdroid.py"
 RELEASE_ARTIFACTS = ROOT / "scripts/release_artifacts.py"
+MODEL_RELEASE_GATE = ROOT / "scripts/validate_model_release_gate.py"
 
 TASK_PATTERN = re.compile(r"^- \[([ xX])\] (\d+(?:\.\d+)?)\b")
 
@@ -103,6 +104,16 @@ def check_model_legal(model_manifest: Path | None) -> dict[str, str]:
         "BLOCKED",
         str(path),
         "public model-weight legal gate is open; schema declarations are not legal clearance",
+    )
+
+
+def check_model_release_metadata(metadata: Path | None) -> dict[str, str]:
+    if metadata is None:
+        return result("model_release_metadata", "BLOCKED", str(MODEL_RELEASE_GATE), "no trusted release metadata was supplied")
+    return command_result(
+        [sys.executable, str(MODEL_RELEASE_GATE), str(metadata)],
+        "model_release_metadata",
+        "scripts/validate_model_release_gate.py",
     )
 
 
@@ -263,11 +274,12 @@ def check_artifact_separation(artifact_dir: Path | None) -> dict[str, str]:
     )
 
 
-def evaluate(artifact_dir: Path | None = None, model_manifest: Path | None = None, android_report: Path | None = None, execute: bool = True) -> dict[str, object]:
+def evaluate(artifact_dir: Path | None = None, model_manifest: Path | None = None, android_report: Path | None = None, release_metadata: Path | None = None, execute: bool = True) -> dict[str, object]:
     statuses = task_status()
     hard = [
         check_signed_artifacts(artifact_dir, statuses),
         check_model_legal(model_manifest),
+        check_model_release_metadata(release_metadata),
         *check_parity(android_report),
         check_production_model_proof(),
         check_external_players(statuses),
@@ -310,11 +322,12 @@ def main() -> int:
     parser.add_argument("--artifact-dir", type=Path, help="external signed app-only artifact directory")
     parser.add_argument("--model-manifest", type=Path, help="external model manifest to evaluate for legal clearance")
     parser.add_argument("--android-parity-report", type=Path, help="external passing Android parity report")
+    parser.add_argument("--release-metadata", type=Path, help="trusted external publisher/legal release metadata")
     parser.add_argument("--json", type=Path, help="write the machine-readable result to an external path")
     parser.add_argument("--no-execute", action="store_true", help="use recorded evidence without running read-only static checks")
     args = parser.parse_args()
     try:
-        report = evaluate(args.artifact_dir, args.model_manifest, args.android_parity_report, not args.no_execute)
+        report = evaluate(args.artifact_dir, args.model_manifest, args.android_parity_report, args.release_metadata, not args.no_execute)
         print_report(report)
         if args.json:
             args.json.expanduser().resolve().write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
