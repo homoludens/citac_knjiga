@@ -114,7 +114,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 
 - [x] 11.1 Add malicious EPUB tests for Zip Slip, decompression bombs, oversized entries, entity expansion, external resources, encrypted content, and malformed navigation. → bounded adversarial JVM coverage for canonical path variants, entry/expansion/size/ratio limits, encrypted and DTD/entity/external-resource fixtures, plus recoverable empty-NCX navigation.
 - [x] 11.2 Verify that release and F-Droid manifests have no routine network permission and that diagnostics redact document text and sensitive URIs by default.
-- [ ] 11.3 Add end-to-end tests for Latin/Cyrillic equivalence, one-block invalidation, insufficient storage, corrupt model packages, corrupt audio, and disappearing SAF providers.
+- [x] 11.3 Add end-to-end tests for Latin/Cyrillic equivalence, one-block invalidation, insufficient storage, corrupt model packages, corrupt audio, and disappearing SAF providers.
 - [ ] 11.4 Run sustained generation-plus-playback tests on Android 11, a current Android release, Android 16, and the Poco F3 vendor battery-management configuration.
 - [ ] 11.5 Add accessibility checks, Serbian/English string-resource readiness, large-text layout checks, and clear long-running/error-state UX.
 - [ ] 11.6 Add an in-app diagnostics/about view for model verification, device capability, versions, licenses, attribution, storage, and redacted log export.

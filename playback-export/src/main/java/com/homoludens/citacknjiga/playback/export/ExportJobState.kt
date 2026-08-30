@@ -7,7 +7,11 @@ public object ExportJobStateValidator {
     public fun requireTransition(from: ExportChapterStatus, to: ExportChapterStatus) {
         require(
             when (from) {
-                ExportChapterStatus.PENDING -> to in setOf(ExportChapterStatus.WRITING, ExportChapterStatus.CANCELLED)
+                ExportChapterStatus.PENDING -> to in setOf(
+                    ExportChapterStatus.WRITING,
+                    ExportChapterStatus.FAILED,
+                    ExportChapterStatus.CANCELLED,
+                )
                 ExportChapterStatus.WRITING -> to in setOf(
                     ExportChapterStatus.VERIFIED,
                     ExportChapterStatus.FAILED,

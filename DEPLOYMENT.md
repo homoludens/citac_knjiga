@@ -1430,3 +1430,32 @@ ANDROID_HOME=/home/homoludens/Android/Sdk ANDROID_SDK_ROOT=/home/homoludens/Andr
     :app:assembleStandardRelease :app:assembleFdroidRelease \
     --no-daemon --max-workers=1
 ```
+
+## Cross-component recovery coverage (task 11.3)
+
+Task 11.3 adds deterministic end-to-end coverage across preprocessing, Room,
+generation, model import/runtime, playback, EPUB source import, and SAF export:
+
+- `SerbianPreprocessingTest` compares Latin/Cyrillic golden vectors through
+  phonemes, token IDs, chunk boundaries, and `GenerationKeyCalculator`.
+- `CrossComponentGenerationRecoveryAndroidTest` uses file-backed Room,
+  `StartupReconciliation`, `GenerationStateService`, and `BoundedGenerationRunner`
+  to prove one-block selective regeneration and storage failure before/during work.
+- `ModelPackageStoreTest` corrupts the only installed package and proves the
+  downstream ONNX session is disabled without a production model.
+- `CrossComponentPlaybackExportRecoveryAndroidTest` reconciles corrupt ready WAV
+  audio, verifies the playback regeneration route, and resumes a Room-backed SAF
+  export after destination loss without changing private project data.
+- `EpubSourceRecoveryAndroidTest` parses the verified private EPUB copy after its
+  source provider disappears.
+
+The focused JVM suites, Android-test compilation, connected core/TTS/EPUB/export
+suites on `emulator-5554` (API 35 x86_64), all module/flavor lint tasks, and
+standard/F-Droid debug/release assemblies passed on 2026-08-30. The tests do not
+claim sustained multi-device behavior or production-model execution.
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :core:connectedDebugAndroidTest :tts-onnx:connectedDebugAndroidTest \
+    :document-epub:connectedDebugAndroidTest :playback-export:connectedDebugAndroidTest
+```

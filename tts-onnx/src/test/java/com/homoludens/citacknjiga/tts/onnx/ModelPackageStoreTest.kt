@@ -80,6 +80,20 @@ public class ModelPackageStoreTest {
     }
 
     @Test
+    public fun corruptOnlyInstalledPackageDisablesOnnxSession() {
+        val root = createTempDirectory().toFile()
+        val store = store(root)
+        store.importPackage(ModelPackageSource { ByteArrayInputStream(packageBytes("only")) })
+        File(root, "model-packages/active.zip").writeBytes(byteArrayOf(1, 2, 3))
+
+        val failure = assertThrows(ModelPackageImportException::class.java) {
+            OnnxTtsSession.open(store)
+        }
+
+        assertEquals(ModelPackageFailureCode.NO_VALID_PACKAGE, failure.code)
+    }
+
+    @Test
     public fun readsVerifiedArtifactsByManifestRole() {
         val root = createTempDirectory().toFile()
         val store = store(root)

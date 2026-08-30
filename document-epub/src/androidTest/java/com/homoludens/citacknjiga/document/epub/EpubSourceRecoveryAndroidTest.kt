@@ -3,6 +3,7 @@ package com.homoludens.citacknjiga.document.epub
 import android.content.Context
 import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.platform.app.InstrumentationRegistry
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.core.storage.AtomicArtifactStore
 import java.io.File
@@ -13,6 +14,33 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 public class EpubSourceRecoveryAndroidTest {
+    @Test
+    public fun importedPrivateSourceRemainsUsableAfterSourceProviderDisappears() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val root = File(context.cacheDir, "source-disappears-${UUID.randomUUID()}")
+        val storage = AppPrivateStorage(root)
+        val bytes = InstrumentationRegistry.getInstrumentation().context.assets
+            .open("serbian-epub3.epub").use { it.readBytes() }
+        var providerAvailable = true
+        val repository = SafEpubSourceRepository(
+            sourceReader = EpubSourceReader { if (providerAvailable) bytes.inputStream() else null },
+            storage = storage,
+            artifactStore = AtomicArtifactStore(storage),
+            projectIndex = RecordingProjectIndex(),
+            projectIdFactory = { "source-disappears" },
+        )
+
+        val imported = (repository.importSelected(Uri.parse("content://books/temporary")) as EpubImportResult.Imported).source
+        val privateBytes = imported.sourceFile.readBytes()
+        providerAvailable = false
+        val parsed = EpubDocumentParser(storage).parse(imported)
+
+        assertTrue(parsed is EpubParseResult.Parsed)
+        assertEquals(privateBytes.toList(), imported.sourceFile.readBytes().toList())
+        assertTrue(imported.sourceFile.exists())
+        root.deleteRecursively()
+    }
+
     @Test
     public fun unavailableSourceProviderDoesNotPublishPrivateState() {
         val context = ApplicationProvider.getApplicationContext<Context>()

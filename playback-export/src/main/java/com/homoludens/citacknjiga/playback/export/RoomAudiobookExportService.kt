@@ -193,7 +193,13 @@ public class RoomAudiobookExportService(
         val verifiedNames = rows.filter { it.status == ExportChapterStatus.VERIFIED }.map { it.fileName }.toSet()
         val temporaryUris = rows.mapNotNull { row -> row.temporaryUri?.let { row.fileName to Uri.parse(it) } }.toMap()
         return try {
-            val result = exporter.export(plan, skipNames = verifiedNames, temporaryUris = temporaryUris, listener = listener)
+            val result = exporter.export(
+                plan,
+                overwriteConfirmed = plan.overwriteExisting,
+                skipNames = verifiedNames,
+                temporaryUris = temporaryUris,
+                listener = listener,
+            )
             val completed = dao.findExportJobChapters(job.id).count { it.status == ExportChapterStatus.VERIFIED }
             require(completed == rows.size) { "Export completed without verifying every chapter" }
             val finished = dao.findExportJobById(job.id)?.copy(

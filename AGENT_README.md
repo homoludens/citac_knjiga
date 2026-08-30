@@ -448,6 +448,15 @@ target.
   fragment values, and exception details are redacted. Focused and release
   verification commands and the dependency/component/runtime audit are recorded
   in `DEPLOYMENT.md`.
+- Task 11.3 adds cross-component recovery coverage: golden Serbian
+  Latin/Cyrillic vectors retain identical phoneme/token/generation identities;
+  Room reconciliation plus the bounded runner regenerates only a changed
+  block; internal storage is checked before and during generation; a corrupt
+  model disables ONNX opening; corrupt ready audio is reconciled and routed to
+  regeneration; export storage is rejected before provider/Room mutation; and
+  private EPUB source plus Room-backed SAF export survive source/destination
+  provider loss and retry. Tests use deterministic fakes and no production
+  model package.
 
 ## Repository layout
 

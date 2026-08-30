@@ -1,5 +1,7 @@
 package com.homoludens.citacknjiga.tts.onnx.preprocessing
 
+import com.homoludens.citacknjiga.core.generation.GenerationKeyCalculator
+import com.homoludens.citacknjiga.core.generation.GenerationKeyInput
 import java.io.InputStream
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -34,6 +36,59 @@ public class SerbianPreprocessingTest {
                 throw AssertionError("${expected.id}: ${failure.message}", failure)
             }
             assertNull("${expected.id}: first divergent stage", firstDivergentStage(expected, actual))
+        }
+    }
+
+    @Test
+    public fun equivalentLatinAndCyrillicVectorsKeepTheSameDownstreamIdentity() {
+        val corpus = loadCorpus()
+        val vectors = corpus.vectors.associateBy { it.id }
+        val phonemesByText = corpus.vectors.associate { it.normalizedText to it.phonemes }
+        val preprocessor = SerbianPreprocessor(
+            resources = loadResources(),
+            phonemizer = SerbianPhonemizer { text -> phonemesByText.getValue(text) },
+        )
+        val shared = mapOf(
+            "modelSha256" to "model",
+            "voiceSha256" to "voice",
+            "preprocessingVersion" to "prep-v1",
+            "pronunciationVersion" to "pron-v1",
+            "audioProcessingVersion" to "audio-v1",
+        )
+
+        listOf(
+            "greeting-latin" to "greeting-cyrillic",
+            "digraphs-latin" to "digraphs-cyrillic",
+        ).forEach { (latinId, cyrillicId) ->
+            val latin = preprocessor.process(vectors.getValue(latinId).text)
+            val cyrillic = preprocessor.process(vectors.getValue(cyrillicId).text)
+            assertEquals(latin.phonemes, cyrillic.phonemes)
+            assertEquals(latin.tokenIds, cyrillic.tokenIds)
+            assertEquals(latin.chunkBoundaries, cyrillic.chunkBoundaries)
+            assertEquals(
+                GenerationKeyCalculator.calculate(
+                    GenerationKeyInput(
+                        tokens = latin.tokenIds,
+                        modelSha256 = shared.getValue("modelSha256"),
+                        voiceSha256 = shared.getValue("voiceSha256"),
+                        preprocessingVersion = shared.getValue("preprocessingVersion"),
+                        pronunciationVersion = shared.getValue("pronunciationVersion"),
+                        inferenceSettings = mapOf("speed" to "1.0"),
+                        audioProcessingVersion = shared.getValue("audioProcessingVersion"),
+                    ),
+                ),
+                GenerationKeyCalculator.calculate(
+                    GenerationKeyInput(
+                        tokens = cyrillic.tokenIds,
+                        modelSha256 = shared.getValue("modelSha256"),
+                        voiceSha256 = shared.getValue("voiceSha256"),
+                        preprocessingVersion = shared.getValue("preprocessingVersion"),
+                        pronunciationVersion = shared.getValue("pronunciationVersion"),
+                        inferenceSettings = mapOf("speed" to "1.0"),
+                        audioProcessingVersion = shared.getValue("audioProcessingVersion"),
+                    ),
+                ),
+            )
         }
     }
 
