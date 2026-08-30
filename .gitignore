@@ -15,3 +15,8 @@ model-tools/parity/desktop-onnx-vectors/
 # Android/Gradle build outputs are local and reproducible.
 **/build/
 .gradle/
+# Release outputs and external signing material never belong in git.
+dist/
+*.jks
+*.keystore
+*.p12

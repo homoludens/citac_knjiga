@@ -537,7 +537,18 @@ target.
   privacy, threat, benchmark, and model-package compatibility records.
   `scripts/validate_release_docs.py` fails on input/SBOM/notice drift, payloads,
   secrets, sensitive URIs, or local paths. The bundle records the blocked model
-  legal status and does not implement tasks 12.7 or 12.8.
+  legal status and does not implement task 12.8.
+
+- Task 12.7 adds `scripts/release_artifacts.py` and
+  `.github/workflows/release.yml` for app-only standard/F-Droid release
+  artifacts. The gate builds from locked source with strict dependency
+  verification, rejects model/audio/generated payloads and secrets, emits
+  `SHA256SUMS` plus a version/signing/provenance manifest, and requires a real
+  external or GitHub-secret-backed keystore for v2/v3 verification. Local
+  unsigned inspection is explicitly labeled and cannot satisfy the release
+  gate. This task remains unchecked: this checkout has no production keystore,
+  signing credentials, or GitHub secret-backed run, so no fake signature was
+  generated.
 
 ## Repository layout
 

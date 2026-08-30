@@ -1,5 +1,62 @@
 # Deployment & Environment — citac_knjiga
 
+## Signed app release artifacts (task 12.7)
+
+`scripts/release_artifacts.py` is the app-only release gate. It builds the
+locked `standardRelease` and `fdroidRelease` variants with strict Gradle
+dependency verification, then checks package/version metadata, source closure,
+F-Droid policy, release documentation, APK payloads, and common secret
+material. The output directory may contain only:
+
+```text
+citac-knjiga-standard-v0.1.0.apk
+citac-knjiga-fdroid-v0.1.0-fdroid.apk
+SHA256SUMS
+release-manifest.json
+```
+
+The manifest records the Git commit, clean-tree state, toolchain/input hashes,
+package IDs/version codes/version names, APK checksums, signing schemes, and
+the signing certificate SHA-256/DN. Model packages, generated audio, and
+secrets are explicitly recorded as excluded. Model packages remain separately
+imported app-private ZIPs and are never a build input or release output.
+
+The GitHub workflow `.github/workflows/release.yml` runs on `v*` tags or manual
+dispatch. It creates a temporary `0600` keystore from the
+`ANDROID_RELEASE_KEYSTORE_B64` GitHub secret, uses the other three
+`ANDROID_RELEASE_*` secrets through environment references, signs with the
+pinned Android build-tools `apksigner`, verifies v2/v3 and certificate
+identity, and uploads only the verified app artifact directory. It does not
+create or publish a GitHub Release and does not publish model packages.
+
+For a configured external keystore, use a path outside the repository:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_KEY_ALIAS=release \
+ANDROID_KEYSTORE_PASSWORD='provided-out-of-band' \
+ANDROID_KEY_PASSWORD='provided-out-of-band' \
+python3 scripts/release_artifacts.py build \
+  --keystore /secure/path/citac-knjiga-release.jks \
+  --output-dir /tmp/citac-knjiga-release-artifacts \
+  --require-clean
+```
+
+Without credentials, an explicitly local-only build can be inspected as
+clearly labeled unsigned output:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+python3 scripts/release_artifacts.py build --unsigned \
+  --output-dir /tmp/citac-knjiga-unsigned-artifacts
+python3 scripts/release_artifacts.py verify \
+  --artifact-dir /tmp/citac-knjiga-unsigned-artifacts --allow-unsigned
+```
+
+The unsigned path is not release evidence. This checkout has no production
+keystore, signing credentials, or GitHub secret-backed workflow run, so task
+12.7 remains blocked and no fake signature has been generated.
+
 Known-good steps to reproduce the desktop CPU inference path. Keep this file
 current as the environment changes.
 

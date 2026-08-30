@@ -1,0 +1,103 @@
+name: Signed release artifacts
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  TOOLCHAIN_JAVA: '21.0.7'
+  TOOLCHAIN_ANDROID_API: '35'
+  TOOLCHAIN_BUILD_TOOLS: '35.0.0'
+  TOOLCHAIN_CMAKE: '3.22.1'
+  TOOLCHAIN_NDK: '26.1.10909125'
+
+jobs:
+  signed-artifacts:
+    name: Build and verify signed standard/F-Droid APKs
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          lfs: false
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.TOOLCHAIN_JAVA }}
+          cache: gradle
+          cache-dependency-path: |
+            **/*.gradle*
+            **/gradle-wrapper.properties
+            gradle/libs.versions.toml
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install locked Android toolchain
+        run: |
+          sdkmanager "platform-tools" "platforms;android-${TOOLCHAIN_ANDROID_API}" \
+            "build-tools;${TOOLCHAIN_BUILD_TOOLS}" "cmake;${TOOLCHAIN_CMAKE}" \
+            "ndk;${TOOLCHAIN_NDK}"
+          python3 scripts/verify_toolchain.py --scope android
+
+      - name: Run release artifact unit checks
+        run: python3 -m unittest scripts/test_release_artifacts.py
+
+      - name: Check source closure and release documentation
+        run: |
+          python3 scripts/check_source_closure.py
+          python3 scripts/validate_release_docs.py
+
+      - name: Run locked JVM and release lint checks
+        run: |
+          ./gradlew test check \
+            :app:lintStandardRelease :app:lintFdroidRelease \
+            --no-daemon --max-workers=2 --console=plain \
+            --dependency-verification=strict
+
+      - name: Require production signing credentials
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_B64 }}
+          KEY_ALIAS: ${{ secrets.ANDROID_RELEASE_KEY_ALIAS }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
+        run: |
+          test -n "$KEYSTORE_B64" || { echo 'missing ANDROID_RELEASE_KEYSTORE_B64; refusing unsigned release'; exit 1; }
+          test -n "$KEY_ALIAS" || { echo 'missing ANDROID_RELEASE_KEY_ALIAS; refusing unsigned release'; exit 1; }
+          test -n "$KEYSTORE_PASSWORD" || { echo 'missing ANDROID_RELEASE_KEYSTORE_PASSWORD; refusing unsigned release'; exit 1; }
+          test -n "$KEY_PASSWORD" || { echo 'missing ANDROID_RELEASE_KEY_PASSWORD; refusing unsigned release'; exit 1; }
+          umask 077
+          printf '%s' "$KEYSTORE_B64" | base64 --decode > "$RUNNER_TEMP/citac-knjiga-release.keystore"
+          test -s "$RUNNER_TEMP/citac-knjiga-release.keystore"
+          echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/citac-knjiga-release.keystore" >> "$GITHUB_ENV"
+          echo "ANDROID_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
+          echo "ANDROID_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
+          echo "ANDROID_KEY_PASSWORD=$KEY_PASSWORD" >> "$GITHUB_ENV"
+
+      - name: Build and verify signed app-only artifacts
+        run: |
+          python3 scripts/release_artifacts.py build \
+            --output-dir "$RUNNER_TEMP/citac-knjiga-release-artifacts" \
+            --keystore "$ANDROID_KEYSTORE_PATH" --require-clean
+
+      - name: Run F-Droid release checks
+        run: python3 scripts/check_fdroid.py --require-build
+
+      - name: Upload verified app artifacts (models remain separate)
+        uses: actions/upload-artifact@v4
+        with:
+          name: citac-knjiga-${{ github.ref_name }}-signed-app-artifacts
+          path: ${{ runner.temp }}/citac-knjiga-release-artifacts
+          if-no-files-found: error
+          retention-days: 14
