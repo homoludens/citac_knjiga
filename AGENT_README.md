@@ -376,8 +376,17 @@ target.
   player. Queue changes preserve the active media ID and position and retain
   playback; an update that would remove the currently playing item waits for a
   player boundary or stopped playback. The controller and position persistence
-  now consume the refreshed catalog. Missing/corrupt-audio UX and the
-  progressive-playback demonstration remain tasks 9.7 and 9.8.
+   now consume the refreshed catalog. The progressive-playback demonstration
+   remains task 9.8.
+- Task 9.7 adds `PlaybackAvailabilityPolicy`. Room audio rows are checked before
+  queueing for ready status, private-file existence, size/SHA-256, 24 kHz mono
+  format, structural readability, generation key, and current model/run
+  provenance. Android production adds `MediaExtractor` readability. Invalid
+  rows remain unchanged in Room, are reported with an actionable
+  `generation/retry/<segment>` route, and never enter Media3. If the currently
+  playing item becomes invalid, the queue pauses it and skips to the next valid
+  item; if none exists, playback remains stopped. Generation ownership stays
+  outside playback.
 
 ## Repository layout
 

@@ -43,6 +43,9 @@ public class AudiobookPlaybackService : MediaSessionService() {
         readyAudio = ReadyAudioRepository(
             source = RoomReadyAudioSource(database.audiobookDao()),
             storage = AppPrivateStorage(filesDir),
+            formatValidator = MediaExtractorPlaybackAudioFormatValidator(),
+            validationContext = RoomPlaybackValidationContextSource(database.audiobookDao()),
+            validationDispatcher = Dispatchers.IO,
         )
         positionPersistence = PlaybackPositionPersistence(database.audiobookDao(), playbackScope)
         resources = PlaybackResourceLifecycle(

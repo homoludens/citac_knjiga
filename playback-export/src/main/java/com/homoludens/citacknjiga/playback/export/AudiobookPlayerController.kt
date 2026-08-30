@@ -26,12 +26,14 @@ public data class PlayerControlState(
     public val chapters: List<PlaybackChapter> = emptyList(),
     public val jumps: PlaybackJumpValues = PlaybackJumpValues(),
     public val speed: Float = 1.0f,
+    public val unavailableAudio: List<PlaybackUnavailableAudio> = emptyList(),
 )
 
 /** A MediaController-backed view model. It never creates or releases the service player. */
 public class AudiobookPlayerController(
     context: Context,
     private val readyAudio: ReadyAudioRepository,
+    private val onRegenerationRequested: (String) -> Unit = {},
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate),
 ) : AutoCloseable {
     private val appContext = context.applicationContext
@@ -46,6 +48,8 @@ public class AudiobookPlayerController(
     private var catalog = PlaybackCatalog(emptyList(), emptyList())
     private var pendingChapterId: String? = null
     private var selectedSpeed = 1.0f
+    private var unavailableAudio: List<PlaybackUnavailableAudio> = emptyList()
+    private val regenerationRoute = PlaybackRegenerationRoute(onRegenerationRequested)
 
     public val state: StateFlow<PlayerControlState> = stateMutable.asStateFlow()
 
@@ -74,20 +78,26 @@ public class AudiobookPlayerController(
         }, emptyList())
         readyJob?.cancel()
         readyJob = scope.launch {
-            readyAudio.observeVerified(projectId).collect { ready ->
-                catalog = PlaybackCatalog.from(selectedChapters, ready)
+            readyAudio.observe(projectId).collect { snapshot ->
+                unavailableAudio = snapshot.unavailable
+                catalog = PlaybackCatalog.from(selectedChapters, snapshot.available)
                 publish()
                 applyPendingChapter()
             }
         }
-        stateMutable.value = stateMutable.value.copy(projectId = projectId, chapters = catalog.chapters)
+        unavailableAudio = emptyList()
+        stateMutable.value = stateMutable.value.copy(
+            projectId = projectId,
+            chapters = catalog.chapters,
+            unavailableAudio = unavailableAudio,
+        )
         publish()
     }
 
     public fun playPause() {
         val port = playerPort
         if (port == null || port.mediaItemCount == 0) {
-            startSelectedBook()
+            if (catalog.mediaItemIds.isNotEmpty()) startSelectedBook()
         } else {
             commands?.playPause()
             publish()
@@ -118,6 +128,13 @@ public class AudiobookPlayerController(
         pendingChapterId = chapter.id
         if (playerPort?.mediaItemCount == 0) startSelectedBook()
         applyPendingChapter()
+        return true
+    }
+
+    /** Delegates regeneration to the generation owner; playback never changes Room state. */
+    public fun requestRegeneration(segmentId: String): Boolean {
+        val issue = unavailableAudio.firstOrNull { it.segment.id == segmentId } ?: return false
+        regenerationRoute.request(issue)
         return true
     }
 
@@ -187,6 +204,7 @@ public class AudiobookPlayerController(
             currentChapterId = currentChapter?.id,
             chapters = catalog.chapters,
             speed = port?.speed ?: selectedSpeed,
+            unavailableAudio = unavailableAudio,
         )
     }
 }

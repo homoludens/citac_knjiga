@@ -980,4 +980,30 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
 The focused JVM suite covers ordering, deduplication, Room-ready additions,
 active position preservation, insertion before the active item, and deferred
 removal timing. The connected Media3 suite covers the queue adapter on the API 35
-x86_64 emulator. Tasks 9.7 and 9.8 remain outside this boundary.
+x86_64 emulator.
+
+## Unavailable playback audio (task 9.7)
+
+`PlaybackAvailabilityPolicy` rejects non-ready, missing, private-path-invalid,
+size/checksum-invalid, malformed/unreadable, stale-key, and stale-provenance
+segments before they reach Media3. `RoomPlaybackValidationContextSource`
+compares ready segments with the active model package and generation runs;
+callers may also provide expected generation keys. The repository reports
+issues without mutating Room. The controller exposes the issue and delegates
+`generation/retry/<segment>` to an injected generation callback.
+
+The deterministic queue rule is: a newly unavailable current item is paused and
+the next valid item in the previous queue is selected and resumed; when no next
+item exists, the queue is rebuilt paused. A normal queue update that merely
+removes a not-current item still waits for the existing safe boundary behavior.
+
+Focused verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+  ./gradlew :playback-export:testDebugUnitTest \
+  :playback-export:compileDebugAndroidTestKotlin \
+  :playback-export:lintDebug
+```
+
+The progressive-playback demonstration remains task 9.8.

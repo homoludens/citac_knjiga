@@ -52,6 +52,7 @@ public class PlaybackQueueCoordinatorTest {
                 },
                 storage = storage,
                 artifactStore = store,
+                formatValidator = PlaybackAudioFormatValidator { _, _ -> null },
             ),
             player = player,
             scope = CoroutineScope(Dispatchers.Unconfined),
@@ -115,6 +116,44 @@ public class PlaybackQueueCoordinatorTest {
         coordinator.close()
     }
 
+    @Test
+    public fun unavailablePlayingItemSkipsToTheNextValidItemAndReportsRegeneration() {
+        val player = FakeQueuePlayer()
+        val unavailable = mutableListOf<PlaybackUnavailableAudio>()
+        val coordinator = PlaybackQueueCoordinator(
+            readyAudio = testReadyRepository(),
+            player = player,
+            scope = CoroutineScope(Dispatchers.Unconfined),
+            mediaItemFactory = ::mediaItem,
+            onUnavailable = { unavailable += it },
+        )
+        val first = audio("first", "chapter", 0)
+        val broken = audio("broken", "chapter", 1)
+        val next = audio("next", "chapter", 2)
+        coordinator.update(listOf(first, broken, next))
+        player.select("broken")
+        player.isPlaying = true
+
+        coordinator.update(
+            PlaybackAudioSnapshot(
+                available = listOf(first, next),
+                unavailable = listOf(
+                    PlaybackUnavailableAudio(
+                        broken.segment,
+                        PlaybackUnavailableReason.CHECKSUM_MISMATCH,
+                        "Audio checksum does not match Room",
+                    ),
+                ),
+            ),
+        )
+
+        assertEquals(listOf("first", "next"), player.items.map { it.mediaId })
+        assertEquals("next", player.currentMediaItemId)
+        assertTrue(player.replacements.last().resumePlayback)
+        assertEquals(listOf("broken"), unavailable.map { it.segment.id })
+        coordinator.close()
+    }
+
     private fun coordinator(player: FakeQueuePlayer) = PlaybackQueueCoordinator(
         readyAudio = testReadyRepository(),
         player = player,
@@ -150,6 +189,15 @@ public class PlaybackQueueCoordinatorTest {
         narrationBlockId = "block-$id",
         sequence = sequence,
         chunkOrdinal = 0,
+        generationKey = "generation-key",
+        generationRunId = "run",
+        modelPackageId = "model",
+        modelPackageSha256 = "b".repeat(64),
+        voiceSha256 = "c".repeat(64),
+        preprocessingVersion = "preprocessing-v1",
+        pronunciationVersion = "pronunciation-v1",
+        inferenceSettingsHash = "settings",
+        audioProcessingVersion = "audio-v1",
         status = com.homoludens.citacknjiga.core.database.AudioSegmentStatus.READY,
         audioPath = "/ready/$id.wav",
         audioSha256 = "a".repeat(64),
@@ -166,6 +214,15 @@ public class PlaybackQueueCoordinatorTest {
             narrationBlockId = "block-$id",
             sequence = sequence,
             chunkOrdinal = 0,
+            generationKey = "generation-key",
+            generationRunId = "run",
+            modelPackageId = "model",
+            modelPackageSha256 = "b".repeat(64),
+            voiceSha256 = "c".repeat(64),
+            preprocessingVersion = "preprocessing-v1",
+            pronunciationVersion = "pronunciation-v1",
+            inferenceSettingsHash = "settings",
+            audioProcessingVersion = "audio-v1",
             status = com.homoludens.citacknjiga.core.database.AudioSegmentStatus.READY,
             audioPath = artifact.file.path,
             audioSha256 = artifact.sha256,
@@ -180,6 +237,7 @@ public class PlaybackQueueCoordinatorTest {
             override fun observeReadyAudioSegments(projectId: String) = flowOf(emptyList<AudioSegmentEntity>())
         },
         storage = AppPrivateStorage(File("/tmp")),
+        formatValidator = PlaybackAudioFormatValidator { _, _ -> null },
     )
 
     private class FakeQueuePlayer : PlaybackQueuePlayerPort {
@@ -193,6 +251,10 @@ public class PlaybackQueueCoordinatorTest {
         private val listeners = mutableListOf<() -> Unit>()
 
         override val currentPositionMs: Long get() = positionMs
+
+        override fun pause() {
+            isPlaying = false
+        }
 
         override fun replaceQueue(items: List<MediaItem>, currentItemIndex: Int, positionMs: Long, resumePlayback: Boolean) {
             this.items = items

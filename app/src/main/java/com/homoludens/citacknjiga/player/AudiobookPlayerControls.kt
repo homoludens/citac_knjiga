@@ -40,6 +40,7 @@ public fun AudiobookPlayerControls(
     onSelectChapter: (String) -> Boolean,
     onSetJumps: (Long, Long) -> Unit,
     onSetSpeed: (Float) -> Boolean,
+    onRegenerate: (String) -> Boolean = { false },
     modifier: Modifier = Modifier,
 ) {
     var selectedChapterMenu by remember { mutableStateOf(false) }
@@ -53,6 +54,12 @@ public fun AudiobookPlayerControls(
                     ?: "Нема активног поглавља",
                 style = MaterialTheme.typography.titleMedium,
             )
+            state.unavailableAudio.forEach { unavailable ->
+                Text(unavailable.message, color = MaterialTheme.colorScheme.error)
+                OutlinedButton(onClick = { onRegenerate(unavailable.segment.id) }) {
+                    Text("Покушај поново")
+                }
+            }
             Slider(
                 value = state.positionMs.toFloat().coerceIn(0f, state.durationMs?.coerceAtLeast(0L)?.toFloat() ?: 0f),
                 onValueChange = { onSeek(it.toLong()) },

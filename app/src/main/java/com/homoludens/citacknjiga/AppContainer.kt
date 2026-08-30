@@ -1,6 +1,7 @@
 package com.homoludens.citacknjiga
 
 import android.content.Context
+import kotlinx.coroutines.Dispatchers
 import com.homoludens.citacknjiga.core.database.AudiobookDao
 import com.homoludens.citacknjiga.core.diagnostics.LocalDiagnostics
 import com.homoludens.citacknjiga.core.database.createAudiobookDao
@@ -18,6 +19,8 @@ import com.homoludens.citacknjiga.proof.TypedTextProofEngine
 import com.homoludens.citacknjiga.playback.export.AudiobookPlayerController
 import com.homoludens.citacknjiga.playback.export.ReadyAudioRepository
 import com.homoludens.citacknjiga.playback.export.RoomReadyAudioSource
+import com.homoludens.citacknjiga.playback.export.MediaExtractorPlaybackAudioFormatValidator
+import com.homoludens.citacknjiga.playback.export.RoomPlaybackValidationContextSource
 import com.homoludens.citacknjiga.tts.onnx.ModelPackageStore
 import com.homoludens.citacknjiga.tts.onnx.preprocessing.SerbianPreprocessor
 
@@ -62,7 +65,13 @@ public class AppContainer(
             val privateStorage = AppPrivateStorage(filesDir)
             val modelStore = ModelPackageStore(privateStorage.rootDirectory)
             val dao = createAudiobookDao(context)
-            val readyAudio = ReadyAudioRepository(RoomReadyAudioSource(dao), privateStorage)
+            val readyAudio = ReadyAudioRepository(
+                source = RoomReadyAudioSource(dao),
+                storage = privateStorage,
+                formatValidator = MediaExtractorPlaybackAudioFormatValidator(),
+                validationContext = RoomPlaybackValidationContextSource(dao),
+                validationDispatcher = Dispatchers.IO,
+            )
             val sourceRepository = SafEpubSourceRepository(
                 sourceReader = ContentResolverEpubSourceReader(contentResolver),
                 storage = privateStorage,

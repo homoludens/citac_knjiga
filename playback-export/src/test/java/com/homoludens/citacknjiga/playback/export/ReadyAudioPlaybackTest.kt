@@ -36,7 +36,12 @@ public class ReadyAudioPlaybackTest {
             ),
         )
 
-        val result = ReadyAudioRepository(source, storage, store).observeVerified("book").first()
+        val result = ReadyAudioRepository(
+            source,
+            storage,
+            store,
+            formatValidator = PlaybackAudioFormatValidator { _, _ -> null },
+        ).observeVerified("book").first()
 
         assertEquals(listOf("valid"), result.map { it.segment.id })
         assertTrue(result.single().file.isFile)
@@ -57,6 +62,15 @@ public class ReadyAudioPlaybackTest {
         narrationBlockId = "block-$id",
         sequence = 0,
         chunkOrdinal = 0,
+        generationKey = "generation-key",
+        generationRunId = "run",
+        modelPackageId = "model",
+        modelPackageSha256 = "b".repeat(64),
+        voiceSha256 = "c".repeat(64),
+        preprocessingVersion = "preprocessing-v1",
+        pronunciationVersion = "pronunciation-v1",
+        inferenceSettingsHash = "settings",
+        audioProcessingVersion = "audio-v1",
         status = status,
         audioPath = file.path,
         audioSha256 = sha256,

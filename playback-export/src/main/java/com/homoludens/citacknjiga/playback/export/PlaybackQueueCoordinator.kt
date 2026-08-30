@@ -14,6 +14,8 @@ public interface PlaybackQueuePlayerPort {
     public val currentPositionMs: Long
     public val currentMediaItemId: String?
 
+    public fun pause()
+
     public fun replaceQueue(
         items: List<MediaItem>,
         currentItemIndex: Int,
@@ -34,6 +36,10 @@ public class Media3PlaybackQueuePlayer(
     override val isPlaying: Boolean get() = player.isPlaying
     override val currentPositionMs: Long get() = player.currentPosition
     override val currentMediaItemId: String? get() = player.currentMediaItem?.mediaId
+
+    override fun pause() {
+        player.pause()
+    }
 
     override fun replaceQueue(
         items: List<MediaItem>,
@@ -75,6 +81,7 @@ public class PlaybackQueueCoordinator(
     private val scope: CoroutineScope,
     private val mediaItemFactory: (VerifiedReadyAudio) -> MediaItem,
     private val onCatalogChanged: (PlaybackCatalog) -> Unit = {},
+    private val onUnavailable: (List<PlaybackUnavailableAudio>) -> Unit = {},
 ) : AutoCloseable {
     private var readyJob: Job? = null
     private var listener: (() -> Unit)? = null
@@ -90,15 +97,20 @@ public class PlaybackQueueCoordinator(
         listener = playerListener
         player.addListener(playerListener)
         readyJob = scope.launch {
-            readyAudio.observeVerified(projectId).collect(::update)
+            readyAudio.observe(projectId).collect(::update)
         }
     }
 
     /** Exposed for deterministic JVM tests and for an already observed Room emission. */
     public fun update(ready: List<VerifiedReadyAudio>) {
-        val catalog = PlaybackCatalog.from(chapters, ready)
-        val items = PlaybackCatalog.orderedReadyAudio(chapters, ready).map(mediaItemFactory)
-        apply(QueueSnapshot(catalog, items))
+        update(PlaybackAudioSnapshot(ready, emptyList()))
+    }
+
+    public fun update(snapshot: PlaybackAudioSnapshot) {
+        onUnavailable(snapshot.unavailable)
+        val catalog = PlaybackCatalog.from(chapters, snapshot.available)
+        val items = PlaybackCatalog.orderedReadyAudio(chapters, snapshot.available).map(mediaItemFactory)
+        apply(QueueSnapshot(catalog, items, snapshot.unavailable.map { it.segment.id }.toSet()))
     }
 
     override fun close() {
@@ -117,7 +129,11 @@ public class PlaybackQueueCoordinator(
         pendingSnapshot?.let { apply(it) }
     }
 
-    private fun apply(snapshot: QueueSnapshot) {
+    private fun apply(
+        snapshot: QueueSnapshot,
+        targetId: String? = null,
+        resumePlayback: Boolean? = null,
+    ) {
         val currentId = player.currentMediaItemId
         val applied = appliedSnapshot
         if (applied != null && sameItems(applied.items, snapshot.items)) {
@@ -126,20 +142,33 @@ public class PlaybackQueueCoordinator(
             return
         }
         if (currentId != null && currentId !in snapshot.catalog.mediaItemIds && player.isPlaying) {
-            pendingSnapshot = snapshot
+            if (currentId !in snapshot.unavailableIds) {
+                pendingSnapshot = snapshot
+                return
+            }
+            // An item that became unavailable is never left in a playing queue.
+            val nextId = applied?.catalog?.mediaItemIds
+                ?.dropWhile { it != currentId }
+                ?.drop(1)
+                ?.firstOrNull { it in snapshot.catalog.mediaItemIds }
+            player.pause()
+            apply(snapshot, targetId = nextId, resumePlayback = nextId != null)
             return
         }
 
         val preservesCurrent = currentId != null && currentId in snapshot.catalog.mediaItemIds
-        val targetIndex = currentId
+        val targetIndex = targetId
+            ?.let(snapshot.catalog.mediaItemIds::indexOf)
+            ?.takeIf { it >= 0 }
+            ?: currentId
             ?.let(snapshot.catalog.mediaItemIds::indexOf)
             ?.takeIf { it >= 0 }
             ?: 0
         val position = if (preservesCurrent) player.currentPositionMs.coerceAtLeast(0L) else 0L
-        val resumePlayback = player.isPlaying
+        val shouldResume = resumePlayback ?: player.isPlaying
         appliedSnapshot = snapshot
         pendingSnapshot = null
-        player.replaceQueue(snapshot.items, targetIndex, position, resumePlayback)
+        player.replaceQueue(snapshot.items, targetIndex, position, shouldResume)
         onCatalogChanged(snapshot.catalog)
     }
 
@@ -152,5 +181,6 @@ public class PlaybackQueueCoordinator(
     private data class QueueSnapshot(
         val catalog: PlaybackCatalog,
         val items: List<MediaItem>,
+        val unavailableIds: Set<String> = emptySet(),
     )
 }

@@ -262,6 +262,7 @@ private fun BookRoute(
                     onSelectChapter = playbackController::selectChapter,
                     onSetJumps = playbackController::setJumpValues,
                     onSetSpeed = playbackController::setSpeed,
+                    onRegenerate = { segmentId -> playbackController.requestRegeneration(segmentId) },
                 )
             }
         }
