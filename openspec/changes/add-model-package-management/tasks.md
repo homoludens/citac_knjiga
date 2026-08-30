@@ -10,7 +10,7 @@
 - [x] 2.1 Make SAF import open the provider stream once, stage it into an owner-scoped hidden temporary archive under app-private model storage, and retain no provider URI; verify tests cover a canceled/failed stream and assert the temporary candidate is removed in `finally`.
 - [x] 2.2 Route the staged archive through the existing model-package verifier for schema v1, one manifest, safe relative paths, duplicate/undeclared-entry rejection, required roles, declared sizes, SHA-256 values, package identity, and model/preprocessing/runtime/Android API/ABI/tensor/audio compatibility; verify `ModelPackageStoreTest` covers valid, malformed, hostile-path, missing-role, altered-checksum, identity, and incompatible archives.
 - [x] 2.3 Ensure raw checkpoint files and unverified archive contents cannot reach inference, while verified artifact reads remain private and revalidated; verify tests reject an undeclared checkpoint and confirm `OnnxTtsSession.open()` only succeeds through a verified manifest role.
-- [ ] 2.4 Return successful imports with safe metadata and failed imports with the stable redacted result without exposing the staged archive or source handle to the UI; verify the store/API tests inspect the returned object graph for no path or URI fields.
+- [x] 2.4 Return successful imports with safe metadata and failed imports with the stable redacted result without exposing the staged archive or source handle to the UI; verify the store/API tests inspect the returned object graph for no path or URI fields.
 
 ## 3. Atomic Storage and Recovery
 
