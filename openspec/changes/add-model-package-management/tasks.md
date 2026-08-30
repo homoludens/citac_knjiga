@@ -28,7 +28,7 @@
 
 - [x] 5.1 Add a visible `Import model package` action to `DiagnosticsAboutRoute` using a remembered `OpenDocument` launcher with advisory ZIP MIME filters; verify Compose/instrumentation coverage observes the picker launch and no-selection or unsupported-selection leaves status and active package unchanged.
 - [x] 5.2 Wire the selected URI to the store on an IO coroutine with duplicate-import protection, busy state, and success refresh only after committed publication; verify UI tests observe disabled duplicate actions, in-progress status, and no premature `VERIFIED` state.
-- [ ] 5.3 Tie import jobs to route lifecycle so disposal cancels work while store cleanup still runs; verify a lifecycle test cancels an import and asserts no published partial archive or stale temporary candidate remains.
+- [x] 5.3 Tie import jobs to route lifecycle so disposal cancels work while store cleanup still runs; verify a lifecycle test cancels an import and asserts no published partial archive or stale temporary candidate remains.
 - [ ] 5.4 Render safe installed identity/version/checksums, compatibility/runtime metadata, status, and category-specific next actions without paths or provider data; verify Compose tests cover missing, verified, invalid, incompatible, error, and failed-replacement states and show the old package as verified when it remains active.
 
 ## 6. External Acquisition and Distribution Gate
