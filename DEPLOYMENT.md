@@ -117,6 +117,118 @@ The production ARM64 path remains unqualified until the Android smoke and full
 26-vector tests run on an ARM64 device or emulator. Do not treat a desktop or
 manual native build alone as ARM64 evidence.
 
+## Native/runtime source closure (task 12.4)
+
+The native Android phonemizer is not a checked-in `.so` or AAR. The only
+application native source is `tts-onnx/src/main/cpp/native_espeak.cpp`, which
+links eSpeak-NG source from the exact upstream commit below. There are no local
+patches:
+
+| Component | Repository/source | Revision or checksum | License/build treatment |
+|---|---|---|---|
+| eSpeak-NG engine and data generator | `https://github.com/espeak-ng/espeak-ng.git` | tag `1.52.0`, commit `4870adfa25b1a32b4361592f1be8a40337c58d6c` | GPL-3.0-or-later; source-built |
+| Serbian JNI bridge | this repository, `tts-onnx/src/main/cpp/native_espeak.cpp` | no local patch | linked into generated `libcita_espeak.so` |
+| ONNX Runtime Android | Maven Central `com.microsoft.onnxruntime:onnxruntime-android:1.29.0` | AAR SHA-256 `e97540ca78fe36f6fe2013f82843414fb843b6c7681fb04644cba5e1406662dd`; upstream tag `v1.29.0`, commit `2e2543fbe9fae542f921d47a72d21d5a4ef0b710` | explicitly declared external Maven dependency, not a checked-in binary |
+
+The complete machine-readable record is
+`model-tools/native/source-closure-v1.json`. The seven checked-in data files
+are generated outputs from the pinned eSpeak-NG host `data` target, not a
+replacement phonemizer. Their size and SHA-256 values remain in
+`model-tools/native/espeak-data-manifest-v1.json`; no other generated language
+data is copied into the APK.
+
+### Reproduce the eSpeak data closure
+
+Use the locked CMake `3.22.1` and a source checkout outside the repository. The
+checkout must be clean and must resolve to the recorded commit:
+
+```sh
+export ANDROID_HOME=/home/homoludens/Android/Sdk
+export ESPEAK_SRC=/tmp/citac-knjiga-espeak-ng
+export ESPEAK_HOST_BUILD=/tmp/citac-knjiga-espeak-host
+export CMAKE="$ANDROID_HOME/cmake/3.22.1/bin/cmake"
+
+git clone --filter=blob:none https://github.com/espeak-ng/espeak-ng.git "$ESPEAK_SRC"
+git -C "$ESPEAK_SRC" fetch --depth=1 origin 4870adfa25b1a32b4361592f1be8a40337c58d6c
+git -C "$ESPEAK_SRC" checkout --detach 4870adfa25b1a32b4361592f1be8a40337c58d6c
+test "$(git -C "$ESPEAK_SRC" rev-parse HEAD)" = 4870adfa25b1a32b4361592f1be8a40337c58d6c
+test -z "$(git -C "$ESPEAK_SRC" status --porcelain)"
+
+"$CMAKE" -S "$ESPEAK_SRC" -B "$ESPEAK_HOST_BUILD" -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
+  -DUSE_ASYNC=OFF -DUSE_KLATT=OFF -DUSE_LIBPCAUDIO=OFF \
+  -DUSE_LIBSONIC=OFF -DUSE_MBROLA=OFF -DUSE_SPEECHPLAYER=OFF
+"$CMAKE" --build "$ESPEAK_HOST_BUILD" --target data --parallel 2
+
+for file in phondata phondata-manifest phonindex phontab intonations sr_dict; do
+  install -D "$ESPEAK_HOST_BUILD/espeak-ng-data/$file" \
+    "tts-onnx/src/main/assets/espeak-ng-data/$file"
+done
+install -D "$ESPEAK_HOST_BUILD/espeak-ng-data/lang/zls/sr" \
+  tts-onnx/src/main/assets/espeak-ng-data/lang/zls/sr
+```
+
+The generated files must match the manifest. The closure check below performs
+the exact size/hash and no-extra-file check. The host build creates all
+language dictionaries in its temporary output; only the seven declared files
+are application inputs.
+
+### Reproduce the Android native library
+
+The direct CMake recipe uses the source checkout above and disables all
+FetchContent downloads. It creates the JNI library plus temporary static
+archives; none may be committed:
+
+```sh
+export NDK="$ANDROID_HOME/ndk/26.1.10909125"
+export ESPEAK_ANDROID_BUILD=/tmp/citac-knjiga-espeak-android
+
+"$CMAKE" -S tts-onnx/src/main/cpp -B "$ESPEAK_ANDROID_BUILD" -G Ninja \
+  -DCMAKE_TOOLCHAIN_FILE="$NDK/build/cmake/android.toolchain.cmake" \
+  -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-30 \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DESPEAK_NG_SOURCE_DIR="$ESPEAK_SRC" \
+  -DFETCHCONTENT_FULLY_DISCONNECTED=ON
+"$CMAKE" --build "$ESPEAK_ANDROID_BUILD" --target cita_espeak --parallel 2
+
+file "$ESPEAK_ANDROID_BUILD/libcita_espeak.so"
+sha256sum "$ESPEAK_ANDROID_BUILD/libcita_espeak.so"
+```
+
+The task-12.4 direct build produced an ARM64 Android 30 ELF with SHA-256
+`bb9a8f2b722de5d4dae35f5ab0d40e25007c155516da82c8f032dbd586553092`.
+Unstripped native checksums are observations because debug paths and linker
+metadata can change the bytes; source commit, flags, toolchain, ABI, and the
+data-file hashes are the reproducible provenance contract. Gradle invokes the
+same CMake project for `tts-onnx`; release packages only `arm64-v8a`, while
+debug packages `x86_64` and `arm64-v8a` for the available emulator and target
+device.
+
+### Runtime and model boundary
+
+The F-Droid flavor uses the same source-built `tts-onnx` module and has no
+flavor-specific `jniLibs`, file dependency, native archive, model graph, voice
+archive, or model package. The closure check permits only the explicitly
+documented Gradle Wrapper JAR in the repository and the locked Maven ONNX
+Runtime AAR outside the repository. The AAR's native libraries are therefore
+declared dependency inputs, not undeclared checked-in binaries.
+
+The ONNX graph and Dragana voice remain user-imported model-package artifacts.
+`ModelPackageStore` verifies the package manifest, compatibility, sizes, and
+SHA-256 values before inference; model packages are not downloaded, generated,
+or bundled by either Android flavor.
+
+Run the deterministic audit from the repository root:
+
+```sh
+python3 scripts/check_source_closure.py
+```
+
+It scans Android source roots, ignores only named Gradle/CMake/generated output
+directories, rejects unexpected native/prebuilt/model files, verifies the
+seven-file data closure, and cross-checks the exact Maven coordinate against
+the version catalog, dependency lock, and strict verification metadata.
+
 The first connected test attempt on the available API 35 emulator used the
 ARM64-only debug package and failed before JUnit discovery. The crash log shows
 the x86_64 process using the ARM64 guest/native-bridge path, with a SIGSEGV in

@@ -1,0 +1,104 @@
+{
+  "schema": "citac-knjiga-native-source-closure",
+  "version": 1,
+  "native": {
+    "repository": "https://github.com/espeak-ng/espeak-ng.git",
+    "tag": "1.52.0",
+    "commit": "4870adfa25b1a32b4361592f1be8a40337c58d6c",
+    "license": "GPL-3.0-or-later",
+    "local_patches": [],
+    "cmake_project": "tts-onnx/src/main/cpp/CMakeLists.txt",
+    "target": "cita_espeak",
+    "jni_source": "tts-onnx/src/main/cpp/native_espeak.cpp",
+    "android_build": {
+      "abi": "arm64-v8a",
+      "platform": "android-30",
+      "build_type": "Release",
+      "cmake": "3.22.1",
+      "ndk": "26.1.10909125",
+      "generator": "Ninja",
+      "flags": {
+        "BUILD_SHARED_LIBS": "OFF",
+        "USE_ASYNC": "OFF",
+        "USE_KLATT": "OFF",
+        "USE_LIBPCAUDIO": "OFF",
+        "USE_LIBSONIC": "OFF",
+        "USE_MBROLA": "OFF",
+        "USE_SPEECHPLAYER": "OFF"
+      }
+    },
+    "generated_outputs": {
+      "library": {
+        "name": "libcita_espeak.so",
+        "status": "generated_not_checked_in",
+        "observations": [
+          {
+            "sha256": "bb9a8f2b722de5d4dae35f5ab0d40e25007c155516da82c8f032dbd586553092",
+            "recipe": "direct-cmake-arm64-release-v1",
+            "debug_info": true
+          },
+          {
+            "sha256": "6843c8e0afc47cd7c61dfe9487bd6da9da4ae48cbf09363b030913f5099f0b5e",
+            "recipe": "task-4.5-native-build-observation",
+            "debug_info": true
+          }
+        ]
+      },
+      "static_archives": [
+        "espeak-lib/libespeak-ng.a",
+        "espeak-ucd/libucd.a"
+      ]
+    }
+  },
+  "data": {
+    "manifest": "model-tools/native/espeak-data-manifest-v1.json",
+    "asset_root": "tts-onnx/src/main/assets/espeak-ng-data",
+    "generated_by": "upstream CMake data target from the pinned host build",
+    "files": [
+      "phondata",
+      "phondata-manifest",
+      "phonindex",
+      "phontab",
+      "intonations",
+      "sr_dict",
+      "lang/zls/sr"
+    ]
+  },
+  "runtime_dependencies": [
+    {
+      "coordinate": "com.microsoft.onnxruntime:onnxruntime-android:1.29.0",
+      "repository": "https://repo1.maven.org/maven2/",
+      "aar_sha256": "e97540ca78fe36f6fe2013f82843414fb843b6c7681fb04644cba5e1406662dd",
+      "declared_by": [
+        "gradle/libs.versions.toml",
+        "tts-onnx/build.gradle.kts",
+        "gradle/verification-metadata.xml",
+        "tts-onnx/gradle.lockfile"
+      ],
+      "allowed_flavors": ["standard", "fdroid"],
+      "source_repository": "https://github.com/microsoft/onnxruntime.git",
+      "source_tag": "v1.29.0",
+      "source_commit": "2e2543fbe9fae542f921d47a72d21d5a4ef0b710",
+      "build_mode": "published Maven AAR; not locally source-built"
+    }
+  ],
+  "closure": {
+    "scan_roots": [
+      "app",
+      "core",
+      "document-epub",
+      "playback-export",
+      "tts-onnx",
+      "gradle"
+    ],
+    "generated_directory_names": ["build", ".cxx", ".gradle", ".kotlin"],
+    "checked_in_binary_allowlist": [
+      {
+        "path": "gradle/wrapper/gradle-wrapper.jar",
+        "sha256": "2db75c40782f5e8ba1fc278a5574bab070adccb2d21ca5a6e5ed840888448046",
+        "reason": "Gradle Wrapper bootstrap, explicitly declared by gradle-wrapper.properties"
+      }
+    ],
+    "model_package_policy": "No model, voice, ONNX graph, or model archive is an Android source input. Users import a separately verified package through ModelPackageStore."
+  }
+}

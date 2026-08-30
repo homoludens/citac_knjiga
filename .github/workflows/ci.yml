@@ -106,6 +106,8 @@ jobs:
             "ndk;${TOOLCHAIN_NDK}"
       - name: Verify locked Android toolchain
         run: python3 scripts/verify_toolchain.py --scope android
+      - name: Check native source closure and F-Droid inputs
+        run: python3 scripts/check_source_closure.py
       - name: Run JVM tests
         run: ./gradlew test --no-daemon --max-workers=2 --console=plain --dependency-verification=strict
       - name: Run static analysis and Android lint

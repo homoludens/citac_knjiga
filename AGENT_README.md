@@ -509,9 +509,18 @@ target.
   its AGP/Kotlin/Compose/AndroidX/ONNX/native tool versions. Python 3.11.14,
   uv 0.10.12, exact model-tool dependencies, the pinned Kokoro/eSpeak-NG
   commits, Android API 35/build-tools 35.0.0, CMake 3.22.1, NDK 26.1.10909125,
-  JDK Temurin 21.0.7, and the ONNX Runtime Android AAR SHA-256 are verified by
-  `scripts/verify_toolchain.py`. Generated caches, model payloads, and audio
-  remain excluded; unavailable required tools fail verification explicitly.
+   JDK Temurin 21.0.7, and the ONNX Runtime Android AAR SHA-256 are verified by
+   `scripts/verify_toolchain.py`. Generated caches, model payloads, and audio
+   remain excluded; unavailable required tools fail verification explicitly.
+
+- Task 12.4 records the complete native/runtime source closure in
+  `model-tools/native/source-closure-v1.json`. The locked eSpeak-NG source
+  regenerates the seven checked-in Android data files byte-for-byte and builds
+  the ARM64 JNI library from CMake/NDK source; the only prebuilt runtime input
+  is the explicitly locked Maven ONNX Runtime AAR. `scripts/check_source_closure.py`
+  rejects unexpected native/prebuilt/model files in Android source roots while
+  allowing generated `build`/`.cxx` output and the documented Gradle Wrapper
+  JAR. Model packages remain user-imported and separately verified.
 
 ## Repository layout
 

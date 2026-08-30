@@ -24,5 +24,10 @@ cmake -S tts-onnx/src/main/cpp -B /tmp/cita-espeak-android -G Ninja \
 cmake --build /tmp/cita-espeak-android --parallel
 ```
 
-The observed `libcita_espeak.so` SHA-256 is recorded in the data manifest. The
-Gradle build invokes the same CMake project and pins the same NDK and ABI.
+The historical observed `libcita_espeak.so` SHA-256 is recorded in the data
+manifest. A task-12.4 direct CMake build observed
+`bb9a8f2b722de5d4dae35f5ab0d40e25007c155516da82c8f032dbd586553092`; the
+unstripped checksum is an output observation, not a checked-in input, because
+debug paths and linker metadata can change it. The complete source closure,
+runtime dependency exception, generated-output inventory, and validation
+commands are in `source-closure-v1.json` and `DEPLOYMENT.md`.
