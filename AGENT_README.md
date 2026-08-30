@@ -162,6 +162,19 @@ target.
   writes are categorized as non-retryable `STORAGE` failures. Cleanup is an
   explicit choice limited to stale temporary or reviewed orphan ready-audio
   files.
+- Task 8.9 adds recovery coverage for the durable generation boundary. JVM tests
+  simulate abrupt termination during inference, temporary writing, and atomic
+  publication, then verify that reconciliation keeps verified segments ready,
+  returns claimed work to `PENDING`, cleans stale temporary artifacts, and
+  leaves private source data intact. Android instrumentation repeats the
+  recovery checks with a file-backed Room database reopened before
+  reconciliation, and covers simulated reboot/update lifecycle markers,
+  injected low-capacity storage, and an unavailable source provider. The
+  connected suite passed on the available API 35 x86_64 emulator.
+  Force-stop/kill, physical reboot, package-update installation, real ENOSPC,
+  and SAF export-destination loss were not executed. Export is intentionally
+  unimplemented until task 10; those device-only cases are not claimed as
+  proven.
 - Task 4.8 adds the single-route typed Serbian proof screen. It accepts Latin and
   Cyrillic input, exposes preprocessing/model diagnostics and explicit generation
   states, writes validated app-private 24 kHz mono PCM16 WAV, and plays it with

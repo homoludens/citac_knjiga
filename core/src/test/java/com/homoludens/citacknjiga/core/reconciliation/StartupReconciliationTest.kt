@@ -23,6 +23,57 @@ import org.junit.Test
 
 public class StartupReconciliationTest {
     @Test
+    public fun simulatedProcessDeathAtInferenceWriteAndPublicationLeavesRecoveryCheckpoint() {
+        listOf("inference", "write", "publication").forEach { phase ->
+            val root = createTempDirectory().toFile()
+            val storage = AppPrivateStorage(root)
+            val store = AtomicArtifactStore(storage)
+            val project = project(BookProjectStatus.GENERATING)
+            val chapter = chapter(ChapterStatus.GENERATING)
+            val run = run(GenerationRunStatus.RUNNING)
+            val ready = readySegment(storage, store, "ready", run.id)
+            val interrupted = segment("interrupted", run.id, AudioSegmentStatus.GENERATING)
+            val source = storage.sourceDocument(project.id).apply {
+                checkNotNull(parentFile).mkdirs()
+                writeText("private source")
+            }
+            if (phase != "inference") {
+                storage.temporaryFile("generation-$phase", "partial.tmp").apply {
+                    checkNotNull(parentFile).mkdirs()
+                    writeText("partial artifact")
+                    setLastModified(1)
+                }
+            }
+            val database = FakeDatabase(snapshot(project, chapter, run, listOf(ready, interrupted)))
+
+            val report = StartupReconciliation(
+                database = database,
+                storage = storage,
+                artifactStore = store,
+                temporaryMaxAgeMillis = 0,
+            ).reconcile()
+
+            assertEquals(listOf(run.id), report.interruptedRunIds)
+            assertEquals(listOf(interrupted.id), report.interruptedSegmentIds)
+            assertEquals(if (phase == "inference") 0 else 1, report.removedTemporaryFileCount)
+            assertEquals(GenerationRunStatus.QUEUED, database.state.generationRuns.single().status)
+            assertEquals(
+                AudioSegmentStatus.PENDING,
+                database.state.audioSegments.single { it.id == interrupted.id }.status,
+            )
+            assertEquals(
+                AudioSegmentStatus.READY,
+                database.state.audioSegments.single { it.id == ready.id }.status,
+            )
+            assertEquals(ChapterStatus.PARTIAL, database.state.chapters.single().status)
+            assertEquals(BookProjectStatus.READY, database.state.projects.single().status)
+            assertTrue(storage.readySegmentAudio(project.id, chapter.id, interrupted.id).let { !it.exists() })
+            assertTrue(source.exists())
+            assertFalse(storage.temporaryDirectory.walkTopDown().any { it.isFile })
+        }
+    }
+
+    @Test
     public fun interruptedStateIsRecoverableAndReconciliationIsIdempotent() {
         val root = createTempDirectory().toFile()
         val storage = AppPrivateStorage(root)

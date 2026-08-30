@@ -814,3 +814,36 @@ ANDROID_HOME=/home/homoludens/Android/Sdk \
   ./gradlew :core:testDebugUnitTest --tests '*GenerationStoragePolicyTest' \
   --tests '*BoundedGenerationRunnerTest'
 ```
+
+## Recovery qualification (task 8.9)
+
+Recovery tests use deterministic fault injection and persisted crash snapshots;
+they do not kill the test process. The JVM suite covers inference, temporary
+write, and publication interruption, retryable publication failure, stale
+temporary cleanup, low-capacity storage, and an unavailable SAF source. The
+Android suite repeats the generation cases with a file-backed Room database,
+closes and reopens it before `StartupReconciliation`, and verifies that ready
+audio, private source files, Room state, and queued retry work survive. The
+source-provider instrumentation test verifies that an unavailable URI publishes
+neither source nor project state.
+
+Focused JVM and Android commands:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew :core:testDebugUnitTest :document-epub:testDebugUnitTest \
+  :core:compileDebugAndroidTestKotlin \
+  :document-epub:compileDebugAndroidTestKotlin \
+  :core:connectedDebugAndroidTest \
+  :document-epub:connectedDebugAndroidTest
+```
+
+The available `emulator-5554` API 35 x86_64 device passed the core recovery
+suite and the source-provider instrumentation suite. True `adb` force-stop or
+kill during inference/write/publication, physical reboot, application update,
+and real device low-space exhaustion were not run. The tests therefore prove
+the persisted reconciliation and fault-handling contracts, not those device
+operations. Portable export is not implemented yet (task 10), so export
+destination disappearance/capacity instrumentation is explicitly unexecuted
+and no export proof is claimed here.

@@ -149,6 +149,27 @@ public class BoundedGenerationRunnerTest {
     }
 
     @Test
+    public fun publicationFailureIsRetryableAndNeverReplacesReadyAudio() = runBlocking {
+        val fixture = fixture(listOf(segment("segment", 0)))
+        val destination = fixture.storage.readySegmentAudio("book", "chapter", "segment").apply {
+            mkdirs()
+        }
+        var attempts = 0
+
+        val result = fixture.runner(GenerationRetryPolicy(maxAttempts = 2)) { segment, _ ->
+            attempts++
+            if (attempts > 1) destination.delete()
+            audio(segment.id)
+        }.run("run")
+
+        assertEquals(BoundedGenerationStatus.COMPLETED, result.status)
+        assertEquals(2, attempts)
+        assertEquals(AudioSegmentStatus.READY, fixture.state.segments.getValue("segment").status)
+        assertTrue(destination.isFile)
+        assertFalse(fixture.storage.temporaryDirectory.walkTopDown().any { it.isFile })
+    }
+
+    @Test
     public fun noSpaceWriteFailureIsCategorizedAsStorageFailure() = runBlocking {
         val fixture = fixture(listOf(segment("segment", 0)))
 

@@ -85,7 +85,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 - [x] 8.6 Defer Android 16 qualification of long-running WorkManager versus a user-started direct foreground service. The current Poco F3 is Android 13; the queue remains runner-independent and this qualification is a post-MVP follow-up.
 - [x] 8.7 Implement audio validation, retry policy, failure categorization, and selective regeneration for a failed or stale segment.
 - [x] 8.8 Implement preflight and ongoing storage estimates with safety margins, write-failure handling, and explicit cleanup choices.
-- [ ] 8.9 Add recovery tests for forced process death during inference/write/publication, device reboot, app update, low storage, and unavailable source/export storage.
+- [x] 8.9 Add recovery tests for forced process death during inference/write/publication, device reboot, app update, low storage, and unavailable source/export storage.
 - [ ] 8.10 Demonstrate a multi-chapter book resuming after forced termination without regenerating completed verified segments.
 
 ## 9. Playback (rough phase effort: 2–3 weeks)

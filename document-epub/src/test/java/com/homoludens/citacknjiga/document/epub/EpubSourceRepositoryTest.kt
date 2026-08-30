@@ -13,6 +13,27 @@ import org.junit.Test
 
 public class EpubSourceRepositoryTest {
     @Test
+    public fun unavailableSourceProviderLeavesPrivateProjectStateUntouched() {
+        val root = createTempDirectory().toFile()
+        val storage = AppPrivateStorage(root)
+        val index = FakeProjectIndex()
+        val repository = SafEpubSourceRepository(
+            sourceReader = EpubSourceReader { null },
+            storage = storage,
+            artifactStore = AtomicArtifactStore(storage),
+            projectIndex = index,
+            projectIdFactory = { "unavailable-source" },
+        )
+
+        val result = repository.importSource("content://books/missing")
+
+        assertEquals(EpubImportError.SOURCE_UNAVAILABLE, (result as EpubImportResult.Failed).error)
+        assertTrue(index.sources.isEmpty())
+        assertFalse(storage.sourceDocumentsDirectory.walkTopDown().any { it.isFile })
+        assertFalse(storage.temporaryDirectory.walkTopDown().any { it.isFile })
+    }
+
+    @Test
     public fun importedSourceContainsContentFingerprint() {
         val bytes = fixtureBytes("serbian-epub3.epub")
         val index = FakeProjectIndex()
