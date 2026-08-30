@@ -106,7 +106,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 - [x] 10.3 Implement verified PCM-to-M4A encoding and ensure a failed encode never replaces a ready artifact. → `AndroidMediaCodecAacEncoder` and `AudioArtifactPublisher` validate private 24 kHz mono PCM16 WAV input, AAC-LC/M4A structure/readability/metadata/size/duration, checksum, and Room READY provenance before raw-PCM deletion; unique replacement paths preserve the prior ready artifact.
 - [x] 10.4 Define export-manifest schema version 1 with book, chapters, file hashes, durations, source fingerprint, generation provenance, and attribution references. → `playback-export/src/main/resources/export-manifest-v1.schema.json` plus strict Kotlin codec/validator and JVM fixture tests.
 - [x] 10.5 Implement SAF export destination selection, zero-padded collision-safe chapter names, cover/metadata writing, and explicit overwrite behavior.
-- [ ] 10.6 Implement persistent per-chapter export progress, provider-aware temporary strategy, verification, retry, and destination-loss recovery.
+- [x] 10.6 Implement persistent per-chapter export progress, provider-aware temporary strategy, verification, retry, and destination-loss recovery.
 - [ ] 10.7 Implement target and temporary storage estimates and prove export failure cannot damage the internal project.
 - [ ] 10.8 Demonstrate a portable chapter-audio export that plays correctly in at least two external Android audio players.
 

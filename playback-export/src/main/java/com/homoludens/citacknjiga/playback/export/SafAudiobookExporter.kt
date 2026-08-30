@@ -8,6 +8,7 @@ import com.homoludens.citacknjiga.core.database.ChapterEntity
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.core.storage.AtomicArtifactStore
 import java.io.File
+import java.security.MessageDigest
 import java.util.UUID
 
 public val DEFAULT_ATTRIBUTION_REFS: List<ExportAttributionReference> = listOf(
@@ -56,17 +57,72 @@ public class ExportPlan internal constructor(
     public val overwriteExisting: Boolean,
     internal val destination: SafDocumentTree,
     private val exporter: SafAudiobookExporter,
+    public val jobId: String? = null,
 ) {
     public val hasCollisions: Boolean get() = collisions.isNotEmpty()
 
     /** Rebuilds the same plan with explicit replacement enabled. */
-    public fun withOverwriteConfirmation(): ExportPlan = exporter.plan(destination, request, overwriteExisting = true)
+    public fun withOverwriteConfirmation(): ExportPlan {
+        val rebuilt = exporter.plan(destination, request, overwriteExisting = true)
+        return jobId?.let(rebuilt::withJobId) ?: rebuilt
+    }
+
+    internal fun withJobId(value: String): ExportPlan = ExportPlan(
+        request,
+        files,
+        manifest,
+        collisions,
+        overwriteExisting,
+        destination,
+        exporter,
+        value,
+    )
+
+    internal fun withPersistedNames(
+        chapterNames: Map<String, String>,
+        manifestName: String?,
+        coverName: String?,
+        overwriteExisting: Boolean,
+    ): ExportPlan {
+        val renamed = files.map { planned ->
+            val chapterId = planned.sourceSegments.firstOrNull()?.chapterId
+            val name = chapterId?.let(chapterNames::get) ?:
+                if (planned.mimeType == "application/json") manifestName
+                else if (planned.mimeType.startsWith("image/")) coverName else null
+            if (name == null) planned else planned.copy(name = name)
+        }
+        val paths = chapterNames
+        val renamedManifest = manifest.copy(
+            chapters = manifest.chapters.map { chapter ->
+                chapter.copy(files = chapter.files.map { file ->
+                    file.copy(path = paths[file.id.removeSuffix("-file")] ?: file.path)
+                })
+            },
+        )
+        return ExportPlan(request, renamed, renamedManifest, collisions, overwriteExisting, destination, exporter, jobId)
+    }
 }
 
 public data class ExportedAudiobook(
     public val manifestUri: Uri,
     public val writtenNames: List<String>,
 )
+
+public data class ExportedFileVerification(
+    public val uri: Uri,
+    public val sizeBytes: Long,
+    public val sha256: String,
+)
+
+public interface ExportProgressListener {
+    public fun onTemporaryFile(planned: PlannedExportFile, uri: Uri) {}
+
+    public fun onVerifiedFile(planned: PlannedExportFile, verification: ExportedFileVerification) {}
+}
+
+public class DestinationUnavailableException(message: String, cause: Throwable? = null) : IllegalStateException(message, cause)
+
+public class ExportCancelledException : IllegalStateException("Export was cancelled")
 
 public class IncompleteExportException(
     public val missingChapterIds: List<String>,
@@ -204,18 +260,31 @@ public class SafAudiobookExporter(
         return ExportPlan(exportRequest, finalFiles, manifest, collisions.distinct(), overwriteExisting, destination, this)
     }
 
-    public fun export(plan: ExportPlan, overwriteConfirmed: Boolean = false): ExportedAudiobook {
+    public fun export(
+        plan: ExportPlan,
+        overwriteConfirmed: Boolean = false,
+        skipNames: Set<String> = emptySet(),
+        temporaryUris: Map<String, Uri> = emptyMap(),
+        listener: ExportProgressListener? = null,
+    ): ExportedAudiobook {
         require(!plan.overwriteExisting || overwriteConfirmed) {
             "Replacing an existing export requires explicit confirmation"
         }
         val written = mutableListOf<String>()
         var manifestUri: Uri? = null
         plan.files.forEach { planned ->
-            val target = findOrCreate(plan, planned)
-            require(target != null) { "Provider could not create ${planned.name}" }
-            write(target, plan, planned)
+            check(!Thread.currentThread().isInterrupted) { throw ExportCancelledException() }
+            val verification = if (planned.name in skipNames) {
+                val target = findExisting(plan.destination, planned.name)
+                val expected = expectedBytes(plan, planned)
+                val existing = target?.let { runCatching { verifyProvider(plan.destination, it.uri, expected, planned.name) }.getOrNull() }
+                existing ?: writeProviderSafe(plan, planned, temporaryUris[planned.name], listener)
+            } else {
+                writeProviderSafe(plan, planned, temporaryUris[planned.name], listener)
+            }
             written += planned.name
-            if (planned == plan.files.last()) manifestUri = target
+            if (planned.mimeType == "application/json") manifestUri = verification.uri
+            if (planned.sourceSegments.isNotEmpty()) planned.sourceFiles.forEach(File::delete)
         }
         return ExportedAudiobook(requireNotNull(manifestUri), written)
     }
@@ -237,27 +306,125 @@ public class SafAudiobookExporter(
         return file
     }
 
-    private fun findOrCreate(plan: ExportPlan, planned: PlannedExportFile): Uri? {
-        val existing = plan.destination.listChildren().firstOrNull { it.name.equals(planned.name, ignoreCase = true) }
-        if (existing != null) {
-            require(plan.overwriteExisting && !existing.isDirectory) {
-                "Export filename collision requires a new name or explicit overwrite"
+    private fun writeProviderSafe(
+        plan: ExportPlan,
+        planned: PlannedExportFile,
+        existingTemporaryUri: Uri?,
+        listener: ExportProgressListener?,
+    ): ExportedFileVerification {
+        var temporaryUri = existingTemporaryUri ?: createTemporary(plan, planned)
+        listener?.onTemporaryFile(planned, temporaryUri)
+        try {
+            val output = try {
+                plan.destination.openForWrite(temporaryUri)
+                    ?: throw DestinationUnavailableException("Could not open temporary export file for ${planned.name}")
+            } catch (failure: Throwable) {
+                if (existingTemporaryUri == null) throw failure
+                temporaryUri = createTemporary(plan, planned)
+                listener?.onTemporaryFile(planned, temporaryUri)
+                plan.destination.openForWrite(temporaryUri)
+                    ?: throw DestinationUnavailableException("Could not open replacement temporary export file for ${planned.name}")
             }
-            return existing.uri
+            output.use { stream ->
+                if (planned.mimeType == "application/json") {
+                    stream.write(ExportManifestCodec.encode(plan.manifest).toByteArray(Charsets.UTF_8))
+                } else {
+                    planned.sourceFiles.single().inputStream().use { input -> input.copyTo(stream) }
+                }
+                stream.flush()
+            }
+            val expected = expectedBytes(plan, planned)
+            verifyProvider(plan.destination, temporaryUri, expected, planned.name)
+            val current = findExisting(plan.destination, planned.name)
+            if (current != null) {
+                require(plan.overwriteExisting && !current.isDirectory) {
+                    "Export filename collision requires a new name or explicit overwrite"
+                }
+                if (!plan.destination.delete(current.uri)) {
+                    throw DestinationUnavailableException("Could not replace existing export file ${planned.name}")
+                }
+            }
+            if (!plan.destination.capabilities.supportsDocumentRename) {
+                throw DestinationUnavailableException(
+                    "Provider cannot safely finalize ${planned.name}; choose a destination that supports document rename",
+                )
+            }
+            val finalUri = plan.destination.rename(temporaryUri, planned.name)
+                ?: throw DestinationUnavailableException("Provider could not finalize ${planned.name}")
+            val verified = verifyProvider(plan.destination, finalUri, expected, planned.name)
+                .copy(uri = finalUri)
+            listener?.onVerifiedFile(planned, verified)
+            return verified
+        } catch (failure: DestinationUnavailableException) {
+            throw failure
+        } catch (failure: Throwable) {
+            throw DestinationUnavailableException("Export failed for ${planned.name}: ${failure.message}", failure)
         }
-        return plan.destination.createFile(planned.name, planned.mimeType)
     }
 
-    private fun write(uri: Uri, plan: ExportPlan, planned: PlannedExportFile) {
-        val output = plan.destination.openForWrite(uri) ?: error("Provider could not open ${planned.name} for writing")
-        output.use { stream ->
-            if (planned == plan.files.last()) {
-                stream.write(ExportManifestCodec.encode(plan.manifest).toByteArray(Charsets.UTF_8))
-            } else {
-                planned.sourceFiles.single().inputStream().use { input -> input.copyTo(stream) }
+    private fun createTemporary(plan: ExportPlan, planned: PlannedExportFile): Uri {
+        return try {
+            plan.destination.createFile(".${planned.name}.${UUID.randomUUID()}.incomplete", planned.mimeType)
+        } catch (failure: Throwable) {
+            throw DestinationUnavailableException("Could not create temporary export file for ${planned.name}", failure)
+        } ?: throw DestinationUnavailableException("Could not create temporary export file for ${planned.name}")
+    }
+
+    private fun expectedBytes(plan: ExportPlan, planned: PlannedExportFile): ExpectedProviderBytes {
+        if (planned.sourceSegments.isNotEmpty()) {
+            val chapterId = planned.sourceSegments.first().chapterId
+            val manifestFile = plan.manifest.chapters.first { it.id == chapterId }.files.single()
+            return ExpectedProviderBytes(manifestFile.sizeBytes, manifestFile.sha256)
+        }
+        val bytes = if (planned.mimeType == "application/json") {
+            ExportManifestCodec.encode(plan.manifest).toByteArray(Charsets.UTF_8)
+        } else {
+            planned.sourceFiles.single().readBytes()
+        }
+        return ExpectedProviderBytes(bytes.size.toLong(), sha256(bytes))
+    }
+
+    private fun verifyProvider(
+        destination: SafDocumentTree,
+        uri: Uri,
+        expected: ExpectedProviderBytes,
+        name: String,
+    ): ExportedFileVerification {
+        val input = try {
+            destination.openForRead(uri)
+        } catch (failure: Throwable) {
+            throw DestinationUnavailableException("Could not read exported ${name}", failure)
+        } ?: throw DestinationUnavailableException("Provider cannot read exported ${name}")
+        val digest = MessageDigest.getInstance("SHA-256")
+        var size = 0L
+        input.use { stream ->
+            val buffer = ByteArray(32 * 1024)
+            while (true) {
+                val count = stream.read(buffer)
+                if (count < 0) break
+                if (count == 0) continue
+                digest.update(buffer, 0, count)
+                size += count
             }
         }
+        val hash = digest.digest().joinToString("") { "%02x".format(it) }
+        require(size == expected.sizeBytes && hash == expected.sha256) {
+            "Provider output verification failed for ${name}"
+        }
+        return ExportedFileVerification(uri, size, hash)
     }
+
+    private fun findExisting(destination: SafDocumentTree, name: String): SafDocument? =
+        try {
+            destination.listChildren().firstOrNull { it.name.equals(name, ignoreCase = true) }
+        } catch (failure: Throwable) {
+            throw DestinationUnavailableException("Export destination is unavailable while looking for ${name}", failure)
+        }
+
+    private data class ExpectedProviderBytes(val sizeBytes: Long, val sha256: String)
+
+    private fun sha256(bytes: ByteArray): String = MessageDigest.getInstance("SHA-256").digest(bytes)
+        .joinToString("") { "%02x".format(it) }
 
     private fun coverExtension(file: File): String {
         val bytes = file.inputStream().use { input ->

@@ -614,6 +614,38 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
   :playback-export:lintDebug
 ```
 
+## Persistent SAF export recovery (task 10.6)
+
+Room schema version 2 adds `export_job_chapter`. The parent `export_job` stores
+the project, destination URI, ordered selection, manifest/cover names, status,
+and progress; each chapter row stores its ordered segment plan, destination
+filename/URI, temporary URI, verified SHA-256/size/duration, state, attempts,
+and last error. `RUNNING`/`WRITING` checkpoints are reconciled to queued/pending
+on restart. Resume and retry verify persisted completed files first and only
+write incomplete or failed chapters.
+
+The SAF writer creates a uniquely named `.incomplete` document, flushes and
+closes it, reads it back to verify size and SHA-256, then finalizes it with the
+provider's document rename operation and verifies the finalized URI again.
+Providers that cannot safely rename documents fail with an actionable
+destination-finalization error and leave no falsely complete chapter name.
+Destination permission loss records the failed job/chapter while retaining
+private source and ready audio; selecting an available destination is required
+for recovery. No destination filesystem path or atomic filesystem rename is
+assumed.
+
+Focused verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :core:testDebugUnitTest :core:connectedDebugAndroidTest \
+  :playback-export:testDebugUnitTest \
+  :playback-export:compileDebugAndroidTestKotlin \
+  :playback-export:connectedDebugAndroidTest \
+  :playback-export:lintDebug
+```
+
 ## App-private storage layout (task 6.3)
 
 `core/storage/AppPrivateStorage` uses Android `filesDir` as the single private

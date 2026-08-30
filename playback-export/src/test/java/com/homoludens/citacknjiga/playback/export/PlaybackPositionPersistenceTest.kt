@@ -15,6 +15,8 @@ import com.homoludens.citacknjiga.core.database.ModelPackageEntity
 import com.homoludens.citacknjiga.core.database.NarrationBlockEntity
 import com.homoludens.citacknjiga.core.database.PlaybackPositionEntity
 import com.homoludens.citacknjiga.core.database.BookProjectWithRelations
+import com.homoludens.citacknjiga.core.database.ExportJobEntity
+import com.homoludens.citacknjiga.core.database.ExportJobChapterEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -164,6 +166,8 @@ public class PlaybackPositionPersistenceTest {
         override fun insertModelPackage(modelPackage: ModelPackageEntity) = Unit
         override fun insertGenerationRun(run: GenerationRunEntity) = Unit
         override fun insertAudioSegment(segment: AudioSegmentEntity) = Unit
+        override fun insertExportJob(job: ExportJobEntity) = Unit
+        override fun insertExportJobChapter(chapter: ExportJobChapterEntity) = Unit
         override fun findAllProjects(): List<BookProjectEntity> = emptyList()
         override fun observeAllProjects(): Flow<List<BookProjectEntity>> = emptyFlow()
         override fun findProjectBySourceFingerprint(fingerprint: String): BookProjectEntity? = null
@@ -195,5 +199,11 @@ public class PlaybackPositionPersistenceTest {
         override fun findProjectWithRelations(projectId: String): BookProjectWithRelations? = null
         override fun findChapterWithRelations(chapterId: String): ChapterWithRelations? = null
         override fun findGenerationRunWithSegments(runId: String): GenerationRunWithSegments? = null
+        override fun findExportJobById(jobId: String): ExportJobEntity? = null
+        override fun findAllExportJobs(): List<ExportJobEntity> = emptyList()
+        override fun findExportJobChapters(jobId: String): List<ExportJobChapterEntity> = emptyList()
+        override fun findExportJobChapter(jobId: String, chapterId: String): ExportJobChapterEntity? = null
+        override fun updateExportJob(job: ExportJobEntity) = Unit
+        override fun updateExportJobChapter(chapter: ExportJobChapterEntity) = Unit
     }
 }

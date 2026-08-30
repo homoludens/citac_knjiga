@@ -75,6 +75,14 @@ public enum class ExportJobStatus {
     CANCELLED,
 }
 
+public enum class ExportChapterStatus {
+    PENDING,
+    WRITING,
+    VERIFIED,
+    FAILED,
+    CANCELLED,
+}
+
 @Entity(
     tableName = "book_project",
     indices = [
@@ -466,8 +474,72 @@ public data class ExportJobEntity(
     val currentChapterOrdinal: Int? = null,
     @ColumnInfo(name = "manifest_path")
     val manifestPath: String? = null,
+    @ColumnInfo(name = "manifest_name")
+    val manifestName: String? = null,
+    @ColumnInfo(name = "cover_name")
+    val coverName: String? = null,
     @ColumnInfo(name = "status")
     val status: ExportJobStatus = ExportJobStatus.QUEUED,
+    @ColumnInfo(name = "last_error")
+    val lastError: String? = null,
+    @ColumnInfo(name = "created_at")
+    val createdAt: Long,
+    @ColumnInfo(name = "updated_at")
+    val updatedAt: Long,
+)
+
+@Entity(
+    tableName = "export_job_chapter",
+    primaryKeys = ["export_job_id", "chapter_id"],
+    foreignKeys = [
+        ForeignKey(
+            entity = ExportJobEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["export_job_id"],
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE,
+        ),
+        ForeignKey(
+            entity = ChapterEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["chapter_id"],
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [
+        Index(value = ["export_job_id", "ordinal"], unique = true),
+        Index(value = ["export_job_id", "status"]),
+        Index(value = ["chapter_id"]),
+    ],
+)
+public data class ExportJobChapterEntity(
+    @ColumnInfo(name = "export_job_id")
+    val exportJobId: String,
+    @ColumnInfo(name = "chapter_id")
+    val chapterId: String,
+    @ColumnInfo(name = "ordinal")
+    val ordinal: Int,
+    @ColumnInfo(name = "title")
+    val title: String,
+    @ColumnInfo(name = "source_segment_ids_json")
+    val sourceSegmentIdsJson: String,
+    @ColumnInfo(name = "file_name")
+    val fileName: String,
+    @ColumnInfo(name = "file_uri")
+    val fileUri: String? = null,
+    @ColumnInfo(name = "temporary_uri")
+    val temporaryUri: String? = null,
+    @ColumnInfo(name = "sha256")
+    val sha256: String? = null,
+    @ColumnInfo(name = "size_bytes")
+    val sizeBytes: Long? = null,
+    @ColumnInfo(name = "duration_ms")
+    val durationMs: Long? = null,
+    @ColumnInfo(name = "status")
+    val status: ExportChapterStatus = ExportChapterStatus.PENDING,
+    @ColumnInfo(name = "attempt_count")
+    val attemptCount: Int = 0,
     @ColumnInfo(name = "last_error")
     val lastError: String? = null,
     @ColumnInfo(name = "created_at")
@@ -554,4 +626,10 @@ public class RoomEnumConverters {
 
     @TypeConverter
     public fun storageToExportJobStatus(value: String): ExportJobStatus = ExportJobStatus.valueOf(value)
+
+    @TypeConverter
+    public fun exportChapterStatusToStorage(value: ExportChapterStatus): String = value.name
+
+    @TypeConverter
+    public fun storageToExportChapterStatus(value: String): ExportChapterStatus = ExportChapterStatus.valueOf(value)
 }

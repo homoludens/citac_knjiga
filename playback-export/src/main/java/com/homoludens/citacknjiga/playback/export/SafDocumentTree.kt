@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
+import java.io.InputStream
 import java.io.OutputStream
 
 public data class SafDocument(
@@ -13,13 +14,24 @@ public data class SafDocument(
     public val isDirectory: Boolean,
 )
 
+public data class SafProviderCapabilities(
+    public val supportsDocumentRename: Boolean,
+)
+
 /** The narrow provider boundary used by export; it never exposes filesystem paths. */
 public interface SafDocumentTree {
+    public val capabilities: SafProviderCapabilities get() = SafProviderCapabilities(supportsDocumentRename = false)
+
     public fun listChildren(): List<SafDocument>
 
     public fun createFile(name: String, mimeType: String): Uri?
 
     public fun openForWrite(uri: Uri): OutputStream?
+
+    public fun openForRead(uri: Uri): InputStream? = null
+
+    /** Returns the renamed document URI, or null when the provider cannot rename it. */
+    public fun rename(uri: Uri, name: String): Uri? = null
 
     public fun delete(uri: Uri): Boolean
 }
@@ -29,6 +41,8 @@ public class ContentResolverDocumentTree(
     private val resolver: ContentResolver,
     private val treeUri: Uri,
 ) : SafDocumentTree {
+    override val capabilities: SafProviderCapabilities = SafProviderCapabilities(supportsDocumentRename = true)
+
     private val documentUri: Uri = DocumentsContract.buildDocumentUriUsingTree(
         treeUri,
         DocumentsContract.getTreeDocumentId(treeUri),
@@ -62,6 +76,10 @@ public class ContentResolverDocumentTree(
         DocumentsContract.createDocument(resolver, documentUri, mimeType, name)
 
     override fun openForWrite(uri: Uri): OutputStream? = resolver.openOutputStream(uri, "wt")
+
+    override fun openForRead(uri: Uri): InputStream? = resolver.openInputStream(uri)
+
+    override fun rename(uri: Uri, name: String): Uri? = DocumentsContract.renameDocument(resolver, uri, name)
 
     override fun delete(uri: Uri): Boolean = DocumentsContract.deleteDocument(resolver, uri)
 }

@@ -10,6 +10,7 @@ import com.homoludens.citacknjiga.core.database.ChapterEntity
 import com.homoludens.citacknjiga.core.database.ChapterStatus
 import com.homoludens.citacknjiga.core.database.ChapterWithRelations
 import com.homoludens.citacknjiga.core.database.ExportJobEntity
+import com.homoludens.citacknjiga.core.database.ExportJobChapterEntity
 import com.homoludens.citacknjiga.core.database.GenerationRunEntity
 import com.homoludens.citacknjiga.core.database.GenerationRunStatus
 import com.homoludens.citacknjiga.core.database.GenerationRunWithSegments
@@ -149,6 +150,8 @@ public class EpubChapterProofServiceTest {
         override fun insertModelPackage(modelPackage: ModelPackageEntity) { }
         override fun insertGenerationRun(run: GenerationRunEntity) { this.run = run }
         override fun insertAudioSegment(segment: AudioSegmentEntity) { this.segment = segment }
+        override fun insertExportJob(job: ExportJobEntity) { }
+        override fun insertExportJobChapter(chapter: ExportJobChapterEntity) { }
         override fun findAllProjects(): List<BookProjectEntity> = listOf(project)
         override fun observeAllProjects(): Flow<List<BookProjectEntity>> = flowOf(listOf(project))
         override fun findProjectBySourceFingerprint(fingerprint: String): BookProjectEntity? = null
@@ -207,5 +210,11 @@ public class EpubChapterProofServiceTest {
         override fun findProjectWithRelations(projectId: String): BookProjectWithRelations? = null
         override fun findChapterWithRelations(chapterId: String): ChapterWithRelations? = null
         override fun findGenerationRunWithSegments(runId: String): GenerationRunWithSegments? = null
+        override fun findExportJobById(jobId: String): ExportJobEntity? = null
+        override fun findAllExportJobs(): List<ExportJobEntity> = emptyList()
+        override fun findExportJobChapters(jobId: String): List<ExportJobChapterEntity> = emptyList()
+        override fun findExportJobChapter(jobId: String, chapterId: String): ExportJobChapterEntity? = null
+        override fun updateExportJob(job: ExportJobEntity) { }
+        override fun updateExportJobChapter(chapter: ExportJobChapterEntity) { }
     }
 }

@@ -46,6 +46,28 @@ public class AudiobookDatabaseMigrationTest {
     }
 
     @Test
+    @Throws(IOException::class)
+    public fun versionOneMigratesExportCheckpoints() {
+        migrationTestHelper.createDatabase(DATABASE_NAME, 1).close()
+        migrationTestHelper.runMigrationsAndValidate(
+            DATABASE_NAME,
+            2,
+            true,
+            AudiobookDatabase.MIGRATION_1_2,
+        ).use { database ->
+            val tables = database.query(
+                "SELECT name FROM sqlite_master WHERE type = 'table'",
+            ).use { cursor ->
+                buildSet {
+                    while (cursor.moveToNext()) add(cursor.getString(0))
+                }
+            }
+            assertEquals(2, database.version)
+            assertTrue(tables.contains("export_job_chapter"))
+        }
+    }
+
+    @Test
     public fun newerDatabaseFailsWithoutDestructiveFallback() {
         context.openOrCreateDatabase(DATABASE_NAME, 0, null).let { database ->
             try {

@@ -28,6 +28,18 @@ public interface AudiobookDao {
     @Insert
     public fun insertAudioSegment(segment: AudioSegmentEntity)
 
+    @Insert
+    public fun insertExportJob(job: ExportJobEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public fun insertExportJobChapter(chapter: ExportJobChapterEntity)
+
+    @Transaction
+    public fun insertExportJobWithChapters(job: ExportJobEntity, chapters: List<ExportJobChapterEntity>) {
+        insertExportJob(job)
+        chapters.forEach(::insertExportJobChapter)
+    }
+
     @Query("SELECT * FROM book_project")
     public fun findAllProjects(): List<BookProjectEntity>
 
@@ -190,4 +202,22 @@ public interface AudiobookDao {
     @Transaction
     @Query("SELECT * FROM generation_run WHERE id = :runId")
     public fun findGenerationRunWithSegments(runId: String): GenerationRunWithSegments?
+
+    @Query("SELECT * FROM export_job WHERE id = :jobId LIMIT 1")
+    public fun findExportJobById(jobId: String): ExportJobEntity?
+
+    @Query("SELECT * FROM export_job ORDER BY updated_at DESC, id DESC")
+    public fun findAllExportJobs(): List<ExportJobEntity>
+
+    @Query("SELECT * FROM export_job_chapter WHERE export_job_id = :jobId ORDER BY ordinal")
+    public fun findExportJobChapters(jobId: String): List<ExportJobChapterEntity>
+
+    @Query("SELECT * FROM export_job_chapter WHERE export_job_id = :jobId AND chapter_id = :chapterId LIMIT 1")
+    public fun findExportJobChapter(jobId: String, chapterId: String): ExportJobChapterEntity?
+
+    @Update
+    public fun updateExportJob(job: ExportJobEntity)
+
+    @Update
+    public fun updateExportJobChapter(chapter: ExportJobChapterEntity)
 }

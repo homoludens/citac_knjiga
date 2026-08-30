@@ -482,8 +482,17 @@ target.
   Collisions get deterministic numeric suffixes unless the caller explicitly
   confirms replacement. The export writes verified audio, an inferred cover
   image when available, and canonical manifest-v1 JSON. Persistent progress,
-  retry, destination-loss recovery, and capacity estimation remain task 10.6+
-  work.
+  retry, and destination-loss recovery are now task 10.6; target/temporary
+  capacity estimation remains task 10.7.
+- Task 10.6 adds Room schema v2 `export_job_chapter` checkpoints and a
+  resumable export coordinator. Each ordered chapter persists its source
+  segment IDs, target name/URI, provider temporary URI, verified hash/size/
+  duration, state, attempts, and error. SAF output is written to a uniquely
+  named `.incomplete` document, read back and hashed, then finalized through
+  provider document rename. Providers without safe rename fail clearly rather
+  than exposing a partial final artifact. Restart reconciliation returns
+  interrupted writes to pending; retry rechecks verified files and rewrites
+  only missing/failed chapters while retaining private project/audio.
 
 ## Conventions
 

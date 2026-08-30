@@ -14,11 +14,14 @@ import com.homoludens.citacknjiga.core.storage.AtomicArtifactStore
 import com.homoludens.citacknjiga.tts.onnx.AndroidMediaCodecAacEncoder
 import com.homoludens.citacknjiga.tts.onnx.AndroidM4aValidator
 import java.io.ByteArrayOutputStream
+import java.io.ByteArrayInputStream
+import java.io.InputStream
 import java.io.OutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.After
 import org.junit.Before
@@ -137,6 +140,63 @@ public class SafAudiobookExporterAndroidTest {
         assertArrayEquals(before, source.readBytes())
     }
 
+    @Test
+    public fun providerTemporaryCanBeRetriedAndFinalizedOnce() {
+        val exporter = SafAudiobookExporter(storage, chapterAssembler = WavChapterAudioAssembler())
+        val plan = exporter.plan(tree, request())
+        val temporary = mutableMapOf<String, Uri>()
+        val listener = object : ExportProgressListener {
+            override fun onTemporaryFile(planned: PlannedExportFile, uri: Uri) {
+                temporary[planned.name] = uri
+            }
+        }
+        tree.failRename = true
+
+        assertTrue(runCatching { exporter.export(plan, listener = listener) }.isFailure)
+        assertTrue(tree.listChildren().any { it.name.endsWith(".incomplete") })
+        tree.failRename = false
+        exporter.export(plan, temporaryUris = temporary, listener = listener)
+
+        assertEquals(1, tree.listChildren().count { it.name == "0001-Citanje_knjige.wav" })
+        assertEquals(1, tree.listChildren().count { it.name == "manifest.json" })
+        assertFalse(tree.listChildren().any { it.name.endsWith(".incomplete") })
+    }
+
+    @Test
+    public fun providerWithoutRenameNeverPublishesACompleteName() {
+        val noRenameTree = FakeSafTree(supportsRename = false)
+        val exporter = SafAudiobookExporter(storage, chapterAssembler = WavChapterAudioAssembler())
+        val plan = exporter.plan(noRenameTree, request())
+
+        assertTrue(runCatching { exporter.export(plan) }.exceptionOrNull() is DestinationUnavailableException)
+        assertFalse(noRenameTree.listChildren().any { it.name == "0001-Citanje_knjige.wav" })
+        assertTrue(noRenameTree.listChildren().any { it.name.endsWith(".incomplete") })
+    }
+
+    @Test
+    public fun destinationLossKeepsVerifiedChapterAndRetryDoesNotDuplicateIt() {
+        val exporter = SafAudiobookExporter(storage, chapterAssembler = WavChapterAudioAssembler())
+        val plan = exporter.plan(tree, request())
+        val chapterName = plan.files.first { it.sourceSegments.isNotEmpty() }.name
+        val verified = mutableMapOf<String, Int>()
+        val listener = object : ExportProgressListener {
+            override fun onVerifiedFile(planned: PlannedExportFile, verification: ExportedFileVerification) {
+                verified[planned.name] = (verified[planned.name] ?: 0) + 1
+            }
+        }
+        tree.loseAfterFirstRename = true
+
+        assertTrue(runCatching { exporter.export(plan, listener = listener) }.isFailure)
+        assertEquals(1, verified[chapterName])
+        tree.unavailable = false
+        tree.loseAfterFirstRename = false
+        exporter.export(plan, skipNames = setOf(chapterName), listener = listener)
+
+        assertEquals(1, verified[chapterName])
+        assertEquals(1, tree.listChildren().count { it.name == chapterName })
+        assertTrue(tree.listChildren().any { it.name == "manifest.json" })
+    }
+
     private fun request(segments: List<AudioSegmentEntity> = listOf(
         segment("segment", 0, source, 20L),
         segment("segment-2", 1, secondSource, 20L),
@@ -221,8 +281,17 @@ public class SafAudiobookExporterAndroidTest {
         }.array()
     }
 
-    private class FakeSafTree : SafDocumentTree {
+    private class FakeSafTree(
+        private val supportsRename: Boolean = true,
+    ) : SafDocumentTree {
         private val values = linkedMapOf<String, ByteArray>()
+
+        override val capabilities: SafProviderCapabilities = SafProviderCapabilities(supportsRename)
+        var failRename: Boolean = false
+        var loseAfterFirstRename: Boolean = false
+        var unavailable: Boolean = false
+        private var renamed = false
+        private var loseOnNextList = false
 
         fun addExisting(name: String, bytes: ByteArray) {
             values[name] = bytes
@@ -230,21 +299,46 @@ public class SafAudiobookExporterAndroidTest {
 
         fun bytes(name: String): ByteArray = checkNotNull(values[name])
 
-        override fun listChildren(): List<SafDocument> = values.keys.map { name ->
-            SafDocument(Uri.parse("content://fake/$name"), name, "application/octet-stream", false)
+        override fun listChildren(): List<SafDocument> {
+            if (loseOnNextList) {
+                loseOnNextList = false
+                unavailable = true
+            }
+            check(!unavailable) { "provider unavailable" }
+            return values.keys.map { name ->
+                SafDocument(Uri.parse("content://fake/$name"), name, "application/octet-stream", false)
+            }
         }
 
         override fun createFile(name: String, mimeType: String): Uri? {
+            check(!unavailable) { "provider unavailable" }
             if (name in values) return null
             values[name] = ByteArray(0)
             return Uri.parse("content://fake/$name")
         }
 
         override fun openForWrite(uri: Uri): OutputStream = object : ByteArrayOutputStream() {
+            init { check(!unavailable) { "provider unavailable" } }
+
             override fun close() {
                 super.close()
                 values[uri.lastPathSegment!!] = toByteArray()
             }
+        }
+
+        override fun openForRead(uri: Uri): InputStream {
+            check(!unavailable) { "provider unavailable" }
+            return ByteArrayInputStream(values.getValue(uri.lastPathSegment!!))
+        }
+
+        override fun rename(uri: Uri, name: String): Uri {
+            check(!unavailable) { "provider unavailable" }
+            check(!failRename) { "rename unavailable" }
+            val oldName = uri.lastPathSegment!!
+            values[name] = values.remove(oldName) ?: error("missing document")
+            renamed = true
+            if (loseAfterFirstRename && renamed) loseOnNextList = true
+            return Uri.parse("content://fake/$name")
         }
 
         override fun delete(uri: Uri): Boolean = values.remove(uri.lastPathSegment) != null
