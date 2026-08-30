@@ -5,9 +5,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.test.core.app.ApplicationProvider
 import android.content.Context
 import android.content.res.Configuration
@@ -94,6 +96,74 @@ public class DiagnosticsAboutUiTest {
         assertEquals(1, composeRule.onAllNodesWithText("Референце атрибуције нису доступне. Не објављујте извоз док се извори не провере.", useUnmergedTree = true).fetchSemanticsNodes().size)
         assertEquals(1, composeRule.onAllNodesWithText("Подаци о меморији нису доступни. Проверите слободан простор пре генерисања.", useUnmergedTree = true).fetchSemanticsNodes().size)
         composeRule.onNodeWithText("Извези редиговану дијагностику").assert(hasClickAction())
+    }
+
+    @Test
+    public fun modelImportActionIsVisible() {
+        composeRule.setContent {
+            CompositionLocalProvider(LocalContext provides serbianContext()) {
+                MaterialTheme {
+                    DiagnosticsAboutScreen(
+                        state = DiagnosticsAboutState.missing(),
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("Увези пакет модела").assert(hasClickAction())
+    }
+
+    @Test
+    public fun busyModelImportActionIsDisabled() {
+        composeRule.setContent {
+            CompositionLocalProvider(LocalContext provides serbianContext()) {
+                MaterialTheme {
+                    DiagnosticsAboutScreen(
+                        state = DiagnosticsAboutState.missing(),
+                        importEnabled = false,
+                        importBusy = true,
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("Увези пакет модела").assertIsNotEnabled()
+    }
+
+    @Test
+    public fun unavailableModelReleaseActionIsShownButDisabled() {
+        composeRule.setContent {
+            CompositionLocalProvider(LocalContext provides serbianContext()) {
+                MaterialTheme {
+                    DiagnosticsAboutScreen(
+                        state = DiagnosticsAboutState.missing(),
+                        releaseConfigured = true,
+                        releaseAvailable = false,
+                        releaseMessage = "Овај извор није доступан.",
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("Преузми пакет модела").assertIsNotEnabled()
+        composeRule.onNodeWithText("Овај извор није доступан.").assert(hasText("Овај извор није доступан."))
+    }
+
+    @Test
+    public fun availableModelReleaseActionIsExposedAsExternalAction() {
+        composeRule.setContent {
+            CompositionLocalProvider(LocalContext provides serbianContext()) {
+                MaterialTheme {
+                    DiagnosticsAboutScreen(
+                        state = DiagnosticsAboutState.missing(),
+                        releaseConfigured = true,
+                        releaseAvailable = true,
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("Преузми пакет модела").assert(hasClickAction())
     }
 
     private fun serbianContext(): Context {
