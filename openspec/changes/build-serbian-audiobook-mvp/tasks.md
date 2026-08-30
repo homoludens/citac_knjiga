@@ -97,7 +97,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 - [x] 9.5 Implement media notification, lock-screen, headset/Bluetooth, audio-focus, noisy-output, and interruption behavior.
 - [x] 9.6 Update playback queues safely as new segments or chapters become ready while audio is playing.
 - [x] 9.7 Handle missing, stale, corrupt, or not-yet-ready audio with clear stop/skip and regeneration routes.
-- [ ] 9.8 Demonstrate listening to completed chapters while later chapters continue generating.
+- [x] 9.8 Demonstrate listening to completed chapters while later chapters continue generating. -> `ProgressivePlaybackAndroidTest` proves Room readiness, bounded generation, atomic publication, and Media3 queue growth without resetting the active item or position.
 
 ## 10. Audio Encoding and Portable Export (rough phase effort: 2–4 weeks)
 

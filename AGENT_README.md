@@ -387,6 +387,14 @@ target.
   playing item becomes invalid, the queue pauses it and skips to the next valid
   item; if none exists, playback remains stopped. Generation ownership stays
   outside playback.
+- Task 9.8 adds `ProgressivePlaybackAndroidTest`, a deterministic offline
+  integration proof using an in-memory Room database, the bounded generation
+  runner, atomic private publication, `ReadyAudioRepository`, the existing
+  `PlaybackQueueCoordinator`, and a real `ExoPlayer` through its service port.
+  While a completed first chapter plays, later generation is held in inference;
+  the active position advances, then the published second chapter grows the
+  queue without replacing the active item or resetting its position. No model,
+  network, or committed audio artifact is required.
 
 ## Repository layout
 
