@@ -481,23 +481,10 @@ legal inventory.
     }
 
 
-def write_bundle() -> None:
-    inventory = read_json(NOTICE_JSON)
-    package = read_json(ROOT / "model-tools/package/model-package-v1.example.json")
-    package = read_json(ROOT / "model-tools/package/model-package-v1.example.json")
-    closure = read_json(ROOT / "model-tools/native/source-closure-v1.json")
-    data_manifest = read_json(ROOT / "model-tools/native/espeak-data-manifest-v1.json")
-    preprocessing = read_json(ROOT / "model-tools/preprocessing/preprocessing-contract-v1.json")
-    sbom = build_sbom(inventory, closure)
-    # Legal reviews are intentionally read from the blocked package fixture so
-    # this generator cannot turn prose in a report into release clearance.
-    documents = render_documents(inventory, sbom, package["legal"], package, preprocessing, closure, data_manifest)
-    BUNDLE.mkdir(parents=True, exist_ok=True)
-    for name, content in documents.items():
-        (BUNDLE / name).write_text(content, encoding="utf-8")
+def build_manifest() -> dict[str, object]:
     source_paths = [ROOT / path for path in INPUTS]
     source_paths.append(ROOT / GENERATOR)
-    manifest = {
+    return {
         "schema": "citac-knjiga-release-document-bundle",
         "version": 1,
         "bundle_id": "task-12-6",
@@ -516,6 +503,22 @@ def write_bundle() -> None:
             "secrets": "excluded",
         },
     }
+
+
+def write_bundle() -> None:
+    inventory = read_json(NOTICE_JSON)
+    package = read_json(ROOT / "model-tools/package/model-package-v1.example.json")
+    closure = read_json(ROOT / "model-tools/native/source-closure-v1.json")
+    data_manifest = read_json(ROOT / "model-tools/native/espeak-data-manifest-v1.json")
+    preprocessing = read_json(ROOT / "model-tools/preprocessing/preprocessing-contract-v1.json")
+    sbom = build_sbom(inventory, closure)
+    # Legal reviews are intentionally read from the blocked package fixture so
+    # this generator cannot turn prose in a report into release clearance.
+    documents = render_documents(inventory, sbom, package["legal"], package, preprocessing, closure, data_manifest)
+    BUNDLE.mkdir(parents=True, exist_ok=True)
+    for name, content in documents.items():
+        (BUNDLE / name).write_text(content, encoding="utf-8")
+    manifest = build_manifest()
     (BUNDLE / "sbom.cdx.json").write_text(json.dumps(sbom, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (BUNDLE / "bundle-manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 

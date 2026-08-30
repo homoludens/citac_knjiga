@@ -2,7 +2,7 @@
   "bundle_id": "task-12-6",
   "generated_by": {
     "path": "scripts/generate_release_docs.py",
-    "sha256": "a3f6897d64a7a4b5e5943e9559e8ed701fb5bd1cc8d2bdc2454f1eacfb3a5256"
+    "sha256": "cc70aa2166ae7c7da51ce92462f704b2d60ce136d52d4343a5fa52e8d3c443d5"
   },
   "inputs": [
     {
@@ -107,7 +107,7 @@
     },
     {
       "path": "scripts/generate_release_docs.py",
-      "sha256": "a3f6897d64a7a4b5e5943e9559e8ed701fb5bd1cc8d2bdc2454f1eacfb3a5256"
+      "sha256": "cc70aa2166ae7c7da51ce92462f704b2d60ce136d52d4343a5fa52e8d3c443d5"
     }
   ],
   "notice_references": {

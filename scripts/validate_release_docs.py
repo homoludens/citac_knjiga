@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 import re
 import sys
@@ -17,7 +16,9 @@ from generate_release_docs import (
     NOTICE_MD,
     OUTPUTS,
     build_sbom,
+    build_manifest,
     read_json,
+    render_documents,
     rel,
     sha256,
 )
@@ -54,6 +55,7 @@ def validate_text() -> None:
 
 
 def validate_manifest(manifest: dict[str, object]) -> None:
+    require(manifest == build_manifest(), "bundle manifest is stale or modified; regenerate bundle")
     require(manifest["schema"] == "citac-knjiga-release-document-bundle", "unsupported bundle schema")
     require(manifest["version"] == 1 and manifest["bundle_id"] == "task-12-6", "unsupported bundle identity")
     require(tuple(manifest["outputs"]) == OUTPUTS, "bundle output list differs from generator")
@@ -85,6 +87,27 @@ def validate_sbom(sbom: dict[str, object], inventory: dict[str, object]) -> None
     require(str(sbom["serialNumber"]).startswith("urn:uuid:"), "SBOM serial is missing")
 
 
+def validate_rendered_outputs(inventory: dict[str, object]) -> None:
+    closure = read_json(ROOT / "model-tools/native/source-closure-v1.json")
+    package = read_json(ROOT / "model-tools/package/model-package-v1.example.json")
+    preprocessing = read_json(ROOT / "model-tools/preprocessing/preprocessing-contract-v1.json")
+    data_manifest = read_json(ROOT / "model-tools/native/espeak-data-manifest-v1.json")
+    sbom = build_sbom(inventory, closure)
+    expected_documents = render_documents(
+        inventory,
+        sbom,
+        package["legal"],
+        package,
+        preprocessing,
+        closure,
+        data_manifest,
+    )
+    for name, content in expected_documents.items():
+        require((BUNDLE / name).read_text(encoding="utf-8") == content, f"output drift: {name}")
+    expected_sbom = json.dumps(sbom, indent=2, sort_keys=True) + "\n"
+    require((BUNDLE / "sbom.cdx.json").read_text(encoding="utf-8") == expected_sbom, "output drift: sbom.cdx.json")
+
+
 def main() -> int:
     try:
         require(BUNDLE.is_dir(), "release documentation bundle is missing")
@@ -92,6 +115,7 @@ def main() -> int:
         inventory = read_json(NOTICE_JSON)
         validate_manifest(manifest)
         validate_text()
+        validate_rendered_outputs(inventory)
         validate_sbom(read_json(BUNDLE / "sbom.cdx.json"), inventory)
         print(f"release documentation bundle valid: {BUNDLE.relative_to(ROOT)}")
         return 0
