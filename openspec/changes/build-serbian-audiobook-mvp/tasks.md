@@ -123,7 +123,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 
 ## 12. CI, Reproducibility, and Release (rough phase effort: 1–3 weeks)
 
-- [ ] 12.1 Configure CI for formatting, static analysis, JVM tests, Android lint, golden preprocessing tests, model-package validation, and debug APK assembly.
+- [x] 12.1 Configure CI for formatting, static analysis, JVM tests, Android lint, golden preprocessing tests, model-package validation, and debug APK assembly. → `.github/workflows/ci.yml`; no model payload or emulator orchestration required.
 - [ ] 12.2 Add emulator instrumentation tests for Room migrations, SAF fixtures, generation recovery, Media3 position restore, and export failure paths.
 - [ ] 12.3 Pin Gradle, Android SDK/build-tools, NDK if retained, JDK, Python, ONNX, and native dependency versions with checksum or lock verification.
 - [ ] 12.4 Produce source-build instructions for native/runtime artifacts and ensure no undeclared prebuilt binary is required by the F-Droid flavor.

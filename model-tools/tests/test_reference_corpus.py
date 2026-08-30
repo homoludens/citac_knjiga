@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
 import sys
 
@@ -13,7 +14,12 @@ import soundfile as sf
 REPO = Path(__file__).resolve().parents[2]
 CORPUS_PATH = REPO / "model-tools/reference/vectors.json"
 SCHEMA_PATH = REPO / "model-tools/reference/vectors.schema.json"
-PHONEMIZER_ROOT = Path("/home/homoludens/projekti/kokoro_tts_srpski_2/src")
+PHONEMIZER_ROOT = Path(
+    os.environ.get(
+        "KOKORO_SR_ROOT",
+        "/home/homoludens/projekti/kokoro_tts_srpski_2/src",
+    )
+)
 VOCAB_PATH = REPO / "kokoro_sr_dragana_voice/config.json"
 
 REQUIRED_CATEGORIES = {

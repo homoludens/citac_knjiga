@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["jsonschema>=4.23,<5", "pytest>=8.3,<9"]
+dev = ["jsonschema>=4.23,<5", "pytest>=8.3,<9", "pyyaml>=6,<7"]
 
 # System espeak-ng (phonenumber, `-v sr`) is a runtime requirement, not a pip
 # dependency. See DEPLOYMENT.md.

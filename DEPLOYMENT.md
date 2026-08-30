@@ -1615,3 +1615,38 @@ Android audio players. Task 11.4 still lacks Android 11/API 30, Android
 16/API 36, and physical Poco F3 vendor battery-management qualification. The
 natural Serbian AAC listening/Poco AAC check and public model legal gate also
 remain open. No model, audio, or generated report is committed.
+
+## CI validation (task 12.1)
+
+`.github/workflows/ci.yml` runs on pull requests and pushes to `main` with
+read-only repository permissions. It uses JDK 21, the checked-in Gradle 8.10.2
+wrapper and checksum, Android platform/build-tools 35/35.0.0, CMake 3.22.1,
+and NDK 26.1.10909125. Gradle and uv caches are keyed by the checked-in wrapper
+and `model-tools/uv.lock`; no model package, secret, signing key, or generated
+audio is fetched or uploaded.
+
+The workflow runs the repository's whitespace check, all root JVM tests,
+`check`, every debug lint task for the standard/F-Droid app and library modules,
+and `assembleStandardDebug` plus `assembleFdroidDebug`. Its model job installs
+the system eSpeak-NG binary, checks out `kokoro_sr` at the recorded commit into
+temporary runner storage, runs the contract/golden preprocessing tests, and
+validates the blocked declaration-only model manifest. It never needs model
+weights or a model-package archive.
+
+The local CI-equivalent commands are:
+
+```sh
+bash scripts/check_formatting.sh
+KOKORO_SR_ROOT=/path/to/kokoro-serbian/src \
+  model-tools/.venv/bin/pytest \
+  model-tools/tests/test_preprocessing_contract.py \
+  model-tools/tests/test_preprocessing_validation.py \
+  model-tools/tests/test_model_package_manifest.py
+model-tools/.venv/bin/python model-tools/scripts/validate_model_package_manifest.py
+ANDROID_HOME=/path/to/Android/Sdk ANDROID_SDK_ROOT=/path/to/Android/Sdk \
+  ./gradlew test check \
+  :app:lintStandardDebug :app:lintFdroidDebug :core:lintDebug \
+  :document-epub:lintDebug :tts-onnx:lintDebug :playback-export:lintDebug \
+  :app:assembleStandardDebug :app:assembleFdroidDebug \
+  --no-daemon --max-workers=2
+```

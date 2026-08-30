@@ -486,6 +486,15 @@ target.
   and natural Serbian AAC/Poco AAC listening remains pending. Task 11.8 stays
   unchecked.
 
+- Task 12.1 adds `.github/workflows/ci.yml` for pull requests and `main` pushes.
+  It checks repository whitespace, locked model-tool golden preprocessing and
+  declaration-only model validation, all JVM tests, Gradle checks, standard and
+  F-Droid debug lint, and both debug APK assemblies. The workflow declares JDK
+  21, Android 35/build-tools 35.0.0, CMake 3.22.1, and NDK 26.1.10909125,
+  caches only Gradle/uv inputs, and uses no model bytes, secrets, services, or
+  emulator orchestration. The golden validator accepts `KOKORO_SR_ROOT` so CI
+  does not depend on the original developer workstation path.
+
 ## Repository layout
 
 | Path | Purpose |

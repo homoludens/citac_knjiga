@@ -6,6 +6,7 @@ import argparse
 from dataclasses import dataclass
 import hashlib
 import json
+import os
 from pathlib import Path
 import sys
 from typing import Any, Callable, Mapping
@@ -27,7 +28,12 @@ except ImportError:  # Direct execution puts this scripts directory on sys.path.
 
 
 CORPUS_PATH = REPO / "model-tools/reference/vectors.json"
-DEFAULT_PHONEMIZER_ROOT = Path("/home/homoludens/projekti/kokoro_tts_srpski_2/src")
+DEFAULT_PHONEMIZER_ROOT = Path(
+    os.environ.get(
+        "KOKORO_SR_ROOT",
+        "/home/homoludens/projekti/kokoro_tts_srpski_2/src",
+    )
+)
 STAGE_ORDER = (
     "cleanup_text",
     "normalized_text",

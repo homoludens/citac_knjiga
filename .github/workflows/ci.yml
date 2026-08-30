@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  KOKORO_SR_COMMIT: ca5590d9576f63b0763e51a73de0596d47f05425
+
+jobs:
+  formatting:
+    name: Formatting checks
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - name: Check repository formatting
+        run: bash scripts/check_formatting.sh
+
+  model-validation:
+    name: Golden preprocessing and model manifest
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: model-tools/uv.lock
+      - name: Install phonemizer
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes espeak-ng
+      - name: Check out pinned kokoro_sr source
+        run: |
+          source_root="$RUNNER_TEMP/kokoro-serbian"
+          git clone --filter=blob:none https://github.com/homoludens/kokoro-serbian.git "$source_root"
+          git -C "$source_root" fetch --depth=1 origin "$KOKORO_SR_COMMIT"
+          git -C "$source_root" checkout --detach "$KOKORO_SR_COMMIT"
+          test "$(git -C "$source_root" rev-parse HEAD)" = "$KOKORO_SR_COMMIT"
+          echo "KOKORO_SR_ROOT=$source_root/src" >> "$GITHUB_ENV"
+      - name: Install locked model-tool test dependencies
+        working-directory: model-tools
+        run: uv sync --locked --only-group dev
+      - name: Run golden preprocessing tests
+        run: |
+          model-tools/.venv/bin/pytest \
+            model-tools/tests/test_preprocessing_contract.py \
+            model-tools/tests/test_preprocessing_validation.py
+      - name: Validate blocked model-package declaration
+        run: |
+          model-tools/.venv/bin/python \
+            model-tools/scripts/validate_model_package_manifest.py
+          model-tools/.venv/bin/pytest \
+            model-tools/tests/test_model_package_manifest.py
+
+  android:
+    name: Android checks
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+          cache-dependency-path: |
+            **/*.gradle*
+            **/gradle-wrapper.properties
+            gradle/libs.versions.toml
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Install declared Android toolchain
+        run: |
+          sdkmanager "platform-tools" "platforms;android-35" \
+            "build-tools;35.0.0" "cmake;3.22.1" "ndk;26.1.10909125"
+      - name: Run JVM tests
+        run: ./gradlew test --no-daemon --max-workers=2 --console=plain
+      - name: Run static analysis and Android lint
+        run: |
+          ./gradlew check \
+            :app:lintStandardDebug :app:lintFdroidDebug \
+            :core:lintDebug :document-epub:lintDebug \
+            :tts-onnx:lintDebug :playback-export:lintDebug \
+            --no-daemon --max-workers=2 --console=plain
+      - name: Assemble standard and F-Droid debug APKs
+        run: |
+          ./gradlew :app:assembleStandardDebug :app:assembleFdroidDebug \
+            --no-daemon --max-workers=2 --console=plain
