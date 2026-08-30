@@ -47,6 +47,6 @@
 
 ## 8. Offline Release Closure
 
-- [ ] 8.1 Keep standard-release and F-Droid merged manifests free of `INTERNET`, `ACCESS_NETWORK_STATE`, and other routine network permissions; verify `./gradlew verifyOfflineReleaseManifests` passes for both merged release manifests.
+- [x] 8.1 Keep standard-release and F-Droid merged manifests free of `INTERNET`, `ACCESS_NETWORK_STATE`, and other routine network permissions; verify `./gradlew verifyOfflineReleaseManifests` passes for both merged release manifests.
 - [ ] 8.2 Extend source/dependency closure checks to reject downloader/network clients, WebView or background fetch paths, local model payloads, and undeclared file-based runtime inputs while preserving the locked single ONNX dependency; verify `python3 scripts/check_source_closure.py` and the relevant dependency audit pass.
 - [ ] 8.3 Run final standard and F-Droid release checks, including manifest, payload, metadata, legal-gate, and source-closure validation; verify `python3 scripts/check_fdroid.py --require-build` and the project release verification command pass without a model package in either APK.
