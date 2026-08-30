@@ -362,6 +362,14 @@ target.
   supported finite speeds. It polls once per second with a two-second write
   throttle, also reacts to player events, and flushes on service teardown.
   Room remains persistence-only and Media3 remains the playback owner.
+- Task 9.5 configures the Media3 service's single default notification provider
+  with a stable audiobook channel, chapter/book/author metadata, app return
+  intent, and standard skip controls. Speech audio attributes keep Media3
+  responsible for requesting and abandoning focus; transient and ducking
+  losses pause and resume only when previously playing, permanent loss does not
+  resume, and noisy-output handling pauses through ExoPlayer. MediaSession is
+  the standard lock-screen/headset/Bluetooth command surface; no queue or
+  generation ownership was added.
 
 ## Repository layout
 

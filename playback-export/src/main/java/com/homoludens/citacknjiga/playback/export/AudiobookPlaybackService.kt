@@ -1,14 +1,18 @@
+@file:androidx.annotation.OptIn(markerClass = [androidx.media3.common.util.UnstableApi::class])
+
 package com.homoludens.citacknjiga.playback.export
 
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import com.homoludens.citacknjiga.core.database.AudiobookDatabase
+import com.homoludens.citacknjiga.core.database.BookProjectEntity
+import com.homoludens.citacknjiga.core.database.ChapterEntity
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,6 +37,7 @@ public class AudiobookPlaybackService : MediaSessionService() {
 
     override fun onCreate() {
         super.onCreate()
+        setMediaNotificationProvider(PlaybackNotificationConfiguration.provider(this))
         database = AudiobookDatabase.create(this)
         readyAudio = ReadyAudioRepository(
             source = RoomReadyAudioSource(database.audiobookDao()),
@@ -41,17 +46,27 @@ public class AudiobookPlaybackService : MediaSessionService() {
         positionPersistence = PlaybackPositionPersistence(database.audiobookDao(), playbackScope)
         resources = PlaybackResourceLifecycle(
             createPlayer = {
-                ExoPlayer.Builder(this).build().apply {
-                    setAudioAttributes(
+                ExoPlayer.Builder(this)
+                    .setSeekBackIncrementMs(DEFAULT_SEEK_BACK_MS)
+                    .setSeekForwardIncrementMs(DEFAULT_SEEK_FORWARD_MS)
+                    .setHandleAudioBecomingNoisy(true)
+                    .setAudioAttributes(
                         androidx.media3.common.AudioAttributes.Builder()
                             .setUsage(C.USAGE_MEDIA)
                             .setContentType(C.AUDIO_CONTENT_TYPE_SPEECH)
                             .build(),
                         true,
                     )
-                }
+                    .build()
             },
-            createSession = { player -> MediaSession.Builder(this, player).build() },
+            createSession = { player ->
+                MediaSession.Builder(this, player)
+                    .setId(SESSION_ID)
+                    .setCallback(AudiobookMediaSessionCallback())
+                    .setMediaButtonPreferences(AudiobookMediaButtons.preferences)
+                    .apply { sessionActivity()?.let(::setSessionActivity) }
+                    .build()
+            },
             releasePlayer = ExoPlayer::release,
             releaseSession = MediaSession::release,
         ).create()
@@ -64,13 +79,16 @@ public class AudiobookPlaybackService : MediaSessionService() {
             loadJob = serviceScope.launch {
                 val items = readyAudio.observeVerified(projectId).first()
                 if (items.isEmpty()) return@launch
+                val book = database.audiobookDao().findProjectById(projectId) ?: return@launch
                 val chapters = database.audiobookDao().findAllChapters()
                     .filter { it.bookProjectId == projectId }
                 val catalog = PlaybackCatalog.from(chapters, items)
                 withContext(Dispatchers.Main.immediate) {
                     if (!destroyed) {
                         val playerPort = Media3PlayerPort(resources.player)
-                        resources.player.setMediaItems(items.map(::mediaItem))
+                        resources.player.setMediaItems(items.map { audio ->
+                            mediaItem(audio, book, chapters.firstOrNull { it.id == audio.segment.chapterId })
+                        })
                         resources.player.prepare()
                         positionPersistence.restore(
                             projectId = projectId,
@@ -104,15 +122,33 @@ public class AudiobookPlaybackService : MediaSessionService() {
         super.onDestroy()
     }
 
-    private fun mediaItem(audio: VerifiedReadyAudio): MediaItem = MediaItem.Builder()
+    private fun mediaItem(
+        audio: VerifiedReadyAudio,
+        book: BookProjectEntity,
+        chapter: ChapterEntity?,
+    ): MediaItem = MediaItem.Builder()
         .setMediaId(audio.segment.id)
         .setUri(android.net.Uri.fromFile(audio.file))
-        .setMediaMetadata(MediaMetadata.Builder().setTitle(audio.segment.id).build())
+        .setMediaMetadata(playbackItemMetadata(book, chapter).toMediaMetadata())
         .build()
+
+    private fun sessionActivity(): PendingIntent? = packageManager
+        .getLaunchIntentForPackage(packageName)
+        ?.let { launchIntent ->
+            PendingIntent.getActivity(
+                this,
+                0,
+                launchIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+        }
 
     public companion object {
         public const val ACTION_PLAY_BOOK: String = "com.homoludens.citacknjiga.action.PLAY_BOOK"
         public const val EXTRA_BOOK_PROJECT_ID: String = "book_project_id"
+        private const val SESSION_ID: String = "citac_knjiga_audiobook"
+        private const val DEFAULT_SEEK_BACK_MS: Long = 15_000L
+        private const val DEFAULT_SEEK_FORWARD_MS: Long = 30_000L
 
         public fun intent(context: Context, projectId: String): Intent =
             Intent(context, AudiobookPlaybackService::class.java)

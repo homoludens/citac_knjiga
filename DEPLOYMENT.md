@@ -927,6 +927,29 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
 ```
 
 The connected suite includes a file-backed Room close/reopen restore test on
-the available API 35 x86_64 emulator. This task does not add notification,
+the available API 35 x86_64 emulator. Task 9.4 did not add notification,
 lock-screen, headset/audio-focus/interruption, dynamic queue, missing-audio,
 or demonstration behavior.
+
+## Media system integration (task 9.5)
+
+`AudiobookPlaybackService` uses Media3's `DefaultMediaNotificationProvider` once,
+with channel `audiobook_playback` and notification ID `4101`. Media items expose
+chapter title, book title, author, and audiobook-chapter type; the notification
+opens the app and offers standard playback plus 15-second back/30-second forward
+actions. `ExoPlayer` is configured with speech audio attributes and
+`handleAudioFocus=true`, so Media3 requests and abandons platform focus. Speech
+content pauses for transient and ducking losses and resumes on focus gain only if
+it was playing before the interruption. Permanent loss and
+`AUDIO_BECOMING_NOISY` do not resume automatically. The MediaSession service is
+the sole lock-screen, headset, and Bluetooth command surface.
+
+Focused checks:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :playback-export:testDebugUnitTest \
+  :playback-export:compileDebugAndroidTestKotlin \
+  :playback-export:lintDebug
+```
