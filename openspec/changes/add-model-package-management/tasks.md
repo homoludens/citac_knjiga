@@ -22,7 +22,7 @@
 ## 4. Runtime Snapshot Boundary
 
 - [x] 4.1 Update `AndroidTypedTextProofEngine` and `OnnxTtsSession` to open a read-locked verified package snapshot and release the read lock after model and voice artifacts are opened; verify runtime tests show an import cannot mutate files during session opening.
-- [ ] 4.2 Ensure a replacement affects only the next generation while an already opened session finishes or cancels against its snapshot; verify a concurrent replacement test observes stable in-progress input and the new package on the next session.
+- [x] 4.2 Ensure a replacement affects only the next generation while an already opened session finishes or cancels against its snapshot; verify a concurrent replacement test observes stable in-progress input and the new package on the next session.
 
 ## 5. SAF Picker and Diagnostics Lifecycle
 
