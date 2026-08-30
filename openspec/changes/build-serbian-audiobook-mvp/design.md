@@ -70,11 +70,76 @@ Because long-running WorkManager jobs and foreground-service rules continue to e
 
 Media3 owns playback only; it never owns generation state. Playback observes ready audio from Room and updates its playlist at safe boundaries.
 
-### 9. Separate development PCM from MVP stored/export audio
+### 9. MVP audio policy (task 10.2)
 
-Typed-text and parity slices write PCM16 WAV for numerical inspection. Whole-book storage cannot retain uncompressed PCM by default because 24 kHz mono PCM16 consumes about 173 MB per audio hour. Before whole-book rollout, benchmark Android `MediaCodec` AAC-LC/M4A around 64–96 kbps mono for intelligibility, consonant preservation, encoder availability, segment boundaries, and Media3 behavior.
+Typed-text and parity slices continue to write PCM16 WAV for numerical inspection.
+The durable whole-book default is nominal **64,000 bps AAC-LC**, 24 kHz mono,
+using the regular Android `MediaCodec` encoder (`audio/mp4a-latm`) and
+`MediaMuxer`. This is a requested target bitrate, not a claim that every vendor
+encoder implements identical rate control.
 
-The MVP internally plays verified segment or chapter items and exports zero-padded chapter M4A files, cover, metadata, and a manifest. A single M4B container is deferred. Raw temporary PCM is deleted only after the encoded artifact is verified; user source and project metadata are never removed implicitly.
+The decision is based on commit `b94f075` (task 10.1). On the available API 35
+Google x86_64 emulator, `c2.android.aac.encoder` completed 64, 80, and 96 kbps
+at 24 kHz mono. The 4-second synthetic fixture produced 35,123 bytes at 64 kbps,
+42,970 bytes at 80 kbps, and 50,855 bytes at 96 kbps. All three reported
+3.968 seconds, zero positive boundary gap, 245,336 microseconds total trim, and
+30,667 microseconds maximum per-window drift. The decoded synthetic consonant
+windows had RMS ratios of 0.972–0.991 at 64 kbps, 0.973–0.980 at 80 kbps, and
+0.972–0.989 at 96 kbps; these measurements do not identify a quality winner.
+64 kbps therefore provides the lowest measured storage cost without a measured
+duration or boundary disadvantage. It is a provisional MVP default, not a
+quality guarantee: the fixture is synthetic, manual natural-speech A/B listening
+is pending, and the run is not Poco F3 ARM64 evidence.
+
+The durable and playback unit is an ordered **audio segment**, corresponding to
+one bounded narration chunk and one `audio_segment` Room row. Segments remain
+independently recoverable, retryable, selectively invalidatable, and playable
+while later segments or chapters are pending. A chapter is a logical grouping
+for navigation, progress, and the later one-file-per-chapter export; it is not a
+replacement for segment state. Segment order is chapter ordinal followed by
+segment sequence. Existing chapter, paragraph, sentence, clause, protected-span,
+and 507-symbol model-limit boundaries remain authoritative. No segment crosses a
+chapter boundary, and export never reorders or silently drops a non-ready
+segment.
+
+Each segment is encoded independently for internal storage/playback when AAC is
+available. Chapter export groups the verified segments in their stored order into
+one chapter file in the later export work; a chapter file is not a second source
+of generation truth. The existing Media3 queue continues to contain segment
+items, with chapter navigation mapped over that queue. The single M4B container
+remains deferred.
+
+No silence is inserted solely to compensate for AAC priming, padding, or a codec
+boundary. Silence that is explicitly part of the existing punctuation/chunk-pause
+policy is rendered in the PCM input and is versioned as audio processing. The
+10.1 result had no positive gap and showed trim rather than a gap, so adding
+silence would change timing without evidence of benefit. If a later encoded
+artifact has an audible boundary defect or an unaccepted gap, validation fails
+that artifact; it is not silently repaired with guessed silence.
+
+MediaCodec AAC-LC is the only lossy MVP encoder. If a compatible regular
+platform encoder is unavailable, cannot be configured for 24 kHz mono, or fails
+during start, drain, muxing, or validation, the current verified ready artifact
+is left unchanged. A segment with no current encoded artifact may instead fall
+back to a validated PCM16 WAV in private ready storage so offline in-app
+playback and generation recovery remain possible. This fallback is not renamed
+as M4A and is not used to claim portable AAC export. An M4A export that needs
+AAC when the encoder is unavailable records an actionable failure and can be
+retried; it does not silently switch bitrate, codec, or destination format.
+
+Raw PCM is temporary and is never deleted before the fallback decision is
+complete. The required order is: write and sync temporary PCM; validate it;
+encode to a temporary M4A; validate/read it; atomically publish the M4A; record
+its checksum, size, duration, and provenance in Room; transition the segment to
+`READY`; then delete the temporary PCM only when no active retry or export
+operation references it. If the WAV fallback is selected, publish and validate
+the WAV and complete the same Room `READY` checkpoint before deleting its source
+temporary PCM. A failed encode, validation, publication, or Room checkpoint
+never deletes or replaces an existing ready artifact. An interrupted or
+retryable operation retains its referenced temporary PCM; once no durable work
+references it, the existing stale-temporary reconciliation may remove it after
+the normal 24-hour age threshold. User source files, canonical text, Room data,
+and verified ready audio are never implicit cleanup targets.
 
 ### 10. Copy imports and sandbox untrusted publications
 
@@ -96,7 +161,7 @@ A short Poco F3 comparison reports real-time factor and peak process memory for 
 - [A 313 MB model complicates APK and F-Droid distribution] → Keep the model outside the APK with checksummed manual import until distribution rights and packaging are settled.
 - [Readium may be larger than an extraction-only importer needs] → Depend only on required modules and compare against a bounded direct-parser fixture spike.
 - [Foreground execution rules vary by Android version and vendor] → Keep Room as the runner-independent queue, checkpoint frequently, and test Android 11, current Android, Android 16, Poco battery restrictions, reboot, and force-stop behavior.
-- [Segment encoding can introduce gaps or damage Serbian consonants] → Keep WAV parity fixtures, perform raw/encoded AB comparisons, and test playlist transitions before selecting AAC parameters.
+- [Segment encoding can introduce gaps or damage Serbian consonants] → The MVP pins nominal 64 kbps AAC-LC, adds no codec-workaround silence, preserves PCM/WAV fallback, and requires raw/encoded A/B and playlist-boundary validation before any policy revision.
 - [Export providers do not all support atomic rename or capacity reporting] → Use provider capability checks, per-file verification, persisted progress, conservative estimates, and collision-safe names.
 - [Model/data rights may forbid public weight distribution] → Publish application code separately and block official weight release until documented legal review is complete.
 
@@ -113,4 +178,4 @@ A short Poco F3 comparison reports real-time factor and peak process memory for 
 
 - Which exact license and redistribution terms apply to the Južne vesti-derived weights and Dragana attribution?
 - After the reference repository is restored, does Serbian phonemization require eSpeak-NG at runtime or can the exact behavior be represented by portable rules and resources?
-- Which AAC bitrate and segment/chapter grouping best balance consonant quality, gap behavior, regeneration cost, and storage on the tested devices?
+- Does natural Serbian speech, especially sibilants and affricates, validate the provisional 64 kbps choice on a Poco F3 ARM64 device and at least one additional target device?

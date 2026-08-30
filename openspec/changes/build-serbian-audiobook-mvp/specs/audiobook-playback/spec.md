@@ -4,6 +4,19 @@ Defines reliable offline audiobook playback over incrementally generated segment
 
 ## ADDED Requirements
 
+### Requirement: Segment playback with chapter grouping
+The player SHALL use verified ordered audio segments as its media items. Chapters
+SHALL provide navigation and progress grouping over those items without replacing
+segment-level generation, retry, invalidation, or readiness state.
+
+#### Scenario: Partial chapter is available
+- **WHEN** a chapter has verified ready segments and later segments are pending or failed
+- **THEN** the player can play the ready segments in sequence, reports the chapter as partial, and does not synthesize missing audio or reorder segments
+
+#### Scenario: AAC encoding is unavailable
+- **WHEN** platform AAC-LC encoding is unavailable or fails for a segment
+- **THEN** the player may play a validated private PCM16 WAV fallback, while preserving any existing ready artifact and reporting portable M4A export as unavailable
+
 ### Requirement: Progressive offline playback
 The application SHALL play verified completed chapters or segments without network access while later content is pending or generating.
 
@@ -38,4 +51,3 @@ The player SHALL skip or stop safely at unavailable, stale, or corrupt audio and
 #### Scenario: Next segment is unavailable
 - **WHEN** playback reaches a segment that is not ready
 - **THEN** the player stops at the last valid position or advances to valid content according to documented behavior and informs the user
-

@@ -102,7 +102,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 ## 10. Audio Encoding and Portable Export (rough phase effort: 2–4 weeks)
 
 - [x] 10.1 Benchmark Android AAC-LC/M4A encoding at representative mono bitrates for availability, size, duration, boundary gaps, and Serbian consonant quality against WAV. → opt-in `AndroidAacBenchmarkRunner`, deterministic fixture/report validation, and `scripts/run_android_aac_benchmark.sh`; API 35 x86_64 emulator results are recorded in `DEPLOYMENT.md`, with manual natural-speech listening and Poco F3 ARM64 qualification remaining limitations.
-- [ ] 10.2 Select and document the MVP bitrate, segment/chapter grouping, encoder fallback, silence insertion, and raw-PCM cleanup policy.
+- [x] 10.2 Select and document the MVP bitrate, segment/chapter grouping, encoder fallback, silence insertion, and raw-PCM cleanup policy. → nominal 64 kbps AAC-LC; segment-level durable/playback units with chapter grouping for export; validated PCM16 WAV fallback for internal playback only; no codec-workaround silence; raw PCM deleted only after validated atomic publication and Room `READY` checkpoint. Evidence and limitations are recorded in `design.md` and `DEPLOYMENT.md`.
 - [ ] 10.3 Implement verified PCM-to-M4A encoding and ensure a failed encode never replaces a ready artifact.
 - [ ] 10.4 Define export-manifest schema version 1 with book, chapters, file hashes, durations, source fingerprint, generation provenance, and attribution references.
 - [ ] 10.5 Implement SAF export destination selection, zero-padded collision-safe chapter names, cover/metadata writing, and explicit overwrite behavior.

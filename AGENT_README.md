@@ -241,8 +241,16 @@ target.
   boundary drift, and decoded WAV-relative RMS/zero-crossing metrics. The
   available API 35 x86_64 emulator completed all three rates on
   `c2.android.aac.encoder`; the measured run and its synthetic/natural-speech
-  limitations are recorded in `DEPLOYMENT.md`. No final bitrate or production
-  encoder policy was selected.
+  limitations are recorded in `DEPLOYMENT.md`.
+- Task 10.2 selects nominal 64 kbps AAC-LC for MVP encoded audio. Durable and
+  playback artifacts remain ordered Room audio segments, while chapters group
+  them for navigation, progress, and later one-file export. A validated private
+  PCM16 WAV is the in-app fallback when platform AAC-LC is unavailable or fails;
+  it is not an M4A export fallback. No codec-workaround silence is inserted, and
+  temporary raw PCM is deleted only after validated atomic publication and the
+  Room `READY` checkpoint. The decision is provisional: the task-10.1 fixture is
+  synthetic, manual natural-speech listening is pending, and API 35 x86_64
+  emulator results do not qualify the Poco F3 ARM64 AAC path.
 - Task 6.1 defines the initial Room-owned project schema in `core`: books,
   chapters, narration blocks, audio segments, generation runs, model packages,
   playback positions, and export jobs. Enum values persist by stable name;

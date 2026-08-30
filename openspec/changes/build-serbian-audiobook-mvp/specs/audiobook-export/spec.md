@@ -4,6 +4,42 @@ Defines user-controlled export of a completed or partially completed project as 
 
 ## ADDED Requirements
 
+### Requirement: MVP audio policy
+
+The MVP SHALL use nominal 64,000 bps AAC-LC, 24 kHz mono, through a regular
+Android `MediaCodec` encoder for lossy ready audio and portable chapter export.
+The benchmark decision is provisional because task 10.1 used a synthetic fixture
+on an API 35 x86_64 emulator; natural Serbian listening and Poco F3 ARM64
+qualification remain pending.
+
+Durable and playback artifacts SHALL be ordered narration segments. Chapters
+SHALL group those segments for navigation, progress, and one-file-per-chapter
+export. Segment boundaries SHALL follow the existing chapter/paragraph/
+sentence/clause and model-safe chunk boundaries. The exporter SHALL preserve
+chapter order and segment sequence.
+
+The system SHALL NOT add silence only to compensate for AAC priming, padding, or
+an encoder boundary. Explicit narration pauses are part of the PCM input. A
+later boundary defect SHALL fail validation rather than be silently repaired.
+
+If a compatible platform AAC-LC encoder is unavailable or fails, the system SHALL
+preserve any existing verified ready artifact. A segment without such an artifact
+MAY be published as validated private PCM16 WAV for in-app playback, but export
+MUST report AAC unavailability instead of changing codec, bitrate, or file type.
+Temporary raw PCM MAY be deleted only after a validated AAC or WAV artifact is
+atomically published and its Room `READY` checkpoint records checksum, size,
+duration, and provenance with no active retry/reference. Failed operations retain
+the existing ready artifact and use normal stale-temporary reconciliation for
+unreferenced abandoned files.
+
+#### Scenario: AAC encoder is available
+- **WHEN** a compatible regular platform AAC-LC encoder is available for a ready segment
+- **THEN** the system requests 64,000 bps AAC-LC and preserves the segment's chapter and sequence ordering for later export
+
+#### Scenario: AAC encoder is unavailable during export
+- **WHEN** a compatible platform AAC-LC encoder is unavailable or fails
+- **THEN** export records an actionable AAC failure without changing codec, bitrate, file type, or an existing verified ready artifact
+
 ### Requirement: Portable chapter export
 The application SHALL export selected ready chapters as consistently encoded, zero-padded and ordered audio files playable outside the application.
 
@@ -42,4 +78,3 @@ The application SHALL estimate target and temporary storage with a safety margin
 #### Scenario: Insufficient destination capacity
 - **WHEN** the selected destination cannot hold the estimated export
 - **THEN** export stops before claiming success and preserves the internal audiobook project
-

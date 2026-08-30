@@ -477,6 +477,52 @@ but cannot establish phoneme intelligibility or substitute for a later natural
 Serbian speech evaluation. The emulator result is not a Poco F3 ARM64 result
 and does not select the final MVP bitrate.
 
+## MVP audio policy (task 10.2)
+
+Task 10.2 selects nominal **64,000 bps AAC-LC**, 24 kHz mono, through a regular
+Android `MediaCodec` encoder (`audio/mp4a-latm`) and `MediaMuxer`. This is a
+requested target bitrate; vendor rate-control behavior is not assumed identical.
+The selection is recorded in `b94f075`'s task-10.1 evidence and is provisional.
+
+The benchmark's available API 35 Google x86_64 emulator had
+`c2.android.aac.encoder` at all three tested rates. The 4-second fixture sizes
+were 35,123 bytes at 64 kbps, 42,970 bytes at 80 kbps, and 50,855 bytes at
+96 kbps. All rates reported 3.968 seconds, zero positive boundary gap, 245,336
+microseconds total trim, and 30,667 microseconds maximum drift. Synthetic
+decoded-window RMS ratios were 0.972–0.991, 0.973–0.980, and 0.972–0.989 at
+64, 80, and 96 kbps respectively. Since higher rates showed no measured
+duration or boundary advantage, 64 kbps is the smallest tested representation
+without a measured disadvantage. These results do not establish a quality
+winner: manual natural-speech A/B listening is still `manual_listening_pending`,
+and no AAC run has qualified the Poco F3 ARM64 path.
+
+Durable generation and Media3 playback use ordered `audio_segment` artifacts.
+Each segment is one bounded narration chunk and remains independently ready,
+retryable, invalidatable, and playable. Chapters group segments for navigation,
+progress, and the later one-file-per-chapter export. Segment order is chapter
+ordinal then segment sequence; existing chapter/paragraph/sentence/clause,
+protected-span, and 507-symbol model-limit boundaries are unchanged. No
+segment crosses a chapter boundary.
+
+The app adds no silence to compensate for AAC priming, padding, or a codec
+boundary. Explicit punctuation/chunk pauses are rendered in the PCM input and
+versioned as audio processing. A future encoded boundary defect fails validation
+instead of being repaired with guessed silence. If compatible platform AAC-LC is
+unavailable or fails during configuration, encoding, muxing, or validation, an
+existing verified ready artifact remains untouched. A segment without one may
+be published as validated private PCM16 WAV for in-app playback; this is not an
+M4A export fallback, and export reports AAC unavailability rather than changing
+codec, bitrate, or file type.
+
+Temporary raw PCM is deleted only after the selected AAC or WAV artifact passes
+validation, is atomically published under `ready-audio`, and its Room segment
+checkpoint is `READY` with checksum, size, duration, and provenance and no active
+retry/reference. Failed or interrupted work never replaces a ready artifact.
+Referenced temporary PCM remains available for retry or fallback; unreferenced
+abandoned temporary files are handled by the existing 24-hour stale-temporary
+reconciliation. Source documents, canonical text, Room state, and verified
+ready audio are not implicit cleanup targets.
+
 ## App-private storage layout (task 6.3)
 
 `core/storage/AppPrivateStorage` uses Android `filesDir` as the single private

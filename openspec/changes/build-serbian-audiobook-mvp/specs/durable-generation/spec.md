@@ -4,6 +4,29 @@ Defines persistent, incremental audiobook generation that survives interruption,
 
 ## ADDED Requirements
 
+### Requirement: Encoding fallback and raw-PCM lifecycle
+The system SHALL use nominal 64,000 bps AAC-LC as the MVP lossy encoding policy
+for 24 kHz mono segment artifacts. A missing or failed compatible platform
+encoder SHALL not replace a verified ready artifact or silently select another
+codec or bitrate. A segment without a ready artifact MAY fall back to a
+validated private PCM16 WAV for in-app playback, but portable AAC export SHALL
+remain failed and retryable.
+
+Temporary raw PCM SHALL remain until the generated PCM and the selected AAC or
+WAV artifact have passed validation, the artifact has been atomically published,
+and the Room segment `READY` checkpoint has recorded its checksum, size, duration,
+and provenance with no active retry/reference. Failed or interrupted work keeps
+the current ready artifact unchanged; unreferenced abandoned temporary files are
+handled by the existing stale-temporary reconciliation policy.
+
+#### Scenario: Failed encode with an existing ready segment
+- **WHEN** a replacement AAC encode fails during configuration, encoding, validation, or publication
+- **THEN** the existing verified artifact and Room `READY` state remain unchanged, the failure is recorded, and temporary output is not published over it
+
+#### Scenario: Successful PCM fallback
+- **WHEN** no compatible AAC-LC encoder is available for a segment without a current ready artifact
+- **THEN** validated PCM16 WAV is atomically published as the private playback artifact, Room provenance is recorded, and only then may its staging PCM be deleted
+
 ### Requirement: Persistent incremental generation
 The system SHALL generate independently recoverable narration segments in deterministic order and persist job state outside process memory.
 
@@ -52,4 +75,3 @@ The system SHALL reconcile database state, temporary files, ready audio, and pen
 #### Scenario: Device reboot
 - **WHEN** a device reboots with unfinished generation work
 - **THEN** the project remains resumable and does not regenerate verified segments unless the user resumes or configured constraints permit automatic continuation
-
