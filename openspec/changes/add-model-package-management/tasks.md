@@ -35,7 +35,7 @@
 
 - [x] 6.1 Add build-time `MODEL_RELEASE_URL` configuration with an empty default, allowing a non-empty standard release destination only after release-tool approval while leaving debug and F-Droid variants empty unless policy explicitly permits them; verify variant configuration tests assert the expected values.
 - [x] 6.2 Implement fail-closed release-URL validation requiring an absolute `http` or `https` URI, non-empty host, no user-info, and no malformed or alternate scheme; verify unit tests accept supported URLs and reject empty, `file`, `content`, `intent`, `javascript`, credential-bearing, and malformed values.
-- [ ] 6.3 Add `Get model package` only for a validated configured URL, dispatching `ACTION_VIEW` after resolving an external browser and never fetching, redirecting, downloading, or installing; verify intent tests observe one browser-handled external action and unavailable/no-browser tests observe no navigation or network attempt.
+- [x] 6.3 Add `Get model package` only for a validated configured URL, dispatching `ACTION_VIEW` after resolving an external browser and never fetching, redirecting, downloading, or installing; verify intent tests observe one browser-handled external action and unavailable/no-browser tests observe no navigation or network attempt.
 - [ ] 6.4 Enforce publisher authentication and explicit legal-clearance evidence in release metadata/tooling before advertising a package or destination, while keeping local SAF verification independent and never labeling a local package legally cleared; verify release-gate tests reject missing or self-declared evidence and accept only trusted recorded evidence.
 
 ## 7. Localization and Integration Coverage
