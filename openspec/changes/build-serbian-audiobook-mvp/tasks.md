@@ -95,7 +95,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 - [x] 9.3 Implement player controls for play/pause, seek, previous/next chapter, configurable jumps, chapter selection, and playback speed.
 - [x] 9.4 Persist and restore book, chapter/segment, position, and speed across process termination and device reboot.
 - [x] 9.5 Implement media notification, lock-screen, headset/Bluetooth, audio-focus, noisy-output, and interruption behavior.
-- [ ] 9.6 Update playback queues safely as new segments or chapters become ready while audio is playing.
+- [x] 9.6 Update playback queues safely as new segments or chapters become ready while audio is playing.
 - [ ] 9.7 Handle missing, stale, corrupt, or not-yet-ready audio with clear stop/skip and regeneration routes.
 - [ ] 9.8 Demonstrate listening to completed chapters while later chapters continue generating.
 

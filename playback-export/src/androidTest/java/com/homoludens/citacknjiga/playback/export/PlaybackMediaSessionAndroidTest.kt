@@ -76,4 +76,38 @@ public class PlaybackMediaSessionAndroidTest {
 
         controllerFuture.cancel(false)
     }
+
+    @Test
+    public fun queueAdapterPreservesCurrentItemAndPositionAcrossAnOrderedUpdate() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        var currentId: String? = null
+        var positionMs = 0L
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            val player = ExoPlayer.Builder(context).build()
+            val queue = Media3PlaybackQueuePlayer(player)
+            queue.replaceQueue(
+                listOf(mediaItem("active"), mediaItem("after")),
+                currentItemIndex = 0,
+                positionMs = 321L,
+                resumePlayback = false,
+            )
+            queue.replaceQueue(
+                listOf(mediaItem("before"), mediaItem("active"), mediaItem("after")),
+                currentItemIndex = 1,
+                positionMs = 321L,
+                resumePlayback = false,
+            )
+            currentId = player.currentMediaItem?.mediaId
+            positionMs = player.currentPosition
+            player.release()
+        }
+
+        assertEquals("active", currentId)
+        assertEquals(321L, positionMs)
+    }
+
+    private fun mediaItem(id: String): MediaItem = MediaItem.Builder()
+        .setMediaId(id)
+        .setUri(android.net.Uri.parse("file:///data/local/tmp/$id.m4a"))
+        .build()
 }

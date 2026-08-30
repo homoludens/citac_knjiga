@@ -30,12 +30,7 @@ public data class PlaybackCatalog(
             chapters: List<ChapterEntity>,
             readyAudio: List<VerifiedReadyAudio>,
         ): PlaybackCatalog {
-            val chapterOrder = chapters.associateBy { it.id }
-            val orderedAudio = readyAudio.sortedWith(
-                compareBy<VerifiedReadyAudio>({ chapterOrder[it.segment.chapterId]?.ordinal ?: Int.MAX_VALUE })
-                    .thenBy { it.segment.sequence }
-                    .thenBy { it.segment.id },
-            )
+            val orderedAudio = orderedReadyAudio(chapters, readyAudio)
             val ids = orderedAudio.map { it.segment.id }
             var mediaItemIndex = 0
             val playbackChapters = chapters.sortedBy { it.ordinal }.map { chapter ->
@@ -52,6 +47,21 @@ public data class PlaybackCatalog(
                 ).also { mediaItemIndex += chapterIds.size }
             }
             return PlaybackCatalog(playbackChapters, ids)
+        }
+
+        public fun orderedReadyAudio(
+            chapters: List<ChapterEntity>,
+            readyAudio: List<VerifiedReadyAudio>,
+        ): List<VerifiedReadyAudio> {
+            val chapterOrder = chapters.associateBy { it.id }
+            // A duplicate ID must select the same artifact regardless of Room emission order.
+            return readyAudio.sortedWith(
+                compareBy<VerifiedReadyAudio>({ chapterOrder[it.segment.chapterId]?.ordinal ?: Int.MAX_VALUE })
+                    .thenBy { it.segment.chapterId }
+                    .thenBy { it.segment.sequence }
+                    .thenBy { it.segment.id }
+                    .thenBy { it.file.path },
+            ).distinctBy { it.segment.id }
         }
     }
 }

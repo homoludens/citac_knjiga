@@ -19,12 +19,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
-/** Plays a snapshot of verified Room-ready audio; generation remains a separate owner. */
+/** Plays verified Room-ready audio; generation remains a separate owner. */
 public class AudiobookPlaybackService : MediaSessionService() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val playbackScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -33,6 +32,8 @@ public class AudiobookPlaybackService : MediaSessionService() {
     private lateinit var readyAudio: ReadyAudioRepository
     private lateinit var positionPersistence: PlaybackPositionPersistence
     private lateinit var resources: PlaybackResources<ExoPlayer, MediaSession>
+    private var queueCoordinator: PlaybackQueueCoordinator? = null
+    private var queuePrepared = false
     private var destroyed = false
 
     override fun onCreate() {
@@ -77,30 +78,35 @@ public class AudiobookPlaybackService : MediaSessionService() {
         intent?.getStringExtra(EXTRA_BOOK_PROJECT_ID)?.takeIf(String::isNotBlank)?.let { projectId ->
             loadJob?.cancel()
             loadJob = serviceScope.launch {
-                val items = readyAudio.observeVerified(projectId).first()
-                if (items.isEmpty()) return@launch
                 val book = database.audiobookDao().findProjectById(projectId) ?: return@launch
                 val chapters = database.audiobookDao().findAllChapters()
                     .filter { it.bookProjectId == projectId }
-                val catalog = PlaybackCatalog.from(chapters, items)
                 withContext(Dispatchers.Main.immediate) {
                     if (!destroyed) {
+                        queueCoordinator?.close()
+                        resources.player.pause()
+                        queuePrepared = false
                         val playerPort = Media3PlayerPort(resources.player)
-                        resources.player.setMediaItems(items.map { audio ->
-                            mediaItem(audio, book, chapters.firstOrNull { it.id == audio.segment.chapterId })
-                        })
-                        resources.player.prepare()
-                        positionPersistence.restore(
-                            projectId = projectId,
-                            catalog = catalog,
-                            player = playerPort,
-                        )
-                        positionPersistence.attach(
-                            projectId = projectId,
-                            catalog = catalog,
-                            player = playerPort,
-                        )
-                        resources.player.play()
+                        queueCoordinator = PlaybackQueueCoordinator(
+                            readyAudio = readyAudio,
+                            player = Media3PlaybackQueuePlayer(resources.player),
+                            scope = playbackScope,
+                            mediaItemFactory = { audio ->
+                                mediaItem(audio, book, chapters.firstOrNull { it.id == audio.segment.chapterId })
+                            },
+                            onCatalogChanged = { catalog ->
+                                positionPersistence.updateCatalog(catalog)
+                                if (!queuePrepared && catalog.mediaItemIds.isNotEmpty()) {
+                                    queuePrepared = true
+                                    playbackScope.launch {
+                                        resources.player.prepare()
+                                        positionPersistence.restore(projectId, catalog, playerPort)
+                                        positionPersistence.attach(projectId, catalog, playerPort)
+                                        resources.player.play()
+                                    }
+                                }
+                            },
+                        ).also { it.start(projectId, chapters) }
                     }
                 }
             }
@@ -113,6 +119,7 @@ public class AudiobookPlaybackService : MediaSessionService() {
     override fun onDestroy() {
         destroyed = true
         loadJob?.cancel()
+        queueCoordinator?.close()
         runBlocking { positionPersistence.flush() }
         positionPersistence.close()
         playbackScope.cancel()

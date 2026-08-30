@@ -370,6 +370,14 @@ target.
   resume, and noisy-output handling pauses through ExoPlayer. MediaSession is
   the standard lock-screen/headset/Bluetooth command surface; no queue or
   generation ownership was added.
+- Task 9.6 adds the service-owned `PlaybackQueueCoordinator`. It observes the
+  verified Room-ready stream, orders and deduplicates segment IDs by chapter,
+  sequence, and ID, and updates the existing Media3 player without a second
+  player. Queue changes preserve the active media ID and position and retain
+  playback; an update that would remove the currently playing item waits for a
+  player boundary or stopped playback. The controller and position persistence
+  now consume the refreshed catalog. Missing/corrupt-audio UX and the
+  progressive-playback demonstration remain tasks 9.7 and 9.8.
 
 ## Repository layout
 

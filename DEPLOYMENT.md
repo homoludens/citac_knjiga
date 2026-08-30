@@ -953,3 +953,31 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
   :playback-export:compileDebugAndroidTestKotlin \
   :playback-export:lintDebug
 ```
+
+## Dynamic playback queues (task 9.6)
+
+`PlaybackQueueCoordinator` is created by `AudiobookPlaybackService` and observes
+`ReadyAudioRepository` for the active project. Only artifacts that passed the
+existing private-path, format, size, and SHA-256 checks enter the Media3 queue.
+The coordinator orders by chapter ordinal, segment sequence, and segment ID,
+deduplicates segment IDs deterministically, and preserves the active item ID and
+position when inserting or reordering items. It leaves active playback running;
+an update that would remove the playing item is held until a player event reaches
+a safe boundary or playback is stopped. Generation state remains in Room and
+outside the player.
+
+Focused verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :playback-export:testDebugUnitTest \
+  :playback-export:compileDebugAndroidTestKotlin \
+  :playback-export:connectedDebugAndroidTest \
+  :playback-export:lintDebug
+```
+
+The focused JVM suite covers ordering, deduplication, Room-ready additions,
+active position preservation, insertion before the active item, and deferred
+removal timing. The connected Media3 suite covers the queue adapter on the API 35
+x86_64 emulator. Tasks 9.7 and 9.8 remain outside this boundary.

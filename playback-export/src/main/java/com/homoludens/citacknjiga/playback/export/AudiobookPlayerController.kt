@@ -67,7 +67,6 @@ public class AudiobookPlayerController(
     }
 
     public fun bindBook(projectId: String, chapters: List<ChapterEntity>) {
-        if (stateMutable.value.projectId == projectId && playerPort?.mediaItemCount ?: 0 > 0) return
         if (stateMutable.value.projectId == projectId && selectedChapters == chapters) return
         selectedChapters = chapters
         catalog = PlaybackCatalog(chapters.sortedBy { it.ordinal }.map { chapter ->
@@ -76,9 +75,7 @@ public class AudiobookPlayerController(
         readyJob?.cancel()
         readyJob = scope.launch {
             readyAudio.observeVerified(projectId).collect { ready ->
-                if (catalog.mediaItemIds.isEmpty() || playerPort?.mediaItemCount == 0) {
-                    catalog = PlaybackCatalog.from(selectedChapters, ready)
-                }
+                catalog = PlaybackCatalog.from(selectedChapters, ready)
                 publish()
                 applyPendingChapter()
             }

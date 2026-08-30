@@ -48,6 +48,11 @@ public class PlaybackPositionPersistence(
         }
     }
 
+    /** Keeps position writes aligned with the coordinator's current ready queue. */
+    public fun updateCatalog(catalog: PlaybackCatalog) {
+        binding = binding?.let { it.copy(catalog = catalog) }
+    }
+
     /** Reads only a saved item that still belongs to the current verified catalog. */
     public suspend fun restore(
         projectId: String,
