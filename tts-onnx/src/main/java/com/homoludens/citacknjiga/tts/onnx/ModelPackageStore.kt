@@ -77,6 +77,8 @@ public class ModelPackageStore(
                 source.openStream().use { input ->
                     temporary.outputStream().use { output -> input.copyTo(output) }
                 }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (exception: Exception) {
                 throw ModelPackageImportException(
                     ModelPackageFailureCode.STORAGE,

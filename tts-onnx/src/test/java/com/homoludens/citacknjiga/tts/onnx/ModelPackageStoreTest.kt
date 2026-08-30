@@ -6,6 +6,7 @@ import java.io.File
 import java.security.MessageDigest
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import java.util.concurrent.CancellationException
 import kotlin.io.path.createTempDirectory
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -166,6 +167,18 @@ public class ModelPackageStoreTest {
         )
         assertTrue(result.toString().contains("STORAGE"))
         assertFalse(result.toString().contains("/private/raw/path"))
+    }
+
+    @Test
+    public fun canceledProviderImportCleansTemporaryCandidate() {
+        val root = createTempDirectory().toFile()
+        val store = store(root)
+
+        assertThrows(CancellationException::class.java) {
+            store.importPackage(ModelPackageSource { throw CancellationException("cancelled") })
+        }
+
+        assertTrue(root.resolve("model-packages").listFiles().orEmpty().none { it.name.startsWith(".model-package-") })
     }
 
     private fun store(root: File): ModelPackageStore = ModelPackageStore(
