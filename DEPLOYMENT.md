@@ -1459,3 +1459,43 @@ ANDROID_HOME=/home/homoludens/Android/Sdk ANDROID_SDK_ROOT=/home/homoludens/Andr
   ./gradlew :core:connectedDebugAndroidTest :tts-onnx:connectedDebugAndroidTest \
     :document-epub:connectedDebugAndroidTest :playback-export:connectedDebugAndroidTest
 ```
+
+## Sustained Android qualification matrix (task 11.4)
+
+Task 11.4 remains **blocked and unchecked**. The reproducible environment
+inventory is `scripts/run_android_qualification_matrix.sh`; it records installed
+system images, AVDs, connected device API/model/ABI/fingerprint, and the
+externally staged model-package checksum without creating model or audio
+artifacts in the repository. The committed concise evidence report is
+`reports/task-11-4-android-qualification.md`.
+
+The 2026-08-30 inventory found only `emulator-5554`, Google API 35
+(`sdk_gphone64_x86_64`/`emu64xa`), native x86_64. Installed system images were
+API 29 Google Play x86 and API 35 Google APIs x86_64. The API 30 Android 11
+image was not installed. The API 36 platform SDK was installed, but no API 36
+system image, AVD, or connected device existed; API 36 system images were only
+available as downloadable SDK packages. No physical Poco F3 was attached. The
+known Poco evidence is Android 13/API 33 and cannot be relabeled as Android 16.
+
+The production benchmark precondition was run against the API 35 emulator with
+the verified external package and `WORKLOAD_SECONDS=15`; it exited 2 before
+execution because `scripts/run_android_benchmark.sh` correctly requires native
+Poco F3 `M2012K11AG`/`alioth`. The existing progressive playback control was run
+with:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew :playback-export:connectedDebugAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.class=com.homoludens.citacknjiga.playback.export.ProgressivePlaybackAndroidTest \
+  --no-daemon --max-workers=1
+```
+
+It passed one test in 48 seconds. It proves deterministic synthetic Room/Media3
+queue continuity only; it is not production-model sustained generation. No
+production progress, generated-audio continuity, force-stop, reboot, update,
+or vendor battery-management result was obtained. The emulator snapshot had
+battery 100%, battery temperature 25.0 C, thermal status 0, and low-power mode
+0; these are not sustained qualification measurements. Do not mark 11.4 until
+Android 11, a current production-capable target, Android 16, and a Poco F3
+vendor-policy run have actual evidence.

@@ -457,6 +457,14 @@ target.
   private EPUB source plus Room-backed SAF export survive source/destination
   provider loss and retry. Tests use deterministic fakes and no production
   model package.
+- Task 11.4 remains blocked and unchecked. The 2026-08-30 inventory found only
+  a Google API 35 x86_64 emulator, no API 30/API 36 bootable image or physical
+  Poco F3. The progressive Media3 playback control passed one synthetic test,
+  while the production benchmark correctly rejected the emulator because its
+  native Poco F3 ARM64 guard was not met. Exact matrix evidence and the
+  rerunnable inventory are in `reports/task-11-4-android-qualification.md` and
+  `scripts/run_android_qualification_matrix.sh`; no sustained production
+  generation qualification is claimed.
 
 ## Repository layout
 
