@@ -1302,3 +1302,41 @@ The proof passed on 2026-08-30 on `emulator-5554`, API 35 x86_64 (`1 test,
 0 failed`). It does not claim production TTS-model inference or physical-device
 audio qualification; those remain covered by their existing task-specific
 proofs and device gates.
+
+## External chapter playback qualification (task 10.8)
+
+Task 10.8 is **blocked and remains unchecked**. The reproducible inventory check
+is intentionally separate from the app's Media3 player and creates no export
+media:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  scripts/check_external_audio_players.sh
+```
+
+The 2026-08-30 check found one connected target only:
+
+- `emulator-5554`, Google API 35 `sdk_gphone64_x86_64`, x86_64.
+- Third-party packages: `com.homoludens.citacknjiga.debug` and
+  `com.homoludens.citacknjiga.debug.test` only; both are the application/test
+  packages and are excluded from the external-player count.
+- Installed system audio-related packages included
+  `com.google.android.apps.youtube.music` and `com.android.musicfx`.
+  YouTube Music is not a verified local-file player on this image, and
+  `com.android.musicfx` is an audio effect service, not a player.
+- Android package resolution returned no external handler for
+  `audio/mp4`, `audio/aac`, `audio/m4a`, or `audio/x-m4a`.
+- No physical Android device was connected, and no external player APK was
+  available in the workspace to install.
+
+Consequently, no chapter M4A was opened in an external player and no audible
+playback, duration, metadata, or ordering claim is made. The existing
+`SafAudiobookExporterAndroidTest` still verifies offline chapter assembly,
+MediaExtractor readability, metadata, and persistent SAF behavior, but its fake
+provider and test process do not satisfy this task's external-player gate.
+Repeat the inventory after installing two genuine local-audio players, then
+export through the corrected chapter-level SAF flow from commits `f61f59d`,
+`1fba650`, `631f690`, and `c7fba1a`; record each package name and the manual
+duration, audible-playback, metadata, and chapter-order results here before
+checking off 10.8. Exported media must remain outside the repository.

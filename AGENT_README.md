@@ -429,6 +429,12 @@ target.
   the active position advances, then the published second chapter grows the
   queue without replacing the active item or resetting its position. No model,
   network, or committed audio artifact is required.
+- Task 10.8 is currently blocked, not complete. The 2026-08-30 inventory found only
+  `emulator-5554` (API 35 x86_64), no external `audio/mp4`/AAC local-file handlers, and
+  no physical device or installable player APK. `com.google.android.apps.youtube.music`
+  is present but is not a verified local-file handler on this image;
+  `com.android.musicfx` is an audio effect service. The reproducible check is
+  `scripts/check_external_audio_players.sh`; no export media was created or committed.
 
 ## Repository layout
 
