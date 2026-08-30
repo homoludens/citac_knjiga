@@ -21,7 +21,7 @@ public fun interface DiagnosticSink {
     public fun emit(event: DiagnosticEvent)
 }
 
-/** Records only local, structured events. Callers must keep messages developer-authored. */
+/** Records only local, structured events. Free-form document data is never a log message. */
 public class LocalDiagnostics(
     private val sink: DiagnosticSink,
     private val nowMillis: () -> Long = { System.currentTimeMillis() },
@@ -50,8 +50,8 @@ public class LocalDiagnostics(
             DiagnosticEvent(
                 timestampMillis = nowMillis(),
                 level = level,
-                component = component,
-                message = message,
+                component = DiagnosticRedactor.component(component),
+                message = DiagnosticRedactor.message(message),
                 attributes = attributes.mapValues { (key, value) -> DiagnosticRedactor.redact(key, value) },
             ),
         )
@@ -59,30 +59,71 @@ public class LocalDiagnostics(
 }
 
 public object DiagnosticRedactor {
-    private val safeKeys = setOf(
-        "count",
-        "duration_ms",
-        "enabled",
-        "error_code",
+    private val safeCategoryKeys = setOf(
+        "errorcode",
         "reason",
-        "retry_count",
         "route",
-        "size_bytes",
         "stage",
         "status",
         "variant",
         "version",
     )
+    private val numericKeys = setOf("count", "durationms", "retrycount", "sizebytes")
+    private val booleanKeys = setOf("enabled")
+    private val safeIdKeys = setOf("bookid", "chapterid", "segmentid", "runid", "packageid")
+    private val safeHashKeys = setOf(
+        "hash",
+        "sha256",
+        "sourcefingerprint",
+        "sourcesha256",
+        "modelsha256",
+        "voicesha256",
+    )
+    private val safeToken = Regex("^[A-Za-z][A-Za-z0-9_.:-]{0,127}$")
+    private val safeIdentifier = Regex("^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$")
+    private val integer = Regex("^-?[0-9]+$")
+    private val sha256 = Regex("^[0-9a-fA-F]{64}$")
+
+    private val sensitiveKeyParts = setOf(
+        "content",
+        "exception",
+        "fragment",
+        "message",
+        "path",
+        "query",
+        "text",
+        "throwable",
+        "uri",
+    )
+
+    public const val REDACTED: String = "[REDACTED]"
+    public const val REDACTED_TEXT: String = "[REDACTED_TEXT]"
+    public const val REDACTED_URI: String = "[REDACTED_URI]"
+
+    public fun component(value: String): String = value.takeIf(::isSafeToken) ?: REDACTED
+
+    /** Diagnostic messages are stable developer-authored categories, not prose or payloads. */
+    public fun message(value: String): String = value.takeIf(::isSafeToken) ?: REDACTED_TEXT
 
     public fun redact(key: String, value: String): String {
-        val normalizedKey = key.lowercase()
+        val normalizedKey = normalizeKey(key)
         return when {
-            normalizedKey.contains("uri") -> "[REDACTED_URI]"
-            normalizedKey.contains("text") || normalizedKey.contains("content") -> "[REDACTED_TEXT]"
-            normalizedKey in safeKeys -> value
-            else -> "[REDACTED]"
+            sensitiveKeyParts.any(normalizedKey::contains) -> when {
+                normalizedKey.contains("uri") -> REDACTED_URI
+                else -> REDACTED_TEXT
+            }
+            normalizedKey in numericKeys -> value.takeIf { it.matches(integer) } ?: REDACTED
+            normalizedKey in booleanKeys -> value.takeIf { it == "true" || it == "false" } ?: REDACTED
+            normalizedKey in safeCategoryKeys -> value.takeIf(::isSafeToken) ?: REDACTED
+            normalizedKey in safeIdKeys -> value.takeIf { it.matches(safeIdentifier) } ?: REDACTED
+            normalizedKey in safeHashKeys -> value.takeIf { it.matches(sha256) } ?: REDACTED
+            else -> REDACTED
         }
     }
+
+    private fun normalizeKey(key: String): String = key.lowercase().filter(Char::isLetterOrDigit)
+
+    private fun isSafeToken(value: String): Boolean = value.matches(safeToken)
 }
 
 private class AndroidLogDiagnosticSink : DiagnosticSink {

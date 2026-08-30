@@ -441,6 +441,13 @@ target.
   exact archive-limit, high-ratio, external-DTD, and external-URI cases. A
   well-formed empty NCX map is also tested to ensure malformed navigation warns
   without discarding valid spine content; no large attack artifact is added.
+- Task 11.2 verifies the actual standard and F-Droid release merged manifests
+  contain no `INTERNET` or `ACCESS_NETWORK_STATE` permission. `LocalDiagnostics`
+  now keeps only safe category tokens, validated numeric values, SHA-256 hashes,
+  and constrained IDs; free-form messages, document text, URI/path/query/
+  fragment values, and exception details are redacted. Focused and release
+  verification commands and the dependency/component/runtime audit are recorded
+  in `DEPLOYMENT.md`.
 
 ## Repository layout
 

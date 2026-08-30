@@ -1,3 +1,5 @@
+import javax.xml.parsers.DocumentBuilderFactory
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -74,6 +76,37 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
+    }
+}
+
+val verifyOfflineReleaseManifests = tasks.register("verifyOfflineReleaseManifests") {
+    dependsOn("processStandardReleaseMainManifest", "processFdroidReleaseMainManifest")
+    doLast {
+        val androidNamespace = "http://schemas.android.com/apk/res/android"
+        val prohibitedPermissions = setOf(
+            "android.permission.INTERNET",
+            "android.permission.ACCESS_NETWORK_STATE",
+        )
+        val variants = listOf("standardRelease", "fdroidRelease")
+        val parser = DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }
+            .newDocumentBuilder()
+        variants.forEach { variant ->
+            val taskNameVariant = variant.replaceFirstChar(Char::uppercaseChar)
+            val manifest = layout.buildDirectory.file(
+                "intermediates/merged_manifests/$variant/process${taskNameVariant}Manifest/AndroidManifest.xml",
+            ).get().asFile
+            check(manifest.isFile) { "Merged manifest was not produced for $variant: ${manifest.path}" }
+            val document = parser.parse(manifest)
+            val permissions = (0 until document.getElementsByTagName("*").length)
+                .map { index -> document.getElementsByTagName("*").item(index) }
+                .filter { it.nodeName == "uses-permission" || it.nodeName.startsWith("uses-permission-") }
+                .map { it.attributes.getNamedItemNS(androidNamespace, "name")?.nodeValue }
+                .filterNotNull()
+            check(permissions.none(prohibitedPermissions::contains)) {
+                "$variant declares a routine network permission: ${permissions.intersect(prohibitedPermissions)}"
+            }
+            println("offline merged manifest verified: $variant (${permissions.size} permissions; no routine network permission)")
+        }
     }
 }
 

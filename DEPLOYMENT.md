@@ -1360,3 +1360,73 @@ export through the corrected chapter-level SAF flow from commits `f61f59d`,
 `1fba650`, `631f690`, and `c7fba1a`; record each package name and the manual
 duration, audible-playback, metadata, and chapter-order results here before
 checking off 10.8. Exported media must remain outside the repository.
+
+## Offline manifests and diagnostics (task 11.2)
+
+The app's only dependency that contributes network-adjacent manifest/runtime
+metadata is `com.microsoft.onnxruntime:onnxruntime-android:1.29.0`. Its merged
+telemetry initializer is non-exported and the app contains no HTTP client,
+URLConnection, socket, WebView, or other routine network path. WorkManager's
+disabled `NetworkStateProxy` is a scheduler component, not a network permission
+or network operation. The merged exported components are the launcher activity,
+the Media3 playback service, and framework receivers/services protected by
+`BIND_JOB_SERVICE` or `DUMP`; app providers and the generation receiver are
+non-exported. No component opens a network path.
+
+The app manifest removes `android.permission.INTERNET` and
+`android.permission.ACCESS_NETWORK_STATE` contributed by dependencies. The
+variant-aware Gradle gate parses the actual AGP merged manifest rather than
+checking source manifests:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :app:verifyOfflineReleaseManifests --no-daemon --max-workers=1
+```
+
+Result on 2026-08-30: `standardRelease` and `fdroidRelease` each verified six
+permissions with no routine network permission.
+
+`LocalDiagnostics` is the central structured-log boundary. Event messages and
+components must be stable category tokens. Attribute values are retained only
+for safe categories, validated numbers/booleans, constrained IDs, and exact
+SHA-256 hashes. Document text in Latin or Cyrillic, `content://` and `file://`
+URIs, model/SAF paths, query and fragment data, and exception details are
+replaced with redaction markers. This is independent of the debug-only verbose
+flag, so release and F-Droid builds use the same redaction boundary.
+
+Focused redaction verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :core:testDebugUnitTest --tests '*LocalDiagnosticsTest' --no-daemon
+```
+
+Result: four diagnostics tests passed, including Cyrillic/Latin text,
+`content://` and `file://` URI, path/query/fragment, exception, safe hash/ID,
+safe category, and normal category-message cases.
+
+Task 11.2 release verification was completed with these additional commands,
+all successful on 2026-08-30:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew test --no-daemon --max-workers=1
+
+ANDROID_HOME=/home/homoludens/Android/Sdk ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :app:compileStandardDebugAndroidTestKotlin :app:compileFdroidDebugAndroidTestKotlin \
+    :core:compileDebugAndroidTestKotlin :document-epub:compileDebugAndroidTestKotlin \
+    :tts-onnx:compileDebugAndroidTestKotlin :playback-export:compileDebugAndroidTestKotlin \
+    --no-daemon --max-workers=1
+
+ANDROID_HOME=/home/homoludens/Android/Sdk ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :app:lintStandardDebug :app:lintFdroidDebug :core:lintDebug \
+    :document-epub:lintDebug :tts-onnx:lintDebug :playback-export:lintDebug \
+    --no-daemon --max-workers=1
+
+ANDROID_HOME=/home/homoludens/Android/Sdk ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :app:assembleStandardDebug :app:assembleFdroidDebug \
+    :app:assembleStandardRelease :app:assembleFdroidRelease \
+    --no-daemon --max-workers=1
+```
