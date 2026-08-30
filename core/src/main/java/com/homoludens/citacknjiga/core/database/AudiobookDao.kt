@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 public interface AudiobookDao {
@@ -52,6 +53,17 @@ public interface AudiobookDao {
 
     @Query("SELECT * FROM audio_segment")
     public fun findAllAudioSegments(): List<AudioSegmentEntity>
+
+    /** Room is authoritative for which audio is eligible for playback. */
+    @Query(
+        """
+        SELECT audio_segment.* FROM audio_segment
+        INNER JOIN chapter ON chapter.id = audio_segment.chapter_id
+        WHERE chapter.book_project_id = :projectId AND audio_segment.status = 'READY'
+        ORDER BY chapter.ordinal, audio_segment.sequence, audio_segment.id
+        """,
+    )
+    public fun observeReadyAudioSegments(projectId: String): Flow<List<AudioSegmentEntity>>
 
     @Query("SELECT * FROM audio_segment WHERE id = :segmentId LIMIT 1")
     public fun findAudioSegmentById(segmentId: String): AudioSegmentEntity?

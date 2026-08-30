@@ -33,6 +33,8 @@ import com.homoludens.citacknjiga.tts.onnx.WavArtifact
 import java.io.File
 import kotlin.io.path.createTempDirectory
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -156,6 +158,7 @@ public class EpubChapterProofServiceTest {
         override fun findAllGenerationRuns(): List<GenerationRunEntity> = listOf(run)
         override fun findGenerationRunById(runId: String): GenerationRunEntity? = run.takeIf { it.id == runId }
         override fun findAllAudioSegments(): List<AudioSegmentEntity> = listOf(segment)
+        override fun observeReadyAudioSegments(projectId: String): Flow<List<AudioSegmentEntity>> = flowOf(emptyList())
         override fun findAudioSegmentById(segmentId: String): AudioSegmentEntity? = segment.takeIf { it.id == segmentId }
         override fun findActiveModelPackage(): ModelPackageEntity? = null
         override fun updateProject(project: BookProjectEntity) { this.project = project }

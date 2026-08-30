@@ -337,6 +337,13 @@ target.
   `EpubChapterProofAndroidTest` passed on the Poco F3 (`M2012K11AG`, API 33,
   native `arm64-v8a`) with Wi-Fi and mobile data disabled. This is a one-shot
   vertical proof only; durable whole-book generation remains task 8.
+- Task 9.1 adds the minimal Media3 playback service. It observes Room-ready
+  audio, accepts only verified private 24 kHz mono artifacts, builds a
+  snapshot playlist, and keeps player/session resource ownership separate from
+  generation state. The service manifest is merged through `app`'s existing
+  `playback-export` dependency. JVM lifecycle/repository tests and the API 35
+  x86_64 connected Room-source test pass; queue updates, controls, position
+  persistence, and invalid-audio UX remain later playback tasks.
 
 ## Repository layout
 
