@@ -730,6 +730,52 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
 The command passed on 2026-08-29 with all core JVM tests, four connected
 instrumentation tests on `emulator-5554`, lint, and Debug assembly.
 
+## Export storage preflight and failure isolation (task 10.7)
+
+Export preflight runs after read-only validation of every selected private
+READY source and before `plan()` creates any private chapter assembly or SAF
+temporary document. The deterministic estimate is:
+
+```text
+WAV chapter = max(sum known source bytes,
+                  ceil(duration_ms * 24,000 * 2 / 1,000) + 44) + 44
+M4A chapter = max(sum known source bytes,
+                  ceil(duration_ms * 64,000 / 8,000)) + 4,096
+target = sum(chapter estimates) + cover bytes
+       + 4,096 * (chapter count + 1)
+       + 4,096 + 1,024 * chapters + 512 * segments + 256 * attributions
+provider temporary = max(chapter estimate, cover bytes, manifest estimate)
+private temporary = sum(chapter estimates) + max(M4A chapter PCM scratch, 0)
+margin = max(ceil(10% * (target + provider temporary)), 65,536)
+```
+
+The metadata allowance covers provider/file metadata and book/chapter
+metadata; the cover is counted at its verified private size; and the manifest
+allowance covers its fixed and per-record fields. The provider must have
+`target + provider temporary + margin` free bytes. Private storage must have
+`private temporary + margin` free bytes because the current planner assembles
+all chapter files before provider writing. A SAF provider that reports no
+capacity is handled conservatively: preflight fails with instructions to use a
+capacity-reporting provider or another destination. No SAF URI is converted to
+or interpreted as a filesystem path.
+
+`ExportFailureIsolationAndroidTest` injects a destination write failure after
+the plan is persisted. The export job and chapter checkpoint become failed,
+but the source WAV bytes and SHA-256, Room project and READY segment including
+generation provenance, and the verified playback queue remain identical.
+Export temporary documents are the only allowed destination-side residue.
+
+Focused verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :playback-export:testDebugUnitTest \
+  :playback-export:compileDebugAndroidTestKotlin \
+  :playback-export:connectedDebugAndroidTest \
+  :playback-export:lintDebug
+```
+
 ## Readium EPUB spike (task 7.2)
 
 The production build intentionally does not depend on Readium yet. The isolated

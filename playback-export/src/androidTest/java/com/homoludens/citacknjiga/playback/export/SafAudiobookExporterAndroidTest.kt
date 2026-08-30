@@ -286,7 +286,7 @@ public class SafAudiobookExporterAndroidTest {
     ) : SafDocumentTree {
         private val values = linkedMapOf<String, ByteArray>()
 
-        override val capabilities: SafProviderCapabilities = SafProviderCapabilities(supportsRename)
+        override val capabilities: SafProviderCapabilities = SafProviderCapabilities(supportsRename, Long.MAX_VALUE)
         var failRename: Boolean = false
         var loseAfterFirstRename: Boolean = false
         var unavailable: Boolean = false

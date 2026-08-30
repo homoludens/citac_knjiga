@@ -73,7 +73,9 @@ The system SHALL persist export progress, write each file through a temporary or
 - **THEN** already verified files remain identifiable, the export records where it stopped, and retry does not duplicate or silently corrupt chapters
 
 ### Requirement: Export storage validation
-The application SHALL estimate target and temporary storage with a safety margin before export and surface provider write failures clearly.
+The application SHALL estimate target and temporary storage with a safety margin before export and surface provider write failures clearly. The deterministic estimate SHALL use the known ready-file sizes and durations, the selected codec/container overhead, metadata, cover, and manifest allowances. It SHALL include the peak provider temporary file as well as private chapter-assembly scratch space.
+
+If the selected provider does not report capacity, export SHALL fail before creating a temporary destination document with an actionable provider-capacity error rather than assuming unlimited space.
 
 #### Scenario: Insufficient destination capacity
 - **WHEN** the selected destination cannot hold the estimated export

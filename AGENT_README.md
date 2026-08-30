@@ -481,9 +481,9 @@ target.
   M4A or mixed inputs are decoded and re-encoded rather than byte-concatenated.
   Collisions get deterministic numeric suffixes unless the caller explicitly
   confirms replacement. The export writes verified audio, an inferred cover
-  image when available, and canonical manifest-v1 JSON. Persistent progress,
-  retry, and destination-loss recovery are now task 10.6; target/temporary
-  capacity estimation remains task 10.7.
+   image when available, and canonical manifest-v1 JSON. Persistent progress,
+   retry, and destination-loss recovery are now task 10.6; target/temporary
+   capacity estimation is covered by task 10.7 below.
 - Task 10.6 adds Room schema v2 `export_job_chapter` checkpoints and a
   resumable export coordinator. Each ordered chapter persists its source
   segment IDs, target name/URI, provider temporary URI, verified hash/size/
@@ -493,6 +493,20 @@ target.
   than exposing a partial final artifact. Restart reconciliation returns
   interrupted writes to pending; retry rechecks verified files and rewrites
   only missing/failed chapters while retaining private project/audio.
+- Task 10.7 adds deterministic export preflight. For each chapter, WAV is
+  estimated as the larger of known source bytes and 24 kHz mono PCM bytes,
+  plus a 44-byte header; M4A is the larger of known source bytes and nominal
+  64 kbps AAC bytes, plus 4 KiB container overhead. Target usage then adds
+  cover bytes, 4 KiB metadata per book/chapter file, and a manifest allowance
+  of 4 KiB plus 1 KiB/chapter, 512 bytes/segment, and 256 bytes/attribution.
+  Peak SAF temporary usage is the largest planned output; private scratch is
+  the sum of chapter outputs plus the largest decoded PCM WAV scratch file
+  needed while assembling an M4A chapter. The required margin is the larger of
+  10% of target plus provider scratch and 64 KiB. A provider with unknown capacity is
+  rejected before any temporary document or private assembly is created.
+  Android proof coverage injects destination write failure and verifies source
+  bytes/checksum, Room project/READY/provenance, and the playback queue remain
+  unchanged; only export job/checkpoint state changes.
 
 ## Conventions
 

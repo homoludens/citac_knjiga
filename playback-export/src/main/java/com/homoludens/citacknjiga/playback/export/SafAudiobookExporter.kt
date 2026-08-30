@@ -53,6 +53,7 @@ public class ExportPlan internal constructor(
     public val request: ExportRequest,
     public val files: List<PlannedExportFile>,
     public val manifest: ExportManifest,
+    public val storageEstimate: ExportStorageEstimate,
     public val collisions: List<String>,
     public val overwriteExisting: Boolean,
     internal val destination: SafDocumentTree,
@@ -71,6 +72,7 @@ public class ExportPlan internal constructor(
         request,
         files,
         manifest,
+        storageEstimate,
         collisions,
         overwriteExisting,
         destination,
@@ -99,7 +101,7 @@ public class ExportPlan internal constructor(
                 })
             },
         )
-        return ExportPlan(request, renamed, renamedManifest, collisions, overwriteExisting, destination, exporter, jobId)
+        return ExportPlan(request, renamed, renamedManifest, storageEstimate, collisions, overwriteExisting, destination, exporter, jobId)
     }
 }
 
@@ -144,6 +146,7 @@ public class SafAudiobookExporter(
             "Verified audio checksum does not match Room"
         }
     },
+    private val privateAvailableBytes: () -> Long = { storage.rootDirectory.usableSpace },
 ) {
     public fun plan(
         destination: SafDocumentTree,
@@ -172,7 +175,7 @@ public class SafAudiobookExporter(
         val occupied = existing.keys.toMutableSet()
         val collisions = mutableListOf<String>()
         val files = mutableListOf<PlannedExportFile>()
-        val chapterFiles = chapters.map { input ->
+        val prepared = chapters.map { input ->
             val segments = input.segments.sortedWith(compareBy<AudioSegmentEntity> { it.sequence }.thenBy { it.id })
             val missing = segments.filter { it.status != AudioSegmentStatus.READY || it.audioPath.isNullOrBlank() }
             if (missing.isNotEmpty()) {
@@ -183,16 +186,41 @@ public class SafAudiobookExporter(
             require(sources.all { it.extension.lowercase() in setOf("m4a", "mp4", "wav") }) {
                 "Unsupported ready audio extension"
             }
+            val format = when (request.audioFormat) {
+                ExportAudioFormat.AUTO -> if (sources.all { it.extension.equals("wav", ignoreCase = true) }) {
+                    ExportAudioFormat.WAV
+                } else {
+                    ExportAudioFormat.M4A
+                }
+                else -> request.audioFormat
+            }
+            PreparedExportChapter(segments, sources, format)
+        }
+        val coverForEstimate = exportRequest.project.coverPath?.let { verifiedCover(exportRequest.project.id, it) }
+        val storageEstimate = ExportStorageEstimator.estimate(
+            chapters = prepared.map { chapter ->
+                ExportStorageChapterInput(
+                    sourceFileSizes = chapter.sources.map(File::length),
+                    segmentDurationsMs = chapter.segments.map { it.durationMs ?: error("Ready segment duration is missing") },
+                    format = chapter.format,
+                )
+            },
+            coverBytes = coverForEstimate?.length() ?: 0L,
+            attributionCount = exportRequest.attributionRefs.ifEmpty { DEFAULT_ATTRIBUTION_REFS }.size,
+        )
+        ExportStoragePreflight(privateAvailableBytes).requireCapacity(destination, storageEstimate)
+
+        val chapterFiles = chapters.zip(prepared).map { (input, chapter) ->
             val temporary = storage.temporaryFile("export", "chapter-${UUID.randomUUID()}.audio")
             val assembled = if (chapterAssembler is DurationAwareChapterAudioAssembler) {
                 chapterAssembler.assemble(
-                    sources,
+                    chapter.sources,
                     temporary,
-                    exportRequest.audioFormat,
-                    segments.map { it.durationMs ?: error("Ready segment duration is missing") },
+                    chapter.format,
+                    chapter.segments.map { it.durationMs ?: error("Ready segment duration is missing") },
                 )
             } else {
-                chapterAssembler.assemble(sources, temporary, exportRequest.audioFormat)
+                chapterAssembler.assemble(chapter.sources, temporary, chapter.format)
             }
             val extension = when (assembled.format) {
                 ExportAudioFormat.WAV -> "wav"
@@ -212,7 +240,7 @@ public class SafAudiobookExporter(
                 baseName = baseName,
                 mimeType = if (extension == "wav") "audio/wav" else "audio/mp4",
                 sourceFiles = listOf(assembled.file),
-                sourceSegments = segments,
+                sourceSegments = chapter.segments,
                 assembledDurationMs = assembled.durationMs,
             )
         }
@@ -257,7 +285,7 @@ public class SafAudiobookExporter(
         )
         ExportManifestValidator.validate(manifest)
         val finalFiles = files + PlannedExportFile(manifestName, manifestBaseName, "application/json", emptyList())
-        return ExportPlan(exportRequest, finalFiles, manifest, collisions.distinct(), overwriteExisting, destination, this)
+        return ExportPlan(exportRequest, finalFiles, manifest, storageEstimate, collisions.distinct(), overwriteExisting, destination, this)
     }
 
     public fun export(
@@ -425,6 +453,12 @@ public class SafAudiobookExporter(
 
     private fun sha256(bytes: ByteArray): String = MessageDigest.getInstance("SHA-256").digest(bytes)
         .joinToString("") { "%02x".format(it) }
+
+    private data class PreparedExportChapter(
+        val segments: List<AudioSegmentEntity>,
+        val sources: List<File>,
+        val format: ExportAudioFormat,
+    )
 
     private fun coverExtension(file: File): String {
         val bytes = file.inputStream().use { input ->

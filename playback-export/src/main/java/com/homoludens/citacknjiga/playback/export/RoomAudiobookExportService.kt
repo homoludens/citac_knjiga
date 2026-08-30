@@ -17,12 +17,15 @@ public class RoomAudiobookExportService(
     private val dao: AudiobookDao,
     private val exporter: SafAudiobookExporter,
     private val contentResolver: ContentResolver,
+    private val destinationFactory: (Uri) -> SafDocumentTree = { uri ->
+        ContentResolverDocumentTree(contentResolver, uri)
+    },
 ) {
     private val gson = Gson()
 
     public fun planForProject(destinationUri: Uri, projectId: String): ExportPlan {
         val request = requestForProject(projectId)
-        val plan = exporter.plan(ContentResolverDocumentTree(contentResolver, destinationUri), request)
+        val plan = exporter.plan(destinationFactory(destinationUri), request)
         val now = System.currentTimeMillis()
         val jobId = UUID.randomUUID().toString()
         val chapterFiles = plan.files.filter { it.sourceSegments.isNotEmpty() }
@@ -81,7 +84,7 @@ public class RoomAudiobookExportService(
         val job = requireNotNull(dao.findExportJobById(jobId)) { "Export job was not found" }
         val rows = dao.findExportJobChapters(jobId)
         val plan = exporter.plan(
-            ContentResolverDocumentTree(contentResolver, Uri.parse(job.destinationUri)),
+            destinationFactory(Uri.parse(job.destinationUri)),
             requestForJob(job, rows),
             overwriteExisting = true,
         ).withJobId(jobId)

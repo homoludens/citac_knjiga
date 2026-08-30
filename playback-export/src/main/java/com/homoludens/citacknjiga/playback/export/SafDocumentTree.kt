@@ -16,6 +16,8 @@ public data class SafDocument(
 
 public data class SafProviderCapabilities(
     public val supportsDocumentRename: Boolean,
+    /** Free bytes reported by the provider, or null when SAF exposes no safe capacity value. */
+    public val availableBytes: Long? = null,
 )
 
 /** The narrow provider boundary used by export; it never exposes filesystem paths. */
