@@ -555,6 +555,36 @@ The API 35 Google x86_64 emulator passed the real MediaCodec/M4A validation and
 fallback instrumentation tests. The Poco F3 ARM64 vendor AAC path remains
 unqualified; no generated audio artifact is committed.
 
+## Export manifest schema (task 10.4)
+
+`playback-export/src/main/resources/export-manifest-v1.schema.json` freezes the
+machine-readable `citac-knjiga-export-manifest` schema at version `1`. Its
+canonical serializer emits UTF-8 JSON with the declared field order; arrays are
+ordered by chapter ordinal, file sequence, and attribution ID. Source and audio
+checksums use lowercase hexadecimal SHA-256. Durations are positive integer
+milliseconds; audio files declare 24 kHz mono metadata and a safe relative
+destination path. Each file carries the Room generation key, model-package and
+voice checksums, preprocessing/pronunciation versions, inference-settings hash,
+and audio-processing version. Attribution entries are references with HTTPS
+source URLs, not copied document text.
+
+The JVM codec/validator tests use the committed
+`playback-export/src/test/resources/export-manifest-v1.json` fixture. Validation
+also checks chapter/file duration sums, unique IDs and paths, contiguous order,
+required provenance, and rejects private URI paths or unknown JSON fields. This
+task defines data and validation only; SAF destination selection, naming,
+metadata writing, progress/retry, and export UI remain later tasks.
+
+Focused verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew :playback-export:testDebugUnitTest \
+  :playback-export:compileDebugAndroidTestKotlin \
+  :playback-export:lintDebug
+```
+
 ## App-private storage layout (task 6.3)
 
 `core/storage/AppPrivateStorage` uses Android `filesDir` as the single private

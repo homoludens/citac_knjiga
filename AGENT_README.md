@@ -260,6 +260,14 @@ target.
   publication, or Room failures. A segment without an existing artifact can
   use a validated private WAV fallback. Real AAC output and fallback pass on
   the API 35 x86_64 emulator; ARM64 vendor qualification remains open.
+- Task 10.4 defines `citac-knjiga-export-manifest` schema v1 in
+  `playback-export`. Canonical UTF-8 JSON uses explicit field order, lowercase
+  hexadecimal SHA-256 values, millisecond durations, 24 kHz mono file metadata,
+  relative export paths, per-file Room generation provenance, and HTTPS
+  attribution references. The validator enforces ordered contiguous chapters
+  and files, duration sums, ready-audio provenance, and rejects URI paths,
+  document text fields, unknown fields, and inconsistent hashes/durations. It
+  does not select destinations, generate names, write metadata, or run export.
 - Task 6.1 defines the initial Room-owned project schema in `core`: books,
   chapters, narration blocks, audio segments, generation runs, model packages,
   playback positions, and export jobs. Enum values persist by stable name;

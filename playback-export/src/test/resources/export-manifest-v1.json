@@ -1,0 +1,87 @@
+{
+  "schema": {
+    "id": "citac-knjiga-export-manifest",
+    "version": 1
+  },
+  "book": {
+    "id": "book-1",
+    "title": "Primer knjige",
+    "author": "Autor",
+    "language": "sr",
+    "total_duration_ms": 3000
+  },
+  "source": {
+    "algorithm": "sha-256",
+    "encoding": "lowercase-hex",
+    "value": "1111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "duration_unit": "milliseconds",
+  "chapters": [
+    {
+      "id": "chapter-1",
+      "ordinal": 0,
+      "title": "Prvo poglavlje",
+      "duration_ms": 3000,
+      "files": [
+        {
+          "id": "segment-1",
+          "sequence": 0,
+          "path": "chapters/0001.m4a",
+          "media_type": "audio/mp4",
+          "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+          "size_bytes": 1000,
+          "duration_ms": 1000,
+          "sample_rate_hz": 24000,
+          "channels": 1,
+          "generation": {
+            "generation_key": "3333333333333333333333333333333333333333333333333333333333333333",
+            "model_package_id": "kokoro-serbian-dragana",
+            "model_package_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+            "voice_sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+            "preprocessing_version": "preprocessing-v1",
+            "pronunciation_version": "espeak-ng-1.52.0",
+            "inference_settings_hash": "6666666666666666666666666666666666666666666666666666666666666666",
+            "audio_processing_version": "audio-v1"
+          }
+        },
+        {
+          "id": "segment-2",
+          "sequence": 1,
+          "path": "chapters/0002.m4a",
+          "media_type": "audio/mp4",
+          "sha256": "7777777777777777777777777777777777777777777777777777777777777777",
+          "size_bytes": 2000,
+          "duration_ms": 2000,
+          "sample_rate_hz": 24000,
+          "channels": 1,
+          "generation": {
+            "generation_key": "8888888888888888888888888888888888888888888888888888888888888888",
+            "model_package_id": "kokoro-serbian-dragana",
+            "model_package_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+            "voice_sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+            "preprocessing_version": "preprocessing-v1",
+            "pronunciation_version": "espeak-ng-1.52.0",
+            "inference_settings_hash": "6666666666666666666666666666666666666666666666666666666666666666",
+            "audio_processing_version": "audio-v1"
+          }
+        }
+      ]
+    }
+  ],
+  "attribution_refs": [
+    {
+      "id": "attribution-dragana",
+      "subject": "Serbian Common Voice Style TTS Dataset",
+      "source_url": "https://huggingface.co/datasets/daremc86/serbian_common_voice",
+      "license_id": "license-cc-by-4",
+      "required": true
+    },
+    {
+      "id": "attribution-juzne-vesti",
+      "subject": "JuzneVesti-SR v1.0",
+      "source_url": "https://hdl.handle.net/11356/1679",
+      "license_id": "license-cc-by-sa-4",
+      "required": true
+    }
+  ]
+}
