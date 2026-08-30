@@ -92,7 +92,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 
 - [x] 9.1 Implement Media3 player and media-session service over Room-observed ready audio, keeping generation ownership outside the player.
 - [x] 9.2 Implement library and book views with cover, chapter readiness, generation progress, listening progress, failures, and storage use.
-- [ ] 9.3 Implement player controls for play/pause, seek, previous/next chapter, configurable jumps, chapter selection, and playback speed.
+- [x] 9.3 Implement player controls for play/pause, seek, previous/next chapter, configurable jumps, chapter selection, and playback speed.
 - [ ] 9.4 Persist and restore book, chapter/segment, position, and speed across process termination and device reboot.
 - [ ] 9.5 Implement media notification, lock-screen, headset/Bluetooth, audio-focus, noisy-output, and interruption behavior.
 - [ ] 9.6 Update playback queues safely as new segments or chapters become ready while audio is playing.

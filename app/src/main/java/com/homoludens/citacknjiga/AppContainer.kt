@@ -15,6 +15,9 @@ import com.homoludens.citacknjiga.document.epub.SafEpubSourceRepository
 import com.homoludens.citacknjiga.proof.AndroidTypedTextProofEngine
 import com.homoludens.citacknjiga.proof.EpubChapterProofService
 import com.homoludens.citacknjiga.proof.TypedTextProofEngine
+import com.homoludens.citacknjiga.playback.export.AudiobookPlayerController
+import com.homoludens.citacknjiga.playback.export.ReadyAudioRepository
+import com.homoludens.citacknjiga.playback.export.RoomReadyAudioSource
 import com.homoludens.citacknjiga.tts.onnx.ModelPackageStore
 import com.homoludens.citacknjiga.tts.onnx.preprocessing.SerbianPreprocessor
 
@@ -49,6 +52,7 @@ public class AppContainer(
     public val typedTextProofEngine: TypedTextProofEngine? = null,
     public val epubImportPreviewService: EpubImportPreviewService? = null,
     public val epubChapterProofService: EpubChapterProofService? = null,
+    public val playbackController: AudiobookPlayerController? = null,
 ) {
     public companion object {
         public fun production(context: Context): AppContainer {
@@ -58,6 +62,7 @@ public class AppContainer(
             val privateStorage = AppPrivateStorage(filesDir)
             val modelStore = ModelPackageStore(privateStorage.rootDirectory)
             val dao = createAudiobookDao(context)
+            val readyAudio = ReadyAudioRepository(RoomReadyAudioSource(dao), privateStorage)
             val sourceRepository = SafEpubSourceRepository(
                 sourceReader = ContentResolverEpubSourceReader(contentResolver),
                 storage = privateStorage,
@@ -85,6 +90,7 @@ public class AppContainer(
                     artifactStore = AtomicArtifactStore(privateStorage),
                     proofEngine = proofEngine,
                 ),
+                playbackController = AudiobookPlayerController(context, readyAudio),
             )
         }
     }

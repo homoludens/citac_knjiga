@@ -879,3 +879,29 @@ production model inference was run for this task. Therefore the test does not
 claim real force-stop proof or Poco evidence. The test cleans its unique Room
 database, private source, canonical text, diagnostics, and ready-audio files in
 `finally`; it creates no committed WAV, model package, report, or export.
+
+## Media3 player controls (task 9.3)
+
+`playback-export` keeps `AudiobookPlaybackService` as the only ExoPlayer owner.
+`AudiobookPlayerController` connects one Media3 `MediaController` to that
+service, observes verified Room-ready audio, and exposes play/pause, clamped
+seek and jumps, completed-chapter navigation/selection, and playback speed.
+Jump values are held in memory and limited to 1-120 seconds; supported speeds
+are 0.75x, 1x, 1.25x, 1.5x, and 2x. The queue and catalog remain snapshots until
+the later dynamic-queue task.
+
+Focused and full verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew :playback-export:testDebugUnitTest \
+  :app:testStandardDebugUnitTest :app:testFdroidDebugUnitTest \
+  :app:compileStandardDebugAndroidTestKotlin \
+  :app:compileFdroidDebugAndroidTestKotlin
+```
+
+The focused JVM and Compose instrumentation control tests pass on the API 35
+emulator. A full app instrumentation run remains blocked by the pre-existing
+task-4.10 test when no verified model package is staged; model packages are
+intentionally not repository artifacts.

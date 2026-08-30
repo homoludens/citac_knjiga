@@ -349,6 +349,12 @@ target.
   narration blocks into Room. Views map chapter/segment readiness, generation
   progress and failures, available listening position, and private storage use;
   player controls and position persistence remain later playback tasks.
+- Task 9.3 adds a non-owning MediaController-backed playback controller and
+  Compose controls for play/pause, clamped seek/jumps, completed-chapter
+  navigation and selection, configurable jump values, and supported playback
+  speeds. The service remains the sole ExoPlayer owner and its Room-ready
+  playlist is a snapshot; position persistence, system media integration,
+  dynamic queue updates, and missing-audio UX remain later tasks.
 
 ## Repository layout
 

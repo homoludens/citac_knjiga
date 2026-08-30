@@ -49,6 +49,9 @@ import com.homoludens.citacknjiga.proof.TypedTextProofDiagnostics
 import com.homoludens.citacknjiga.proof.TypedTextProofEngine
 import com.homoludens.citacknjiga.proof.TypedTextProofState
 import com.homoludens.citacknjiga.proof.TypedTextProofStatus
+import com.homoludens.citacknjiga.playback.export.AudiobookPlayerController
+import com.homoludens.citacknjiga.playback.export.PlayerControlState
+import com.homoludens.citacknjiga.player.AudiobookPlayerControls
 import com.homoludens.citacknjiga.library.LibraryController
 import com.homoludens.citacknjiga.library.LibraryScreen
 import com.homoludens.citacknjiga.library.LibraryViewState
@@ -67,6 +70,7 @@ public fun CitacKnjigaApp(
     proofEngine: TypedTextProofEngine? = null,
     epubImportPreviewService: EpubImportPreviewService? = null,
     epubChapterProofService: EpubChapterProofService? = null,
+    playbackController: AudiobookPlayerController? = null,
     modifier: Modifier = Modifier,
 ) {
     val navController = rememberNavController()
@@ -92,6 +96,7 @@ public fun CitacKnjigaApp(
             ) { entry ->
                 BookRoute(
                     audiobookDao = audiobookDao,
+                    playbackController = playbackController,
                     bookId = entry.arguments?.getString(AppRoute.Book.argument),
                     onBack = navController::popBackStack,
                 )
@@ -215,12 +220,23 @@ private fun StartScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun BookRoute(
     audiobookDao: AudiobookDao?,
+    playbackController: AudiobookPlayerController?,
     bookId: String?,
     onBack: () -> Unit,
 ) {
     val libraryController = remember(audiobookDao) { audiobookDao?.let(::LibraryController) }
     val libraryFlow: Flow<LibraryViewState> = libraryController?.state ?: flowOf(LibraryViewState())
     val libraryState by libraryFlow.collectAsState(initial = LibraryViewState())
+    val playerState by playbackController?.state?.collectAsState() ?: remember { mutableStateOf(PlayerControlState()) }
+    val book = libraryState.books.firstOrNull { it.project.id == bookId }
+    androidx.compose.runtime.LaunchedEffect(book?.project?.id, book?.chapters) {
+        book?.let { selected ->
+            playbackController?.bindBook(
+                selected.project.id,
+                selected.chapters.map { chapter -> chapter.chapter },
+            )
+        }
+    }
     DisposableEffect(libraryController) {
         onDispose { libraryController?.close() }
     }
@@ -232,10 +248,23 @@ private fun BookRoute(
             )
         },
     ) { paddingValues ->
-        BookDetailScreen(
-            book = libraryState.books.firstOrNull { it.project.id == bookId },
-            modifier = Modifier.padding(paddingValues),
-        )
+        Column(modifier = Modifier.padding(paddingValues)) {
+            BookDetailScreen(book = book, modifier = Modifier.weight(1f))
+            if (book != null && playbackController != null) {
+                AudiobookPlayerControls(
+                    state = playerState,
+                    onPlayPause = playbackController::playPause,
+                    onSeek = playbackController::seek,
+                    onPreviousChapter = { playbackController.previousChapter() },
+                    onNextChapter = { playbackController.nextChapter() },
+                    onJumpBackward = playbackController::jumpBackward,
+                    onJumpForward = playbackController::jumpForward,
+                    onSelectChapter = playbackController::selectChapter,
+                    onSetJumps = playbackController::setJumpValues,
+                    onSetSpeed = playbackController::setSpeed,
+                )
+            }
+        }
     }
 }
 

@@ -22,6 +22,7 @@ public class MainActivity : ComponentActivity() {
                 proofEngine = container.typedTextProofEngine,
                 epubImportPreviewService = container.epubImportPreviewService,
                 epubChapterProofService = container.epubChapterProofService,
+                playbackController = container.playbackController,
             )
         }
     }
