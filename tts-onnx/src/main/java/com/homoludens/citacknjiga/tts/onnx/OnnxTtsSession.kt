@@ -441,8 +441,8 @@ public class OnnxTtsSession private constructor(
             packageInfo: InstalledModelPackage,
             configuration: OnnxRuntimeConfiguration = OnnxRuntimeContract.CPU_BASELINE,
         ): OnnxTtsSession {
-            val styleTable = DraganaStyleTable.fromTorchArchive(store.readArtifact(packageInfo, "voice_style"))
-            return store.withVerifiedArtifactFile(packageInfo, "model") { modelFile ->
+            return store.withVerifiedPackageSnapshot(packageInfo) { modelFile, voiceBytes ->
+                val styleTable = DraganaStyleTable.fromTorchArchive(voiceBytes)
                 createFromArtifactPath(modelFile.absolutePath, styleTable, configuration)
             }
         }

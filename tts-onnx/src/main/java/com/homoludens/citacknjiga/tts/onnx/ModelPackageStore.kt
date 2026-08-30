@@ -181,6 +181,53 @@ public class ModelPackageStore(
             bytes
         } }
 
+    /** Opens both runtime inputs while the verified package read lock is held. */
+    internal fun <T> withVerifiedPackageSnapshot(
+        packageInfo: InstalledModelPackage,
+        block: (modelFile: File, voiceBytes: ByteArray) -> T,
+    ): T = withReadOperation {
+        val verified = validateArchive(activeFile)
+        if (verified != packageInfo) {
+            throw ModelPackageImportException(ModelPackageFailureCode.CHECKSUM_MISMATCH)
+        }
+        val voiceBytes = withDeclaredArtifact(packageInfo, "voice_style") { archive, artifact ->
+            val entry = archive.getEntry(artifact.path)
+                ?: throw ModelPackageImportException(ModelPackageFailureCode.INVALID_ARCHIVE)
+            archive.getInputStream(entry).use { input -> input.readBytes() }.also { bytes ->
+                if (bytes.size.toLong() != artifact.sizeBytes || sha256(bytes) != artifact.sha256) {
+                    throw ModelPackageImportException(ModelPackageFailureCode.CHECKSUM_MISMATCH)
+                }
+            }
+        }
+        val temporary = File.createTempFile(".model-artifact-", ".tmp", packageDir)
+        try {
+            withDeclaredArtifact(packageInfo, "model") { archive, artifact ->
+                val entry = archive.getEntry(artifact.path)
+                    ?: throw ModelPackageImportException(ModelPackageFailureCode.INVALID_ARCHIVE)
+                val digest = MessageDigest.getInstance("SHA-256")
+                var size = 0L
+                archive.getInputStream(entry).use { input ->
+                    temporary.outputStream().use { output ->
+                        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                        while (true) {
+                            val count = input.read(buffer)
+                            if (count < 0) break
+                            output.write(buffer, 0, count)
+                            digest.update(buffer, 0, count)
+                            size += count
+                        }
+                    }
+                }
+                if (size != artifact.sizeBytes || digest.digest().toHex() != artifact.sha256) {
+                    throw ModelPackageImportException(ModelPackageFailureCode.CHECKSUM_MISMATCH)
+                }
+            }
+            block(temporary, voiceBytes)
+        } finally {
+            temporary.delete()
+        }
+    }
+
     /** Streams one verified artifact to a private file for APIs that accept a path. */
     public fun <T> withVerifiedArtifactFile(
         packageInfo: InstalledModelPackage,
