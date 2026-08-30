@@ -41,7 +41,7 @@
 ## 7. Localization and Integration Coverage
 
 - [x] 7.1 Add localized strings for import/acquisition actions, busy/success states, all stable failure categories, status states, and category-appropriate recovery actions in the supported resource locales; verify resource compilation and locale UI tests find every required user-visible message.
-- [ ] 7.2 Extend diagnostics snapshot/export tests to cover safe metadata, every status and failure mapping, retained-active replacement failures, and redaction of paths, URIs, archive details, raw exceptions, and secrets; verify `./gradlew :app:test` passes the complete diagnostics suite.
+- [x] 7.2 Extend diagnostics snapshot/export tests to cover safe metadata, every status and failure mapping, retained-active replacement failures, and redaction of paths, URIs, archive details, raw exceptions, and secrets; verify `./gradlew :app:test` passes the complete diagnostics suite.
 - [ ] 7.3 Extend Compose and instrumentation tests for picker cancellation, unsupported selection, busy state, valid import, invalid/incompatible/storage/publication failures, successful replacement, and old-package retention; verify `./gradlew :app:testDebugUnitTest :app:connectedDebugAndroidTest` passes or reports the device test outcome without adding model artifacts.
 - [ ] 7.4 Cover the configured external action in localized UI/integration tests, including unavailable configuration, malformed URL, missing browser, and successful external dispatch; verify the tests assert no in-app request or download API is invoked.
 
