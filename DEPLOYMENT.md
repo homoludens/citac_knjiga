@@ -1906,3 +1906,28 @@ real F-Droid scanner run, and no claim is made that external F-Droid metadata
 or scanner policy has been evaluated. The full locked toolchain check passes
 when run with `model-tools/.venv/bin/python` (Python 3.11.14); the system
 Python 3.13 interpreter is intentionally not accepted by that lock.
+
+## Release documentation bundle (task 12.6)
+
+The redacted documentation bundle is generated at
+`reports/release-docs/`. Generation first refreshes the existing dependency
+license inventory from the locked Android runtime/test graph, then derives the
+CycloneDX SBOM and writes the attribution, privacy, threat, benchmark, and
+model-package compatibility documents. It never copies model/audio payloads or
+the full dependency notice list into the report bundle; notice files remain
+authoritative at `app/src/main/assets/notices/` and are referenced by SHA-256.
+
+Run from the repository root:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+  python3 scripts/generate_release_docs.py
+python3 scripts/validate_release_docs.py
+```
+
+Use `python3 scripts/generate_release_docs.py --skip-audit` only when checking
+rendering against an already generated notice inventory. The validator checks
+the source/toolchain/package/legal/parity/benchmark input hashes, exact SBOM
+coordinates, notice hashes, output set, and redaction rules. It does not sign,
+publish, or approve an application or model package; those are tasks 12.7 and
+12.8.

@@ -124,3 +124,5 @@ jobs:
             --no-daemon --max-workers=2 --console=plain --dependency-verification=strict
       - name: Run F-Droid-oriented scanner checks
         run: python3 scripts/check_fdroid.py --require-build
+      - name: Validate release documentation bundle
+        run: python3 scripts/validate_release_docs.py

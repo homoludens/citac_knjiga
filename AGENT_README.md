@@ -530,6 +530,14 @@ target.
   debug/release assembly checks. No external `fdroid`/scanner executable is
   installed, so the result is explicitly a substitute scan rather than a real
   F-Droid scanner result.
+- Task 12.6 adds the redacted release documentation bundle under
+  `reports/release-docs/`. `scripts/generate_release_docs.py` derives a
+  deterministic CycloneDX SBOM from the audited locked dependency graph,
+  references the existing bundled notices by hash, and renders attribution,
+  privacy, threat, benchmark, and model-package compatibility records.
+  `scripts/validate_release_docs.py` fails on input/SBOM/notice drift, payloads,
+  secrets, sensitive URIs, or local paths. The bundle records the blocked model
+  legal status and does not implement tasks 12.7 or 12.8.
 
 ## Repository layout
 
@@ -542,6 +550,7 @@ target.
 | `speak_2.py` | Ad-hoc CPU inference test script (points at training-repo paths) |
 | `model-tools/` | Desktop model tooling, native eSpeak-NG provenance/data manifest, reference captures, export wrapper, package schema/validator, and preprocessing contract/resources (Phase 1–3) |
 | `app/`, `core/`, `tts-onnx/`, `document-epub/`, `playback-export/` | Minimal Android foundation modules (task 4.1) |
+| `reports/release-docs/` | Generated task-12.6 SBOM and redacted release compliance documentation |
 
 ## Key technical facts
 

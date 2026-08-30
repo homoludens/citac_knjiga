@@ -1,0 +1,143 @@
+{
+  "bundle_id": "task-12-6",
+  "generated_by": {
+    "path": "scripts/generate_release_docs.py",
+    "sha256": "a3f6897d64a7a4b5e5943e9559e8ed701fb5bd1cc8d2bdc2454f1eacfb3a5256"
+  },
+  "inputs": [
+    {
+      "path": "app/src/main/assets/notices/dependency-license-inventory.json",
+      "sha256": "230b6a9f5ceeab7ec08795a9d79810ca839fed2095c4e5a2f5913a5cc6f21906"
+    },
+    {
+      "path": "app/src/main/assets/notices/THIRD_PARTY_NOTICES.md",
+      "sha256": "35a38cd1f533bcece297992a2824880c069c31ac79cdb27f3516c1be65b31229"
+    },
+    {
+      "path": "gradle/libs.versions.toml",
+      "sha256": "4b10b1758444f7e44f72f50734e34e98143afdc0c065b045885009e2782334c0"
+    },
+    {
+      "path": "gradle/toolchain.lock.json",
+      "sha256": "17fef8791a45f8fb36d82cd740b1bb9a8feb9bba60aef134deb13dd05f5bc426"
+    },
+    {
+      "path": "gradle/verification-metadata.xml",
+      "sha256": "b7e6898cbf5a054221415483531918973de89500ed7d523652e23a30c93240b2"
+    },
+    {
+      "path": "settings-gradle.lockfile",
+      "sha256": "e58bb2ed80db9f829601a658d7c33b9802eb7d2191c31e79c28e01f14c225926"
+    },
+    {
+      "path": "app/gradle.lockfile",
+      "sha256": "cc4d0d5060d587265ad739e374d083d9a0a871da3aa90bff24119e26c4fe969b"
+    },
+    {
+      "path": "core/gradle.lockfile",
+      "sha256": "44d776fd7f6e99aa0ba0b49d9448240eebc510776329a6a3a917a08581ff6354"
+    },
+    {
+      "path": "tts-onnx/gradle.lockfile",
+      "sha256": "f4c98694ec54a37f388a2cdbecee2f2a813704d2a1caaf1a5daa746b974f3cef"
+    },
+    {
+      "path": "document-epub/gradle.lockfile",
+      "sha256": "75b9aac6fb9e5527d5d6f17e2cf5a0b8a0f5461ac6f78d8794b2b45e1705a0f2"
+    },
+    {
+      "path": "playback-export/gradle.lockfile",
+      "sha256": "8586a48704612903ec0cf1d1dfc8271cbf46b9d1a639de047e150a50a9b1bb14"
+    },
+    {
+      "path": "model-tools/uv.lock",
+      "sha256": "105e682ae053a42e3b499793da4d28c4d83a38134df45388a47538c773c127f0"
+    },
+    {
+      "path": "model-tools/native/source-closure-v1.json",
+      "sha256": "e6fb227157503634d4ff0eaf61bd104ae90dfedaa77147ba9dd993158d9ee7d6"
+    },
+    {
+      "path": "model-tools/native/espeak-data-manifest-v1.json",
+      "sha256": "7e22ee47b309a0c881e8869504c8b662a3369d9e7e4121f047ea21c2ca29b43d"
+    },
+    {
+      "path": "model-tools/native/NOTICE.md",
+      "sha256": "4e8c27243225f56c624833e70c711537ab3b2de4e796ee04adba777f3011d883"
+    },
+    {
+      "path": "model-tools/preprocessing/preprocessing-contract-v1.json",
+      "sha256": "def717361fa5d4b22c206fc7f57b3d90220a17547f1d4a361f4ec21df3527146"
+    },
+    {
+      "path": "model-tools/package/model-package-v1.schema.json",
+      "sha256": "197d0e8c4b3b5b8d682b16df8fc5e2d85bc3d8801f20cde925dd64c252c8d99e"
+    },
+    {
+      "path": "model-tools/package/model-package-v1.example.json",
+      "sha256": "8acaf0f3ab4c146bdb20de2f35c79a3e18a438f9bd4e068df9a3cd7ee56804b3"
+    },
+    {
+      "path": "model-tools/runtime-pins.md",
+      "sha256": "05766add088edae0253465e4be24cd99fbb292cfeeb48da6f7ed631c89a400f8"
+    },
+    {
+      "path": "model-tools/legal-inventory.md",
+      "sha256": "eeb166e3b75a835b96114351e4577e27904101598850bb7943a0ce11a152e76b"
+    },
+    {
+      "path": "model-tools/parity/fp32-thresholds-v2.json",
+      "sha256": "04dbe5b0c3f6a3f4cb9407ea9c6c64d468d612ba0fa21b7a036b67155422dcc8"
+    },
+    {
+      "path": "model-tools/parity/fp32-parity-v2-report.json",
+      "sha256": "603fc3ef334d328dba6163de144b88a93ec71e958873f2d7ec877049e74e6a16"
+    },
+    {
+      "path": "DEPLOYMENT.md",
+      "sha256": "6735922d84deb6edc296d22b00d03439b67f1be0e58cd8b450d2c71878d2f86b"
+    },
+    {
+      "path": "reports/task-11-4-android-qualification.md",
+      "sha256": "d6641f4aeea4f4cd3b88f6ea14e96d65b4422580cfc9414996422035d228ec74"
+    },
+    {
+      "path": "reports/task-11-8-mvp-capability-matrix.md",
+      "sha256": "56c0b59df7ecfda974d8cab414713118775959578798737dbd267301bdfdb6b6"
+    },
+    {
+      "path": "scripts/generate_release_docs.py",
+      "sha256": "a3f6897d64a7a4b5e5943e9559e8ed701fb5bd1cc8d2bdc2454f1eacfb3a5256"
+    }
+  ],
+  "notice_references": {
+    "inventory": {
+      "path": "app/src/main/assets/notices/dependency-license-inventory.json",
+      "sha256": "230b6a9f5ceeab7ec08795a9d79810ca839fed2095c4e5a2f5913a5cc6f21906"
+    },
+    "markdown": {
+      "path": "app/src/main/assets/notices/THIRD_PARTY_NOTICES.md",
+      "sha256": "35a38cd1f533bcece297992a2824880c069c31ac79cdb27f3516c1be65b31229"
+    }
+  },
+  "outputs": [
+    "README.md",
+    "bundle-manifest.json",
+    "sbom.cdx.json",
+    "dependency-notices.md",
+    "model-attribution.md",
+    "privacy-statement.md",
+    "threat-model.md",
+    "benchmark-report.md",
+    "model-package-compatibility.md"
+  ],
+  "redaction": {
+    "document_text": "excluded",
+    "local_absolute_paths": "excluded",
+    "model_and_audio_payloads": "excluded",
+    "secrets": "excluded",
+    "sensitive_uris": "excluded"
+  },
+  "schema": "citac-knjiga-release-document-bundle",
+  "version": 1
+}

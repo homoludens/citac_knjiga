@@ -1,0 +1,6033 @@
+{
+  "bomFormat": "CycloneDX",
+  "components": [
+    {
+      "bom-ref": "pkg:generic/espeak-ng@1.52.0",
+      "externalReferences": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/espeak-ng/espeak-ng.git"
+        }
+      ],
+      "group": "org.espeak-ng",
+      "licenses": [
+        {
+          "license": {
+            "id": "GPL-3.0-or-later"
+          }
+        }
+      ],
+      "name": "eSpeak-NG",
+      "properties": [
+        {
+          "name": "citac-knjiga:source-commit",
+          "value": "4870adfa25b1a32b4361592f1be8a40337c58d6c"
+        },
+        {
+          "name": "citac-knjiga:build",
+          "value": "source-built JNI; no checked-in library"
+        }
+      ],
+      "purl": "pkg:generic/espeak-ng@1.52.0",
+      "scope": "required",
+      "type": "library",
+      "version": "1.52.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.activity/activity-compose@1.10.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.activity",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "activity-compose",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.activity/activity-compose@1.10.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.10.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.activity/activity-ktx@1.10.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.activity",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "activity-ktx",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.activity/activity-ktx@1.10.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.10.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.activity/activity@1.10.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.activity",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "activity",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.activity/activity@1.10.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.10.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.annotation/annotation-experimental@1.4.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.annotation",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "annotation-experimental",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.annotation/annotation-experimental@1.4.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.4.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.annotation/annotation-jvm@1.9.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.annotation",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "annotation-jvm",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.annotation/annotation-jvm@1.9.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.9.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.annotation/annotation@1.9.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.annotation",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "annotation",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.annotation/annotation@1.9.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.9.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.arch.core/core-common@2.2.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.arch.core",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "core-common",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.arch.core/core-common@2.2.0",
+      "scope": "required",
+      "type": "library",
+      "version": "2.2.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.arch.core/core-runtime@2.2.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.arch.core",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "core-runtime",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.arch.core/core-runtime@2.2.0",
+      "scope": "required",
+      "type": "library",
+      "version": "2.2.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.autofill/autofill@1.0.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "http://source.android.com"
+        }
+      ],
+      "group": "androidx.autofill",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "autofill",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.autofill/autofill@1.0.0",
+      "scope": "required",
+      "type": "library",
+      "version": "1.0.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.collection/collection-jvm@1.4.2",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.collection",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "collection-jvm",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "debug-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.collection/collection-jvm@1.4.2",
+      "scope": "excluded",
+      "type": "library",
+      "version": "1.4.2"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.collection/collection-jvm@1.4.4",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.collection",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "collection-jvm",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.collection/collection-jvm@1.4.4",
+      "scope": "required",
+      "type": "library",
+      "version": "1.4.4"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.collection/collection-ktx@1.4.4",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.collection",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "collection-ktx",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.collection/collection-ktx@1.4.4",
+      "scope": "required",
+      "type": "library",
+      "version": "1.4.4"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.collection/collection@1.4.2",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.collection",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "collection",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "debug-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.collection/collection@1.4.2",
+      "scope": "excluded",
+      "type": "library",
+      "version": "1.4.2"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.collection/collection@1.4.4",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.collection",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "collection",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.collection/collection@1.4.4",
+      "scope": "required",
+      "type": "library",
+      "version": "1.4.4"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.animation/animation-android@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.animation",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "animation-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.animation/animation-android@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.animation/animation-core-android@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.animation",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "animation-core-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.animation/animation-core-android@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.animation/animation-core@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.animation",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "animation-core",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.animation/animation-core@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.animation/animation@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.animation",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "animation",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.animation/animation@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.foundation/foundation-android@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.foundation",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "foundation-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.foundation/foundation-android@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.foundation/foundation-layout-android@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.foundation",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "foundation-layout-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.foundation/foundation-layout-android@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.foundation/foundation-layout@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.foundation",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "foundation-layout",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.foundation/foundation-layout@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.foundation/foundation@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.foundation",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "foundation",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.foundation/foundation@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.material/material-icons-core-android@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.material",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "material-icons-core-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.material/material-icons-core-android@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.material/material-icons-core@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.material",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "material-icons-core",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.material/material-icons-core@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.material/material-ripple-android@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.material",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "material-ripple-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.material/material-ripple-android@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.material/material-ripple@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.material",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "material-ripple",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.material/material-ripple@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.material3/material3-android@1.3.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.material3",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "material3-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.material3/material3-android@1.3.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.3.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.material3/material3@1.3.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.material3",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "material3",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.material3/material3@1.3.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.3.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.runtime/runtime-android@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.runtime",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "runtime-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.runtime/runtime-android@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.runtime/runtime-saveable-android@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.runtime",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "runtime-saveable-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.runtime/runtime-saveable-android@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.runtime/runtime-saveable@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.runtime",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "runtime-saveable",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.runtime/runtime-saveable@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.runtime/runtime@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.runtime",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "runtime",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.runtime/runtime@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.ui/ui-android@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.ui",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "ui-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.ui/ui-android@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.ui/ui-geometry-android@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.ui",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "ui-geometry-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.ui/ui-geometry-android@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.ui/ui-geometry@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.ui",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "ui-geometry",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.ui/ui-geometry@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.ui/ui-graphics-android@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.ui",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "ui-graphics-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.ui/ui-graphics-android@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.ui/ui-graphics@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.ui",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "ui-graphics",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.ui/ui-graphics@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.ui/ui-text-android@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.ui",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "ui-text-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.ui/ui-text-android@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.ui/ui-text@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.ui",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "ui-text",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.ui/ui-text@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.ui/ui-tooling-preview-android@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.ui",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "ui-tooling-preview-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.ui/ui-tooling-preview-android@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.ui/ui-tooling-preview@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.ui",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "ui-tooling-preview",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.ui/ui-tooling-preview@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.ui/ui-unit-android@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.ui",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "ui-unit-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.ui/ui-unit-android@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.ui/ui-unit@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.ui",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "ui-unit",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.ui/ui-unit@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.ui/ui-util-android@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.ui",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "ui-util-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.ui/ui-util-android@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.ui/ui-util@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.ui",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "ui-util",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.ui/ui-util@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose.ui/ui@1.7.8",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.compose.ui",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "ui",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose.ui/ui@1.7.8",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.8"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.compose/compose-bom@2025.02.00",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://developer.android.com/jetpack"
+        }
+      ],
+      "group": "androidx.compose",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "compose-bom",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.compose/compose-bom@2025.02.00",
+      "scope": "required",
+      "type": "library",
+      "version": "2025.02.00"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.concurrent/concurrent-futures-ktx@1.1.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "http://source.android.com"
+        }
+      ],
+      "group": "androidx.concurrent",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "concurrent-futures-ktx",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.concurrent/concurrent-futures-ktx@1.1.0",
+      "scope": "required",
+      "type": "library",
+      "version": "1.1.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.concurrent/concurrent-futures@1.1.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "http://source.android.com"
+        }
+      ],
+      "group": "androidx.concurrent",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "concurrent-futures",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.concurrent/concurrent-futures@1.1.0",
+      "scope": "required",
+      "type": "library",
+      "version": "1.1.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.core/core-ktx@1.13.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.core",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "core-ktx",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.core/core-ktx@1.13.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.13.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.core/core-viewtree@1.0.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.core",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "core-viewtree",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.core/core-viewtree@1.0.0",
+      "scope": "required",
+      "type": "library",
+      "version": "1.0.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.core/core@1.12.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.core",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "core",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "debug-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.core/core@1.12.0",
+      "scope": "excluded",
+      "type": "library",
+      "version": "1.12.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.core/core@1.13.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.core",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "core",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.core/core@1.13.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.13.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.customview/customview-poolingcontainer@1.0.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.customview",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "customview-poolingcontainer",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.customview/customview-poolingcontainer@1.0.0",
+      "scope": "required",
+      "type": "library",
+      "version": "1.0.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.emoji2/emoji2@1.3.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.emoji2",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "emoji2",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.emoji2/emoji2@1.3.0",
+      "scope": "required",
+      "type": "library",
+      "version": "1.3.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.exifinterface/exifinterface@1.3.6",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.exifinterface",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "exifinterface",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.exifinterface/exifinterface@1.3.6",
+      "scope": "required",
+      "type": "library",
+      "version": "1.3.6"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.graphics/graphics-path@1.0.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.graphics",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "graphics-path",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.graphics/graphics-path@1.0.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.0.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.interpolator/interpolator@1.0.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "http://source.android.com"
+        }
+      ],
+      "group": "androidx.interpolator",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "interpolator",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.interpolator/interpolator@1.0.0",
+      "scope": "required",
+      "type": "library",
+      "version": "1.0.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-common-java8@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-common-java8",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-common-java8@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-common-jvm@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-common-jvm",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-common-jvm@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-common@2.6.2",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-common",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "debug-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-common@2.6.2",
+      "scope": "excluded",
+      "type": "library",
+      "version": "2.6.2"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-common@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-common",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-common@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-livedata-core-ktx@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-livedata-core-ktx",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-livedata-core-ktx@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-livedata-core@2.6.2",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-livedata-core",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "debug-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-livedata-core@2.6.2",
+      "scope": "excluded",
+      "type": "library",
+      "version": "2.6.2"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-livedata-core@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-livedata-core",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-livedata-core@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-livedata@2.6.2",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-livedata",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "debug-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-livedata@2.6.2",
+      "scope": "excluded",
+      "type": "library",
+      "version": "2.6.2"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-livedata@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-livedata",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-livedata@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-process@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-process",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-process@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-runtime-android@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-runtime-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-runtime-android@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-runtime-compose-android@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-runtime-compose-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-runtime-compose-android@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-runtime-compose@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-runtime-compose",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-runtime-compose@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-runtime-ktx-android@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-runtime-ktx-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-runtime-ktx-android@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-runtime-ktx@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-runtime-ktx",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-runtime-ktx@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-runtime@2.6.2",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-runtime",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "debug-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-runtime@2.6.2",
+      "scope": "excluded",
+      "type": "library",
+      "version": "2.6.2"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-runtime@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-runtime",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-runtime@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-service@2.6.2",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-service",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "debug-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-service@2.6.2",
+      "scope": "excluded",
+      "type": "library",
+      "version": "2.6.2"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-service@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-service",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-service@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-viewmodel-android@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-viewmodel-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-viewmodel-android@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-viewmodel-compose-android@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-viewmodel-compose-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-viewmodel-compose-android@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-viewmodel-compose@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-viewmodel-compose",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-viewmodel-compose@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-viewmodel-ktx@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-viewmodel-ktx",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-viewmodel-ktx@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-viewmodel-savedstate@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-viewmodel-savedstate",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-viewmodel-savedstate@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.lifecycle/lifecycle-viewmodel@2.8.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.lifecycle",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "lifecycle-viewmodel",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.lifecycle/lifecycle-viewmodel@2.8.3",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.3"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.media/media@1.7.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.media",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "media",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.media/media@1.7.0",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.media3/media3-common@1.5.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/androidx/media"
+        }
+      ],
+      "group": "androidx.media3",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "media3-common",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.media3/media3-common@1.5.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.5.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.media3/media3-container@1.5.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/androidx/media"
+        }
+      ],
+      "group": "androidx.media3",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "media3-container",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.media3/media3-container@1.5.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.5.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.media3/media3-database@1.5.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/androidx/media"
+        }
+      ],
+      "group": "androidx.media3",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "media3-database",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.media3/media3-database@1.5.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.5.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.media3/media3-datasource@1.5.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/androidx/media"
+        }
+      ],
+      "group": "androidx.media3",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "media3-datasource",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.media3/media3-datasource@1.5.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.5.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.media3/media3-decoder@1.5.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/androidx/media"
+        }
+      ],
+      "group": "androidx.media3",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "media3-decoder",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.media3/media3-decoder@1.5.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.5.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.media3/media3-exoplayer@1.5.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/androidx/media"
+        }
+      ],
+      "group": "androidx.media3",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "media3-exoplayer",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.media3/media3-exoplayer@1.5.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.5.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.media3/media3-extractor@1.5.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/androidx/media"
+        }
+      ],
+      "group": "androidx.media3",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "media3-extractor",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.media3/media3-extractor@1.5.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.5.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.media3/media3-session@1.5.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/androidx/media"
+        }
+      ],
+      "group": "androidx.media3",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "media3-session",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.media3/media3-session@1.5.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.5.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.navigation/navigation-common-ktx@2.8.7",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.navigation",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "navigation-common-ktx",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.navigation/navigation-common-ktx@2.8.7",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.7"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.navigation/navigation-common@2.8.7",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.navigation",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "navigation-common",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.navigation/navigation-common@2.8.7",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.7"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.navigation/navigation-compose@2.8.7",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.navigation",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "navigation-compose",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.navigation/navigation-compose@2.8.7",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.7"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.navigation/navigation-runtime-ktx@2.8.7",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.navigation",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "navigation-runtime-ktx",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.navigation/navigation-runtime-ktx@2.8.7",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.7"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.navigation/navigation-runtime@2.8.7",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.navigation",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "navigation-runtime",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.navigation/navigation-runtime@2.8.7",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.7"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.profileinstaller/profileinstaller@1.3.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.profileinstaller",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "profileinstaller",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "debug-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.profileinstaller/profileinstaller@1.3.0",
+      "scope": "excluded",
+      "type": "library",
+      "version": "1.3.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.profileinstaller/profileinstaller@1.4.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.profileinstaller",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "profileinstaller",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.profileinstaller/profileinstaller@1.4.0",
+      "scope": "required",
+      "type": "library",
+      "version": "1.4.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.room/room-common-jvm@2.7.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.room",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "room-common-jvm",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.room/room-common-jvm@2.7.0",
+      "scope": "required",
+      "type": "library",
+      "version": "2.7.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.room/room-common@2.7.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.room",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "room-common",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.room/room-common@2.7.0",
+      "scope": "required",
+      "type": "library",
+      "version": "2.7.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.room/room-ktx@2.7.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.room",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "room-ktx",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.room/room-ktx@2.7.0",
+      "scope": "required",
+      "type": "library",
+      "version": "2.7.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.room/room-migration-jvm@2.7.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.room",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "room-migration-jvm",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "test-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.room/room-migration-jvm@2.7.0",
+      "scope": "excluded",
+      "type": "library",
+      "version": "2.7.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.room/room-migration@2.7.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.room",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "room-migration",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "test-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.room/room-migration@2.7.0",
+      "scope": "excluded",
+      "type": "library",
+      "version": "2.7.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.room/room-runtime-android@2.7.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.room",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "room-runtime-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.room/room-runtime-android@2.7.0",
+      "scope": "required",
+      "type": "library",
+      "version": "2.7.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.room/room-runtime@2.7.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.room",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "room-runtime",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.room/room-runtime@2.7.0",
+      "scope": "required",
+      "type": "library",
+      "version": "2.7.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.room/room-testing-android@2.7.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.room",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "room-testing-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "test-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.room/room-testing-android@2.7.0",
+      "scope": "excluded",
+      "type": "library",
+      "version": "2.7.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.room/room-testing@2.7.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.room",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "room-testing",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "test-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.room/room-testing@2.7.0",
+      "scope": "excluded",
+      "type": "library",
+      "version": "2.7.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.savedstate/savedstate-ktx@1.2.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.savedstate",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "savedstate-ktx",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.savedstate/savedstate-ktx@1.2.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.2.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.savedstate/savedstate@1.2.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.savedstate",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "savedstate",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.savedstate/savedstate@1.2.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.2.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.sqlite/sqlite-android@2.5.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.sqlite",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "sqlite-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.sqlite/sqlite-android@2.5.0",
+      "scope": "required",
+      "type": "library",
+      "version": "2.5.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.sqlite/sqlite-framework-android@2.5.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.sqlite",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "sqlite-framework-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.sqlite/sqlite-framework-android@2.5.0",
+      "scope": "required",
+      "type": "library",
+      "version": "2.5.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.sqlite/sqlite-framework@2.5.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.sqlite",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "sqlite-framework",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.sqlite/sqlite-framework@2.5.0",
+      "scope": "required",
+      "type": "library",
+      "version": "2.5.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.sqlite/sqlite@2.5.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.sqlite",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "sqlite",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.sqlite/sqlite@2.5.0",
+      "scope": "required",
+      "type": "library",
+      "version": "2.5.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.startup/startup-runtime@1.1.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.startup",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "startup-runtime",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.startup/startup-runtime@1.1.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.1.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.test.services/storage@1.5.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://developer.android.com/testing"
+        }
+      ],
+      "group": "androidx.test.services",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "storage",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "test-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.test.services/storage@1.5.0",
+      "scope": "excluded",
+      "type": "library",
+      "version": "1.5.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.test/core@1.6.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://developer.android.com/testing"
+        }
+      ],
+      "group": "androidx.test",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "core",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "test-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.test/core@1.6.1",
+      "scope": "excluded",
+      "type": "library",
+      "version": "1.6.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.test/monitor@1.7.2",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://developer.android.com/testing"
+        }
+      ],
+      "group": "androidx.test",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "monitor",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "test-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.test/monitor@1.7.2",
+      "scope": "excluded",
+      "type": "library",
+      "version": "1.7.2"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.test/runner@1.6.2",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://developer.android.com/testing"
+        }
+      ],
+      "group": "androidx.test",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "runner",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "test-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.test/runner@1.6.2",
+      "scope": "excluded",
+      "type": "library",
+      "version": "1.6.2"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.tracing/tracing-ktx@1.2.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.tracing",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "tracing-ktx",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.tracing/tracing-ktx@1.2.0",
+      "scope": "required",
+      "type": "library",
+      "version": "1.2.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.tracing/tracing@1.2.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.tracing",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "tracing",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.tracing/tracing@1.2.0",
+      "scope": "required",
+      "type": "library",
+      "version": "1.2.0"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.versionedparcelable/versionedparcelable@1.1.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "http://source.android.com"
+        }
+      ],
+      "group": "androidx.versionedparcelable",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "versionedparcelable",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.versionedparcelable/versionedparcelable@1.1.1",
+      "scope": "required",
+      "type": "library",
+      "version": "1.1.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.work/work-runtime-ktx@2.10.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.work",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "work-runtime-ktx",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.work/work-runtime-ktx@2.10.1",
+      "scope": "required",
+      "type": "library",
+      "version": "2.10.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.work/work-runtime@2.10.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.work",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "work-runtime",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.work/work-runtime@2.10.1",
+      "scope": "required",
+      "type": "library",
+      "version": "2.10.1"
+    },
+    {
+      "bom-ref": "pkg:maven/androidx.work/work-testing@2.10.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://cs.android.com/androidx/platform/frameworks/support"
+        }
+      ],
+      "group": "androidx.work",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "work-testing",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "test-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/androidx.work/work-testing@2.10.1",
+      "scope": "excluded",
+      "type": "library",
+      "version": "2.10.1"
+    },
+    {
+      "bom-ref": "pkg:maven/com.google.code.gson/gson@2.10.1",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+        }
+      ],
+      "group": "com.google.code.gson",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "gson",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/com.google.code.gson/gson@2.10.1",
+      "scope": "required",
+      "type": "library",
+      "version": "2.10.1"
+    },
+    {
+      "bom-ref": "pkg:maven/com.google.guava/failureaccess@1.0.2",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://www.apache.org/licenses/LICENSE-2.0"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/google/guava"
+        }
+      ],
+      "group": "com.google.guava",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "failureaccess",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/com.google.guava/failureaccess@1.0.2",
+      "scope": "required",
+      "type": "library",
+      "version": "1.0.2"
+    },
+    {
+      "bom-ref": "pkg:maven/com.google.guava/guava@33.3.1-android",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://www.apache.org/licenses/LICENSE-2.0"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/google/guava"
+        }
+      ],
+      "group": "com.google.guava",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "guava",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/com.google.guava/guava@33.3.1-android",
+      "scope": "required",
+      "type": "library",
+      "version": "33.3.1-android"
+    },
+    {
+      "bom-ref": "pkg:maven/com.google.guava/listenablefuture@1.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://www.apache.org/licenses/LICENSE-2.0"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/google/guava"
+        }
+      ],
+      "group": "com.google.guava",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "listenablefuture",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "debug-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/com.google.guava/listenablefuture@1.0",
+      "scope": "excluded",
+      "type": "library",
+      "version": "1.0"
+    },
+    {
+      "bom-ref": "pkg:maven/com.google.guava/listenablefuture@9999.0-empty-to-avoid-conflict-with-guava",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://www.apache.org/licenses/LICENSE-2.0"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/google/guava"
+        }
+      ],
+      "group": "com.google.guava",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "listenablefuture",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/com.google.guava/listenablefuture@9999.0-empty-to-avoid-conflict-with-guava",
+      "scope": "required",
+      "type": "library",
+      "version": "9999.0-empty-to-avoid-conflict-with-guava"
+    },
+    {
+      "bom-ref": "pkg:maven/com.microsoft.onnxruntime/onnxruntime-android@1.29.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://opensource.org/licenses/MIT"
+        },
+        {
+          "type": "vcs",
+          "url": "http://github.com/microsoft/onnxruntime"
+        }
+      ],
+      "group": "com.microsoft.onnxruntime",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "name": "onnxruntime-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/com.microsoft.onnxruntime/onnxruntime-android@1.29.0",
+      "scope": "required",
+      "type": "library",
+      "version": "1.29.0"
+    },
+    {
+      "bom-ref": "pkg:maven/junit/junit@4.13.2",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.eclipse.org/legal/epl-v10.html"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/junit-team/junit4"
+        }
+      ],
+      "group": "junit",
+      "licenses": [
+        {
+          "license": {
+            "id": "EPL-1.0"
+          }
+        }
+      ],
+      "name": "junit",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "test-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/junit/junit@4.13.2",
+      "scope": "excluded",
+      "type": "library",
+      "version": "4.13.2"
+    },
+    {
+      "bom-ref": "pkg:maven/org.hamcrest/hamcrest-core@1.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://opensource.org/licenses/BSD-3-Clause"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/hamcrest/JavaHamcrest"
+        }
+      ],
+      "group": "org.hamcrest",
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ],
+      "name": "hamcrest-core",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "test-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/org.hamcrest/hamcrest-core@1.3",
+      "scope": "excluded",
+      "type": "library",
+      "version": "1.3"
+    },
+    {
+      "bom-ref": "pkg:maven/org.jetbrains.kotlin/kotlin-bom@1.8.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/JetBrains/kotlin"
+        }
+      ],
+      "group": "org.jetbrains.kotlin",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "kotlin-bom",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/org.jetbrains.kotlin/kotlin-bom@1.8.0",
+      "scope": "required",
+      "type": "library",
+      "version": "1.8.0"
+    },
+    {
+      "bom-ref": "pkg:maven/org.jetbrains.kotlin/kotlin-stdlib-common@2.1.10",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/JetBrains/kotlin"
+        }
+      ],
+      "group": "org.jetbrains.kotlin",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "kotlin-stdlib-common",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/org.jetbrains.kotlin/kotlin-stdlib-common@2.1.10",
+      "scope": "required",
+      "type": "library",
+      "version": "2.1.10"
+    },
+    {
+      "bom-ref": "pkg:maven/org.jetbrains.kotlin/kotlin-stdlib-jdk7@1.8.20",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/JetBrains/kotlin"
+        }
+      ],
+      "group": "org.jetbrains.kotlin",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "kotlin-stdlib-jdk7",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/org.jetbrains.kotlin/kotlin-stdlib-jdk7@1.8.20",
+      "scope": "required",
+      "type": "library",
+      "version": "1.8.20"
+    },
+    {
+      "bom-ref": "pkg:maven/org.jetbrains.kotlin/kotlin-stdlib-jdk8@1.8.20",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/JetBrains/kotlin"
+        }
+      ],
+      "group": "org.jetbrains.kotlin",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "kotlin-stdlib-jdk8",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/org.jetbrains.kotlin/kotlin-stdlib-jdk8@1.8.20",
+      "scope": "required",
+      "type": "library",
+      "version": "1.8.20"
+    },
+    {
+      "bom-ref": "pkg:maven/org.jetbrains.kotlin/kotlin-stdlib@2.1.10",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/JetBrains/kotlin"
+        }
+      ],
+      "group": "org.jetbrains.kotlin",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "kotlin-stdlib",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/org.jetbrains.kotlin/kotlin-stdlib@2.1.10",
+      "scope": "required",
+      "type": "library",
+      "version": "2.1.10"
+    },
+    {
+      "bom-ref": "pkg:maven/org.jetbrains.kotlinx/kotlinx-coroutines-android@1.7.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/Kotlin/kotlinx.coroutines"
+        }
+      ],
+      "group": "org.jetbrains.kotlinx",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "kotlinx-coroutines-android",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/org.jetbrains.kotlinx/kotlinx-coroutines-android@1.7.3",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.3"
+    },
+    {
+      "bom-ref": "pkg:maven/org.jetbrains.kotlinx/kotlinx-coroutines-bom@1.7.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/Kotlin/kotlinx.coroutines"
+        }
+      ],
+      "group": "org.jetbrains.kotlinx",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "kotlinx-coroutines-bom",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/org.jetbrains.kotlinx/kotlinx-coroutines-bom@1.7.3",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.3"
+    },
+    {
+      "bom-ref": "pkg:maven/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm@1.7.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/Kotlin/kotlinx.coroutines"
+        }
+      ],
+      "group": "org.jetbrains.kotlinx",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "kotlinx-coroutines-core-jvm",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm@1.7.3",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.3"
+    },
+    {
+      "bom-ref": "pkg:maven/org.jetbrains.kotlinx/kotlinx-coroutines-core@1.7.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/Kotlin/kotlinx.coroutines"
+        }
+      ],
+      "group": "org.jetbrains.kotlinx",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "kotlinx-coroutines-core",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/org.jetbrains.kotlinx/kotlinx-coroutines-core@1.7.3",
+      "scope": "required",
+      "type": "library",
+      "version": "1.7.3"
+    },
+    {
+      "bom-ref": "pkg:maven/org.jetbrains.kotlinx/kotlinx-serialization-bom@1.6.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/Kotlin/kotlinx.serialization"
+        }
+      ],
+      "group": "org.jetbrains.kotlinx",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "kotlinx-serialization-bom",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/org.jetbrains.kotlinx/kotlinx-serialization-bom@1.6.3",
+      "scope": "required",
+      "type": "library",
+      "version": "1.6.3"
+    },
+    {
+      "bom-ref": "pkg:maven/org.jetbrains.kotlinx/kotlinx-serialization-core-jvm@1.6.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/Kotlin/kotlinx.serialization"
+        }
+      ],
+      "group": "org.jetbrains.kotlinx",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "kotlinx-serialization-core-jvm",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/org.jetbrains.kotlinx/kotlinx-serialization-core-jvm@1.6.3",
+      "scope": "required",
+      "type": "library",
+      "version": "1.6.3"
+    },
+    {
+      "bom-ref": "pkg:maven/org.jetbrains.kotlinx/kotlinx-serialization-core@1.6.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/Kotlin/kotlinx.serialization"
+        }
+      ],
+      "group": "org.jetbrains.kotlinx",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "kotlinx-serialization-core",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/org.jetbrains.kotlinx/kotlinx-serialization-core@1.6.3",
+      "scope": "required",
+      "type": "library",
+      "version": "1.6.3"
+    },
+    {
+      "bom-ref": "pkg:maven/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm@1.6.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/Kotlin/kotlinx.serialization"
+        }
+      ],
+      "group": "org.jetbrains.kotlinx",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "kotlinx-serialization-json-jvm",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "test-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm@1.6.3",
+      "scope": "excluded",
+      "type": "library",
+      "version": "1.6.3"
+    },
+    {
+      "bom-ref": "pkg:maven/org.jetbrains.kotlinx/kotlinx-serialization-json@1.6.3",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/Kotlin/kotlinx.serialization"
+        }
+      ],
+      "group": "org.jetbrains.kotlinx",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "kotlinx-serialization-json",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "test-only"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/org.jetbrains.kotlinx/kotlinx-serialization-json@1.6.3",
+      "scope": "excluded",
+      "type": "library",
+      "version": "1.6.3"
+    },
+    {
+      "bom-ref": "pkg:maven/org.jetbrains/annotations@23.0.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/JetBrains/java-annotations"
+        }
+      ],
+      "group": "org.jetbrains",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "annotations",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/org.jetbrains/annotations@23.0.0",
+      "scope": "required",
+      "type": "library",
+      "version": "23.0.0"
+    },
+    {
+      "bom-ref": "pkg:maven/org.jspecify/jspecify@1.0.0",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        },
+        {
+          "type": "vcs",
+          "url": "https://github.com/jspecify/jspecify/"
+        }
+      ],
+      "group": "org.jspecify",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "jspecify",
+      "properties": [
+        {
+          "name": "citac-knjiga:scope",
+          "value": "runtime"
+        },
+        {
+          "name": "citac-knjiga:used-in-tests",
+          "value": "true"
+        },
+        {
+          "name": "citac-knjiga:audit-status",
+          "value": "audited"
+        }
+      ],
+      "purl": "pkg:maven/org.jspecify/jspecify@1.0.0",
+      "scope": "required",
+      "type": "library",
+      "version": "1.0.0"
+    }
+  ],
+  "metadata": {
+    "component": {
+      "bom-ref": "pkg:generic/citac-knjiga@0.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "GPL-3.0-or-later"
+          }
+        }
+      ],
+      "name": "citac-knjiga",
+      "type": "application",
+      "version": "0.1.0"
+    },
+    "properties": [
+      {
+        "name": "citac-knjiga:dependency-inventory",
+        "value": "app/src/main/assets/notices/dependency-license-inventory.json"
+      },
+      {
+        "name": "citac-knjiga:dependency-notices",
+        "value": "app/src/main/assets/notices/THIRD_PARTY_NOTICES.md"
+      },
+      {
+        "name": "citac-knjiga:non-maven-assets",
+        "value": "documented in bundled notices and source closure"
+      },
+      {
+        "name": "citac-knjiga:model-policy",
+        "value": "user-imported and excluded from application SBOM payload"
+      }
+    ]
+  },
+  "serialNumber": "urn:uuid:1513e2c8-a972-777c-391f-98266b88ef4c",
+  "specVersion": "1.5",
+  "version": 1
+}
