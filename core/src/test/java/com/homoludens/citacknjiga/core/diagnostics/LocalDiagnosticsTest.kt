@@ -114,4 +114,25 @@ public class LocalDiagnosticsTest {
 
         assertEquals(listOf("[REDACTED_TEXT]", "[REDACTED_TEXT]"), events.map { it.message })
     }
+
+    @Test
+    public fun exportKeepsOnlyBoundedAlreadyRedactedHistory() {
+        val diagnostics = LocalDiagnostics(DiagnosticSink { })
+        diagnostics.error(
+            component = "import",
+            message = "import_failed",
+            attributes = mapOf(
+                "documentText" to "secret book text",
+                "sourceUri" to "content://private/book",
+                "bookId" to "book-1",
+            ),
+        )
+
+        val export = diagnostics.redactedExport()
+        assertTrue("[REDACTED_TEXT]" in export)
+        assertTrue("[REDACTED_URI]" in export)
+        assertTrue("book-1" in export)
+        assertTrue("secret book text" !in export)
+        assertTrue("content://private/book" !in export)
+    }
 }

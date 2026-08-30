@@ -24,6 +24,9 @@ public class MainActivity : ComponentActivity() {
                 epubChapterProofService = container.epubChapterProofService,
                 playbackController = container.playbackController,
                 audiobookExportService = container.audiobookExportService,
+                diagnostics = container.diagnostics,
+                privateStorage = container.privateStorage,
+                modelPackageStore = container.modelPackageStore,
             )
         }
     }

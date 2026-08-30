@@ -47,6 +47,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.homoludens.citacknjiga.core.database.AudiobookDao
+import com.homoludens.citacknjiga.core.diagnostics.LocalDiagnostics
+import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.core.generation.GenerationNotificationActionReceiver
 import com.homoludens.citacknjiga.core.generation.GenerationNotificationController
 import com.homoludens.citacknjiga.document.epub.EpubAcceptanceResult
@@ -81,6 +83,8 @@ import android.net.Uri
 import android.content.Intent
 import kotlinx.coroutines.CancellationException
 import com.homoludens.citacknjiga.playback.export.DestinationUnavailableException
+import com.homoludens.citacknjiga.tts.onnx.ModelPackageStore
+import com.homoludens.citacknjiga.diagnostics.DiagnosticsAboutRoute
 
 @Composable
 public fun CitacKnjigaApp(
@@ -91,6 +95,9 @@ public fun CitacKnjigaApp(
     epubChapterProofService: EpubChapterProofService? = null,
     playbackController: AudiobookPlayerController? = null,
     audiobookExportService: RoomAudiobookExportService? = null,
+    diagnostics: LocalDiagnostics = LocalDiagnostics(),
+    privateStorage: AppPrivateStorage? = null,
+    modelPackageStore: ModelPackageStore? = null,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -109,7 +116,17 @@ public fun CitacKnjigaApp(
                     epubImportPreviewService = epubImportPreviewService,
                     epubChapterProofService = epubChapterProofService,
                     onOpenBook = { id -> navController.navigate(AppRoute.Book.forId(id)) },
+                    onOpenDiagnostics = { navController.navigate(AppRoute.Diagnostics.path) },
                     onGenerationAction = { runId, action -> sendGenerationAction(context, runId, action) },
+                )
+            }
+            composable(AppRoute.Diagnostics.path) {
+                DiagnosticsAboutRoute(
+                    diagnostics = diagnostics,
+                    modelPackageStore = modelPackageStore,
+                    privateStorage = privateStorage,
+                    variant = variant,
+                    onBack = navController::popBackStack,
                 )
             }
             composable(
@@ -138,6 +155,7 @@ private fun StartScreen(
     epubImportPreviewService: EpubImportPreviewService?,
     epubChapterProofService: EpubChapterProofService?,
     onOpenBook: (String) -> Unit,
+    onOpenDiagnostics: () -> Unit,
     onGenerationAction: (String, GenerationAction) -> Unit,
 ) {
     val libraryController = remember(audiobookDao) { audiobookDao?.let(::LibraryController) }
@@ -176,7 +194,16 @@ private fun StartScreen(
     }
     val state by controller.state.collectAsState()
     Scaffold(
-        topBar = { TopAppBar(title = { Text(stringResource(R.string.start_title)) }) },
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.start_title)) },
+                actions = {
+                    TextButton(onClick = onOpenDiagnostics) {
+                        Text(stringResource(R.string.open_diagnostics))
+                    }
+                },
+            )
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier

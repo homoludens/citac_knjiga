@@ -551,6 +551,13 @@ target.
   states. Large-font, redacted-error, and English-resource checks pass; export
   and import expose cancellation, retry, and destination recovery without
   displaying stored paths or raw failure details.
+- Task 11.6 adds a reachable Serbian-first diagnostics/about route. It loads
+  active model verification, device/API/ABI/runtime capability, app/schema
+  versions, storage capacity, attribution/license references, offline policy,
+  and proof status without blocking Compose. Its user-selected text export
+  uses the central diagnostic redactor and bounded event history; it excludes
+  document text, URIs/paths, model contents, and raw exceptions. Missing model,
+  device, storage, and attribution data have explicit recovery guidance.
 
 ## Conventions
 

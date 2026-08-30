@@ -59,6 +59,8 @@ public class AppContainer(
     public val epubChapterProofService: EpubChapterProofService? = null,
     public val playbackController: AudiobookPlayerController? = null,
     public val audiobookExportService: RoomAudiobookExportService? = null,
+    public val privateStorage: AppPrivateStorage? = null,
+    public val modelPackageStore: ModelPackageStore? = null,
 ) {
     public companion object {
         public fun production(context: Context): AppContainer {
@@ -108,6 +110,8 @@ public class AppContainer(
                     exporter = SafAudiobookExporter(privateStorage),
                     contentResolver = contentResolver,
                 ),
+                privateStorage = privateStorage,
+                modelPackageStore = modelStore,
             )
         }
     }

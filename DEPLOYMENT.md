@@ -1529,3 +1529,40 @@ ANDROID_HOME=/home/homoludens/Android/Sdk ANDROID_SDK_ROOT=/home/homoludens/Andr
 The app connected suite has one unrelated existing failure in
 `TypedTextProofAndroidTest` when no verified model package is staged; the new
 accessibility tests pass. This does not qualify production model execution.
+
+## Diagnostics/about view (task 11.6)
+
+The start screen's `Дијагностика` action opens the in-app diagnostics/about
+route. It reads the existing private model package through `ModelPackageStore`
+and reports package identity/checksums and verification state, device/API/ABI
+capability, the pinned ONNX Runtime CPU provider and `1/1` threads, app and Room
+schema versions, internal storage used/available/capacity, attribution/license
+references, offline/network policy, and available parity, benchmark, typed-text,
+and export proof status. Model verification and filesystem inspection run off
+the Compose UI thread. Missing or invalid data is rendered as an explicit
+status with an actionable message; no raw validation exception is shown.
+
+The `Извези редиговану дијагностику` action uses the Android document picker.
+The export applies `DiagnosticRedactor` to every snapshot field and event, and
+`LocalDiagnostics` retains at most 100 already-redacted events. It contains
+only allowlisted categories, IDs, hashes, numbers, and statuses. It never
+contains document text, sensitive URIs or paths, model contents, or raw
+exceptions. The view reports that external-player playback evidence remains
+pending for task 10.8; this task does not alter that gate.
+
+Focused verification on the available API 35 x86_64 emulator:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :core:testDebugUnitTest :app:testStandardDebugUnitTest \
+  :app:testFdroidDebugUnitTest :app:compileStandardDebugAndroidTestKotlin
+
+ANDROID_HOME=/home/homoludens/Android/Sdk ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :app:connectedStandardDebugAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.class=com.homoludens.citacknjiga.DiagnosticsAboutUiTest
+```
+
+Both focused JVM/test-compilation and the two diagnostics Compose tests passed
+on 2026-08-30. The app/module lint tasks and standard/F-Droid debug/release
+assemblies also passed. No model package or generated diagnostics export is a
+repository artifact.

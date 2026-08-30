@@ -26,6 +26,8 @@ public class LocalDiagnostics(
     private val sink: DiagnosticSink,
     private val nowMillis: () -> Long = { System.currentTimeMillis() },
 ) {
+    private val recordedEvents = ArrayDeque<DiagnosticEvent>()
+
     public constructor() : this(AndroidLogDiagnosticSink())
 
     public fun debug(component: String, message: String, attributes: Map<String, String> = emptyMap()): Unit =
@@ -46,15 +48,31 @@ public class LocalDiagnostics(
         message: String,
         attributes: Map<String, String>,
     ) {
-        sink.emit(
-            DiagnosticEvent(
-                timestampMillis = nowMillis(),
-                level = level,
-                component = DiagnosticRedactor.component(component),
-                message = DiagnosticRedactor.message(message),
-                attributes = attributes.mapValues { (key, value) -> DiagnosticRedactor.redact(key, value) },
-            ),
+        val event = DiagnosticEvent(
+            timestampMillis = nowMillis(),
+            level = level,
+            component = DiagnosticRedactor.component(component),
+            message = DiagnosticRedactor.message(message),
+            attributes = attributes.mapValues { (key, value) -> DiagnosticRedactor.redact(key, value) },
         )
+        sink.emit(event)
+        synchronized(recordedEvents) {
+            recordedEvents.addLast(event)
+            while (recordedEvents.size > MAX_RETAINED_EVENTS) recordedEvents.removeFirst()
+        }
+    }
+
+    /** Returns the bounded, already-redacted local event history for user export. */
+    public fun snapshot(): List<DiagnosticEvent> = synchronized(recordedEvents) { recordedEvents.toList() }
+
+    public fun redactedExport(): String = snapshot().joinToString(separator = "\n") { event ->
+        val attributes = event.attributes.entries.sortedBy { it.key }
+            .joinToString(separator = ",") { (key, value) -> "$key=$value" }
+        "${event.timestampMillis}|${event.level.name}|${event.component}|${event.message}|$attributes"
+    }
+
+    private companion object {
+        const val MAX_RETAINED_EVENTS = 100
     }
 }
 
@@ -67,6 +85,13 @@ public object DiagnosticRedactor {
         "status",
         "variant",
         "version",
+        "abi",
+        "distribution",
+        "evidence",
+        "license",
+        "mode",
+        "provider",
+        "runtime",
     )
     private val numericKeys = setOf("count", "durationms", "retrycount", "sizebytes")
     private val booleanKeys = setOf("enabled")

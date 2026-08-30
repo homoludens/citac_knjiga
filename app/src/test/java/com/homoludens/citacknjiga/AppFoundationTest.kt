@@ -10,6 +10,7 @@ public class AppFoundationTest {
     @Test
     public fun startRouteIsStable() {
         assertEquals("start", AppRoute.Start.path)
+        assertEquals("diagnostics", AppRoute.Diagnostics.path)
     }
 
     @Test
