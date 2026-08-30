@@ -1498,4 +1498,34 @@ or vendor battery-management result was obtained. The emulator snapshot had
 battery 100%, battery temperature 25.0 C, thermal status 0, and low-power mode
 0; these are not sustained qualification measurements. Do not mark 11.4 until
 Android 11, a current production-capable target, Android 16, and a Poco F3
-vendor-policy run have actual evidence.
+  vendor-policy run have actual evidence.
+
+## Accessibility and localization verification (task 11.5)
+
+Task 11.5 was verified on 2026-08-30. The focused Compose tests cover
+generation progress semantics and actions, redacted failure text with retry,
+player descriptions and touch actions, 2x font-scale layout reachability, and
+English fallback resources. Module connected suites passed on the available
+API 35 x86_64 emulator, and the standard/F-Droid debug/release assemblies and
+all requested lint tasks passed.
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :app:connectedStandardDebugAndroidTest \
+    :core:connectedDebugAndroidTest :playback-export:connectedDebugAndroidTest \
+    --no-daemon --max-workers=1
+
+ANDROID_HOME=/home/homoludens/Android/Sdk ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :app:lintStandardDebug :app:lintFdroidDebug :core:lintDebug \
+    :document-epub:lintDebug :tts-onnx:lintDebug :playback-export:lintDebug \
+    --no-daemon --max-workers=1
+
+ANDROID_HOME=/home/homoludens/Android/Sdk ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :app:assembleStandardDebug :app:assembleStandardRelease \
+    :app:assembleFdroidDebug :app:assembleFdroidRelease \
+    --no-daemon --max-workers=1
+```
+
+The app connected suite has one unrelated existing failure in
+`TypedTextProofAndroidTest` when no verified model package is staged; the new
+accessibility tests pass. This does not qualify production model execution.

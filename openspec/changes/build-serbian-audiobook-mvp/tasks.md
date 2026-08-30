@@ -116,7 +116,7 @@ Effort ranges are planning bands for one developer, not delivery commitments. A 
 - [x] 11.2 Verify that release and F-Droid manifests have no routine network permission and that diagnostics redact document text and sensitive URIs by default.
 - [x] 11.3 Add end-to-end tests for Latin/Cyrillic equivalence, one-block invalidation, insufficient storage, corrupt model packages, corrupt audio, and disappearing SAF providers.
 - [ ] 11.4 Run sustained generation-plus-playback tests on Android 11, a current Android release, Android 16, and the Poco F3 vendor battery-management configuration.
-- [ ] 11.5 Add accessibility checks, Serbian/English string-resource readiness, large-text layout checks, and clear long-running/error-state UX.
+- [x] 11.5 Add accessibility checks, Serbian/English string-resource readiness, large-text layout checks, and clear long-running/error-state UX. → Compose semantics/UI coverage, Serbian defaults with English fallback resources, large-text checks, localized generation/import/export progress and failure actions; lint, JVM tests, Android-test compilation, module connected tests, and standard/F-Droid debug/release assemblies pass. The full app connected suite still has the pre-existing typed-text proof failure when no verified model package is staged.
 - [ ] 11.6 Add an in-app diagnostics/about view for model verification, device capability, versions, licenses, attribution, storage, and redacted log export.
 - [ ] 11.7 Perform a dependency and license audit, remove or replace incompatible/unmaintained dependencies, and generate bundled notices.
 - [ ] 11.8 Verify every capability scenario and record unresolved deviations before declaring the MVP release candidate.

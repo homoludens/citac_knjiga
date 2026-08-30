@@ -6,6 +6,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.test.core.app.ApplicationProvider
+import com.homoludens.citacknjiga.R
 import com.homoludens.citacknjiga.playback.export.PlayerControlState
 import com.homoludens.citacknjiga.playback.export.PlaybackChapter
 import org.junit.Assert.assertEquals
@@ -43,9 +45,10 @@ public class AudiobookPlayerControlsTest {
         }
 
         composeRule.onNodeWithTag("player-controls").assertIsDisplayed()
-        composeRule.onNodeWithText("Пусти").assertIsDisplayed().performClick()
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        composeRule.onNodeWithText(context.getString(R.string.play)).assertIsDisplayed().performClick()
         composeRule.onNodeWithTag("chapter-picker").performClick()
-        composeRule.onNodeWithText("Недоступно (није спремно)")
+        composeRule.onNodeWithText(context.getString(R.string.chapter_unavailable_format, "Недоступно"))
             .assertIsDisplayed()
             .assertIsNotEnabled()
         assertEquals(1, playPauseCount)

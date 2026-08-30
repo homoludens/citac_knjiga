@@ -11,6 +11,7 @@ import android.graphics.drawable.Icon
 import androidx.work.ForegroundInfo
 import androidx.work.Data
 import androidx.work.workDataOf
+import com.homoludens.citacknjiga.core.R
 import com.homoludens.citacknjiga.core.database.AudiobookDatabase
 import com.homoludens.citacknjiga.core.database.AudioSegmentStatus
 import com.homoludens.citacknjiga.core.database.GenerationRunStatus
@@ -65,11 +66,11 @@ public class GenerationNotificationController(
             .setProgress(snapshot.totalSegments, snapshot.readySegments, snapshot.totalSegments == 0)
             .setOngoing(snapshot.status == GenerationRunStatus.RUNNING)
             .setOnlyAlertOnce(true)
-            .addAction(action(runId, ACTION_CANCEL, "Cancel"))
+            .addAction(action(runId, ACTION_CANCEL, context.getString(R.string.generation_cancel)))
             .apply {
                 when (snapshot.status) {
-                    GenerationRunStatus.RUNNING -> addAction(action(runId, ACTION_PAUSE, "Pause"))
-                    GenerationRunStatus.PAUSED -> addAction(action(runId, ACTION_RESUME, "Resume"))
+                    GenerationRunStatus.RUNNING -> addAction(action(runId, ACTION_PAUSE, context.getString(R.string.generation_pause)))
+                    GenerationRunStatus.PAUSED -> addAction(action(runId, ACTION_RESUME, context.getString(R.string.generation_resume)))
                     else -> Unit
                 }
             }
@@ -89,10 +90,10 @@ public class GenerationNotificationController(
     }
 
     private fun progressText(snapshot: GenerationNotificationSnapshot): String = buildString {
-        append(snapshot.readySegments)
-        append('/').append(snapshot.totalSegments).append(" segments")
+        append(context.getString(R.string.generation_progress, snapshot.readySegments, snapshot.totalSegments))
         if (snapshot.failedSegments > 0) {
-            append("; ").append(snapshot.failedSegments).append(" failed")
+            append("; ")
+            append(context.getString(R.string.generation_failed_count, snapshot.failedSegments))
         }
     }
 
@@ -115,7 +116,7 @@ public class GenerationNotificationController(
         manager.createNotificationChannel(
             NotificationChannel(
                 CHANNEL_ID,
-                "Audiobook generation",
+                context.getString(R.string.generation_channel_name),
                 NotificationManager.IMPORTANCE_LOW,
             ),
         )

@@ -19,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,12 +35,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.homoludens.citacknjiga.core.database.AudiobookDao
+import com.homoludens.citacknjiga.core.generation.GenerationNotificationActionReceiver
+import com.homoludens.citacknjiga.core.generation.GenerationNotificationController
 import com.homoludens.citacknjiga.document.epub.EpubAcceptanceResult
 import com.homoludens.citacknjiga.document.epub.EpubImportPreview
 import com.homoludens.citacknjiga.document.epub.EpubPreviewResult
@@ -62,12 +71,16 @@ import com.homoludens.citacknjiga.library.LibraryController
 import com.homoludens.citacknjiga.library.LibraryScreen
 import com.homoludens.citacknjiga.library.LibraryViewState
 import com.homoludens.citacknjiga.library.BookDetailScreen
+import com.homoludens.citacknjiga.library.GenerationAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.net.Uri
+import android.content.Intent
+import kotlinx.coroutines.CancellationException
+import com.homoludens.citacknjiga.playback.export.DestinationUnavailableException
 
 @Composable
 public fun CitacKnjigaApp(
@@ -80,6 +93,7 @@ public fun CitacKnjigaApp(
     audiobookExportService: RoomAudiobookExportService? = null,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     val navController = rememberNavController()
     MaterialTheme {
         NavHost(
@@ -95,6 +109,7 @@ public fun CitacKnjigaApp(
                     epubImportPreviewService = epubImportPreviewService,
                     epubChapterProofService = epubChapterProofService,
                     onOpenBook = { id -> navController.navigate(AppRoute.Book.forId(id)) },
+                    onGenerationAction = { runId, action -> sendGenerationAction(context, runId, action) },
                 )
             }
             composable(
@@ -107,6 +122,7 @@ public fun CitacKnjigaApp(
                     audiobookExportService = audiobookExportService,
                     bookId = entry.arguments?.getString(AppRoute.Book.argument),
                     onBack = navController::popBackStack,
+                    onGenerationAction = { runId, action -> sendGenerationAction(context, runId, action) },
                 )
             }
         }
@@ -122,6 +138,7 @@ private fun StartScreen(
     epubImportPreviewService: EpubImportPreviewService?,
     epubChapterProofService: EpubChapterProofService?,
     onOpenBook: (String) -> Unit,
+    onGenerationAction: (String, GenerationAction) -> Unit,
 ) {
     val libraryController = remember(audiobookDao) { audiobookDao?.let(::LibraryController) }
     val libraryFlow: Flow<LibraryViewState> = libraryController?.state ?: flowOf(LibraryViewState())
@@ -134,11 +151,12 @@ private fun StartScreen(
     var importState by remember(epubImportPreviewService) {
         mutableStateOf<ImportPreviewUiState>(ImportPreviewUiState.Idle)
     }
+    var importJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
     var chapterGeneration by remember { mutableStateOf<ChapterGenerationUiState>(ChapterGenerationUiState.Idle) }
     val importLauncher = rememberLauncherForActivityResult(OpenDocument()) { uri: Uri? ->
         if (uri != null && epubImportPreviewService != null) {
             importState = ImportPreviewUiState.Loading
-            playbackScope.launch(Dispatchers.IO) {
+            importJob = playbackScope.launch(Dispatchers.IO) {
                 val result = epubImportPreviewService.previewSelected(uri)
                 withContext(Dispatchers.Main.immediate) {
                     importState = result.toUiState()
@@ -158,7 +176,7 @@ private fun StartScreen(
     }
     val state by controller.state.collectAsState()
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Srpski tekst u govor") }) },
+        topBar = { TopAppBar(title = { Text(stringResource(R.string.start_title)) }) },
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -169,6 +187,7 @@ private fun StartScreen(
             LibraryScreen(
                 state = libraryState,
                 onBookClick = onOpenBook,
+                onGenerationAction = onGenerationAction,
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 20.dp),
             )
             EpubImportPreviewContent(
@@ -177,7 +196,7 @@ private fun StartScreen(
                 onSelect = { importLauncher.launch(arrayOf("application/epub+zip", "application/zip")) },
                 onAccept = { preview ->
                     importState = ImportPreviewUiState.Loading
-                    playbackScope.launch(Dispatchers.IO) {
+                    importJob = playbackScope.launch(Dispatchers.IO) {
                         val result = epubImportPreviewService?.accept(preview)
                         withContext(Dispatchers.Main.immediate) {
                             importState = result.toUiState()
@@ -187,6 +206,11 @@ private fun StartScreen(
                 },
                 onCancel = { preview ->
                     epubImportPreviewService?.discard(preview)
+                    importState = ImportPreviewUiState.Idle
+                    chapterGeneration = ChapterGenerationUiState.Idle
+                },
+                onCancelLoading = {
+                    importJob?.cancel()
                     importState = ImportPreviewUiState.Idle
                     chapterGeneration = ChapterGenerationUiState.Idle
                 },
@@ -201,7 +225,7 @@ private fun StartScreen(
                             withContext(Dispatchers.Main.immediate) {
                                 chapterGeneration = result.fold(
                                     onSuccess = { ChapterGenerationUiState.Success(it) },
-                                    onFailure = { ChapterGenerationUiState.Error(it.message ?: "Генерисање поглавља није успело.") },
+                                    onFailure = { ChapterGenerationUiState.Error(chapterOrdinal) },
                                 )
                             }
                         }
@@ -232,39 +256,89 @@ private fun BookRoute(
     audiobookExportService: RoomAudiobookExportService?,
     bookId: String?,
     onBack: () -> Unit,
+    onGenerationAction: (String, GenerationAction) -> Unit,
 ) {
     val context = LocalContext.current
     val exportScope = rememberCoroutineScope()
     var exportPlan by remember { mutableStateOf<ExportPlan?>(null) }
+    var activeExportPlan by remember { mutableStateOf<ExportPlan?>(null) }
     var exportMessage by remember { mutableStateOf<String?>(null) }
+    var exportBusy by remember { mutableStateOf(false) }
+    var exportFailed by remember { mutableStateOf(false) }
+    var exportJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+
+    fun showExportFailure(failure: Throwable) {
+        exportFailed = true
+        exportMessage = context.getString(
+            if (failure is DestinationUnavailableException) {
+                R.string.export_destination_unavailable
+            } else {
+                R.string.export_failed
+            },
+        )
+    }
+
+    fun startExport(plan: ExportPlan, overwriteConfirmed: Boolean = false) {
+        activeExportPlan = plan
+        exportPlan = null
+        exportBusy = true
+        exportFailed = false
+        exportMessage = null
+        exportJob = exportScope.launch(Dispatchers.IO) {
+            try {
+                val exported = audiobookExportService!!.export(plan, overwriteConfirmed)
+                withContext(Dispatchers.Main.immediate) {
+                    exportBusy = false
+                    exportMessage = context.getString(
+                        if (overwriteConfirmed) R.string.export_success_new_names_format else R.string.export_success_format,
+                        exported.writtenNames.size,
+                    )
+                }
+            } catch (cancelled: CancellationException) {
+                withContext(Dispatchers.Main.immediate) {
+                    exportBusy = false
+                    exportFailed = false
+                    exportMessage = context.getString(R.string.export_cancelled)
+                }
+            } catch (failure: Throwable) {
+                withContext(Dispatchers.Main.immediate) {
+                    exportBusy = false
+                    showExportFailure(failure)
+                }
+            }
+        }
+    }
+
+    fun startPlanning(uri: Uri) {
+        exportBusy = true
+        exportFailed = false
+        exportMessage = null
+        exportJob = exportScope.launch(Dispatchers.IO) {
+            try {
+                val plan = audiobookExportService!!.planForProject(uri, bookId!!)
+                withContext(Dispatchers.Main.immediate) {
+                    exportBusy = false
+                    activeExportPlan = plan
+                    if (plan.hasCollisions) exportPlan = plan else startExport(plan)
+                }
+            } catch (cancelled: CancellationException) {
+                withContext(Dispatchers.Main.immediate) {
+                    exportBusy = false
+                    exportMessage = context.getString(R.string.export_cancelled)
+                }
+            } catch (failure: Throwable) {
+                withContext(Dispatchers.Main.immediate) {
+                    exportBusy = false
+                    showExportFailure(failure)
+                }
+            }
+        }
+    }
+
     val exportLauncher = rememberLauncherForActivityResult(OpenDocumentTree()) { uri ->
         if (uri != null && bookId != null && audiobookExportService != null) {
             SafDocumentTreePermissions.persistWritePermission(context.contentResolver, uri)
-            exportScope.launch(Dispatchers.IO) {
-                val result = runCatching {
-                    audiobookExportService.planForProject(uri, bookId)
-                }
-                withContext(Dispatchers.Main.immediate) {
-                    result.fold(
-                        onSuccess = { plan ->
-                            exportMessage = null
-                            if (plan.hasCollisions) exportPlan = plan
-                            else {
-                                exportScope.launch(Dispatchers.IO) {
-                                    val export = runCatching { audiobookExportService.export(plan) }
-                                    withContext(Dispatchers.Main.immediate) {
-                                        exportMessage = export.fold(
-                                            onSuccess = { "Извоз је сачуван (${it.writtenNames.size} датотека)." },
-                                            onFailure = { it.message ?: "Извоз није успео." },
-                                        )
-                                    }
-                                }
-                            }
-                        },
-                        onFailure = { exportMessage = it.message ?: "Извоз није успео." },
-                    )
-                }
-            }
+            startPlanning(uri)
         }
     }
     val libraryController = remember(audiobookDao) { audiobookDao?.let(::LibraryController) }
@@ -286,20 +360,69 @@ private fun BookRoute(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Књига") },
-                navigationIcon = { TextButton(onClick = onBack) { Text("Назад") } },
+                title = { Text(stringResource(R.string.book_title)) },
+                navigationIcon = { TextButton(onClick = onBack) { Text(stringResource(R.string.back)) } },
             )
         },
     ) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
-            BookDetailScreen(book = book, modifier = Modifier.weight(1f))
-            if (book != null && audiobookExportService != null) {
+            BookDetailScreen(
+                book = book,
+                onGenerationAction = onGenerationAction,
+                modifier = Modifier.weight(1f),
+            )
+            if (book != null && audiobookExportService != null && !exportBusy) {
                 Button(
                     onClick = { exportLauncher.launch(null) },
                     modifier = Modifier.padding(horizontal = 24.dp),
-                ) { Text("Извези аудио") }
+                ) { Text(stringResource(R.string.export_audio)) }
             }
-            exportMessage?.let { Text(it, modifier = Modifier.padding(24.dp)) }
+            if (exportBusy) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp)
+                        .semantics { liveRegion = LiveRegionMode.Polite },
+                ) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(stringResource(R.string.export_running))
+                        LinearProgressIndicator(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .semantics { progressBarRangeInfo = ProgressBarRangeInfo(0f, 0f..1f) },
+                        )
+                        OutlinedButton(onClick = {
+                            activeExportPlan?.jobId?.let { jobId ->
+                                exportScope.launch(Dispatchers.IO) { audiobookExportService?.cancel(jobId) }
+                            }
+                            exportJob?.cancel()
+                        }) { Text(stringResource(R.string.export_cancel)) }
+                    }
+                }
+            }
+            exportMessage?.let { message ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp)
+                        .semantics {
+                            liveRegion = if (exportFailed) LiveRegionMode.Assertive else LiveRegionMode.Polite
+                        },
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Text(message, color = if (exportFailed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface)
+                    if (exportFailed) {
+                        OutlinedButton(onClick = { exportLauncher.launch(null) }) {
+                            Text(stringResource(R.string.choose_other_destination))
+                        }
+                        activeExportPlan?.let { plan ->
+                            OutlinedButton(onClick = { startExport(plan) }) {
+                                Text(stringResource(R.string.export_retry))
+                            }
+                        }
+                    }
+                }
+            }
             if (book != null && playbackController != null) {
                 AudiobookPlayerControls(
                     state = playerState,
@@ -320,37 +443,17 @@ private fun BookRoute(
     exportPlan?.let { plan ->
         AlertDialog(
             onDismissRequest = { exportPlan = null },
-            title = { Text("Постојећи извоз") },
-            text = { Text("Неколико назива већ постоји. Можете сачувати нове датотеке или заменити постојеће.") },
+            title = { Text(stringResource(R.string.existing_export_title)) },
+            text = { Text(stringResource(R.string.existing_export_message)) },
             confirmButton = {
                 androidx.compose.material3.TextButton(onClick = {
-                    exportPlan = null
-                    exportScope.launch(Dispatchers.IO) {
-                        val export = runCatching {
-                            audiobookExportService!!.export(plan.withOverwriteConfirmation(), overwriteConfirmed = true)
-                        }
-                        withContext(Dispatchers.Main.immediate) {
-                            exportMessage = export.fold(
-                                onSuccess = { "Извоз је сачуван (${it.writtenNames.size} датотека)." },
-                                onFailure = { it.message ?: "Извоз није успео." },
-                            )
-                        }
-                    }
-                }) { Text("Замени постојеће") }
+                    startExport(plan.withOverwriteConfirmation(), overwriteConfirmed = true)
+                }) { Text(stringResource(R.string.replace_existing)) }
             },
             dismissButton = {
                 androidx.compose.material3.TextButton(onClick = {
-                    exportPlan = null
-                    exportScope.launch(Dispatchers.IO) {
-                        val export = runCatching { audiobookExportService!!.export(plan) }
-                        withContext(Dispatchers.Main.immediate) {
-                            exportMessage = export.fold(
-                                onSuccess = { "Извоз је сачуван новим називима (${it.writtenNames.size} датотека)." },
-                                onFailure = { it.message ?: "Извоз није успео." },
-                            )
-                        }
-                    }
-                }) { Text("Сачувај нове") }
+                    startExport(plan)
+                }) { Text(stringResource(R.string.save_new_names)) }
             },
         )
     }
@@ -363,26 +466,45 @@ private sealed interface ImportPreviewUiState {
     data class Accepted(val accepted: EpubAcceptanceResult.Published) : ImportPreviewUiState {
         val preview: EpubImportPreview get() = accepted.preview
     }
-    data class Error(val message: String) : ImportPreviewUiState
+    data class Error(
+        val error: com.homoludens.citacknjiga.document.epub.EpubImportError? = null,
+        val duplicate: Boolean = false,
+    ) : ImportPreviewUiState
 }
 
 private sealed interface ChapterGenerationUiState {
     data object Idle : ChapterGenerationUiState
     data class Generating(val chapterOrdinal: Int) : ChapterGenerationUiState
     data class Success(val result: EpubChapterGenerationResult) : ChapterGenerationUiState
-    data class Error(val message: String) : ChapterGenerationUiState
+    data class Error(val chapterOrdinal: Int, val message: String? = null) : ChapterGenerationUiState
 }
 
 private fun EpubPreviewResult.toUiState(): ImportPreviewUiState = when (this) {
     is EpubPreviewResult.Ready -> ImportPreviewUiState.Ready(preview)
-    is EpubPreviewResult.Duplicate -> ImportPreviewUiState.Error("Овај EPUB је већ увезен.")
-    is EpubPreviewResult.Failed -> ImportPreviewUiState.Error(message)
+    is EpubPreviewResult.Duplicate -> ImportPreviewUiState.Error(duplicate = true)
+    is EpubPreviewResult.Failed -> ImportPreviewUiState.Error(error)
 }
 
 private fun EpubAcceptanceResult?.toUiState(): ImportPreviewUiState = when (this) {
     is EpubAcceptanceResult.Published -> ImportPreviewUiState.Accepted(this)
-    is EpubAcceptanceResult.Failed -> ImportPreviewUiState.Error(message)
-    null -> ImportPreviewUiState.Error("Увоз EPUB-а није доступан.")
+    is EpubAcceptanceResult.Failed -> ImportPreviewUiState.Error(error)
+    null -> ImportPreviewUiState.Error()
+}
+
+@Composable
+private fun epubErrorMessage(state: ImportPreviewUiState.Error): String = when {
+    state.duplicate -> stringResource(R.string.epub_duplicate)
+    state.error == null -> stringResource(R.string.epub_unavailable)
+    else -> stringResource(
+        when (state.error) {
+            com.homoludens.citacknjiga.document.epub.EpubImportError.SOURCE_UNAVAILABLE -> R.string.epub_error_source_unavailable
+            com.homoludens.citacknjiga.document.epub.EpubImportError.COPY_FAILED -> R.string.epub_error_copy_failed
+            com.homoludens.citacknjiga.document.epub.EpubImportError.PUBLICATION_FAILED -> R.string.epub_error_publication_failed
+            com.homoludens.citacknjiga.document.epub.EpubImportError.INDEX_LOOKUP_FAILED -> R.string.epub_error_index_lookup_failed
+            com.homoludens.citacknjiga.document.epub.EpubImportError.INDEX_WRITE_FAILED -> R.string.epub_error_index_write_failed
+            com.homoludens.citacknjiga.document.epub.EpubImportError.SECURITY_VALIDATION_FAILED -> R.string.epub_error_security_validation_failed
+        },
+    )
 }
 
 @Composable
@@ -392,6 +514,7 @@ private fun EpubImportPreviewContent(
     onSelect: () -> Unit,
     onAccept: (EpubImportPreview) -> Unit,
     onCancel: (EpubImportPreview) -> Unit,
+    onCancelLoading: () -> Unit,
     generation: ChapterGenerationUiState,
     onGenerate: (EpubAcceptanceResult.Published, Int) -> Unit,
     onPlayGenerated: (EpubChapterGenerationResult) -> Unit,
@@ -403,39 +526,60 @@ private fun EpubImportPreviewContent(
             .padding(horizontal = 24.dp, vertical = 24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text("Увоз EPUB књиге", style = MaterialTheme.typography.headlineSmall)
+        Text(stringResource(R.string.import_epub_title), style = MaterialTheme.typography.headlineSmall)
         Text(
-            "Изаберите DRM-free EPUB. Садржај се прво проверава и приказује; ништа се не чува док не прихватите преглед.",
+            stringResource(R.string.import_epub_description),
             style = MaterialTheme.typography.bodyMedium,
         )
         Button(onClick = onSelect, enabled = enabled && state !is ImportPreviewUiState.Loading) {
-            Text("Изабери EPUB")
+            Text(stringResource(R.string.choose_epub))
         }
         when (state) {
             ImportPreviewUiState.Idle -> Unit
-            ImportPreviewUiState.Loading -> Text("Припрема прегледа…")
-            is ImportPreviewUiState.Error -> Text(state.message, color = MaterialTheme.colorScheme.error)
+            ImportPreviewUiState.Loading -> {
+                Text(
+                    stringResource(R.string.preparing_preview),
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                )
+                OutlinedButton(onClick = onCancelLoading) { Text(stringResource(R.string.cancel_import)) }
+            }
+            is ImportPreviewUiState.Error -> Text(
+                epubErrorMessage(state),
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
+            )
             is ImportPreviewUiState.Accepted -> {
-                Text("Увоз је прихваћен и сачуван.")
+                Text(stringResource(R.string.import_accepted))
+                val noNarration = stringResource(R.string.no_narration_text)
                 state.preview.canonical.chapters.forEachIndexed { index, chapter ->
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text("${index + 1}. ${chapter.title}", style = MaterialTheme.typography.titleMedium)
-                            Text(chapter.narrationText.ifEmpty { "Нема текста за нарацију." })
+                            Text(chapter.narrationText.ifEmpty { noNarration })
+                            val retrying = generation is ChapterGenerationUiState.Error && generation.chapterOrdinal == index
                             Button(
                                 onClick = { onGenerate(state.accepted, index) },
                                 enabled = generation !is ChapterGenerationUiState.Generating,
-                            ) { Text("Генериши ово поглавље") }
+                            ) { Text(stringResource(if (retrying) R.string.retry else R.string.generate_chapter)) }
                             when (val current = generation) {
                                 is ChapterGenerationUiState.Generating -> if (current.chapterOrdinal == index) {
-                                    Text("Генерисање поглавља…")
+                                    Text(
+                                        stringResource(R.string.generating_chapter),
+                                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                                    )
                                 }
                                 is ChapterGenerationUiState.Success -> if (current.result.chapter.ordinal == index) {
-                                    Text("Проверен WAV: 24 kHz, mono, PCM16")
-                                    OutlinedButton(onClick = { onPlayGenerated(current.result) }) { Text("Пусти офлајн") }
-                                    OutlinedButton(onClick = onStopGenerated) { Text("Заустави") }
+                                    Text(stringResource(R.string.verified_wav))
+                                    OutlinedButton(onClick = { onPlayGenerated(current.result) }) { Text(stringResource(R.string.play_offline)) }
+                                    OutlinedButton(onClick = onStopGenerated) { Text(stringResource(R.string.stop)) }
                                 }
-                                is ChapterGenerationUiState.Error -> Text(current.message, color = MaterialTheme.colorScheme.error)
+                                is ChapterGenerationUiState.Error -> if (current.chapterOrdinal == index) {
+                                    Text(
+                                        stringResource(R.string.generation_failed),
+                                        color = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
+                                    )
+                                }
                                 ChapterGenerationUiState.Idle -> Unit
                             }
                         }
@@ -444,29 +588,36 @@ private fun EpubImportPreviewContent(
             }
             is ImportPreviewUiState.Ready -> {
                 val preview = state.preview
+                val notProvided = stringResource(R.string.not_provided)
+                val noNarration = stringResource(R.string.no_narration_text)
+                val authors = preview.document.metadata.authors.joinToString().ifBlank { notProvided }
                 Text(preview.document.metadata.title, style = MaterialTheme.typography.titleLarge)
-                Text("Аутор: ${preview.document.metadata.authors.joinToString().ifEmpty { "није наведен" }}")
-                Text("Језик: ${preview.document.metadata.language ?: "није наведен"}")
+                Text(stringResource(R.string.author_format, authors))
+                Text(stringResource(R.string.language_format, preview.document.metadata.language ?: notProvided))
                 Text(
-                    "Процењено заузеће: ${preview.storage.requiredBytes} B " +
-                        "(извор ${preview.storage.sourceBytes} B, текст ${preview.storage.canonicalTextBytes} B)",
+                    stringResource(
+                        R.string.storage_estimate_format,
+                        preview.storage.requiredBytes,
+                        preview.storage.sourceBytes,
+                        preview.storage.canonicalTextBytes,
+                    ),
                 )
                 preview.canonical.chapters.forEachIndexed { index, chapter ->
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text("${index + 1}. ${chapter.title}", style = MaterialTheme.typography.titleMedium)
-                            Text(chapter.narrationText.ifEmpty { "Нема текста за нарацију." })
+                            Text(chapter.narrationText.ifEmpty { noNarration })
                         }
                     }
                 }
                 if (preview.canonical.warnings.isNotEmpty()) {
-                    Text("Упозорења", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.warnings), style = MaterialTheme.typography.titleMedium)
                     preview.canonical.warnings.forEach { warning ->
                         Text("• ${warning.message}", color = MaterialTheme.colorScheme.error)
                     }
                 }
-                Button(onClick = { onAccept(preview) }) { Text("Прихвати и увези") }
-                OutlinedButton(onClick = { onCancel(preview) }) { Text("Откажи") }
+                Button(onClick = { onAccept(preview) }) { Text(stringResource(R.string.accept_import)) }
+                OutlinedButton(onClick = { onCancel(preview) }) { Text(stringResource(R.string.cancel)) }
             }
         }
     }
@@ -492,11 +643,11 @@ private fun TypedTextProofContent(
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
         Text(
-            text = "Проба српске синтезе",
+            text = stringResource(R.string.proof_title),
             style = MaterialTheme.typography.headlineSmall,
         )
         Text(
-            text = "Унесите текст на латиници или ћирилици. Обрада и звук остају на уређају.",
+            text = stringResource(R.string.proof_description),
             style = MaterialTheme.typography.bodyLarge,
         )
         OutlinedTextField(
@@ -505,16 +656,30 @@ private fun TypedTextProofContent(
             modifier = Modifier.fillMaxWidth(),
             minLines = 5,
             maxLines = 10,
-            label = { Text("Текст") },
+            label = { Text(stringResource(R.string.text)) },
         )
-        Text("Стање: ${state.status.displayName()}", style = MaterialTheme.typography.titleMedium)
+        Text(
+            stringResource(R.string.status_format, state.status.displayName()),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+        )
         if (state.status == TypedTextProofStatus.ERROR) {
-            Text(state.errorMessage ?: "Генерисање није успело.", color = MaterialTheme.colorScheme.error)
+            Text(
+                stringResource(R.string.generation_failed),
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
+            )
         }
         if (state.status == TypedTextProofStatus.GENERATING) {
-            OutlinedButton(onClick = onCancel) { Text("Откажи") }
+            Text(
+                stringResource(R.string.generating_chapter),
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+            )
+            OutlinedButton(onClick = onCancel) { Text(stringResource(R.string.cancel)) }
         } else {
-            Button(onClick = onGenerate, enabled = state.text.isNotBlank()) { Text("Генериши") }
+            Button(onClick = onGenerate, enabled = state.text.isNotBlank()) {
+                Text(stringResource(if (state.status == TypedTextProofStatus.ERROR) R.string.retry else R.string.generate))
+            }
         }
         state.diagnostics?.let { diagnostics ->
             Card(modifier = Modifier.fillMaxWidth()) {
@@ -523,38 +688,39 @@ private fun TypedTextProofContent(
                         .padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Text("Дијагностика", style = MaterialTheme.typography.titleMedium)
-                    DiagnosticValue("Очишћен текст", diagnostics.cleanupText)
-                    DiagnosticValue("Нормализован текст", diagnostics.normalizedText)
-                    DiagnosticValue("Фонеме", diagnostics.phonemes)
-                    DiagnosticValue("ID токена", diagnostics.tokenIds.joinToString())
-                    DiagnosticValue("Заштићени опсези", diagnostics.protectedSpans.joinToString().ifEmpty { "нема" })
-                    DiagnosticValue("Границе делова", diagnostics.chunkBoundaries.joinToString().ifEmpty { "нема" })
-                    DiagnosticValue("Глас / ред", "${diagnostics.model.voice} / ${diagnostics.voiceRowIndex}")
-                    DiagnosticValue("Модел", "${diagnostics.model.packageId} ${diagnostics.model.packageVersion}")
-                    DiagnosticValue("Порекло пакета", diagnostics.model.packageSha256)
-                    DiagnosticValue("Распоред", diagnostics.model.runtime)
-                    DiagnosticValue("Претпроцесирање", diagnostics.model.preprocessing)
+                    val none = stringResource(R.string.none)
+                    Text(stringResource(R.string.diagnostics), style = MaterialTheme.typography.titleMedium)
+                    DiagnosticValue(stringResource(R.string.cleaned_text), diagnostics.cleanupText)
+                    DiagnosticValue(stringResource(R.string.normalized_text), diagnostics.normalizedText)
+                    DiagnosticValue(stringResource(R.string.phonemes), diagnostics.phonemes)
+                    DiagnosticValue(stringResource(R.string.token_ids), diagnostics.tokenIds.joinToString())
+                    DiagnosticValue(stringResource(R.string.protected_ranges), diagnostics.protectedSpans.joinToString().ifEmpty { none })
+                    DiagnosticValue(stringResource(R.string.chunk_boundaries), diagnostics.chunkBoundaries.joinToString().ifEmpty { none })
+                    DiagnosticValue(stringResource(R.string.voice_row), "${diagnostics.model.voice} / ${diagnostics.voiceRowIndex}")
+                    DiagnosticValue(stringResource(R.string.model), "${diagnostics.model.packageId} ${diagnostics.model.packageVersion}")
+                    DiagnosticValue(stringResource(R.string.package_origin), diagnostics.model.packageSha256)
+                    DiagnosticValue(stringResource(R.string.runtime), diagnostics.model.runtime)
+                    DiagnosticValue(stringResource(R.string.preprocessing), diagnostics.model.preprocessing)
                 }
             }
         }
         state.wav?.let { wav ->
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Готов WAV", style = MaterialTheme.typography.titleMedium)
-                    Text("24 kHz, mono, PCM16, ${wav.sampleCount} samples")
+                    Text(stringResource(R.string.ready_wav), style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.wav_format_samples, wav.sampleCount))
                     Text(wav.file.name, style = MaterialTheme.typography.labelMedium)
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        OutlinedButton(modifier = Modifier.fillMaxWidth(), onClick = onPlay) { Text("Пусти") }
-                        OutlinedButton(modifier = Modifier.fillMaxWidth(), onClick = onStop) { Text("Заустави") }
+                        OutlinedButton(modifier = Modifier.fillMaxWidth(), onClick = onPlay) { Text(stringResource(R.string.play)) }
+                        OutlinedButton(modifier = Modifier.fillMaxWidth(), onClick = onStop) { Text(stringResource(R.string.stop)) }
                     }
                 }
             }
         }
-        Text("Дистрибуција: ${variant.distribution.id}", style = MaterialTheme.typography.labelMedium)
+        Text(stringResource(R.string.distribution_format, variant.distribution.id), style = MaterialTheme.typography.labelMedium)
     }
 }
 
@@ -564,12 +730,26 @@ private fun DiagnosticValue(label: String, value: String) {
     Text(value, style = MaterialTheme.typography.bodyMedium)
 }
 
+@Composable
 private fun TypedTextProofStatus.displayName(): String = when (this) {
-    TypedTextProofStatus.IDLE -> "спремно"
-    TypedTextProofStatus.GENERATING -> "генерисање"
-    TypedTextProofStatus.SUCCESS -> "успешно"
-    TypedTextProofStatus.ERROR -> "грешка"
-    TypedTextProofStatus.CANCELLED -> "отказано"
+    TypedTextProofStatus.IDLE -> stringResource(R.string.status_ready)
+    TypedTextProofStatus.GENERATING -> stringResource(R.string.status_generating)
+    TypedTextProofStatus.SUCCESS -> stringResource(R.string.status_completed)
+    TypedTextProofStatus.ERROR -> stringResource(R.string.status_failed)
+    TypedTextProofStatus.CANCELLED -> stringResource(R.string.cancelled)
+}
+
+private fun sendGenerationAction(context: android.content.Context, runId: String, action: GenerationAction) {
+    val notificationAction = when (action) {
+        GenerationAction.PAUSE -> GenerationNotificationController.ACTION_PAUSE
+        GenerationAction.RESUME, GenerationAction.RETRY -> GenerationNotificationController.ACTION_RESUME
+        GenerationAction.CANCEL -> GenerationNotificationController.ACTION_CANCEL
+    }
+    context.sendBroadcast(
+        Intent(context, GenerationNotificationActionReceiver::class.java)
+            .setAction(notificationAction)
+            .putExtra(GenerationNotificationController.RUN_ID_EXTRA, runId),
+    )
 }
 
 private class MissingProofEngine : TypedTextProofEngine {

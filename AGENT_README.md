@@ -543,6 +543,14 @@ target.
   Android proof coverage injects destination write failure and verifies source
   bytes/checksum, Room project/READY/provenance, and the playback queue remain
   unchanged; only export job/checkpoint state changes.
+- Task 11.5 adds Compose accessibility coverage and user-facing recovery states.
+  Library and player controls expose meaningful descriptions, progress ranges,
+  state descriptions, live-region updates, and generation pause/resume/cancel/
+  retry actions. Serbian strings remain the default resources and English
+  fallbacks cover the important app, generation, import, export, and player
+  states. Large-font, redacted-error, and English-resource checks pass; export
+  and import expose cancellation, retry, and destination recovery without
+  displaying stored paths or raw failure details.
 
 ## Conventions
 

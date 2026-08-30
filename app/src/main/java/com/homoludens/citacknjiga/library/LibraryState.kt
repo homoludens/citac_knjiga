@@ -8,6 +8,7 @@ import com.homoludens.citacknjiga.core.database.BookProjectStatus
 import com.homoludens.citacknjiga.core.database.ChapterEntity
 import com.homoludens.citacknjiga.core.database.ChapterStatus
 import com.homoludens.citacknjiga.core.database.GenerationRunEntity
+import com.homoludens.citacknjiga.core.database.GenerationRunStatus
 import com.homoludens.citacknjiga.core.database.PlaybackPositionEntity
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
@@ -52,9 +53,11 @@ public data class LibraryBookDisplay(
     public val storageBytes: Long,
     public val listeningProgress: ListeningProgressDisplay?,
     public val failures: List<String>,
+    public val generationRunId: String? = null,
+    public val generationStatus: GenerationRunStatus? = null,
 ) {
-    public val title: String = project.title.ifBlank { "Без наслова" }
-    public val author: String = project.author ?: "Аутор није наведен"
+    public val title: String = project.title
+    public val author: String = project.author.orEmpty()
     public val coverPath: String? = project.coverPath
     public val hasGenerationWork: Boolean = generationProgress.total > 0
     public val status: BookProjectStatus = project.status
@@ -115,6 +118,9 @@ public object LibraryDisplayMapper {
                 .forEach(::add)
             runs.filter { it.bookProjectId == project.id }.mapNotNull { it.lastError }.forEach(::add)
         }.distinct()
+        val latestRun = runs
+            .filter { it.bookProjectId == project.id }
+            .maxWithOrNull(compareBy<GenerationRunEntity> { it.requestedAt }.thenBy { it.id })
         return LibraryBookDisplay(
             project = project,
             chapters = chapterDisplays,
@@ -128,6 +134,8 @@ public object LibraryDisplayMapper {
                 ListeningProgressDisplay(listeningChapter?.title, position.positionMs, listeningDuration)
             },
             failures = failures,
+            generationRunId = latestRun?.id,
+            generationStatus = latestRun?.status,
         )
     }
 

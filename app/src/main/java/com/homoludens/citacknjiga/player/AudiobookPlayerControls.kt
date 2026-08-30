@@ -20,7 +20,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.homoludens.citacknjiga.R
 import com.homoludens.citacknjiga.playback.export.PlayerControlState
 import com.homoludens.citacknjiga.playback.export.PlaybackChapter
 import com.homoludens.citacknjiga.playback.export.SUPPORTED_PLAYBACK_SPEEDS
@@ -44,6 +48,11 @@ public fun AudiobookPlayerControls(
     modifier: Modifier = Modifier,
 ) {
     var selectedChapterMenu by remember { mutableStateOf(false) }
+    val backwardJump = formatJump(state.jumps.backwardMs)
+    val forwardJump = formatJump(state.jumps.forwardMs)
+    val seekDescription = stringResource(R.string.seek_position_description)
+    val backwardDescription = stringResource(R.string.seek_backward_description, backwardJump)
+    val forwardDescription = stringResource(R.string.seek_forward_description, forwardJump)
     Card(modifier = modifier.fillMaxWidth().testTag("player-controls")) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -51,13 +60,13 @@ public fun AudiobookPlayerControls(
         ) {
             Text(
                 state.currentChapterId?.let { id -> state.chapters.firstOrNull { it.id == id }?.title }
-                    ?: "Нема активног поглавља",
+                    ?: stringResource(R.string.no_active_chapter),
                 style = MaterialTheme.typography.titleMedium,
             )
             state.unavailableAudio.forEach { unavailable ->
                 Text(unavailable.message, color = MaterialTheme.colorScheme.error)
                 OutlinedButton(onClick = { onRegenerate(unavailable.segment.id) }) {
-                    Text("Покушај поново")
+                    Text(stringResource(R.string.player_retry))
                 }
             }
             Slider(
@@ -65,16 +74,24 @@ public fun AudiobookPlayerControls(
                 onValueChange = { onSeek(it.toLong()) },
                 enabled = state.durationMs?.let { it > 0L } == true,
                 valueRange = 0f..(state.durationMs?.coerceAtLeast(1L)?.toFloat() ?: 1f),
-                modifier = Modifier.testTag("player-seek"),
+                modifier = Modifier
+                    .testTag("player-seek")
+                    .semantics { contentDescription = seekDescription },
             )
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                OutlinedButton(onClick = { onPreviousChapter() }) { Text("Претходно") }
-                Button(onClick = onPlayPause) { Text(if (state.playing) "Пауза" else "Пусти") }
-                OutlinedButton(onClick = { onNextChapter() }) { Text("Следеће") }
+                OutlinedButton(onClick = { onPreviousChapter() }) { Text(stringResource(R.string.previous_chapter)) }
+                Button(onClick = onPlayPause) { Text(stringResource(if (state.playing) R.string.pause else R.string.play)) }
+                OutlinedButton(onClick = { onNextChapter() }) { Text(stringResource(R.string.next_chapter)) }
             }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                OutlinedButton(onClick = onJumpBackward) { Text("-${formatJump(state.jumps.backwardMs)}") }
-                OutlinedButton(onClick = onJumpForward) { Text("+${formatJump(state.jumps.forwardMs)}") }
+                OutlinedButton(
+                    onClick = onJumpBackward,
+                    modifier = Modifier.semantics { contentDescription = backwardDescription },
+                ) { Text("-$backwardJump") }
+                OutlinedButton(
+                    onClick = onJumpForward,
+                    modifier = Modifier.semantics { contentDescription = forwardDescription },
+                ) { Text("+$forwardJump") }
             }
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(
@@ -82,8 +99,8 @@ public fun AudiobookPlayerControls(
                     modifier = Modifier.testTag("chapter-picker"),
                 ) {
                     Text(state.currentChapterId?.let { id ->
-                        state.chapters.firstOrNull { it.id == id }?.title ?: "Изабери поглавље"
-                    } ?: "Изабери поглавље")
+                        state.chapters.firstOrNull { it.id == id }?.title ?: stringResource(R.string.choose_chapter)
+                    } ?: stringResource(R.string.choose_chapter))
                 }
                 DropdownMenu(
                     expanded = selectedChapterMenu,
@@ -101,16 +118,21 @@ public fun AudiobookPlayerControls(
                 }
                 OutlinedButton(modifier = Modifier.fillMaxWidth(), onClick = {
                     onSetJumps(nextValue(BACKWARD_JUMPS, state.jumps.backwardMs), state.jumps.forwardMs)
-                }) { Text("Назад ${formatJump(state.jumps.backwardMs)}") }
+                }) { Text(stringResource(R.string.jump_backward_format, backwardJump)) }
                 OutlinedButton(modifier = Modifier.fillMaxWidth(), onClick = {
                     onSetJumps(state.jumps.backwardMs, nextValue(FORWARD_JUMPS, state.jumps.forwardMs))
-                }) { Text("Напред ${formatJump(state.jumps.forwardMs)}") }
+                }) { Text(stringResource(R.string.jump_forward_format, forwardJump)) }
             }
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("Брзина:")
+                Text(stringResource(R.string.speed))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 SUPPORTED_PLAYBACK_SPEEDS.forEach { speed ->
+                    val speedDescription = stringResource(
+                        R.string.speed_description_format,
+                        speedLabel(speed),
+                    )
                     OutlinedButton(
+                        modifier = Modifier.semantics { contentDescription = speedDescription },
                         onClick = { onSetSpeed(speed) },
                         enabled = state.speed != speed,
                     ) { Text(speedLabel(speed)) }
@@ -121,8 +143,9 @@ public fun AudiobookPlayerControls(
     }
 }
 
+@Composable
 private fun chapterLabel(chapter: PlaybackChapter): String =
-    chapter.title + if (chapter.available) "" else " (није спремно)"
+    if (chapter.available) chapter.title else stringResource(R.string.chapter_unavailable_format, chapter.title)
 
 private fun nextValue(values: List<Long>, current: Long): Long =
     values[(values.indexOf(current).takeIf { it >= 0 }?.plus(1) ?: 0) % values.size]

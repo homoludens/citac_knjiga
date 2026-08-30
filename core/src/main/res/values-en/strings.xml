@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="generation_channel_name">Audiobook generation</string>
+    <string name="generation_progress">%1$d/%2$d segments</string>
+    <string name="generation_failed_count">%1$d failed</string>
+    <string name="generation_pause">Pause</string>
+    <string name="generation_resume">Resume</string>
+    <string name="generation_cancel">Cancel generation</string>
+</resources>
