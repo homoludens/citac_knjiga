@@ -507,7 +507,9 @@ public fun DiagnosticsAboutScreen(
                             modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
                         )
                     } else if (state.model.status != DiagnosticsStatus.VERIFIED) {
-                        Text(stringResource(R.string.diagnostics_model_action), color = MaterialTheme.colorScheme.error)
+                        Text(modelAction(state.model), color = MaterialTheme.colorScheme.error)
+                    } else if (state.model.failureCode != null) {
+                        Text(modelAction(state.model), color = MaterialTheme.colorScheme.error)
                     }
                     if (releaseConfigured) {
                         Button(
@@ -660,4 +662,18 @@ private fun formatBytes(bytes: Long): String = when {
     bytes < 1_024L -> "$bytes B"
     bytes < 1_024L * 1_024L -> "%.1f KiB".format(bytes / 1_024.0)
     else -> "%.1f MiB".format(bytes / (1_024.0 * 1_024.0))
+}
+
+@Composable
+private fun modelAction(model: DiagnosticsModelState): String = when (model.failureCode) {
+    ModelPackageFailureCode.SOURCE_UNAVAILABLE.name -> stringResource(R.string.model_action_source)
+    ModelPackageFailureCode.STORAGE.name -> stringResource(R.string.model_action_storage)
+    ModelPackageFailureCode.INVALID_ARCHIVE.name -> stringResource(R.string.model_action_archive)
+    ModelPackageFailureCode.INVALID_MANIFEST.name -> stringResource(R.string.model_action_manifest)
+    ModelPackageFailureCode.CHECKSUM_MISMATCH.name -> stringResource(R.string.model_action_checksum)
+    ModelPackageFailureCode.INCOMPATIBLE.name -> stringResource(R.string.model_action_incompatible)
+    ModelPackageFailureCode.PUBLICATION.name -> stringResource(R.string.model_action_publication)
+    ModelPackageFailureCode.NO_VALID_PACKAGE.name -> stringResource(R.string.model_action_missing)
+    ModelPackageFailureCode.ERROR.name -> stringResource(R.string.model_action_error)
+    else -> stringResource(R.string.diagnostics_model_action)
 }

@@ -189,4 +189,13 @@
     <string name="diagnostics_status_invalid">invalid</string>
     <string name="diagnostics_status_incompatible">incompatible</string>
     <string name="diagnostics_status_error">error</string>
+    <string name="model_action_source">The package is unavailable. Choose the file again.</string>
+    <string name="model_action_storage">Private storage is insufficient. Free space and try again.</string>
+    <string name="model_action_archive">The archive is invalid. Choose another trusted package.</string>
+    <string name="model_action_manifest">The manifest is invalid. Choose another package.</string>
+    <string name="model_action_checksum">Integrity verification failed. Choose another package.</string>
+    <string name="model_action_incompatible">The package is not compatible with this device. Get another package.</string>
+    <string name="model_action_publication">The package was not published. Check storage and try again.</string>
+    <string name="model_action_missing">No verified package is installed. Import a compatible package.</string>
+    <string name="model_action_error">Package verification failed. Try again.</string>
 </resources>

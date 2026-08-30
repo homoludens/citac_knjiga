@@ -189,4 +189,13 @@
     <string name="diagnostics_status_invalid">неисправно</string>
     <string name="diagnostics_status_incompatible">некомпатибилно</string>
     <string name="diagnostics_status_error">грешка</string>
+    <string name="model_action_source">Пакет није доступан. Изаберите датотеку поново.</string>
+    <string name="model_action_storage">Нема довољно приватног простора. Ослободите простор и покушајте поново.</string>
+    <string name="model_action_archive">Архива није исправна. Изаберите други поуздан пакет.</string>
+    <string name="model_action_manifest">Манифест није исправан. Изаберите други пакет.</string>
+    <string name="model_action_checksum">Провера интегритета није успела. Изаберите други пакет.</string>
+    <string name="model_action_incompatible">Пакет није компатибилан са овим уређајем. Набавите други пакет.</string>
+    <string name="model_action_publication">Пакет није објављен. Проверите простор и покушајте поново.</string>
+    <string name="model_action_missing">Нема провереног пакета. Увезите компатибилан пакет.</string>
+    <string name="model_action_error">Провера пакета није успела. Покушајте поново.</string>
 </resources>
