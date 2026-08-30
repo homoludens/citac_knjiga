@@ -99,6 +99,18 @@ public class EpubDocumentParserTest {
         assertEquals("missing manifest item", document.chapters.last().blocks.single().skippedReason)
     }
 
+    @Test(timeout = 2_000)
+    public fun recoverableMalformedNavigationKeepsValidSpineContentUsable() {
+        val staged = stageArchive("recoverable-navigation", recoverableMalformedNavigationEntries())
+
+        val result = EpubDocumentParser(staged.storage).parse(staged.source)
+
+        val document = (result as EpubParseResult.Parsed).document
+        assertTrue(document.tableOfContents.isEmpty())
+        assertTrue(document.navigationIssues.any { it.sourceLocator == "OEBPS/toc.ncx#/navigation" })
+        assertEquals("Употребљив садржај.", document.chapters.single().blocks.last().sourceText)
+    }
+
     @Test
     public fun parserRepeatsSecurityGateAndRejectsOutsidePrivateSource() {
         val malformed = stageFixture("malformed-content.epub", "malformed")
@@ -184,6 +196,29 @@ public class EpubDocumentParserTest {
             "OEBPS/cover.svg" to "<svg xmlns=\"http://www.w3.org/2000/svg\"/>".toByteArray(),
         )
     }
+
+    private fun recoverableMalformedNavigationEntries(): List<Pair<String, ByteArray>> = listOf(
+        "mimetype" to "application/epub+zip".toByteArray(),
+        "META-INF/container.xml" to """
+            <container xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf"/></rootfiles></container>
+        """.trimIndent().toByteArray(),
+        "OEBPS/content.opf" to """
+            <package xmlns="http://www.idpf.org/2007/opf" version="2.0">
+              <metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>Опоравак</dc:title></metadata>
+              <manifest>
+                <item id="toc" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+                <item id="chapter" href="chapter.xhtml" media-type="application/xhtml+xml"/>
+              </manifest>
+              <spine toc="toc"><itemref idref="chapter"/></spine>
+            </package>
+        """.trimIndent().toByteArray(),
+        "OEBPS/toc.ncx" to """
+            <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1-1"><navMap/></ncx>
+        """.trimIndent().toByteArray(),
+        "OEBPS/chapter.xhtml" to """
+            <html xmlns="http://www.w3.org/1999/xhtml"><body><h1>Опоравак</h1><p>Употребљив садржај.</p></body></html>
+        """.trimIndent().toByteArray(),
+    )
 
     private fun fixtureBytes(name: String): ByteArray =
         checkNotNull(javaClass.getResourceAsStream("/fixtures/$name")).use { it.readBytes() }

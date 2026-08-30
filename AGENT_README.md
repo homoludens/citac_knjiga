@@ -435,6 +435,12 @@ target.
   is present but is not a verified local-file handler on this image;
   `com.android.musicfx` is an audio effect service. The reproducible check is
   `scripts/check_external_audio_players.sh`; no export media was created or committed.
+- Task 11.1 adds bounded adversarial EPUB coverage. The JVM tests exercise the
+  committed Zip Slip, compression, size, count, DTD/entity, external-resource,
+  encrypted, and malformed-XML fixtures, plus generated canonical-containment,
+  exact archive-limit, high-ratio, external-DTD, and external-URI cases. A
+  well-formed empty NCX map is also tested to ensure malformed navigation warns
+  without discarding valid spine content; no large attack artifact is added.
 
 ## Repository layout
 

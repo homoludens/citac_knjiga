@@ -847,6 +847,26 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
   --tests '*EpubSourceRepositoryTest'
 ```
 
+## EPUB adversarial coverage (task 11.1)
+
+The security tests keep generated attacks bounded in memory and runtime. They
+cover canonical Zip Slip variants, exact entry/total/individual/ratio limits,
+the committed encrypted and malformed-XML fixtures, DTD/entity declarations,
+external DTD/URI references, and cleanup-safe source import. Parser coverage
+also keeps valid spine content usable when a well-formed NCX map is empty while
+reporting a navigation warning. No network or external file is opened.
+
+Focused verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+  ./gradlew :document-epub:testDebugUnitTest \
+  --tests '*EpubAdversarialSecurityTest' \
+  --tests '*EpubSecurityValidatorTest' \
+  --tests '*EpubDocumentParserTest'
+```
+
 ## EPUB structured IR mapping (task 7.6)
 
 `EpubDocumentParser` consumes only the exact `sources/<projectId>/source.epub`

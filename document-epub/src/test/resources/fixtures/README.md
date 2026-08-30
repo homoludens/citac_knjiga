@@ -24,9 +24,11 @@ provenance, and whether import should accept, warn, recover, or reject it.
 - `attack-zip-slip.epub`, `attack-decompression-bomb.epub`,
   `attack-oversized-entry.epub`, `attack-entry-count.epub`,
   `attack-entity-expansion.epub`, `attack-external-resource.epub`, and
-  `attack-encrypted-entry.epub` are isolated negative archives for later
-  importer/security tests. They must not escape the sandbox, expand without
-  limits, load external data, or replace a project.
+  `attack-encrypted-entry.epub` are isolated negative archives for importer
+  security tests. They must not escape the sandbox, expand without limits,
+  load external data, or replace a project. `EpubAdversarialSecurityTest` also
+  generates small in-test path, count, size, ratio, DTD, and external-resource
+  variants, so no large attack artifact is committed.
 
 The attack archives are intentionally small. The bomb contains 128 KiB of
 repeated text, the oversized-entry threshold is 8 KiB, and the entry-count
@@ -48,5 +50,7 @@ ordering and mimetype rules, container/package metadata, NCX/nav XML, declared
 spine order, malformed XML, and security markers. It uses only the Python
 standard library and is intentionally separate from importer implementation.
 
-These fixtures do not claim importer behavior is implemented. They are inputs
-for tasks 7.2 onward, including parser comparison and security enforcement.
+The malformed XML navigation fixture is rejected by the security boundary. The
+parser test separately generates a well-formed but empty NCX map to prove that
+recoverable navigation damage reports a warning while valid spine content stays
+usable.
