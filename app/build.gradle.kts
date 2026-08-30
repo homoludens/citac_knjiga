@@ -17,6 +17,7 @@ android {
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1
         versionName = "0.1.0"
+        buildConfigField("String", "MODEL_RELEASE_URL", "\"\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk {
@@ -38,10 +39,15 @@ android {
     productFlavors {
         create("standard") {
             dimension = "distribution"
+            val approvedUrl = providers.gradleProperty("MODEL_RELEASE_URL").orNull
+                ?.takeIf { providers.gradleProperty("MODEL_RELEASE_URL_APPROVED").orNull == "true" }
+                .orEmpty()
+            buildConfigField("String", "MODEL_RELEASE_URL", "\"${approvedUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
             buildConfigField("String", "DISTRIBUTION", "\"standard\"")
         }
         create("fdroid") {
             dimension = "distribution"
+            buildConfigField("String", "MODEL_RELEASE_URL", "\"\"")
             applicationIdSuffix = ".fdroid"
             versionNameSuffix = "-fdroid"
             buildConfigField("String", "DISTRIBUTION", "\"fdroid\"")

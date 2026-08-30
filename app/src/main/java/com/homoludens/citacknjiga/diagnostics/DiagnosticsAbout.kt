@@ -36,6 +36,7 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.homoludens.citacknjiga.AppVariant
+import com.homoludens.citacknjiga.BuildConfig
 import com.homoludens.citacknjiga.R
 import com.homoludens.citacknjiga.core.diagnostics.DiagnosticEvent
 import com.homoludens.citacknjiga.core.diagnostics.DiagnosticRedactor
@@ -383,6 +384,10 @@ public fun DiagnosticsAboutRoute(
     var latestImportFailure by remember { mutableStateOf<ModelPackageFailure?>(null) }
     var importBusy by remember { mutableStateOf(false) }
     var importJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+    var releaseMessage by remember { mutableStateOf<Int?>(null) }
+    val releaseUrl = BuildConfig.MODEL_RELEASE_URL
+    val releaseConfigured = releaseUrl.isNotBlank()
+    val releaseAvailable = remember(releaseUrl, context) { ModelReleaseAction.canOpen(context, releaseUrl) }
     val importLauncher = rememberLauncherForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.OpenDocument(),
     ) { uri ->
@@ -432,6 +437,12 @@ public fun DiagnosticsAboutRoute(
         onImport = { importLauncher.launch(arrayOf("application/zip", "application/octet-stream")) },
         importEnabled = modelPackageStore != null && !importBusy,
         importBusy = importBusy,
+        releaseConfigured = releaseConfigured,
+        releaseAvailable = releaseAvailable,
+        releaseMessage = releaseMessage?.let { stringResource(it) },
+        onGetModelPackage = {
+            releaseMessage = if (ModelReleaseAction.open(context, releaseUrl)) null else R.string.model_release_unavailable
+        },
     )
 }
 
@@ -445,6 +456,10 @@ public fun DiagnosticsAboutScreen(
     onImport: () -> Unit = {},
     importEnabled: Boolean = true,
     importBusy: Boolean = false,
+    releaseConfigured: Boolean = false,
+    releaseAvailable: Boolean = false,
+    releaseMessage: String? = null,
+    onGetModelPackage: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -493,6 +508,17 @@ public fun DiagnosticsAboutScreen(
                         )
                     } else if (state.model.status != DiagnosticsStatus.VERIFIED) {
                         Text(stringResource(R.string.diagnostics_model_action), color = MaterialTheme.colorScheme.error)
+                    }
+                    if (releaseConfigured) {
+                        Button(
+                            onClick = onGetModelPackage,
+                            enabled = releaseAvailable,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) { Text(stringResource(R.string.model_get_action)) }
+                        if (!releaseAvailable) {
+                            Text(stringResource(R.string.model_release_unavailable), color = MaterialTheme.colorScheme.error)
+                        }
+                        releaseMessage?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                     }
                 }
                 DiagnosticsSection(stringResource(R.string.diagnostics_device_section)) {

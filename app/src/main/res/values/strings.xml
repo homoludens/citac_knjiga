@@ -184,6 +184,8 @@
     <string name="diagnostics_export_failed">Извоз дијагностике није успео. Изаберите другу локацију.</string>
     <string name="model_import_action">Увези пакет модела</string>
     <string name="model_import_busy">Увоз пакета модела је у току.</string>
+    <string name="model_get_action">Преузми пакет модела</string>
+    <string name="model_release_unavailable">Спољна страница за пакет модела није доступна.</string>
     <string name="diagnostics_status_invalid">неисправно</string>
     <string name="diagnostics_status_incompatible">некомпатибилно</string>
     <string name="diagnostics_status_error">грешка</string>
