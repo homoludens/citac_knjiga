@@ -235,6 +235,13 @@ public class ModelPackageStore(
         block: (ZipFile, DeclaredArtifact) -> T,
     ): T {
         try {
+            val verified = validateArchive(activeFile)
+            if (verified != packageInfo) {
+                throw ModelPackageImportException(
+                    ModelPackageFailureCode.CHECKSUM_MISMATCH,
+                    "The active model package changed after validation",
+                )
+            }
             ZipFile(activeFile).use { archive ->
                 val manifestEntry = archive.getEntry("manifest.json")
                     ?: throw ModelPackageImportException(
@@ -450,6 +457,9 @@ public class ModelPackageStore(
         ) {
             failManifest("Manifest path or canonicalization does not match the archive")
         }
+        if (manifest.getAsJsonObject("model").get("model_id").asString != packageId) {
+            failManifest("Model identity does not match the package identity")
+        }
 
         val identity = manifestObject.getAsJsonObject("identity")
         ensureKeys(identity, "manifest.identity", setOf("algorithm", "value", "input"), setOf("algorithm", "value", "input"))
@@ -530,26 +540,68 @@ public class ModelPackageStore(
             identitySha256 = identity.get("value").asString,
             modelSha256 = modelArtifact.get("sha256").asString,
             voiceSha256 = voiceArtifact.get("sha256").asString,
+            runtimeId = manifest.getAsJsonObject("runtime").get("runtime_id").asString,
+            runtimeVersion = manifest.getAsJsonObject("runtime").get("version").asString,
+            preprocessingCompatibilityId = manifest.getAsJsonObject("preprocessing")
+                .get("compatibility_id").asString,
+            preprocessingContractVersion = manifest.getAsJsonObject("preprocessing")
+                .get("contract_version").asInt,
+            minimumAndroidApi = manifest.getAsJsonObject("runtime").get("min_android_api").asInt,
+            requiredAbi = manifest.getAsJsonObject("runtime").getAsJsonArray("abis")[0].asString,
+            sampleRateHz = manifest.getAsJsonObject("configuration").get("sample_rate_hz").asInt,
+            channels = manifest.getAsJsonObject("model").getAsJsonObject("output_contract")
+                .getAsJsonObject("waveform").get("channels").asInt,
         )
     }
 
     private fun validateCompatibility(manifest: JsonObject) {
         try {
             val model = manifest.getAsJsonObject("model")
+            val input = model.getAsJsonObject("input_contract")
+            val output = model.getAsJsonObject("output_contract")
+            val waveform = output.getAsJsonObject("waveform")
+            val predDur = output.getAsJsonObject("pred_dur")
+            val limits = model.getAsJsonObject("limits")
             if (model.get("format").asString != "onnx" ||
-                model.getAsJsonObject("output_contract").getAsJsonObject("waveform").get("sample_rate_hz").asInt != 24000 ||
+                model.getAsJsonObject("architecture").get("family").asString != "kokoro-82m" ||
+                model.getAsJsonObject("opset").get("ai_onnx").asInt != 18 ||
+                input.getAsJsonObject("input_ids").get("dtype").asString != "int64" ||
+                input.getAsJsonObject("input_ids").getAsJsonArray("shape").toString() != "[1,\"seq_len\"]" ||
+                input.getAsJsonObject("input_ids").get("min_seq_len").asInt != 2 ||
+                input.getAsJsonObject("input_ids").get("max_seq_len").asInt != 512 ||
+                input.getAsJsonObject("ref_s").get("dtype").asString != "float32" ||
+                input.getAsJsonObject("ref_s").getAsJsonArray("shape").toString() != "[1,256]" ||
+                input.getAsJsonObject("speed").get("dtype").asString != "float32" ||
+                input.getAsJsonObject("speed").getAsJsonArray("shape").size() != 0 ||
+                waveform.get("dtype").asString != "float32" ||
+                waveform.getAsJsonArray("shape").toString() != "[\"waveform_len\"]" ||
+                waveform.get("channels").asInt != 1 ||
+                waveform.get("sample_rate_hz").asInt != 24000 ||
+                waveform.get("amplitude_domain").asString != "strictly_inside_minus_one_to_one" ||
+                predDur.get("dtype").asString != "int64" ||
+                predDur.get("relationship").asString != "pred_dur_len_equals_input_seq_len" ||
+                limits.get("hard_phoneme_symbols").asInt != 510 ||
+                limits.get("operational_phoneme_symbols").asInt != 507 ||
+                limits.get("vocab_size").asInt != 178 ||
                 manifest.getAsJsonObject("configuration").get("sample_rate_hz").asInt != 24000
             ) {
                 failCompatibility("Model format or audio contract is not supported")
             }
             val voice = manifest.getAsJsonObject("voice_style")
-            if (voice.get("locale").asString != "sr" || voice.getAsJsonArray("shape").toString() != "[510,1,256]") {
+            if (voice.get("locale").asString != "sr" || voice.get("dtype").asString != "float32" ||
+                voice.getAsJsonArray("shape").toString() != "[510,1,256]" ||
+                voice.getAsJsonObject("row_selection").get("clamp_max").asInt != 509
+            ) {
                 failCompatibility("Voice/style contract is not compatible")
             }
             val preprocessing = manifest.getAsJsonObject("preprocessing")
             if (preprocessing.get("compatibility_id").asString != compatibility.preprocessingCompatibilityId ||
                 preprocessing.get("contract_version").asInt != compatibility.preprocessingContractVersion ||
-                preprocessing.get("locale").asString != "sr"
+                preprocessing.get("locale").asString != "sr" ||
+                preprocessing.getAsJsonObject("phonemizer").get("engine").asString != "espeak-ng" ||
+                preprocessing.getAsJsonObject("phonemizer").get("version").asString != "1.52.0" ||
+                preprocessing.getAsJsonObject("phonemizer").get("voice").asString != "sr" ||
+                preprocessing.getAsJsonObject("output_contract").get("unknown_symbol_policy").asString != "reject"
             ) {
                 failCompatibility("Serbian preprocessing contract is not compatible")
             }
@@ -558,6 +610,7 @@ public class ModelPackageStore(
                 (0 until array.size()).map { array[it].asString }
             }
             if (runtime.get("version").asString != compatibility.runtimeVersion ||
+                runtime.get("runtime_id").asString != "onnxruntime-android" ||
                 runtime.get("platform").asString != "android" ||
                 runtime.get("min_android_api").asInt != compatibility.minimumAndroidApi ||
                 declaredAbis != listOf(compatibility.requiredAbi) ||

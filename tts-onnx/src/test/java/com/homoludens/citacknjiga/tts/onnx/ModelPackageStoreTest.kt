@@ -181,6 +181,23 @@ public class ModelPackageStoreTest {
         assertTrue(root.resolve("model-packages").listFiles().orEmpty().none { it.name.startsWith(".model-package-") })
     }
 
+    @Test
+    public fun hostileAndUndeclaredEntriesAreRejectedBeforePublication() {
+        val root = createTempDirectory().toFile()
+        val store = store(root)
+        val hostile = ByteArrayOutputStream().also { output ->
+            ZipOutputStream(output).use { zip ->
+                zip.putNextEntry(ZipEntry("../escape"))
+                zip.write(byteArrayOf(1))
+                zip.closeEntry()
+            }
+        }.toByteArray()
+        assertThrows(ModelPackageImportException::class.java) {
+            store.importPackage(ModelPackageSource { ByteArrayInputStream(hostile) })
+        }
+        assertFalse(root.resolve("model-packages/active.zip").exists())
+    }
+
     private fun store(root: File): ModelPackageStore = ModelPackageStore(
         filesDir = root,
         compatibility = ModelPackageCompatibility(minimumAndroidApi = 30),
@@ -250,7 +267,7 @@ public class ModelPackageStoreTest {
         )
 
         return """
-            {"schema":{"id":"serbian-model-package","version":1},"manifest":{"package_id":${quote(packageId)},"package_version":"1.0.0","manifest_path":"manifest.json","created_at":"2026-08-27T12:00:00Z","canonicalization":"json-sorted-keys-utf8-v1","identity":{"algorithm":"sha-256","value":${quote(identity)},"input":"package_id, package_version, and sorted artifact path+sha256 pairs"}},"artifacts":[$artifacts],"model":{"model_id":"$packageId","revision":"test","artifact_id":"model-onnx","format":"onnx","architecture":{"family":"kokoro-82m","config_artifact_id":"config-config-json"},"output_contract":{"waveform":{"sample_rate_hz":24000}}},"voice_style":{"artifact_id":"voice-style-pt","locale":"sr","shape":[510,1,256]},"vocabulary":{"artifact_id":"config-config-json"},"configuration":{"artifact_id":"config-config-json","sample_rate_hz":24000},"preprocessing":{"compatibility_id":"kokoro-sr-ca5590d9","contract_version":1,"locale":"sr"},"runtime":{"version":${quote(runtimeVersion)},"platform":"android","min_android_api":30,"abis":["arm64-v8a"],"execution_provider":"cpu","threading":{"intra_op_threads":1,"inter_op_threads":1}},"test_vectors":{"manifest_artifact_id":"tests-vectors-json"},"licenses":[],"attribution":[],"legal":{}}
+            {"schema":{"id":"serbian-model-package","version":1},"manifest":{"package_id":${quote(packageId)},"package_version":"1.0.0","manifest_path":"manifest.json","created_at":"2026-08-27T12:00:00Z","canonicalization":"json-sorted-keys-utf8-v1","identity":{"algorithm":"sha-256","value":${quote(identity)},"input":"package_id, package_version, and sorted artifact path+sha256 pairs"}},"artifacts":[$artifacts],"model":{"model_id":"$packageId","revision":"test","artifact_id":"model-onnx","format":"onnx","architecture":{"family":"kokoro-82m","config_artifact_id":"config-config-json"},"opset":{"ai_onnx":18},"input_contract":{"input_ids":{"dtype":"int64","shape":[1,"seq_len"],"min_seq_len":2,"max_seq_len":512},"ref_s":{"dtype":"float32","shape":[1,256]},"speed":{"dtype":"float32","shape":[]}},"output_contract":{"waveform":{"dtype":"float32","shape":["waveform_len"],"channels":1,"sample_rate_hz":24000,"amplitude_domain":"strictly_inside_minus_one_to_one"},"pred_dur":{"dtype":"int64","shape":["pred_dur_len"],"relationship":"pred_dur_len_equals_input_seq_len"}},"limits":{"hard_phoneme_symbols":510,"operational_phoneme_symbols":507,"vocab_size":178}},"voice_style":{"artifact_id":"voice-style-pt","locale":"sr","dtype":"float32","shape":[510,1,256],"row_selection":{"clamp_max":509}},"vocabulary":{"artifact_id":"config-config-json"},"configuration":{"artifact_id":"config-config-json","sample_rate_hz":24000},"preprocessing":{"compatibility_id":"kokoro-sr-ca5590d9","contract_version":1,"locale":"sr","phonemizer":{"engine":"espeak-ng","version":"1.52.0","voice":"sr"},"output_contract":{"unknown_symbol_policy":"reject"}},"runtime":{"runtime_id":"onnxruntime-android","version":${quote(runtimeVersion)},"platform":"android","min_android_api":30,"abis":["arm64-v8a"],"execution_provider":"cpu","threading":{"intra_op_threads":1,"inter_op_threads":1}},"test_vectors":{"manifest_artifact_id":"tests-vectors-json"},"licenses":[],"attribution":[],"legal":{}}
         """.trimIndent()
     }
 
