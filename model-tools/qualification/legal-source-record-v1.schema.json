@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema", "candidate", "model_code", "training_data", "voice_permission", "conversion_inputs", "licenses", "attributions", "modification_notice", "distribution_decision", "contradictions"],
+  "properties": {
+    "schema": {"const": "serbian-vits-legal-source:1"},
+    "candidate": {"const": {"model_id": "daremc86/sr-cv-vits", "revision": "83dc1e1b95d85b9f5602dc94909706fc83dfbc6c"}},
+    "model_code": {"type": "array", "items": {"type": "string"}},
+    "training_data": {"type": "array", "items": {"type": "string"}},
+    "voice_permission": {"type": "array", "items": {"type": "string"}},
+    "conversion_inputs": {"type": "array", "items": {"type": "string"}},
+    "licenses": {"type": "array", "items": {"type": "string"}},
+    "attributions": {"type": "array", "items": {"type": "string"}},
+    "modification_notice": {"type": "array", "items": {"type": "string"}},
+    "distribution_decision": {"enum": ["ALLOWED", "BLOCKED"]},
+    "contradictions": {"type": "array", "items": {"type": "string"}}
+  }
+}

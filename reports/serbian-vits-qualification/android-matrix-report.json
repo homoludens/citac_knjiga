@@ -1,0 +1,14 @@
+{
+  "schema": "serbian-vits-android-matrix-report:1",
+  "status": "UNRESOLVED",
+  "criteria": "android-resource-stability-criteria-v1",
+  "abi": "arm64-v8a",
+  "network": "disabled",
+  "targets": [
+    {"api": 30, "status": "UNAVAILABLE", "required_observations": [], "limitation": "No API 30 target is attached or bootable."},
+    {"api": 35, "status": "UNAVAILABLE", "required_observations": [], "limitation": "Available API 35 x86_64 emulator is not the required production arm64-v8a target."},
+    {"api": 36, "status": "UNAVAILABLE", "required_observations": [], "limitation": "No API 36 target is attached or bootable."}
+  ],
+  "required_observations": ["correctness", "cold_load", "warm_generation", "preprocessing", "resampling", "rtf", "process_memory", "pss_rss", "temperature", "throttling", "battery", "crashes", "anrs", "invalid_output", "interruption", "recovery"],
+  "kokoro_comparison": false
+}

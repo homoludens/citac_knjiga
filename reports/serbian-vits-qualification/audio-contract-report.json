@@ -1,0 +1,14 @@
+{
+  "schema": "serbian-vits-audio-contract-report:1",
+  "resampler": "model-tools/qualification/resampler-v1.json",
+  "native_rate_hz": 22050,
+  "final_rate_hz": 24000,
+  "channels": 1,
+  "conversion_count": 1,
+  "padding": false,
+  "truncation": false,
+  "time_alignment": false,
+  "status": "CONTRACT_FROZEN_NATIVE_OUTPUT_UNRESOLVED",
+  "publication": "reject invalid native or final samples before PCM/codec publication",
+  "numeric_vectors": "text-free sidecar hashes are produced only by an external run"
+}

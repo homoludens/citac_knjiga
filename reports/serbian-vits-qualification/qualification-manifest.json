@@ -1,0 +1,20 @@
+{
+  "schema": "serbian-vits-qualification:1",
+  "candidate": {
+    "model_id": "daremc86/sr-cv-vits",
+    "revision": "83dc1e1b95d85b9f5602dc94909706fc83dfbc6c",
+    "resolved_commit": "83dc1e1b95d85b9f5602dc94909706fc83dfbc6c",
+    "speaker": {"label": "Dragana", "id": 0},
+    "native_rate_hz": 22050,
+    "final_rate_hz": 24000,
+    "channels": 1
+  },
+  "gate_order": ["identity", "legal", "conversion", "desktop_parity", "android_parity", "serbian_quality", "android_matrix"],
+  "toolchain": {"python": "3.11.14", "onnx": "1.22.0", "onnxruntime": "1.29.0", "os": "desktop-only; recorded per external run"},
+  "evidence_hashes": {
+    "legal-source-record.json": "16d46854dc578c5446a3d25e7dca7f464ce8fd12c42869e355e432aa639041e1",
+    "conversion-report.json": "0c81ba97417d2fa60d4e3c7ce09e1e66cf9fd78c0c55945981377422e11e60cb",
+    "graph-inspection-report.json": "a576e14f57cad168e823abadb15c6c3f19c3590aee4b4d7bc5be9c049649bf7b",
+    "android-matrix-report.json": "727385e70750bb9fedf56a29533fa7194f798cb399072530d2961019412d96e7"
+  }
+}

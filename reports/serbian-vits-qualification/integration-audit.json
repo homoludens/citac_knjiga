@@ -1,0 +1,12 @@
+{
+  "schema": "serbian-vits-integration-audit:1",
+  "qualification_outcome": "REJECTED",
+  "schema_audit": {"audio": "Kokoro provenance remains authoritative", "package": "existing serbian-model-package contract unchanged", "generation": "existing Kokoro key unchanged"},
+  "migration": "NONE",
+  "engines_exposed": ["kokoro"],
+  "default_engine": "kokoro",
+  "vits_preference": false,
+  "package_slots": ["kokoro"],
+  "rollback": "retain last valid Kokoro package; reject VITS imports without mutation",
+  "legacy_audio": "playable and provenance unchanged"
+}

@@ -1,0 +1,16 @@
+{
+  "schema": "serbian-vits-conversion-environment:1",
+  "identity": "serbian-vits-conversion-environment-v1",
+  "workspace": "disposable-desktop-outside-repository",
+  "converter_revision": "unresolved-until-pinned-source-is-available",
+  "python": "3.11.14",
+  "dependency_lock": "model-tools/uv.lock",
+  "onnx": "1.22.0",
+  "onnxruntime": "1.29.0",
+  "os_or_container": "record-at-run-time",
+  "numeric_settings": {"dtype": "float32", "opset": 18},
+  "seed": 0,
+  "threads": {"intra_op": 1, "inter_op": 1},
+  "command": "recorded only in external run manifest",
+  "status": "UNRESOLVED"
+}

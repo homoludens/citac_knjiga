@@ -1,0 +1,9 @@
+{
+  "schema": "serbian-vits-source-closure-report:1",
+  "tracked_vits_payloads": [],
+  "tracked_vits_secrets": [],
+  "raw_source_workspace": "external-disposable-only",
+  "generated_artifacts": "external-disposable-only",
+  "status": "PASS",
+  "scope": "this qualification and VITS-specific paths; existing Kokoro assets are outside this candidate"
+}

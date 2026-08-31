@@ -1,0 +1,13 @@
+{
+  "schema": "serbian-vits-preprocessing:1",
+  "identity": "serbian-vits-preprocessing-v1",
+  "unicode": "NFC",
+  "control_characters": "remove",
+  "whitespace": "collapse-to-single-space-and-trim",
+  "latin_policy": "transliterate-case-aware-v1",
+  "protected_spans": ["https-url", "email"],
+  "unsupported_input": "diagnostic-and-no-generation",
+  "speaker": {"label": "Dragana", "id": 0},
+  "number_rules": "numbers-abbreviations-v1",
+  "chunk_contract": "vits-inspected-contract-v1"
+}

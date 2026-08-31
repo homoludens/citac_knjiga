@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://citac-knjiga.local/schemas/serbian-vits-model-package-v1.json",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema", "candidate", "entries", "declared_entries", "graph_contract", "preprocessing", "resampler", "legal", "evidence_hashes"],
+  "properties": {
+    "schema": {"const": "serbian-vits-model-package:1"},
+    "candidate": {"const": {"model_id": "daremc86/sr-cv-vits", "revision": "83dc1e1b95d85b9f5602dc94909706fc83dfbc6c", "speaker": {"label": "Dragana", "id": 0}}},
+    "entries": {"type": "array", "minItems": 1, "items": {"type": "object", "additionalProperties": false, "required": ["path", "role", "sha256", "size_bytes"], "properties": {"path": {"type": "string"}, "role": {"enum": ["manifest", "onnx", "configuration", "preprocessing", "resampler", "notice", "attribution", "license", "speaker"]}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "size_bytes": {"type": "integer", "minimum": 0}}}},
+    "declared_entries": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "graph_contract": {"type": "object", "required": ["status", "inputs", "outputs", "operator_domains", "external_data", "network_access"], "additionalProperties": false, "properties": {"status": {"enum": ["INSPECTED", "UNRESOLVED", "INVALID"]}, "inputs": {"type": "array"}, "outputs": {"type": "array"}, "operator_domains": {"type": "array"}, "external_data": {"type": "boolean"}, "network_access": {"type": "boolean"}}},
+    "preprocessing": {"const": {"identity": "serbian-vits-preprocessing-v1", "unsupported_input": "diagnostic"}},
+    "resampler": {"const": {"identity": "serbian-vits-resampler-v1", "native_rate_hz": 22050, "final_rate_hz": 24000, "channels": 1}},
+    "legal": {"enum": ["ALLOWED", "BLOCKED", "UNRESOLVED"]},
+    "evidence_hashes": {"type": "object", "additionalProperties": {"pattern": "^[0-9a-f]{64}$"}}
+  }
+}

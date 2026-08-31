@@ -1,0 +1,11 @@
+{
+  "schema": "serbian-vits-preprocessing-report:1",
+  "policy": "model-tools/qualification/preprocessing-policy-v1.json",
+  "numbers": "model-tools/qualification/numbers-abbreviations-v1.json",
+  "corpus": "model-tools/qualification/quality-corpus-v1.json",
+  "intermediate_representation": "text-free hashes only",
+  "desktop_android_identity": "serbian-vits-preprocessing-v1",
+  "status": "READY_FOR_TESTING",
+  "unsupported_input": "diagnostic-and-no-generation",
+  "source_text": false
+}

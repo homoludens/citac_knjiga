@@ -1,0 +1,14 @@
+{
+  "schema": "serbian-vits-model-package:1",
+  "candidate": {"model_id": "daremc86/sr-cv-vits", "revision": "83dc1e1b95d85b9f5602dc94909706fc83dfbc6c", "speaker": {"label": "Dragana", "id": 0}},
+  "entries": [
+    {"path": "manifest.json", "role": "manifest", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size_bytes": 0},
+    {"path": "notice.json", "role": "notice", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size_bytes": 0}
+  ],
+  "declared_entries": ["manifest.json", "notice.json"],
+  "graph_contract": {"status": "UNRESOLVED", "inputs": [], "outputs": [], "operator_domains": [], "external_data": false, "network_access": false},
+  "preprocessing": {"identity": "serbian-vits-preprocessing-v1", "unsupported_input": "diagnostic"},
+  "resampler": {"identity": "serbian-vits-resampler-v1", "native_rate_hz": 22050, "final_rate_hz": 24000, "channels": 1},
+  "legal": "BLOCKED",
+  "evidence_hashes": {"graph-inspection-report.json": "a576e14f57cad168e823abadb15c6c3f19c3590aee4b4d7bc5be9c049649bf7b"}
+}

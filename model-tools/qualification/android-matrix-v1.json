@@ -1,0 +1,14 @@
+{
+  "schema": "serbian-vits-android-matrix:1",
+  "identity": "serbian-vits-android-matrix-v1",
+  "approved_at": "2026-08-30T12:00:00Z",
+  "abi": "arm64-v8a",
+  "network": "disabled",
+  "targets": [
+    {"api": 30, "status": "UNAVAILABLE", "device": null, "os_build": null, "runtime": "onnxruntime-android:1.29.0"},
+    {"api": 35, "status": "UNAVAILABLE", "device": null, "os_build": null, "runtime": "onnxruntime-android:1.29.0"},
+    {"api": 36, "status": "UNAVAILABLE", "device": null, "os_build": null, "runtime": "onnxruntime-android:1.29.0"}
+  ],
+  "workload": ["correctness", "cold_load", "warm_generation", "preprocessing", "resampling", "rtf", "process_memory", "pss_rss", "temperature", "throttling", "battery", "crashes", "anrs", "invalid_output", "interruption", "recovery"],
+  "criteria": "android-resource-stability-criteria-v1"
+}

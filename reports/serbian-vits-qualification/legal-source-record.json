@@ -1,0 +1,13 @@
+{
+  "schema": "serbian-vits-legal-source:1",
+  "candidate": {"model_id": "daremc86/sr-cv-vits", "revision": "83dc1e1b95d85b9f5602dc94909706fc83dfbc6c"},
+  "model_code": ["model card declares CC BY 4.0; independent source review pending"],
+  "training_data": ["training dataset provenance and license evidence not supplied"],
+  "voice_permission": ["Dragana voice permission evidence not supplied"],
+  "conversion_inputs": ["pinned source and conversion-input inventory not fetched"],
+  "licenses": ["model card declaration recorded; complete dependency/data license review pending"],
+  "attributions": ["candidate author attribution requires verification"],
+  "modification_notice": ["conversion modification notice not yet recorded"],
+  "distribution_decision": "BLOCKED",
+  "contradictions": ["declared model license does not establish training-data or speaker permission"]
+}

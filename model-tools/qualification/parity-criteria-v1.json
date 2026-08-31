@@ -1,0 +1,11 @@
+{
+  "schema": "serbian-vits-parity-criteria:1",
+  "identity": "serbian-vits-parity-criteria-v1",
+  "approved_at": "2026-08-30T12:00:00Z",
+  "candidate": {"model_id": "daremc86/sr-cv-vits", "revision": "83dc1e1b95d85b9f5602dc94909706fc83dfbc6c", "speaker_id": 0},
+  "determinism": {"seed": 0, "threads": 1, "network": "disabled"},
+  "metrics": ["input_identity", "output_shape", "sample_count", "finite", "clipping", "waveform_mae", "spectral_similarity"],
+  "listening_rubric": ["intelligibility", "naturalness", "coverage", "speaker_identity"],
+  "threshold_source": "candidate-specific-approved-before-evaluation",
+  "kokoro_comparison": false
+}

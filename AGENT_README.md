@@ -693,3 +693,21 @@ target.
   preserves adapter diagnostics and warnings, reports deadline expiry as a
   bounded timeout, and validates the projected document against its preview
   before acceptance.
+
+## Serbian VITS backend qualification
+
+- OpenSpec change `qualify-serbian-vits-backend` adds an isolated, dependency-
+  light qualification harness under `model-tools/qualification/` and
+  redacted evidence under `reports/serbian-vits-qualification/`.
+- The exact candidate is `daremc86/sr-cv-vits` revision
+  `83dc1e1b95d85b9f5602dc94909706fc83dfbc6c`, Dragana speaker `0`, native
+  22,050 Hz, final 24,000 Hz mono. The summary is **REJECTED**: legal/source
+  review is blocked, conversion and parity are unresolved, and the required
+  API 30/API 35 production ARM64/API 36 matrix is unavailable.
+- The harness enforces exact identity, closed-world package entries, NFC and
+  Serbian input policy, deterministic number/abbreviation handling, one
+  resampling step, candidate-specific evidence links, and fail-closed gate
+  promotion. Raw model/checkpoint/audio artifacts remain outside the repo.
+- Because the outcome is rejection, no VITS backend, package activation,
+  preference, Room migration, or Android production integration was added;
+  Kokoro remains available with unchanged existing provenance.

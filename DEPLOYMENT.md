@@ -124,6 +124,35 @@ no two external players, task 11.4 lacks the required device matrix, and the
 task 11.8 audit says the release candidate is not ready. Keep the generated
 gate JSON and all model/audio artifacts outside the repository.
 
+## Serbian VITS qualification
+
+The independent qualification record is under
+`reports/serbian-vits-qualification/`. It evaluates only
+`daremc86/sr-cv-vits` revision
+`83dc1e1b95d85b9f5602dc94909706fc83dfbc6c`, Dragana speaker `0`, native
+22,050 Hz, and final 24,000 Hz mono. Its exact outcome is **REJECTED**:
+training-data and voice-permission evidence is blocked, conversion and parity
+are unresolved, and API 30, API 35 production `arm64-v8a`, and API 36 targets
+are unavailable. No VITS package or payload is embedded in either Android
+variant, and no VITS backend, preference, migration, or production code was
+added. Kokoro remains the only production engine.
+
+Run the redacted record checks with the locked desktop environment:
+
+```sh
+model-tools/.venv/bin/python model-tools/scripts/validate_serbian_vits_qualification.py
+model-tools/.venv/bin/python model-tools/scripts/check_serbian_vits_evidence.py
+model-tools/.venv/bin/python -m pytest model-tools/tests/test_serbian_vits_qualification.py
+```
+
+Raw Hugging Face source, checkpoints, ONNX output, packages, numeric sidecars,
+and generated audio belong outside the repository. A future accepted package
+must use `serbian-vits-model-package:1`, self-contained ONNX, declared entries
+only, and local offline inference. The exact native-to-final resampler is
+versioned as `serbian-vits-resampler-v1` and may run once only; invalid samples
+are rejected before PCM or codec publication. Failed package import or
+generation leaves the last valid Kokoro package and existing audio untouched.
+
 Known-good steps to reproduce the desktop CPU inference path. Keep this file
 current as the environment changes.
 

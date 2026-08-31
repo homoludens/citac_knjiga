@@ -1,0 +1,13 @@
+{
+  "schema": "serbian-vits-numeric-vector-sidecar:1",
+  "identity": "serbian-vits-numeric-vector-sidecar-v1",
+  "text_free": true,
+  "executable_content": false,
+  "policy": "serbian-vits-preprocessing-v1",
+  "vectors": [
+    {"id": "cyrillic-basic", "input_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "token_count": 0},
+    {"id": "latin-policy", "input_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "token_count": 0},
+    {"id": "number-expansion", "input_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "token_count": 0},
+    {"id": "abbreviation-expansion", "input_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "token_count": 0}
+  ]
+}

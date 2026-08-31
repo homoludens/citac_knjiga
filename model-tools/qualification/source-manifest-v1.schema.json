@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema", "model_id", "requested_revision", "resolved_commit", "workspace_policy", "files"],
+  "properties": {
+    "schema": {"const": "serbian-vits-source-manifest:1"},
+    "model_id": {"const": "daremc86/sr-cv-vits"},
+    "requested_revision": {"const": "83dc1e1b95d85b9f5602dc94909706fc83dfbc6c"},
+    "resolved_commit": {"const": "83dc1e1b95d85b9f5602dc94909706fc83dfbc6c"},
+    "workspace_policy": {"const": "disposable-desktop-outside-repository"},
+    "files": {"type": "array", "minItems": 1, "items": {"type": "object", "additionalProperties": false, "required": ["path", "size_bytes", "sha256"], "properties": {"path": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)[^\\u0000]+$"}, "size_bytes": {"type": "integer", "minimum": 0}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}}}
+  }
+}

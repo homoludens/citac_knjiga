@@ -1,0 +1,14 @@
+{
+  "schema": "serbian-vits-resampler:1",
+  "identity": "serbian-vits-resampler-v1",
+  "algorithm": "deterministic-linear-interpolation",
+  "native_rate_hz": 22050,
+  "final_rate_hz": 24000,
+  "ratio": "320/294",
+  "output_length": "round(native_samples * 24000 / 22050)",
+  "boundary": "clamp-to-first-or-last-sample",
+  "channels": 1,
+  "coefficient_table": [1.0, 0.0],
+  "checksum": "7467a8ae07d88dd0bd7b8a528b0aece36e11f49563ca8b1092409bb1a67e5344",
+  "second_conversion": false
+}

@@ -1,0 +1,10 @@
+{
+  "schema": "serbian-vits-conversion-report:1",
+  "status": "UNRESOLVED",
+  "source_manifest": "not available; source must be fetched at the exact revision outside the repository",
+  "first_run": null,
+  "second_run": null,
+  "byte_identical": false,
+  "canonical_manifest_identity": null,
+  "reason": "No pinned VITS source or converter result is present in this checkout."
+}

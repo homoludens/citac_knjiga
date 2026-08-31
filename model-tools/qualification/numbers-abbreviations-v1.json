@@ -1,0 +1,8 @@
+{
+  "schema": "serbian-vits-number-rules:1",
+  "identity": "numbers-abbreviations-v1",
+  "digits": {"0": "нула", "1": "један", "2": "два", "3": "три", "4": "четири", "5": "пет", "6": "шест", "7": "седам", "8": "осам", "9": "девет"},
+  "abbreviations": {"нпр.": "на пример", "тј.": "то јест", "итд.": "и тако даље", "др.": "доктор", "г.": "година", "стр.": "страна"},
+  "punctuation": "preserve-after-expansion",
+  "unsupported_syntax": "diagnostic"
+}

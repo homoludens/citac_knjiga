@@ -1,0 +1,11 @@
+{
+  "schema": "serbian-vits-listening-report:1",
+  "status": "UNRESOLVED",
+  "rubric": "model-tools/qualification/parity-criteria-v1.json",
+  "corpus": "model-tools/qualification/quality-corpus-v1.json",
+  "candidate": {"model_id": "daremc86/sr-cv-vits", "revision": "83dc1e1b95d85b9f5602dc94909706fc83dfbc6c", "speaker_id": 0},
+  "case_results": [],
+  "dimensions": ["intelligibility", "naturalness", "coverage", "speaker_identity", "latin_policy", "numbers", "abbreviations", "punctuation", "long_inputs", "chunking"],
+  "kokoro_comparison": false,
+  "reason": "No eligible candidate audio exists for listening evaluation."
+}

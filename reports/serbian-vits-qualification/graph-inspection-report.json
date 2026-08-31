@@ -1,0 +1,11 @@
+{
+  "schema": "serbian-vits-graph-inspection:1",
+  "status": "UNRESOLVED",
+  "inputs": [],
+  "outputs": [],
+  "operator_domains": [],
+  "external_data": false,
+  "network_access": false,
+  "resource_limit": "not measured",
+  "reason": "The actual pinned graph is not available; no graph contract is inferred from Kokoro."
+}

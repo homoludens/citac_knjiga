@@ -1,0 +1,21 @@
+{
+  "schema": "serbian-vits-resource-stability-criteria:1",
+  "identity": "serbian-vits-resource-stability-criteria-v1",
+  "approved_at": "2026-08-30T12:00:00Z",
+  "approval": "candidate-specific-review-before-measurement",
+  "criteria": {
+    "correctness": "all parity vectors and audio contract checks pass",
+    "cold_load_ms": {"maximum": 30000},
+    "warm_generation_rtf": {"maximum": 10.0},
+    "process_memory_bytes": {"maximum": 2147483648},
+    "temperature_delta_c": {"maximum": 15.0},
+    "thermal_throttling": "none",
+    "battery_percentage_delta": {"maximum": 10},
+    "crashes": {"maximum": 0},
+    "anrs": {"maximum": 0},
+    "invalid_output": {"maximum": 0},
+    "interruption_recovery": "pass"
+  },
+  "unresolved_rule": "missing target, observation, or method is UNRESOLVED",
+  "kokoro_comparison": false
+}

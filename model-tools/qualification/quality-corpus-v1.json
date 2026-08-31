@@ -1,0 +1,19 @@
+{
+  "schema": "serbian-vits-quality-corpus:1",
+  "identity": "serbian-vits-quality-v1",
+  "license": "self-authored-no-source-text-in-vector-sidecars",
+  "speaker": {"label": "Dragana", "id": 0},
+  "latin_policy": "transliterate-case-aware-v1",
+  "required_categories": ["cyrillic", "latin", "diacritics", "digraphs", "numbers", "abbreviations", "punctuation", "long-input", "chunking"],
+  "cases": [
+    {"id": "cyrillic-basic", "category": "cyrillic", "expected": "accepted"},
+    {"id": "latin-policy", "category": "latin", "expected": "transliterate"},
+    {"id": "serbian-diacritics", "category": "diacritics", "expected": "accepted"},
+    {"id": "serbian-digraphs", "category": "digraphs", "expected": "accepted"},
+    {"id": "number-expansion", "category": "numbers", "expected": "expand"},
+    {"id": "abbreviation-expansion", "category": "abbreviations", "expected": "expand"},
+    {"id": "punctuation", "category": "punctuation", "expected": "preserve"},
+    {"id": "long-input", "category": "long-input", "expected": "chunk-by-vits-contract"},
+    {"id": "chunking", "category": "chunking", "expected": "chunk-by-vits-contract"}
+  ]
+}

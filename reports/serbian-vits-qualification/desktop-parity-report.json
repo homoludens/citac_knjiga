@@ -1,0 +1,10 @@
+{
+  "schema": "serbian-vits-desktop-parity-report:1",
+  "status": "UNRESOLVED",
+  "criteria": "model-tools/qualification/parity-criteria-v1.json",
+  "candidate": {"model_id": "daremc86/sr-cv-vits", "revision": "83dc1e1b95d85b9f5602dc94909706fc83dfbc6c", "speaker_id": 0},
+  "vectors": [],
+  "metrics": ["input_identity", "output_shape", "sample_count", "finite", "clipping", "waveform_mae", "spectral_similarity"],
+  "first_failure": null,
+  "reason": "Trusted desktop reference and converted ONNX are unavailable."
+}

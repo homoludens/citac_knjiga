@@ -1,0 +1,12 @@
+{
+  "schema": "serbian-vits-android-parity-report:1",
+  "status": "UNRESOLVED",
+  "network": "disabled",
+  "target": null,
+  "package_sha256": null,
+  "preprocessing_identity": "serbian-vits-preprocessing-v1",
+  "resampler_identity": "serbian-vits-resampler-v1",
+  "evidence_sha256": null,
+  "vectors": [],
+  "reason": "No eligible VITS package or production Android target is available."
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "serbian-vits-release-closure:1",
+  "outcome": "REJECTED",
+  "android_payload": "no VITS package embedded",
+  "network": "no new network capability",
+  "offline": "existing Kokoro offline path retained",
+  "fdroid": "existing standard/F-Droid source closure remains applicable; VITS is not an Android input",
+  "package_restrictions": "future accepted package must be serbian-vits-model-package:1, self-contained ONNX, declared files only",
+  "rollback": "failed import or generation publishes no package/audio and preserves Kokoro",
+  "evidence": ["gate-summary.json", "android-matrix-report.json", "integration-audit.json"]
+}

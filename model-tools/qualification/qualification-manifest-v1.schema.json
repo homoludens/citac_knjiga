@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://citac-knjiga.local/schemas/serbian-vits-qualification-v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "candidate", "gate_order", "toolchain", "evidence_hashes"],
+  "properties": {
+    "schema": {"const": "serbian-vits-qualification:1"},
+    "candidate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["model_id", "revision", "resolved_commit", "speaker", "native_rate_hz", "final_rate_hz", "channels"],
+      "properties": {
+        "model_id": {"const": "daremc86/sr-cv-vits"},
+        "revision": {"const": "83dc1e1b95d85b9f5602dc94909706fc83dfbc6c"},
+        "resolved_commit": {"const": "83dc1e1b95d85b9f5602dc94909706fc83dfbc6c"},
+        "speaker": {"const": {"label": "Dragana", "id": 0}},
+        "native_rate_hz": {"const": 22050},
+        "final_rate_hz": {"const": 24000},
+        "channels": {"const": 1}
+      }
+    },
+    "gate_order": {"const": ["identity", "legal", "conversion", "desktop_parity", "android_parity", "serbian_quality", "android_matrix"]},
+    "toolchain": {"type": "object", "additionalProperties": false, "required": ["python", "onnx", "onnxruntime", "os"], "properties": {"python": {"type": "string"}, "onnx": {"type": "string"}, "onnxruntime": {"type": "string"}, "os": {"type": "string"}}},
+    "evidence_hashes": {"type": "object", "additionalProperties": {"pattern": "^[0-9a-f]{64}$"}}
+  }
+}
