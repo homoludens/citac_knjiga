@@ -18,7 +18,7 @@ class QualificationTest(unittest.TestCase):
         self.assertEqual("no-pass", result["qualification"])
         self.assertIsNone(result["selected_candidate"])
         self.assertFalse(result["production_pdf_enabled"])
-        self.assertEqual({"30", "35", "36"}, set(result["matrix"]["androidx-pdf"]))
+        self.assertEqual({"30", "33", "35", "36"}, set(result["matrix"]["androidx-pdf"]))
 
 
 if __name__ == "__main__":

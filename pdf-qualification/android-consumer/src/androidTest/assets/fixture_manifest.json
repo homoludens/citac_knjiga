@@ -1,0 +1,18 @@
+{
+  "schema": "citac-knjiga-pdf-qualification-fixtures-v1",
+  "fixtures": [
+    "latin-unicode",
+    "cyrillic-unicode",
+    "soft-wrapping",
+    "one-column",
+    "separated-columns",
+    "overlapping-columns",
+    "empty-page",
+    "image-only-page",
+    "repeated-decoration",
+    "protected",
+    "malformed-truncated",
+    "unsupported-encoding",
+    "external-reference"
+  ]
+}

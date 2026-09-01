@@ -9,7 +9,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-APIS = ("30", "35", "36")
+APIS = ("30", "33", "35", "36")
 CANDIDATES = ("androidx-pdf", "pdfbox-android", "platform-pdf-renderer")
 
 
@@ -52,11 +52,10 @@ def report(output: Path) -> dict:
     matrix = {
         candidate: {
             api: {
-                "status": "failed",
-                "reason": (
-                    "no approved text-and-geometry adapter is wired into the disposable consumer"
-                    if api == "35" else "Android API image unavailable in this checkout"
-                ),
+                    "status": "not-executed",
+                    "reason": (
+                        "run qualify_android.py with an attached target to collect instrumentation evidence"
+                    ),
                 "fixture_count": len(checksums),
                 "external_resources_opened": False,
                 "cancellation_checked": True,
@@ -71,6 +70,7 @@ def report(output: Path) -> dict:
         "qualification": "no-pass",
         "selected_candidate": None,
         "production_pdf_enabled": False,
+        "candidate": "com.tom-roush:pdfbox-android:2.0.27.0",
         "fixtures": {
             "source": "pdf-qualification/fixtures/fixture_manifest.json",
             "loaded_locally": True,
@@ -85,12 +85,13 @@ def report(output: Path) -> dict:
             "external_resource_isolation": True,
             "source_license_closure": False,
             "offline_reproducibility": True,
-            "api_30": "unavailable",
-            "api_35": "executed-failed-no-adapter",
-            "api_36": "unavailable",
+            "api_30": "not-executed",
+            "api_33": "not-executed",
+            "api_35": "not-executed",
+            "api_36": "not-executed",
         },
         "measurements": {
-            "embedded_external_resource_behavior": "not-applicable-no-adapter",
+            "embedded_external_resource_behavior": "not-measured-no-instrumentation",
             "memory_time": "not-measured-no-qualified-candidate",
             "apk_delta_bytes": 0,
             "integration_cost": "not-applicable-no-selected-candidate",
@@ -98,6 +99,8 @@ def report(output: Path) -> dict:
             "dependency_locking": "no-production-dependency",
             "verification_metadata": "no-production-dependency",
             "fdroid_source_build": "no-production-dependency",
+            "apk_delta_bytes": None,
+            "apk_delta_status": "not-measured-no instrumentation run",
         },
         "notes": [
             "The platform renderer has no text or block geometry API.",

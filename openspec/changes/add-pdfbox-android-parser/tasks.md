@@ -1,10 +1,10 @@
 ## 1. Isolated Qualification
 
-- [ ] 1.1 Create an isolated Android qualification consumer for the pinned PdfBox-Android candidate without adding it to the production Gradle graph, and verify the consumer resolves and builds offline after dependencies are cached.
-- [ ] 1.2 Initialize PdfBox's Android resources in the qualification consumer and add the existing PDF fixture corpus, and verify page-count and basic text extraction run on the Android test target.
-- [ ] 1.3 Implement the qualification text-position collector and fixture assertions for page selection, Serbian Latin/Cyrillic, Unicode, coordinates, separated columns, and overlapping text, and verify the candidate produces the required structured evidence.
-- [ ] 1.4 Add qualification cases for encrypted, password-protected, malformed, truncated, unsupported, image-only, and externally referenced PDFs, and verify failures are closed, OCR is not claimed, and no external resolver or network sentinel is invoked.
-- [ ] 1.5 Measure cancellation, deadline, memory, processing time, APK delta, API compatibility, dependency/source closure, and license obligations, and verify the binary qualification report records a passing or failing result without selecting an unqualified candidate.
+- [x] 1.1 Create an isolated Android qualification consumer for the pinned PdfBox-Android candidate without adding it to the production Gradle graph, and verify the consumer resolves and builds offline after dependencies are cached.
+- [x] 1.2 Initialize PdfBox's Android resources in the qualification consumer and add the existing PDF fixture corpus, and verify page-count and basic text extraction run on the Android test target.
+- [x] 1.3 Implement the qualification text-position collector and fixture assertions for page selection, Serbian Latin/Cyrillic, Unicode, coordinates, separated columns, and overlapping text, and verify the candidate produces the required structured evidence.
+- [x] 1.4 Add qualification cases for encrypted, password-protected, malformed, truncated, unsupported, image-only, and externally referenced PDFs, and verify failures are closed, OCR is not claimed, and no external resolver or network sentinel is invoked.
+- [x] 1.5 Measure cancellation, deadline, memory, processing time, APK delta, API compatibility, dependency/source closure, and license obligations, and verify the binary qualification report records a passing or failing result without selecting an unqualified candidate.
 
 ## 2. Production Dependency
 
