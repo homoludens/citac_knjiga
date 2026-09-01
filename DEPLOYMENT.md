@@ -159,7 +159,7 @@ separate from Kokoro's `active.zip` and `last-valid.zip`. A package must carry
 the exact model revision, CC-BY-4.0 attribution and modification notice,
 Sherpa-compatible entries, and a `PASS` API 33 `arm64-v8a` qualification before
 the engine selector exposes it. The external package manifest and conversion
-record satisfy the package contract; the real device generation test is still
+record satisfy the package contract; the full qualification run is still
 pending. The development API 33 fixture uses `x86_64`; API 30/35/36 are
 explicitly non-gating for this change. Sherpa source closure
 and Apache-2.0 notice are recorded in

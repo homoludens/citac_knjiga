@@ -726,8 +726,8 @@ target.
   `83dc1e1b95d85b9f5602dc94909706fc83dfbc6c`, Dragana speaker `0`, CC-BY-4.0.
 - Legal distribution is accepted for this project, and the deterministic
   external package `serbian-vits-1.0.0.zip` has a validated identity and
-  self-contained graph. VITS remains unavailable until the API 33 native
-  ARM64 generation gate is recorded. No raw checkpoint, generated audio, or
+  self-contained graph. VITS remains unavailable until the full API 33 native
+  ARM64 qualification gate passes. No raw checkpoint, generated audio, or
   network runtime dependency is added.
 - The first real Sherpa VITS smoke run passed on Poco F3 `2555a240` (`M2012K11AG`,
   API 33, native `arm64-v8a`) with networking disabled. It generated non-silent

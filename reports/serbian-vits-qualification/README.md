@@ -26,5 +26,6 @@ converted to the separate `serbian-vits-model-package:1` package after legal
 clearance. Android installation is offline and fail-closed; raw checkpoints,
 PyTorch files, converter sources, scripts, sidecars, and undeclared package
 entries are forbidden. Failed imports or generation retain the last valid
-Kokoro package and publish no audio. The remaining device gate must run on API
+Kokoro package and publish no audio. The remaining full device qualification
+gate must run on API
 33 native `arm64-v8a` before VITS is exposed as usable.
