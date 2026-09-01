@@ -52,6 +52,9 @@ public class EpubChapterProofService(
             .joinToString("\n\n") { it.sourceText }
             .trim()
         require(text.isNotEmpty()) { "The selected EPUB chapter has no narratable text" }
+        require(dao.findAllAudioSegments().none { it.chapterId == documentChapter.id }) {
+            "The selected EPUB chapter already has generation work or audio"
+        }
 
         val now = clock()
         val projection = preview.document.toRoomProjection(accepted.source, now)

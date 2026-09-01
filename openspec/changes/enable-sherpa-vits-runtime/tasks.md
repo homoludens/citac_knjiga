@@ -22,7 +22,7 @@
 
 - [x] 4.1 Add the smallest engine boundary exposing VITS only after package and API 33 qualification pass, retaining Kokoro as the default.
 - [x] 4.2 Generate a new VITS segment through the existing bounded generation and atomic publication paths with no network access or parallel pipeline.
-- [ ] 4.3 Verify switching engine preferences does not rewrite, delete, or invalidate existing audio and failed VITS import/generation preserves Kokoro state.
+- [x] 4.3 Verify switching engine preferences does not rewrite, delete, or invalidate existing audio and failed VITS import/generation preserves Kokoro state.
 
 ## 5. Qualification And Release
 

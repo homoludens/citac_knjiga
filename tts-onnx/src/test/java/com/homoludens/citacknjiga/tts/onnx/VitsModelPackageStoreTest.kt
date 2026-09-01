@@ -6,6 +6,7 @@ import java.security.MessageDigest
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.io.path.createTempDirectory
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -34,6 +35,25 @@ public class VitsModelPackageStoreTest {
             store.importPackage(ModelPackageSource { ByteArrayInputStream(packageBytes("second", includeTokens = false)) })
         }.isFailure)
         assertEquals(first, store.activePackage())
+    }
+
+    @Test
+    public fun failedVitsImportLeavesKokoroPackageSlotsUntouched() {
+        val root = createTempDirectory().toFile()
+        val directory = root.resolve("model-packages").apply { mkdirs() }
+        val kokoroActive = "kokoro-active".toByteArray()
+        val kokoroPrevious = "kokoro-previous".toByteArray()
+        directory.resolve("active.zip").writeBytes(kokoroActive)
+        directory.resolve("last-valid.zip").writeBytes(kokoroPrevious)
+        val store = VitsModelPackageStore(root)
+
+        assertTrue(runCatching {
+            store.importPackage(ModelPackageSource { ByteArrayInputStream(packageBytes("failed", includeTokens = false)) })
+        }.isFailure)
+
+        assertArrayEquals(kokoroActive, directory.resolve("active.zip").readBytes())
+        assertArrayEquals(kokoroPrevious, directory.resolve("last-valid.zip").readBytes())
+        assertTrue(!directory.resolve("vits-active.zip").exists())
     }
 
     @Test

@@ -196,6 +196,46 @@ public class StartupReconciliationTest {
     }
 
     @Test
+    public fun changingActiveEnginePackageDoesNotInvalidateOlderReadyAudio() {
+        val root = createTempDirectory().toFile()
+        val storage = AppPrivateStorage(root)
+        val store = AtomicArtifactStore(storage)
+        val project = project(BookProjectStatus.COMPLETED)
+        val chapter = chapter(ChapterStatus.READY)
+        val run = run(GenerationRunStatus.COMPLETED)
+        val file = storage.readySegmentAudio(project.id, chapter.id, "kokoro").apply {
+            checkNotNull(parentFile).mkdirs()
+            writeText("kokoro audio")
+        }
+        val ready = segment(
+            id = "kokoro",
+            runId = run.id,
+            status = AudioSegmentStatus.READY,
+            audioPath = file.absolutePath,
+            audioSha256 = store.sha256(file),
+            sizeBytes = file.length(),
+        )
+        val newerPackage = activeModel().copy(
+            id = "vits-package",
+            packageIdentity = "vits@1",
+            packageSha256 = "vits-package",
+        )
+        val database = FakeDatabase(
+            snapshot(project, chapter, run, listOf(ready)).copy(
+                activeModelPackage = newerPackage,
+                modelPackages = listOf(activeModel(), newerPackage),
+            ),
+        )
+
+        val report = StartupReconciliation(database, storage, store).reconcile()
+
+        assertTrue(report.staleProvenanceSegmentIds.isEmpty())
+        assertEquals(AudioSegmentStatus.READY, database.state.audioSegments.single().status)
+        assertEquals(ready, database.state.audioSegments.single())
+        assertTrue(file.exists())
+    }
+
+    @Test
     public fun onlySegmentsWithStaleGenerationKeysAreInvalidated() {
         val root = createTempDirectory().toFile()
         val storage = AppPrivateStorage(root)

@@ -117,8 +117,9 @@ public class TypedTextProofController(
             return
         }
         val run = ++generationNumber
+        val previous = _state.value
         generation = scope.launch {
-            _state.update { it.copy(status = TypedTextProofStatus.GENERATING, wav = null, errorMessage = null) }
+            _state.update { it.copy(status = TypedTextProofStatus.GENERATING, errorMessage = null) }
             try {
                 val result = engine.generate(text) { diagnostics ->
                     if (run == generationNumber) _state.update { it.copy(diagnostics = diagnostics) }
@@ -131,14 +132,21 @@ public class TypedTextProofController(
                 }
             } catch (cancelled: CancellationException) {
                 if (run == generationNumber) {
-                    _state.update { it.copy(status = TypedTextProofStatus.CANCELLED, wav = null) }
+                    _state.update {
+                        it.copy(
+                            status = TypedTextProofStatus.CANCELLED,
+                            diagnostics = previous.diagnostics,
+                            wav = previous.wav,
+                        )
+                    }
                 }
             } catch (failure: Throwable) {
                 if (run == generationNumber) {
                     _state.update {
                         it.copy(
                             status = TypedTextProofStatus.ERROR,
-                            wav = null,
+                            diagnostics = previous.diagnostics,
+                            wav = previous.wav,
                             errorMessage = failure.message ?: "Генерисање није успело.",
                         )
                     }

@@ -198,6 +198,56 @@ public class VitsBoundaryTest {
     }
 
     @Test
+    public fun failedVitsGenerationLeavesExistingKokoroAudioUntouched() = runBlocking {
+        val packageInfo = packageInfo()
+        val frontend = VitsSerbianFrontend(VitsSerbianFrontendTestVocabulary.map, blankId = 139)
+        val block = narrationBlock()
+        val key = VitsGenerationContract.generationKey(packageInfo, frontend.process(block.sourceText).tokenIds)
+        val segment = AudioSegmentEntity(
+            id = "vits-segment",
+            chapterId = "chapter",
+            narrationBlockId = block.id,
+            sequence = 1,
+            chunkOrdinal = 0,
+            generationKey = key,
+            generationRunId = "run",
+            createdAt = 1L,
+            updatedAt = 1L,
+        )
+        val state = SingleSegmentGenerationState(segment, block, run(packageInfo))
+        val storage = AppPrivateStorage(createTempDirectory().toFile())
+        val kokoroAudio = storage.readySegmentAudio("book", "chapter", "kokoro-segment").apply {
+            checkNotNull(parentFile).mkdirs()
+            writeText("existing Kokoro audio")
+        }
+        val generator = VitsSegmentGenerator(
+            frontend = frontend,
+            session = SherpaVitsSession.fromNative(object : SherpaVitsNativeSession {
+                override fun generate(tokenIds: IntArray, speakerId: Int, speed: Float): VitsNativeAudio =
+                    error("VITS session failed")
+
+                override fun close() = Unit
+            }),
+            packageInfo = packageInfo,
+            inferenceSettingsHash = VitsGenerationContract.INFERENCE_SETTINGS_HASH,
+        )
+
+        val result = BoundedGenerationRunner(
+            state = state,
+            storage = storage,
+            artifactStore = AtomicArtifactStore(storage),
+            generator = generator,
+            retryPolicy = com.homoludens.citacknjiga.core.generation.GenerationRetryPolicy(maxAttempts = 1),
+        ).run("run")
+
+        assertEquals(BoundedGenerationStatus.FAILED, result.status)
+        assertEquals(AudioSegmentStatus.FAILED, state.segment.status)
+        assertEquals("existing Kokoro audio", kokoroAudio.readText())
+        assertTrue(!storage.readySegmentWav("book", "chapter", "vits-segment").exists())
+        generator.close()
+    }
+
+    @Test
     public fun executorClosesItsSessionAfterSuccessFailureAndCancellation() = runBlocking {
         val outcomes = listOf<Any?>(
             BoundedGenerationResult("run", BoundedGenerationStatus.COMPLETED, emptyList(), emptyList()),
@@ -336,7 +386,13 @@ private class SingleSegmentGenerationState(
         run.copy(status = GenerationRunStatus.FAILED, lastError = error.record).also { run = it }
 
     override fun finishGenerationRun(runId: String): GenerationRunEntity =
-        run.copy(status = GenerationRunStatus.COMPLETED).also { run = it }
+        run.copy(
+            status = if (segment.status == AudioSegmentStatus.FAILED) {
+                GenerationRunStatus.FAILED
+            } else {
+                GenerationRunStatus.COMPLETED
+            },
+        ).also { run = it }
 }
 
 private fun packageInfo(): InstalledModelPackage = InstalledModelPackage(

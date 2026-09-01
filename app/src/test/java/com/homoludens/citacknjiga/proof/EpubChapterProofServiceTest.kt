@@ -36,7 +36,9 @@ import kotlin.io.path.createTempDirectory
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -111,6 +113,32 @@ public class EpubChapterProofServiceTest {
         assertEquals(64, dao.segment.audioSha256!!.length)
         assertEquals(result.audio.file.path, dao.segment.audioPath)
         assertEquals("c".repeat(64), dao.segment.voiceSha256)
+
+        val existingProject = dao.project
+        val existingChapter = dao.chapter
+        val existingRun = dao.run
+        val existingSegment = dao.segment
+        val existingAudio = result.audio.file.readBytes()
+        assertThrows(IllegalArgumentException::class.java) {
+            runBlocking {
+                EpubChapterProofService(
+                    dao,
+                    storage,
+                    AtomicArtifactStore(storage),
+                    object : TypedTextProofEngine {
+                        override suspend fun generate(
+                            text: String,
+                            onDiagnostics: (TypedTextProofDiagnostics) -> Unit,
+                        ): TypedTextProofResult = error("VITS generation failed")
+                    },
+                ).generate(accepted, chapterOrdinal = 0)
+            }
+        }
+        assertEquals(existingProject, dao.project)
+        assertEquals(existingChapter, dao.chapter)
+        assertEquals(existingRun, dao.run)
+        assertEquals(existingSegment, dao.segment)
+        assertArrayEquals(existingAudio, result.audio.file.readBytes())
     }
 
     private fun fakeEngine(storage: AppPrivateStorage): TypedTextProofEngine = object : TypedTextProofEngine {
@@ -143,13 +171,17 @@ public class EpubChapterProofServiceTest {
         lateinit var chapter: ChapterEntity
         lateinit var segment: AudioSegmentEntity
         lateinit var run: GenerationRunEntity
+        private val audioSegments = mutableListOf<AudioSegmentEntity>()
 
         override fun insertProject(project: BookProjectEntity) { this.project = project }
         override fun insertChapter(chapter: ChapterEntity) { this.chapter = chapter }
         override fun insertNarrationBlock(block: NarrationBlockEntity) { }
         override fun insertModelPackage(modelPackage: ModelPackageEntity) { }
         override fun insertGenerationRun(run: GenerationRunEntity) { this.run = run }
-        override fun insertAudioSegment(segment: AudioSegmentEntity) { this.segment = segment }
+        override fun insertAudioSegment(segment: AudioSegmentEntity) {
+            this.segment = segment
+            audioSegments += segment
+        }
         override fun insertExportJob(job: ExportJobEntity) { }
         override fun insertExportJobChapter(chapter: ExportJobChapterEntity) { }
         override fun findAllProjects(): List<BookProjectEntity> = listOf(project)
@@ -162,7 +194,7 @@ public class EpubChapterProofServiceTest {
         override fun findNarrationBlockById(blockId: String): NarrationBlockEntity? = null
         override fun findAllGenerationRuns(): List<GenerationRunEntity> = listOf(run)
         override fun findGenerationRunById(runId: String): GenerationRunEntity? = run.takeIf { it.id == runId }
-        override fun findAllAudioSegments(): List<AudioSegmentEntity> = listOf(segment)
+        override fun findAllAudioSegments(): List<AudioSegmentEntity> = audioSegments.toList()
         override fun observeAllAudioSegments(): Flow<List<AudioSegmentEntity>> = flowOf(listOf(segment))
         override fun observeAllGenerationRuns(): Flow<List<GenerationRunEntity>> = flowOf(listOf(run))
         override fun observeAllPlaybackPositions(): Flow<List<PlaybackPositionEntity>> = flowOf(emptyList())
