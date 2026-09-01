@@ -60,11 +60,13 @@ public data class GeneratedSegmentAudio(
     public val durationMs: Long,
     public val writer: (OutputStream) -> Unit,
     public val validator: (File) -> Unit,
+    public val artifactExtension: String = "m4a",
 ) {
     init {
         require(sampleRateHz > 0) { "Audio sample rate must be positive" }
         require(channels > 0) { "Audio channel count must be positive" }
         require(durationMs > 0) { "Audio duration must be positive" }
+        require(Regex("[a-z0-9]+") matches artifactExtension) { "Audio artifact extension is invalid" }
     }
 }
 
@@ -161,11 +163,14 @@ public class BoundedGenerationRunner(
                 currentCoroutineContext().ensureActive()
                 val audio = generator.generate(claimed.segment, claimed.block)
                 requireCompatibleProvenance(current, audio)
+                claimed.segment.generationKey?.let { expected ->
+                    checkProvenance(audio.provenance.generationKey == expected, "different generation key")
+                }
                 currentCoroutineContext().ensureActive()
                 failurePhase = GenerationFailurePhase.PUBLICATION
                 val published = artifactStore.publish(
                     ownerId = "generation-$runId-${claimed.segment.id}",
-                    destination = publicationDestination(current, claimed.segment),
+                    destination = publicationDestination(current, claimed.segment, audio.artifactExtension),
                     writer = audio.writer,
                     validator = audio.validator,
                 )
@@ -250,8 +255,14 @@ public class BoundedGenerationRunner(
     private fun publicationDestination(
         run: GenerationRunEntity,
         segment: AudioSegmentEntity,
+        artifactExtension: String,
     ): File {
-        val preferred = storage.readySegmentAudio(run.bookProjectId, segment.chapterId, segment.id)
+        val preferred = storage.readySegmentAudio(
+            run.bookProjectId,
+            segment.chapterId,
+            segment.id,
+            "${segment.id}.$artifactExtension",
+        )
         return if (segment.audioPath.isNullOrBlank() && !preferred.isFile) {
             preferred
         } else {
@@ -259,7 +270,7 @@ public class BoundedGenerationRunner(
                 run.bookProjectId,
                 segment.chapterId,
                 segment.id,
-                "${segment.id}-${UUID.randomUUID()}.m4a",
+                "${segment.id}-${UUID.randomUUID()}.$artifactExtension",
             )
         }
     }

@@ -171,6 +171,8 @@ public class EpubChapterProofServiceTest {
         override fun observeReadyAudioSegments(projectId: String): Flow<List<AudioSegmentEntity>> = flowOf(emptyList())
         override fun findAudioSegmentById(segmentId: String): AudioSegmentEntity? = segment.takeIf { it.id == segmentId }
         override fun findActiveModelPackage(): ModelPackageEntity? = null
+        override fun findAllModelPackages(): List<ModelPackageEntity> = emptyList()
+        override fun findModelPackageById(modelPackageId: String): ModelPackageEntity? = null
         override fun updateProject(project: BookProjectEntity) { this.project = project }
         override fun updateChapter(chapter: ChapterEntity) { this.chapter = chapter }
         override fun updateNarrationBlock(block: NarrationBlockEntity) { }

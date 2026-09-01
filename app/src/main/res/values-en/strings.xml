@@ -55,6 +55,9 @@
     <string name="package_origin">Package origin</string>
     <string name="runtime">Runtime</string>
     <string name="preprocessing">Preprocessing</string>
+    <string name="engine">Engine</string>
+    <string name="engine_kokoro">Kokoro</string>
+    <string name="engine_vits">VITS (Dragana)</string>
     <string name="ready_wav">Ready WAV</string>
     <string name="wav_format_samples">24 kHz, mono, PCM16, %1$d samples</string>
     <string name="distribution_format">Distribution: %1$s</string>
@@ -183,6 +186,10 @@
     <string name="diagnostics_export_success">Diagnostics exported.</string>
     <string name="diagnostics_export_failed">Diagnostics export failed. Choose another location.</string>
     <string name="model_import_action">Import model package</string>
+    <string name="vits_import_action">Import Serbian VITS package</string>
+    <string name="vits_import_busy">Serbian VITS package import is in progress.</string>
+    <string name="vits_import_success">Serbian VITS package is verified and available.</string>
+    <string name="vits_import_failed">Serbian VITS package failed verification.</string>
     <string name="model_import_busy">Model package import is in progress.</string>
     <string name="model_get_action">Get model package</string>
     <string name="model_release_unavailable">The external model-package page is unavailable.</string>

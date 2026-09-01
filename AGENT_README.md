@@ -734,3 +734,7 @@ target.
   native 22,050 Hz mono audio and validated final 24,000 Hz mono output. Full
   parity, resource, interruption, recovery, and equivalent API 33 `x86_64`
   evidence remain open, so VITS is still unavailable in production.
+- The Sherpa JNI runtime is an opt-in source build using the pinned checkout and
+  `CITA_ENABLE_SHERPA_VITS`; normal APKs intentionally omit it. Engine selection
+  also probes `libcita_sherpa_vits.so`, so a qualified package cannot expose VITS
+  when the runtime library is absent.

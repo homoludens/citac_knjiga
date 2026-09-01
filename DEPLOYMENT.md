@@ -166,6 +166,25 @@ and Apache-2.0 notice are recorded in
 `model-tools/native/sherpa-onnx-source-closure-v1.json` and
 `model-tools/native/SHERPA-NOTICE.md`.
 
+To build the optional Sherpa JNI runtime from an external pinned checkout, pass
+the source and ONNX Runtime JNI/headers roots explicitly. The source checkout,
+runtime AAR contents, model package, and generated audio remain outside this
+repository:
+
+```sh
+SHERPA_ONNXRUNTIME_INCLUDE_DIR=/path/to/onnxruntime/headers \
+ANDROID_HOME=/path/to/android-sdk \
+./gradlew --offline \
+  -PenableSherpaVits=true \
+  -PsherpaOnnxSourceDir=/path/to/sherpa-onnx-34eba5a \
+  -PsherpaOnnxRuntimeLibRoot=/path/to/onnxruntime/jni \
+  :app:assembleStandardRelease :app:assembleFdroidRelease
+```
+
+The selected engine additionally checks that `libcita_sherpa_vits.so` loads;
+normal APKs therefore fail closed to Kokoro rather than exposing an unusable
+VITS option.
+
 The first real Sherpa VITS Android smoke run passed on Poco F3 `2555a240`
 (`M2012K11AG`, API 33, native `arm64-v8a`) with Wi-Fi and mobile data disabled.
 `SherpaVitsAndroidTest#qualifiedPackageGeneratesOfflineSerbianAudio` imported

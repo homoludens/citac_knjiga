@@ -52,6 +52,7 @@ public class PlaybackRegenerationRoute(
 public data class PlaybackValidationContext(
     public val expectedGenerationKeys: Map<String, String> = emptyMap(),
     public val activeModelPackage: ModelPackageEntity? = null,
+    public val modelPackages: Map<String, ModelPackageEntity> = emptyMap(),
     public val generationRuns: Map<String, GenerationRunEntity> = emptyMap(),
 )
 
@@ -147,6 +148,7 @@ public class RoomPlaybackValidationContextSource(
     override fun current(): PlaybackValidationContext = PlaybackValidationContext(
         expectedGenerationKeys = expectedGenerationKeys(),
         activeModelPackage = dao.findActiveModelPackage(),
+        modelPackages = dao.findAllModelPackages().associateBy { it.id },
         generationRuns = dao.findAllGenerationRuns().associateBy { it.id },
     )
 }
@@ -252,7 +254,8 @@ public class PlaybackAvailabilityPolicy(
         ) {
             return unavailable(PlaybackUnavailableReason.STALE_PROVENANCE, "Audio provenance is incomplete")
         }
-        val activeModel = context.activeModelPackage
+        val activeModel = segment.modelPackageId?.let(context.modelPackages::get)
+            ?: context.activeModelPackage
         if (activeModel != null && (
                 segment.modelPackageId != activeModel.id ||
                     !segment.modelPackageSha256.equals(activeModel.packageSha256, ignoreCase = true) ||

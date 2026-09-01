@@ -4,10 +4,19 @@ import android.content.Context
 import android.os.Build
 import kotlinx.coroutines.Dispatchers
 import com.homoludens.citacknjiga.core.database.AudiobookDao
+import com.homoludens.citacknjiga.core.database.AudiobookDatabase
 import com.homoludens.citacknjiga.core.diagnostics.LocalDiagnostics
-import com.homoludens.citacknjiga.core.database.createAudiobookDao
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.core.storage.AtomicArtifactStore
+import com.homoludens.citacknjiga.core.generation.BoundedGenerationRunner
+import com.homoludens.citacknjiga.core.generation.GenerationNotificationController
+import com.homoludens.citacknjiga.core.generation.GenerationRunExecutor
+import com.homoludens.citacknjiga.core.generation.GenerationStateService
+import com.homoludens.citacknjiga.core.generation.GenerationWorkerFactory
+import com.homoludens.citacknjiga.core.generation.RoomGenerationNotificationDataSource
+import com.homoludens.citacknjiga.core.generation.RoomGenerationQueue
+import com.homoludens.citacknjiga.core.generation.GenerationWorkScheduler
+import com.homoludens.citacknjiga.generation.VitsGenerationCoordinator
 import com.homoludens.citacknjiga.document.epub.ContentResolverEpubSourceReader
 import com.homoludens.citacknjiga.document.epub.EpubCanonicalTextService
 import com.homoludens.citacknjiga.document.epub.EpubDocumentParser
@@ -29,6 +38,8 @@ import com.homoludens.citacknjiga.playback.export.SafAudiobookExporter
 import com.homoludens.citacknjiga.tts.onnx.ModelPackageStore
 import com.homoludens.citacknjiga.tts.onnx.TtsEnginePreference
 import com.homoludens.citacknjiga.tts.onnx.TtsEngineSelector
+import com.homoludens.citacknjiga.tts.onnx.VitsGenerationExecutor
+import com.homoludens.citacknjiga.tts.onnx.VitsSegmentGeneratorFactory
 import com.homoludens.citacknjiga.tts.onnx.preprocessing.SerbianPreprocessor
 
 public enum class AppDistribution(public val id: String) {
@@ -59,6 +70,7 @@ public class AppContainer(
     public val diagnostics: LocalDiagnostics,
     public val variant: AppVariant,
     public val audiobookDao: AudiobookDao? = null,
+    public val audiobookDatabase: AudiobookDatabase? = null,
     public val typedTextProofEngine: TypedTextProofEngine? = null,
     public val epubImportPreviewService: EpubImportPreviewService? = null,
     public val epubChapterProofService: EpubChapterProofService? = null,
@@ -67,6 +79,8 @@ public class AppContainer(
     public val privateStorage: AppPrivateStorage? = null,
     public val modelPackageStore: ModelPackageStore? = null,
     public val ttsEnginePreference: TtsEnginePreference? = null,
+    public val vitsGenerationCoordinator: VitsGenerationCoordinator? = null,
+    public val generationWorkerFactory: GenerationWorkerFactory? = null,
 ) {
     public companion object {
         public fun production(context: Context): AppContainer {
@@ -84,7 +98,8 @@ public class AppContainer(
                 selector = engineSelector,
                 preferences = context.getSharedPreferences("tts", Context.MODE_PRIVATE),
             )
-            val dao = createAudiobookDao(context)
+            val database = AudiobookDatabase.create(context)
+            val dao = database.audiobookDao()
             val readyAudio = ReadyAudioRepository(
                 source = RoomReadyAudioSource(dao),
                 storage = privateStorage,
@@ -113,10 +128,47 @@ public class AppContainer(
                     )
                 },
             )
+            val generationState = GenerationStateService(database)
+            val vitsFactory = VitsSegmentGeneratorFactory(modelStore.vitsModelPackageStore)
+            val vitsExecutor: GenerationRunExecutor = VitsGenerationExecutor(
+                openGenerator = { modelPackageId -> vitsFactory.open(modelPackageId) },
+                modelPackageIdForRun = { runId ->
+                    database.audiobookDao().findGenerationRunById(runId)?.also { run ->
+                        check(run.engine == "vits") { "Only VITS runs are supported by the VITS worker" }
+                    }?.modelPackageId
+                },
+                executeRun = { runId, generator ->
+                    BoundedGenerationRunner(
+                        state = generationState,
+                        storage = privateStorage,
+                        artifactStore = AtomicArtifactStore(privateStorage),
+                        generator = generator,
+                    ).run(runId)
+                },
+            )
+            val workerFactory = GenerationWorkerFactory(
+                executor = vitsExecutor,
+                notifications = GenerationNotificationController(
+                    context = context,
+                    dataSource = RoomGenerationNotificationDataSource(database),
+                ),
+            )
+            val generationQueue = RoomGenerationQueue(database, privateStorage)
+            val vitsCoordinator = VitsGenerationCoordinator(
+                database = database,
+                vitsStore = modelStore.vitsModelPackageStore,
+                schedulerProvider = {
+                    GenerationWorkScheduler(
+                        workManager = androidx.work.WorkManager.getInstance(context),
+                        queue = generationQueue,
+                    )
+                },
+            )
             return AppContainer(
                 diagnostics = LocalDiagnostics(),
                 variant = AppVariant.fromBuildConfig(),
                 audiobookDao = dao,
+                audiobookDatabase = database,
                 typedTextProofEngine = proofEngine,
                 epubImportPreviewService = EpubImportPreviewService(
                     sourceRepository = sourceRepository,
@@ -138,6 +190,8 @@ public class AppContainer(
                 privateStorage = privateStorage,
                 modelPackageStore = modelStore,
                 ttsEnginePreference = enginePreference,
+                vitsGenerationCoordinator = vitsCoordinator,
+                generationWorkerFactory = workerFactory,
             )
         }
     }

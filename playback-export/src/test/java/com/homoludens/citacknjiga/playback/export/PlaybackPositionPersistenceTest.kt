@@ -187,6 +187,8 @@ public class PlaybackPositionPersistenceTest {
         override fun observeReadyAudioSegments(projectId: String): Flow<List<AudioSegmentEntity>> = emptyFlow()
         override fun findAudioSegmentById(segmentId: String): AudioSegmentEntity? = null
         override fun findActiveModelPackage(): ModelPackageEntity? = null
+        override fun findAllModelPackages(): List<ModelPackageEntity> = emptyList()
+        override fun findModelPackageById(modelPackageId: String): ModelPackageEntity? = null
         override fun updateProject(project: BookProjectEntity) = Unit
         override fun updateChapter(chapter: ChapterEntity) = Unit
         override fun updateNarrationBlock(block: NarrationBlockEntity) = Unit

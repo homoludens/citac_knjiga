@@ -128,6 +128,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.work.runtime)
     implementation(project(":core"))
     implementation(project(":tts-onnx"))
     implementation(project(":document-epub"))

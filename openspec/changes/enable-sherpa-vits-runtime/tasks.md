@@ -1,7 +1,7 @@
 ## 1. Sherpa Runtime And Source Closure
 
-- [ ] 1.1 Pin a Sherpa-ONNX source revision, Android build flags, ABI list, Apache-2.0 notices, and complete source/dependency closure; verify standard and F-Droid builds contain only declared Sherpa native libraries.
-- [ ] 1.2 Add the Sherpa Kotlin/Java boundary to `tts-onnx` with deterministic lifecycle and cancellation handling; verify native sessions and buffers close on success, failure, and cancellation.
+- [x] 1.1 Pin a Sherpa-ONNX source revision, Android build flags, ABI list, Apache-2.0 notices, and complete source/dependency closure; verify standard and F-Droid builds contain only declared Sherpa native libraries.
+- [x] 1.2 Add the Sherpa Kotlin/Java boundary to `tts-onnx` with deterministic lifecycle and cancellation handling; verify native sessions and buffers close on success, failure, and cancellation.
 - [x] 1.3 Preserve `minSdk 30` and add API 33 Android qualification fixtures for arm64-v8a plus an equivalent API 33 development ABI; verify the old API 30/35/36 matrix is not an acceptance gate for this change.
 
 ## 2. Serbian VITS Package
@@ -21,7 +21,7 @@
 ## 4. Production Integration
 
 - [x] 4.1 Add the smallest engine boundary exposing VITS only after package and API 33 qualification pass, retaining Kokoro as the default.
-- [ ] 4.2 Generate a new VITS segment through the existing bounded generation and atomic publication paths with no network access or parallel pipeline.
+- [x] 4.2 Generate a new VITS segment through the existing bounded generation and atomic publication paths with no network access or parallel pipeline.
 - [ ] 4.3 Verify switching engine preferences does not rewrite, delete, or invalidate existing audio and failed VITS import/generation preserves Kokoro state.
 
 ## 5. Qualification And Release

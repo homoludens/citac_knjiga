@@ -116,6 +116,12 @@ public interface AudiobookDao {
     @Query("SELECT * FROM model_package WHERE status = 'ACTIVE' ORDER BY imported_at DESC, id DESC LIMIT 1")
     public fun findActiveModelPackage(): ModelPackageEntity?
 
+    @Query("SELECT * FROM model_package")
+    public fun findAllModelPackages(): List<ModelPackageEntity>
+
+    @Query("SELECT * FROM model_package WHERE id = :modelPackageId LIMIT 1")
+    public fun findModelPackageById(modelPackageId: String): ModelPackageEntity?
+
     @Update
     public fun updateProject(project: BookProjectEntity)
 

@@ -39,6 +39,10 @@ public class SherpaVitsSession private constructor(
     }
 
     public companion object {
+        public fun isRuntimeAvailable(): Boolean = runCatching {
+            System.loadLibrary("cita_sherpa_vits")
+        }.isSuccess
+
         public fun fromNative(native: SherpaVitsNativeSession): SherpaVitsSession = SherpaVitsSession(native)
 
         public fun open(

@@ -21,6 +21,7 @@ public data class ReconciliationSnapshot(
     public val generationRuns: List<GenerationRunEntity>,
     public val audioSegments: List<AudioSegmentEntity>,
     public val activeModelPackage: ModelPackageEntity?,
+    public val modelPackages: List<ModelPackageEntity> = emptyList(),
 )
 
 /** Minimal database surface that lets reconciliation stay JVM-testable. */
@@ -49,6 +50,7 @@ public class RoomReconciliationDatabase(
         generationRuns = dao.findAllGenerationRuns(),
         audioSegments = dao.findAllAudioSegments(),
         activeModelPackage = dao.findActiveModelPackage(),
+        modelPackages = dao.findAllModelPackages(),
     )
 
     override fun inTransaction(block: () -> Unit) {
@@ -98,7 +100,12 @@ public class StartupReconciliation(
             .filter { it.status == AudioSegmentStatus.READY }
             .mapNotNull { segment ->
                 val integrityFailure = !hasValidArtifact(segment)
-                val provenanceFailure = !hasCurrentProvenance(segment, snapshot.activeModelPackage, runsById)
+                val provenanceFailure = !hasCurrentProvenance(
+                    segment,
+                    snapshot.activeModelPackage,
+                    snapshot.modelPackages,
+                    runsById,
+                )
                 val generationKeyFailure = expectedGenerationKeys[segment.id]?.let { expected ->
                     !segment.generationKey.equals(expected, ignoreCase = true)
                 } ?: false
@@ -184,9 +191,12 @@ public class StartupReconciliation(
     private fun hasCurrentProvenance(
         segment: AudioSegmentEntity,
         activeModelPackage: ModelPackageEntity?,
+        modelPackages: List<ModelPackageEntity>,
         runsById: Map<String, GenerationRunEntity>,
     ): Boolean {
-        val model = activeModelPackage ?: return false
+        val model = segment.modelPackageId?.let { id -> modelPackages.firstOrNull { it.id == id } }
+            ?: activeModelPackage
+            ?: return false
         val run = segment.generationRunId?.let(runsById::get) ?: return false
         return segment.modelPackageId == model.id &&
             segment.modelPackageSha256.equals(model.packageSha256, ignoreCase = true) &&

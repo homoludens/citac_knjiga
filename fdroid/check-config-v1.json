@@ -80,6 +80,7 @@
     "allowed_native_libraries": [
       "libandroidx.graphics.path.so",
       "libcita_espeak.so",
+      "libcita_sherpa_vits.so",
       "libonnxruntime.so",
       "libonnxruntime4j_jni.so"
     ],

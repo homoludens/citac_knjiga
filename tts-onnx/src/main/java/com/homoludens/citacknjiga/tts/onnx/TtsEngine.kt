@@ -14,10 +14,13 @@ public class TtsEngineSelector(
     private val vitsStore: VitsModelPackageStore,
     private val apiLevel: Int,
     private val abi: String,
+    private val runtimeAvailable: () -> Boolean = SherpaVitsSession::isRuntimeAvailable,
 ) {
     public fun available(): List<TtsEngine> = buildList {
         add(TtsEngine.KOKORO)
-        if (apiLevel >= 33 && abi == "arm64-v8a" && vitsStore.activePackage() != null) add(TtsEngine.VITS)
+        if (apiLevel >= 33 && abi == "arm64-v8a" && runtimeAvailable() && vitsStore.activePackage() != null) {
+            add(TtsEngine.VITS)
+        }
     }
 
     public fun select(preferred: TtsEngine): TtsEngine = preferred.takeIf { it in available() } ?: TtsEngine.KOKORO
@@ -65,15 +68,18 @@ public class VitsSegmentGenerator(
     private val packageInfo: InstalledModelPackage,
     private val inferenceSettingsHash: String,
     private val audioProcessingVersion: String = "pcm16-wav-v1",
-) : SegmentGenerator {
+    private val modelPackageId: String = packageInfo.packageId,
+) : SegmentGenerator, AutoCloseable {
     override suspend fun generate(segment: AudioSegmentEntity, block: NarrationBlockEntity): GeneratedSegmentAudio {
         val prepared = frontend.process(block.sourceText)
+        val expectedKey = VitsGenerationContract.generationKey(packageInfo, prepared.tokenIds)
+        check(segment.generationKey == expectedKey) { "VITS generation key does not match the pending segment" }
         val native = session.generate(prepared.tokenIds.toIntArray(), packageInfo.speakerId ?: 0, 1f)
         val final = VitsAudioOutputValidator.resampleOnce(native)
         val durationMs = (final.pcm.size * 1000L / final.sampleRateHz).coerceAtLeast(1)
         val provenance = GenerationProvenance(
             generationKey = requireNotNull(segment.generationKey),
-            modelPackageId = packageInfo.packageId,
+            modelPackageId = modelPackageId,
             modelPackageSha256 = packageInfo.identitySha256,
             voiceSha256 = packageInfo.voiceSha256,
             preprocessingVersion = packageInfo.frontendVersion ?: "serbian-vits-preprocessing-v1",
@@ -96,8 +102,16 @@ public class VitsSegmentGenerator(
             channels = final.channels,
             durationMs = durationMs,
             writer = { output -> writeWav(output, final.pcm, final.sampleRateHz) },
-            validator = { file -> require(file.isFile && file.length() > 44) { "VITS WAV was not published correctly" } },
+            validator = { file ->
+                val info = PcmWavValidator.validate(file)
+                require(info.sampleCount == final.pcm.size.toLong()) { "VITS WAV sample count is invalid" }
+            },
+            artifactExtension = "wav",
         )
+    }
+
+    override fun close() {
+        session.close()
     }
 
     private fun writeWav(output: OutputStream, samples: FloatArray, sampleRateHz: Int) {
