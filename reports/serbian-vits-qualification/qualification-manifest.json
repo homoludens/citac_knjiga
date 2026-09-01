@@ -12,9 +12,11 @@
   "gate_order": ["identity", "legal", "conversion", "desktop_parity", "android_parity", "serbian_quality", "android_matrix"],
   "toolchain": {"python": "3.11.14", "onnx": "1.22.0", "onnxruntime": "1.29.0", "os": "desktop-only; recorded per external run"},
   "evidence_hashes": {
-    "legal-source-record.json": "16d46854dc578c5446a3d25e7dca7f464ce8fd12c42869e355e432aa639041e1",
-    "conversion-report.json": "0c81ba97417d2fa60d4e3c7ce09e1e66cf9fd78c0c55945981377422e11e60cb",
-    "graph-inspection-report.json": "a576e14f57cad168e823abadb15c6c3f19c3590aee4b4d7bc5be9c049649bf7b",
-    "android-matrix-report.json": "727385e70750bb9fedf56a29533fa7194f798cb399072530d2961019412d96e7"
+    "legal-source-record.json": "b6410929ab25ef19461bbc5bc732ed42533329c1b8c41e73b07389674a42f530",
+    "conversion-report.json": "d2cfec5800c57da8e053d460f342d0167de64d8bac7e66af7a9154fd8483e97a",
+    "graph-inspection-report.json": "b719d2742553c123295f8c9a0d3431cb651700e0dfb4448474be6f42c3b061a9",
+    "package-contract-report.json": "9e64140bb31aa9d11e976dee7ac1939ae0e46489b3faf9fb4d6a1cdd5405e9ef",
+    "android-parity-report.json": "e34dd24c9921882df47e7dd62d337154a43b5f491125884864d37777af601117",
+    "android-matrix-report.json": "a3d461367fa36a30d88770db73294b4c2677c3a99ac5518a6e91610a72f0dd32"
   }
 }

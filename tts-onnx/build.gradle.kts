@@ -19,6 +19,17 @@ android {
     defaultConfig {
         minSdk = libs.versions.minSdk.get().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                arguments("-DCITA_ENABLE_SHERPA_VITS=${providers.gradleProperty("enableSherpaVits").orNull == "true"}")
+                providers.gradleProperty("sherpaOnnxSourceDir").orNull?.let { source ->
+                    arguments("-DSHERPA_ONNX_SOURCE_DIR=$source")
+                }
+                providers.gradleProperty("sherpaOnnxRuntimeLibRoot").orNull?.let { root ->
+                    arguments("-DCITA_ONNXRUNTIME_LIB_ROOT=$root")
+                }
+            }
+        }
     }
 
     buildTypes {

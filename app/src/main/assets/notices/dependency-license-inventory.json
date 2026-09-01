@@ -3500,6 +3500,18 @@
         "scope": "test"
       },
       {
+        "name": ":document-pdf:debugAndroidTestRuntimeClasspath",
+        "scope": "test"
+      },
+      {
+        "name": ":document-pdf:releaseRuntimeClasspath",
+        "scope": "runtime"
+      },
+      {
+        "name": ":document-pdf:releaseUnitTestRuntimeClasspath",
+        "scope": "test"
+      },
+      {
         "name": ":playback-export:debugAndroidTestRuntimeClasspath",
         "scope": "test"
       },

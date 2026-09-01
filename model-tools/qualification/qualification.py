@@ -177,6 +177,11 @@ def validate_package_entries(entries: Sequence[str], declared: Sequence[str]) ->
         _fail(f"package entry set mismatch: undeclared={undeclared}, missing={missing}")
 
 
+def validate_vits_package_roles(roles: Sequence[str]) -> None:
+    if roles.count("onnx") != 1 or roles.count("tokens") != 1 or roles.count("lexicon") > 1:
+        _fail("VITS package must contain exactly one ONNX and token entry, with at most one lexicon")
+
+
 def preprocess_text(text: str, *, latin_policy: str = "transliterate-case-aware-v1") -> dict[str, Any]:
     if not isinstance(text, str) or not text.strip():
         _fail("input text is empty")
@@ -292,7 +297,15 @@ def validate_quality_corpus(corpus: Mapping[str, Any]) -> None:
 
 def validate_android_matrix(matrix: Mapping[str, Any]) -> None:
     targets = matrix.get("targets")
-    if matrix.get("abi") != "arm64-v8a" or not isinstance(targets, list) or {item.get("api") for item in targets} != {30, 35, 36}:
-        _fail("Android matrix must contain API 30, 35, and 36 arm64-v8a targets")
+    if (
+        matrix.get("abi") != "arm64-v8a"
+        or matrix.get("development_abi") != "x86_64"
+        or not isinstance(targets, list)
+        or {(item.get("api"), item.get("abi")) for item in targets}
+        != {(33, "arm64-v8a"), (33, "x86_64")}
+    ):
+        _fail("Android matrix must contain API 33 arm64-v8a and x86_64 targets")
     if any(item.get("status") != "UNAVAILABLE" for item in targets):
         _fail("matrix fixture must not substitute an unavailable target")
+    if set(matrix.get("non_gating_legacy_apis", ())) != {30, 35, 36}:
+        _fail("legacy API 30/35/36 targets must be explicitly non-gating")

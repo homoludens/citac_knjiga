@@ -6,6 +6,13 @@ import com.homoludens.citacknjiga.tts.onnx.OnnxTtsException
 import com.homoludens.citacknjiga.tts.onnx.OnnxTtsOutput
 import com.homoludens.citacknjiga.tts.onnx.OnnxTtsSession
 import com.homoludens.citacknjiga.tts.onnx.PcmWavWriter
+import com.homoludens.citacknjiga.tts.onnx.SherpaVitsSession
+import com.homoludens.citacknjiga.tts.onnx.TtsEngine
+import com.homoludens.citacknjiga.tts.onnx.TtsEnginePreference
+import com.homoludens.citacknjiga.tts.onnx.VitsAudioOutputValidator
+import com.homoludens.citacknjiga.tts.onnx.VitsModelPackageStore
+import com.homoludens.citacknjiga.tts.onnx.VitsSerbianFrontend
+import com.homoludens.citacknjiga.tts.onnx.VitsWavWriter
 import com.homoludens.citacknjiga.tts.onnx.WavArtifact
 import com.homoludens.citacknjiga.tts.onnx.preprocessing.SerbianPreprocessingOutput
 import com.homoludens.citacknjiga.tts.onnx.preprocessing.SerbianPreprocessor
@@ -53,6 +60,15 @@ public data class TypedTextModelProvenance(
     val voice: String = "Dragana",
     val runtime: String = "ONNX Runtime 1.29.0 CPU (1/1 threads)",
     val preprocessing: String = "kokoro-sr-ca5590d9 / contract 1",
+    val engine: String = "kokoro",
+    val modelRevision: String? = null,
+    val speakerId: Int? = null,
+    val nativeSampleRateHz: Int? = null,
+    val finalSampleRateHz: Int? = null,
+    val resamplerVersion: String? = null,
+    val frontendVersion: String? = null,
+    val runtimeId: String? = null,
+    val runtimeVersion: String? = null,
 )
 
 public data class TypedTextProofState(
@@ -196,6 +212,97 @@ public class AndroidTypedTextProofEngine(
                 packageVersion = packageInfo.packageVersion,
                 packageSha256 = packageInfo.identitySha256,
                 voiceSha256 = packageInfo.voiceSha256,
+                engine = packageInfo.engine,
+                modelRevision = packageInfo.modelRevision,
+                speakerId = packageInfo.speakerId,
+                nativeSampleRateHz = packageInfo.nativeSampleRateHz,
+                finalSampleRateHz = packageInfo.sampleRateHz,
+                resamplerVersion = packageInfo.resamplerVersion,
+                frontendVersion = packageInfo.frontendVersion,
+                runtimeId = packageInfo.runtimeId,
+                runtimeVersion = packageInfo.runtimeVersion,
             ),
         )
+}
+
+/** Uses the qualified Serbian VITS package for the existing proof/chapter flow. */
+public class AndroidVitsTypedTextProofEngine(
+    private val modelStore: VitsModelPackageStore,
+    private val artifactDirectory: File,
+    private val workerDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+) : TypedTextProofEngine {
+    override suspend fun generate(
+        text: String,
+        onDiagnostics: (TypedTextProofDiagnostics) -> Unit,
+    ): TypedTextProofResult = withContext(workerDispatcher) {
+        currentCoroutineContext().ensureActive()
+        val packageInfo = modelStore.activePackage()
+            ?: throw OnnxTtsException("No verified Serbian VITS package is installed.")
+        val vocabulary = modelStore.withVerifiedArtifactFile(packageInfo, "tokens") { file ->
+            val result = linkedMapOf<Int, Int>()
+            file.readLines().filter(String::isNotBlank).forEach { line ->
+                val fields = line.split(" ", limit = 2)
+                if (fields.size == 1) {
+                    result[' '.code] = fields[0].toInt()
+                } else if (!fields[0].startsWith("<")) {
+                    result[fields[0].codePointAt(0)] = fields[1].toInt()
+                }
+            }
+            result
+        }
+        val prepared = VitsSerbianFrontend(vocabulary, blankId = 139).process(text)
+        val diagnostics = TypedTextProofDiagnostics(
+            cleanupText = prepared.normalizedText,
+            normalizedText = prepared.normalizedText,
+            phonemes = "character frontend",
+            tokenIds = prepared.tokenIds,
+            protectedSpans = emptyList(),
+            chunkBoundaries = listOf("0..${prepared.tokenIds.size}"),
+            voiceRowIndex = packageInfo.speakerId ?: 0,
+            model = TypedTextModelProvenance(
+                packageId = packageInfo.packageId,
+                packageVersion = packageInfo.packageVersion,
+                packageSha256 = packageInfo.identitySha256,
+                voiceSha256 = packageInfo.voiceSha256,
+                runtime = "Sherpa-ONNX CPU (1 thread)",
+                preprocessing = packageInfo.preprocessingCompatibilityId,
+                engine = packageInfo.engine,
+                modelRevision = packageInfo.modelRevision,
+                speakerId = packageInfo.speakerId,
+                nativeSampleRateHz = packageInfo.nativeSampleRateHz,
+                finalSampleRateHz = packageInfo.sampleRateHz,
+                resamplerVersion = packageInfo.resamplerVersion,
+                frontendVersion = packageInfo.frontendVersion,
+                runtimeId = packageInfo.runtimeId,
+                runtimeVersion = packageInfo.runtimeVersion,
+            ),
+        )
+        onDiagnostics(diagnostics)
+        currentCoroutineContext().ensureActive()
+        val native = SherpaVitsSession.open(modelStore, packageInfo).use { session ->
+            session.generate(prepared.tokenIds.toIntArray(), packageInfo.speakerId ?: 0, 1f)
+        }
+        val final = VitsAudioOutputValidator.resampleOnce(native)
+        val wav = withContext(ioDispatcher) {
+            VitsWavWriter.writeAtomic(File(artifactDirectory, "typed-proof.wav"), final)
+        }
+        TypedTextProofResult(diagnostics, wav)
+    }
+}
+
+/** Routes only new generation requests; persisted audio is never rewritten. */
+public class EngineSelectingTypedTextProofEngine(
+    private val preference: TtsEnginePreference,
+    private val kokoro: TypedTextProofEngine,
+    private val vits: () -> TypedTextProofEngine?,
+) : TypedTextProofEngine {
+    override suspend fun generate(
+        text: String,
+        onDiagnostics: (TypedTextProofDiagnostics) -> Unit,
+    ): TypedTextProofResult = when (preference.selected) {
+        TtsEngine.KOKORO -> kokoro.generate(text, onDiagnostics)
+        TtsEngine.VITS -> vits()?.generate(text, onDiagnostics)
+            ?: throw OnnxTtsException("Serbian VITS is not available on this device.")
+    }
 }

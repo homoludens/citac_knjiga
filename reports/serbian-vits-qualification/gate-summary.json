@@ -2,12 +2,12 @@
   "schema": "serbian-vits-gate-record:1",
   "gates": [
     {"id": "identity", "result": "PASS", "evidence": ["qualification-manifest.json"], "reason": null},
-    {"id": "legal", "result": "FAIL", "evidence": ["legal-source-record.json"], "reason": "Distribution is BLOCKED because training-data and voice-permission evidence is unresolved."},
-    {"id": "conversion", "result": "UNRESOLVED", "evidence": ["conversion-report.json", "graph-inspection-report.json"], "reason": "The pinned source and two clean conversion outputs are unavailable."},
-    {"id": "desktop_parity", "result": "UNRESOLVED", "evidence": ["desktop-parity-report.json"], "reason": "No converted ONNX artifact or trusted reference is available."},
-    {"id": "android_parity", "result": "UNRESOLVED", "evidence": ["android-parity-report.json"], "reason": "No eligible package or production target is available."},
+    {"id": "legal", "result": "PASS", "evidence": ["legal-source-record.json"], "reason": "Project maintainer confirmed CC-BY-4.0 distribution acceptance for the model and voice package."},
+    {"id": "conversion", "result": "PASS", "evidence": ["conversion-report.json", "graph-inspection-report.json"], "reason": null},
+    {"id": "desktop_parity", "result": "UNRESOLVED", "evidence": ["desktop-parity-report.json"], "reason": "The converted ONNX produced stable non-silent output, but the complete text-free desktop parity evidence bundle is not recorded."},
+    {"id": "android_parity", "result": "UNRESOLVED", "evidence": ["android-parity-report.json"], "reason": "The API 33 runtime smoke passes, but desktop waveform parity evidence is not recorded."},
     {"id": "serbian_quality", "result": "UNRESOLVED", "evidence": ["preprocessing-report.json", "listening-report.json"], "reason": "Quality audio and complete corpus evaluation are unavailable."},
-    {"id": "android_matrix", "result": "UNRESOLVED", "evidence": ["android-matrix-report.json"], "reason": "API 30, API 35 arm64-v8a, and API 36 evidence is unavailable."}
+    {"id": "android_matrix", "result": "UNRESOLVED", "evidence": ["android-matrix-report.json"], "reason": "API 33 native arm64-v8a smoke passes, but the equivalent API 33 development ABI and full qualification observations are pending; API 30/35/36 are explicitly non-gating for this change."}
   ],
   "outcome": "REJECTED"
 }

@@ -1,0 +1,21 @@
+{
+  "schema": "native-source-closure:1",
+  "component": "sherpa-onnx-vits",
+  "repository": "https://github.com/k2-fsa/sherpa-onnx.git",
+  "revision": "34eba5a27220026b5981b633981c53205515067d",
+  "license": "Apache-2.0",
+  "build": {
+    "source_only": true,
+    "enable_tts": false,
+    "enable_binary": false,
+    "enable_python": false,
+    "fetchcontent_fully_disconnected": true,
+    "abis": ["arm64-v8a", "x86_64"],
+    "min_android_api": 30
+  },
+  "native_outputs": ["libcita_sherpa_vits.so"],
+  "dependencies": [
+    {"name": "onnxruntime", "source": "declared Android runtime dependency", "network_at_runtime": false}
+  ],
+  "raw_model_payloads": "external-release-asset-only"
+}

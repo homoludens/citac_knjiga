@@ -85,18 +85,35 @@ public class EpubChapterProofService(
             requestedAt = now,
         )
         dao.insertGenerationRun(queued)
-        dao.updateGenerationRun(queued.copy(status = GenerationRunStatus.RUNNING, startedAt = clock()))
+        var running = queued.copy(status = GenerationRunStatus.RUNNING, startedAt = clock())
+        dao.updateGenerationRun(running)
 
         try {
             val proof = proofEngine.generate(text) {}
             val model = proof.diagnostics.model
+            val preprocessingVersion = model.engine.takeIf { it == "vits" }
+                ?.let { model.preprocessing }
+                ?: PREPROCESSING_VERSION
+            running = running.copy(
+                preprocessingVersion = preprocessingVersion,
+                pronunciationVersion = preprocessingVersion,
+                engine = model.engine,
+                modelRevision = model.modelRevision,
+                speakerId = model.speakerId,
+                frontendVersion = model.frontendVersion,
+                nativeSampleRate = model.nativeSampleRateHz,
+                finalSampleRate = model.finalSampleRateHz,
+                runtimeId = model.runtimeId,
+                runtimeVersion = model.runtimeVersion,
+            )
+            dao.updateGenerationRun(running)
             val keys = GenerationKeyCalculator.calculate(
                 GenerationKeyInput(
                     tokens = proof.diagnostics.tokenIds,
                     modelSha256 = model.packageSha256,
                     voiceSha256 = model.voiceSha256,
-                    preprocessingVersion = PREPROCESSING_VERSION,
-                    pronunciationVersion = PRONUNCIATION_VERSION,
+                    preprocessingVersion = preprocessingVersion,
+                    pronunciationVersion = preprocessingVersion,
                     inferenceSettings = mapOf(
                         "execution_provider" to "cpu",
                         "inter_op_threads" to "1",
@@ -104,6 +121,15 @@ public class EpubChapterProofService(
                         "speed" to "1.0",
                     ),
                     audioProcessingVersion = AUDIO_PROCESSING_VERSION,
+                    engine = model.engine,
+                    modelRevision = model.modelRevision,
+                    speakerId = model.speakerId,
+                    frontendVersion = model.frontendVersion,
+                    nativeSampleRateHz = model.nativeSampleRateHz,
+                    finalSampleRateHz = model.finalSampleRateHz,
+                    resamplerVersion = model.resamplerVersion,
+                    runtimeId = model.runtimeId,
+                    runtimeVersion = model.runtimeVersion,
                 ),
             )
             val destination = storage.readyChapterWav(project.id, chapter.id)
@@ -121,10 +147,11 @@ public class EpubChapterProofService(
                 chunkOrdinal = 0,
                 generationKey = keys.generationKey,
                 generationRunId = runId,
+                modelPackageId = model.packageId,
                 modelPackageSha256 = model.packageSha256,
                 voiceSha256 = model.voiceSha256,
-                preprocessingVersion = PREPROCESSING_VERSION,
-                pronunciationVersion = PRONUNCIATION_VERSION,
+                preprocessingVersion = preprocessingVersion,
+                pronunciationVersion = preprocessingVersion,
                 inferenceSettingsHash = inferenceSettingsHash,
                 audioProcessingVersion = AUDIO_PROCESSING_VERSION,
                 status = AudioSegmentStatus.READY,
@@ -134,6 +161,15 @@ public class EpubChapterProofService(
                 durationMs = proof.wav.sampleCount * 1_000L / proof.wav.sampleRateHz,
                 createdAt = now,
                 updatedAt = clock(),
+                engine = model.engine,
+                modelRevision = model.modelRevision,
+                speakerId = model.speakerId,
+                frontendVersion = model.frontendVersion,
+                nativeSampleRate = model.nativeSampleRateHz,
+                finalSampleRate = model.finalSampleRateHz,
+                resamplerVersion = model.resamplerVersion,
+                runtimeId = model.runtimeId,
+                runtimeVersion = model.runtimeVersion,
             )
             dao.insertAudioSegment(segment)
             dao.updateNarrationBlock(
@@ -142,15 +178,15 @@ public class EpubChapterProofService(
                     normalizedTextHash = sha256(proof.diagnostics.normalizedText),
                     phonemeHash = sha256(proof.diagnostics.phonemes),
                     tokenHash = sha256(proof.diagnostics.tokenIds.joinToString(",")),
-                    preprocessingVersion = PREPROCESSING_VERSION,
-                    pronunciationVersion = PRONUNCIATION_VERSION,
+                    preprocessingVersion = preprocessingVersion,
+                    pronunciationVersion = preprocessingVersion,
                     status = NarrationBlockStatus.PROCESSED,
                     updatedAt = clock(),
                 ),
             )
             dao.updateChapter(chapter.copy(status = ChapterStatus.READY, updatedAt = clock()))
             dao.updateGenerationRun(
-                queued.copy(
+                running.copy(
                     status = GenerationRunStatus.COMPLETED,
                     startedAt = now,
                     finishedAt = clock(),
@@ -165,7 +201,7 @@ public class EpubChapterProofService(
         } catch (failure: Throwable) {
             runCatching {
                 dao.updateGenerationRun(
-                    queued.copy(
+                    running.copy(
                         status = GenerationRunStatus.FAILED,
                         startedAt = now,
                         finishedAt = clock(),

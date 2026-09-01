@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTre
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -84,6 +85,8 @@ import android.content.Intent
 import kotlinx.coroutines.CancellationException
 import com.homoludens.citacknjiga.playback.export.DestinationUnavailableException
 import com.homoludens.citacknjiga.tts.onnx.ModelPackageStore
+import com.homoludens.citacknjiga.tts.onnx.TtsEngine
+import com.homoludens.citacknjiga.tts.onnx.TtsEnginePreference
 import com.homoludens.citacknjiga.diagnostics.DiagnosticsAboutRoute
 import com.homoludens.citacknjiga.diagnostics.EpubImportDiagnosticFormatter
 
@@ -99,6 +102,7 @@ public fun CitacKnjigaApp(
     diagnostics: LocalDiagnostics = LocalDiagnostics(),
     privateStorage: AppPrivateStorage? = null,
     modelPackageStore: ModelPackageStore? = null,
+    ttsEnginePreference: TtsEnginePreference? = null,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -119,12 +123,14 @@ public fun CitacKnjigaApp(
                     onOpenBook = { id -> navController.navigate(AppRoute.Book.forId(id)) },
                     onOpenDiagnostics = { navController.navigate(AppRoute.Diagnostics.path) },
                     onGenerationAction = { runId, action -> sendGenerationAction(context, runId, action) },
+                    ttsEnginePreference = ttsEnginePreference,
                 )
             }
             composable(AppRoute.Diagnostics.path) {
                 DiagnosticsAboutRoute(
                     diagnostics = diagnostics,
                     modelPackageStore = modelPackageStore,
+                    vitsModelPackageStore = modelPackageStore?.vitsModelPackageStore,
                     privateStorage = privateStorage,
                     variant = variant,
                     onBack = navController::popBackStack,
@@ -158,12 +164,21 @@ private fun StartScreen(
     onOpenBook: (String) -> Unit,
     onOpenDiagnostics: () -> Unit,
     onGenerationAction: (String, GenerationAction) -> Unit,
+    ttsEnginePreference: TtsEnginePreference?,
 ) {
     val libraryController = remember(audiobookDao) { audiobookDao?.let(::LibraryController) }
     val libraryFlow: Flow<LibraryViewState> = libraryController?.state ?: flowOf(LibraryViewState())
     val libraryState by libraryFlow.collectAsState(initial = LibraryViewState())
     val controller = remember(proofEngine) {
         TypedTextProofController(proofEngine ?: MissingProofEngine())
+    }
+    var selectedEngine by remember(ttsEnginePreference) {
+        mutableStateOf(ttsEnginePreference?.selected ?: TtsEngine.KOKORO)
+    }
+    val availableEngines = ttsEnginePreference?.available() ?: listOf(TtsEngine.KOKORO)
+    androidx.compose.runtime.LaunchedEffect(ttsEnginePreference) {
+        ttsEnginePreference?.refresh()
+        selectedEngine = ttsEnginePreference?.selected ?: TtsEngine.KOKORO
     }
     val player = remember { LocalWavPlayer() }
     val playbackScope = rememberCoroutineScope()
@@ -271,6 +286,12 @@ private fun StartScreen(
                 onCancel = controller::cancel,
                 onPlay = { state.wav?.file?.let { player.play(it, playbackScope) } },
                 onStop = player::stop,
+                selectedEngine = selectedEngine,
+                availableEngines = availableEngines,
+                onEngineSelected = {
+                    ttsEnginePreference?.select(it)
+                    selectedEngine = ttsEnginePreference?.selected ?: TtsEngine.KOKORO
+                },
             )
         }
     }
@@ -676,6 +697,9 @@ private fun TypedTextProofContent(
     onCancel: () -> Unit,
     onPlay: () -> Unit,
     onStop: () -> Unit,
+    selectedEngine: TtsEngine,
+    availableEngines: List<TtsEngine>,
+    onEngineSelected: (TtsEngine) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -693,6 +717,22 @@ private fun TypedTextProofContent(
             text = stringResource(R.string.proof_description),
             style = MaterialTheme.typography.bodyLarge,
         )
+        if (availableEngines.size > 1) {
+            Text(stringResource(R.string.engine), style = MaterialTheme.typography.titleMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                availableEngines.forEach { engine ->
+                    if (engine == selectedEngine) {
+                        Button(onClick = { onEngineSelected(engine) }) {
+                            Text(stringResource(engine.label()))
+                        }
+                    } else {
+                        OutlinedButton(onClick = { onEngineSelected(engine) }) {
+                            Text(stringResource(engine.label()))
+                        }
+                    }
+                }
+            }
+        }
         OutlinedTextField(
             value = state.text,
             onValueChange = onTextChanged,
@@ -765,6 +805,11 @@ private fun TypedTextProofContent(
         }
         Text(stringResource(R.string.distribution_format, variant.distribution.id), style = MaterialTheme.typography.labelMedium)
     }
+}
+
+private fun TtsEngine.label(): Int = when (this) {
+    TtsEngine.KOKORO -> R.string.engine_kokoro
+    TtsEngine.VITS -> R.string.engine_vits
 }
 
 @Composable

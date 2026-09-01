@@ -55,6 +55,9 @@
     <string name="package_origin">Порекло пакета</string>
     <string name="runtime">Распоред</string>
     <string name="preprocessing">Претпроцесирање</string>
+    <string name="engine">Енгин</string>
+    <string name="engine_kokoro">Kokoro</string>
+    <string name="engine_vits">VITS (Dragana)</string>
     <string name="ready_wav">Готов WAV</string>
     <string name="wav_format_samples">24 kHz, mono, PCM16, %1$d samples</string>
     <string name="distribution_format">Дистрибуција: %1$s</string>
@@ -183,6 +186,10 @@
     <string name="diagnostics_export_success">Дијагностика је извезена.</string>
     <string name="diagnostics_export_failed">Извоз дијагностике није успео. Изаберите другу локацију.</string>
     <string name="model_import_action">Увези пакет модела</string>
+    <string name="vits_import_action">Увези Serbian VITS пакет</string>
+    <string name="vits_import_busy">Увоз Serbian VITS пакета је у току.</string>
+    <string name="vits_import_success">Serbian VITS пакет је проверен и доступан.</string>
+    <string name="vits_import_failed">Serbian VITS пакет није прошао проверу.</string>
     <string name="model_import_busy">Увоз пакета модела је у току.</string>
     <string name="model_get_action">Преузми пакет модела</string>
     <string name="model_release_unavailable">Спољна страница за пакет модела није доступна.</string>

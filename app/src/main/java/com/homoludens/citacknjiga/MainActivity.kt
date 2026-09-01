@@ -27,6 +27,7 @@ public class MainActivity : ComponentActivity() {
                 diagnostics = container.diagnostics,
                 privateStorage = container.privateStorage,
                 modelPackageStore = container.modelPackageStore,
+                ttsEnginePreference = container.ttsEnginePreference,
             )
         }
     }

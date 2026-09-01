@@ -1,10 +1,44 @@
 {
   "schema": "serbian-vits-conversion-report:1",
-  "status": "UNRESOLVED",
-  "source_manifest": "not available; source must be fetched at the exact revision outside the repository",
-  "first_run": null,
-  "second_run": null,
-  "byte_identical": false,
-  "canonical_manifest_identity": null,
-  "reason": "No pinned VITS source or converter result is present in this checkout."
+  "status": "PASS",
+  "source_manifest": "external disposable source manifest for the pinned revision",
+  "candidate": {
+    "model_id": "daremc86/sr-cv-vits",
+    "revision": "83dc1e1b95d85b9f5602dc94909706fc83dfbc6c",
+    "speaker": {"id": 0, "label": "Dragana"}
+  },
+  "converter": {
+    "deterministic": true,
+    "onnx": "1.22.0",
+    "path": "model-tools/scripts/convert_serbian_vits_to_sherpa.py",
+    "runtime": "0.27.5",
+    "torch": "2.13.0+cpu"
+  },
+  "package": {
+    "path": "serbian-vits-1.0.0.zip",
+    "sha256": "45aa231e12c8a317f0d093cfb56d54066e19b53561b4ac401661109f19abe5dc",
+    "identity_sha256": "a34c0b639b5d3580e437862dcba18929236d62d43c3dfe1b8e8d5d89e4e53185"
+  },
+  "graph": {
+    "onnx_version": "1.22.0",
+    "external_data": false,
+    "operator_domains": ["ai.onnx"],
+    "inputs": ["input", "input_lengths", "scales", "sid", "langid"],
+    "outputs": ["output"],
+    "sample_rate_hz": 22050,
+    "token_count": 140,
+    "speaker": {"id": 0, "label": "Dragana"}
+  },
+  "sherpa": {
+    "revision": "34eba5a27220026b5981b633981c53205515067d",
+    "model_type": "vits",
+    "frontend": "characters"
+  },
+  "source_hashes": {
+    "config.json": "a0a14385a21854b970cee364a853950aa6168e690beb8c7c35d1673ea042d5c8",
+    "language_ids.json": "d249880c338370db1ee4df26207f541512cd05c275f2c0aafedf27e20abeccf4",
+    "model.pth": "7b43231864dbac69901155ed397c1a30d0d06b066b03f0348fd39eed2ea1d4b0",
+    "speaker_ids.json": "4d877c09f8dca306307c51a1d0070d5fc493615eed11fdadc7d55d2976f685c8"
+  },
+  "qualification": {"api": 33, "abi": "arm64-v8a", "status": "PASS"}
 }

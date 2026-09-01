@@ -113,7 +113,7 @@ public class AudiobookDatabaseMigrationTest {
         context.openOrCreateDatabase(DATABASE_NAME, 0, null).let { database ->
             try {
                 database.execSQL("CREATE TABLE future_table (id TEXT NOT NULL PRIMARY KEY)")
-                database.version = 2
+                database.version = 4
             } finally {
                 database.close()
             }

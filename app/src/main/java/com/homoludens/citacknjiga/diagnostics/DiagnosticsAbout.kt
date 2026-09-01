@@ -44,6 +44,7 @@ import com.homoludens.citacknjiga.core.diagnostics.LocalDiagnostics
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.tts.onnx.DeviceParityRuntimeIdentity
 import com.homoludens.citacknjiga.tts.onnx.ModelPackageStore
+import com.homoludens.citacknjiga.tts.onnx.VitsModelPackageStore
 import com.homoludens.citacknjiga.tts.onnx.ModelPackageFailure
 import com.homoludens.citacknjiga.tts.onnx.ModelPackageFailureCode
 import kotlinx.coroutines.Dispatchers
@@ -373,6 +374,7 @@ public object DiagnosticsExport {
 public fun DiagnosticsAboutRoute(
     diagnostics: LocalDiagnostics,
     modelPackageStore: ModelPackageStore?,
+    vitsModelPackageStore: VitsModelPackageStore?,
     privateStorage: AppPrivateStorage?,
     variant: AppVariant,
     onBack: () -> Unit,
@@ -384,6 +386,8 @@ public fun DiagnosticsAboutRoute(
     var latestImportFailure by remember { mutableStateOf<ModelPackageFailure?>(null) }
     var importBusy by remember { mutableStateOf(false) }
     var importJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+    var vitsImportBusy by remember { mutableStateOf(false) }
+    var vitsImportMessage by remember { mutableStateOf<Int?>(null) }
     var releaseMessage by remember { mutableStateOf<Int?>(null) }
     val releaseUrl = BuildConfig.MODEL_RELEASE_URL
     val releaseConfigured = releaseUrl.isNotBlank()
@@ -401,6 +405,25 @@ public fun DiagnosticsAboutRoute(
                     latestImportFailure = (result as? com.homoludens.citacknjiga.tts.onnx.ModelPackageImportResult.Failure)?.failure
                     state = DiagnosticsAboutSnapshotBuilder(context, variant, modelPackageStore, privateStorage)
                         .build(latestImportFailure)
+                }
+            }
+        }
+    }
+    val vitsImportLauncher = rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri != null && vitsModelPackageStore != null && !vitsImportBusy) {
+            vitsImportBusy = true
+            vitsImportMessage = null
+            scope.launch(Dispatchers.IO) {
+                val result = modelPackageStore?.tryImportVitsFromSaf(context.contentResolver, uri)
+                withContext(Dispatchers.Main.immediate) {
+                    vitsImportBusy = false
+                    vitsImportMessage = if (result is com.homoludens.citacknjiga.tts.onnx.ModelPackageImportResult.Success) {
+                        R.string.vits_import_success
+                    } else {
+                        R.string.vits_import_failed
+                    }
                 }
             }
         }
@@ -435,6 +458,10 @@ public fun DiagnosticsAboutRoute(
         onBack = onBack,
         onExport = { exportLauncher.launch("citac-knjiga-diagnostics.txt") },
         onImport = { importLauncher.launch(arrayOf("application/zip", "application/octet-stream")) },
+        onImportVits = { vitsImportLauncher.launch(arrayOf("application/zip", "application/octet-stream")) },
+        vitsImportEnabled = vitsModelPackageStore != null && !vitsImportBusy,
+        vitsImportBusy = vitsImportBusy,
+        vitsImportMessage = vitsImportMessage?.let { stringResource(it) },
         importEnabled = modelPackageStore != null && !importBusy,
         importBusy = importBusy,
         releaseConfigured = releaseConfigured,
@@ -454,8 +481,12 @@ public fun DiagnosticsAboutScreen(
     onBack: () -> Unit = {},
     onExport: () -> Unit = {},
     onImport: () -> Unit = {},
+    onImportVits: () -> Unit = {},
     importEnabled: Boolean = true,
     importBusy: Boolean = false,
+    vitsImportEnabled: Boolean = false,
+    vitsImportBusy: Boolean = false,
+    vitsImportMessage: String? = null,
     releaseConfigured: Boolean = false,
     releaseAvailable: Boolean = false,
     releaseMessage: String? = null,
@@ -501,6 +532,13 @@ public fun DiagnosticsAboutScreen(
                     Button(onClick = onImport, enabled = importEnabled, modifier = Modifier.fillMaxWidth()) {
                         Text(stringResource(R.string.model_import_action))
                     }
+                    Button(onClick = onImportVits, enabled = vitsImportEnabled, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.vits_import_action))
+                    }
+                    if (vitsImportBusy) {
+                        Text(stringResource(R.string.vits_import_busy))
+                    }
+                    vitsImportMessage?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
                     if (importBusy) {
                         Text(
                             stringResource(R.string.model_import_busy),

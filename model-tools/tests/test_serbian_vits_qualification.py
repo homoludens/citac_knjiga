@@ -25,6 +25,7 @@ from qualification.qualification import (  # noqa: E402
     validate_resampler_manifest,
     validate_identity,
     validate_package_entries,
+    validate_vits_package_roles,
 )
 
 
@@ -79,6 +80,14 @@ def test_package_is_closed_world_and_rejects_executable_payload() -> None:
         validate_package_entries(["model.onnx", "convert.py"], ["model.onnx", "convert.py"])
     with pytest.raises(ValueError, match="mismatch"):
         validate_package_entries(["model.onnx", "notice.json"], ["model.onnx"])
+
+
+def test_vits_package_requires_model_and_tokens() -> None:
+    validate_vits_package_roles(["onnx", "tokens", "notice"])
+    with pytest.raises(ValueError):
+        validate_vits_package_roles(["onnx", "notice"])
+    with pytest.raises(ValueError):
+        validate_vits_package_roles(["onnx", "tokens", "lexicon", "lexicon"])
 
 
 def test_package_schema_identity_is_separate_from_existing_contract() -> None:

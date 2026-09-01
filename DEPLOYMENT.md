@@ -130,12 +130,13 @@ The independent qualification record is under
 `reports/serbian-vits-qualification/`. It evaluates only
 `daremc86/sr-cv-vits` revision
 `83dc1e1b95d85b9f5602dc94909706fc83dfbc6c`, Dragana speaker `0`, native
-22,050 Hz, and final 24,000 Hz mono. Its exact outcome is **REJECTED**:
-training-data and voice-permission evidence is blocked, conversion and parity
-are unresolved, and API 30, API 35 production `arm64-v8a`, and API 36 targets
-are unavailable. No VITS package or payload is embedded in either Android
-variant, and no VITS backend, preference, migration, or production code was
-added. Kokoro remains the only production engine.
+22,050 Hz, and final 24,000 Hz mono. Its exact outcome remains **REJECTED**:
+the legal gate is **ALLOWED** by project-maintainer confirmation and the
+deterministic conversion/graph gates pass, but production Android generation,
+parity, Serbian quality, and API 33 device evidence remain unresolved. No VITS
+package or payload is embedded in either Android variant. The conditional VITS
+runtime boundary remains unavailable until the API 33 gate passes, so Kokoro
+remains the only usable production engine.
 
 Run the redacted record checks with the locked desktop environment:
 
@@ -146,12 +147,59 @@ model-tools/.venv/bin/python -m pytest model-tools/tests/test_serbian_vits_quali
 ```
 
 Raw Hugging Face source, checkpoints, ONNX output, packages, numeric sidecars,
-and generated audio belong outside the repository. A future accepted package
-must use `serbian-vits-model-package:1`, self-contained ONNX, declared entries
-only, and local offline inference. The exact native-to-final resampler is
+and generated audio belong outside the repository. The validated external
+package uses `serbian-vits-model-package:1`, self-contained ONNX, declared
+entries only, and local offline inference. The exact native-to-final resampler is
 versioned as `serbian-vits-resampler-v1` and may run once only; invalid samples
 are rejected before PCM or codec publication. Failed package import or
 generation leaves the last valid Kokoro package and existing audio untouched.
+
+The implementation keeps VITS in `vits-active.zip` and `vits-last-valid.zip`,
+separate from Kokoro's `active.zip` and `last-valid.zip`. A package must carry
+the exact model revision, CC-BY-4.0 attribution and modification notice,
+Sherpa-compatible entries, and a `PASS` API 33 `arm64-v8a` qualification before
+the engine selector exposes it. The external package manifest and conversion
+record satisfy the package contract; the real device generation test is still
+pending. The development API 33 fixture uses `x86_64`; API 30/35/36 are
+explicitly non-gating for this change. Sherpa source closure
+and Apache-2.0 notice are recorded in
+`model-tools/native/sherpa-onnx-source-closure-v1.json` and
+`model-tools/native/SHERPA-NOTICE.md`.
+
+The first real Sherpa VITS Android smoke run passed on Poco F3 `2555a240`
+(`M2012K11AG`, API 33, native `arm64-v8a`) with Wi-Fi and mobile data disabled.
+`SherpaVitsAndroidTest#qualifiedPackageGeneratesOfflineSerbianAudio` imported
+the external package, generated non-silent native 22,050 Hz mono audio, and
+validated the single 24,000 Hz mono resampling step. The package SHA-256 was
+`45aa231e12c8a317f0d093cfb56d54066e19b53561b4ac401661109f19abe5dc`.
+This is recorded in `android-parity-report.json` and
+`android-matrix-report.json` as smoke evidence only. Full parity, resource,
+interruption, recovery, and equivalent API 33 `x86_64` evidence remain open;
+the overall qualification therefore remains rejected and VITS is not exposed
+as a usable production engine.
+
+The disposable fetch command is:
+
+```sh
+python3 model-tools/scripts/fetch_serbian_vits_source.py \
+  /tmp/citac-knjiga-sr-cv-vits-83dc1e1b \
+  --manifest /tmp/citac-knjiga-sr-cv-vits-source-manifest.json
+```
+
+The fetched checkpoint is never an Android input. The verified source manifest
+records `model.pth` SHA-256
+`7b43231864dbac69901155ed397c1a30d0d06b066b03f0348fd39eed2ea1d4b0`,
+`config.json` SHA-256
+`a0a14385a21854b970cee364a853950aa6168e690beb8c7c35d1673ea042d5c8`,
+`speaker_ids.json` SHA-256
+`4d877c09f8dca306307c51a1d0070d5fc493615eed11fdadc7d55d2976f685c8`, and
+`language_ids.json` SHA-256
+`d249880c338370db1ee4df26207f541512cd05c275f2c0aafedf27e20abeccf4`.
+The model source and license references are
+`https://huggingface.co/daremc86/sr-cv-vits/tree/83dc1e1b95d85b9f5602dc94909706fc83dfbc6c`
+and `https://creativecommons.org/licenses/by/4.0/`. Sherpa-ONNX is sourced
+from `https://github.com/k2-fsa/sherpa-onnx` under
+`https://www.apache.org/licenses/LICENSE-2.0`.
 
 Known-good steps to reproduce the desktop CPU inference path. Keep this file
 current as the environment changes.

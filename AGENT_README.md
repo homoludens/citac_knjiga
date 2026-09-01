@@ -702,12 +702,35 @@ target.
 - The exact candidate is `daremc86/sr-cv-vits` revision
   `83dc1e1b95d85b9f5602dc94909706fc83dfbc6c`, Dragana speaker `0`, native
   22,050 Hz, final 24,000 Hz mono. The summary is **REJECTED**: legal/source
-  review is blocked, conversion and parity are unresolved, and the required
-  API 30/API 35 production ARM64/API 36 matrix is unavailable.
+  review is now legally allowed by project-maintainer confirmation, and the
+  pinned conversion/graph inspection pass. The overall candidate remains
+  rejected because production Android generation, parity, Serbian quality, and
+  the API 33 device evidence are still pending.
 - The harness enforces exact identity, closed-world package entries, NFC and
   Serbian input policy, deterministic number/abbreviation handling, one
   resampling step, candidate-specific evidence links, and fail-closed gate
   promotion. Raw model/checkpoint/audio artifacts remain outside the repo.
-- Because the outcome is rejection, no VITS backend, package activation,
-  preference, Room migration, or Android production integration was added;
-  Kokoro remains available with unchanged existing provenance.
+- Because the overall outcome is still rejection, the runtime change keeps VITS
+  unavailable until the API 33 native ARM64 generation gate passes. Kokoro
+  remains available with unchanged existing provenance.
+
+## Serbian VITS runtime change
+
+- `enable-sherpa-vits-runtime` now has an isolated VITS package slot,
+  model-owned frontend/audio boundary, cancellable Sherpa JNI session, and
+  nullable engine-qualified Room provenance fields. Kokoro files and legacy
+  rows remain separate and unchanged in meaning.
+- Sherpa-ONNX is source-pinned to
+  `34eba5a27220026b5981b633981c53205515067d` under Apache-2.0. The VITS model
+  remains the external `daremc86/sr-cv-vits` revision
+  `83dc1e1b95d85b9f5602dc94909706fc83dfbc6c`, Dragana speaker `0`, CC-BY-4.0.
+- Legal distribution is accepted for this project, and the deterministic
+  external package `serbian-vits-1.0.0.zip` has a validated identity and
+  self-contained graph. VITS remains unavailable until the API 33 native
+  ARM64 generation gate is recorded. No raw checkpoint, generated audio, or
+  network runtime dependency is added.
+- The first real Sherpa VITS smoke run passed on Poco F3 `2555a240` (`M2012K11AG`,
+  API 33, native `arm64-v8a`) with networking disabled. It generated non-silent
+  native 22,050 Hz mono audio and validated final 24,000 Hz mono output. Full
+  parity, resource, interruption, recovery, and equivalent API 33 `x86_64`
+  evidence remain open, so VITS is still unavailable in production.

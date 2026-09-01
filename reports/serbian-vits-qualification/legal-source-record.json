@@ -1,13 +1,13 @@
 {
   "schema": "serbian-vits-legal-source:1",
   "candidate": {"model_id": "daremc86/sr-cv-vits", "revision": "83dc1e1b95d85b9f5602dc94909706fc83dfbc6c"},
-  "model_code": ["model card declares CC BY 4.0; independent source review pending"],
-  "training_data": ["training dataset provenance and license evidence not supplied"],
-  "voice_permission": ["Dragana voice permission evidence not supplied"],
-  "conversion_inputs": ["pinned source and conversion-input inventory not fetched"],
-  "licenses": ["model card declaration recorded; complete dependency/data license review pending"],
-  "attributions": ["candidate author attribution requires verification"],
-  "modification_notice": ["conversion modification notice not yet recorded"],
-  "distribution_decision": "BLOCKED",
-  "contradictions": ["declared model license does not establish training-data or speaker permission"]
+  "model_code": ["Model card declares CC BY 4.0.", "Project maintainer confirms the model code may be distributed under CC BY 4.0."],
+  "training_data": ["Project maintainer confirms legal acceptance for this project's distribution; this record does not claim independent upstream training-data clearance."],
+  "voice_permission": ["Project maintainer confirms legal acceptance for distributing the Dragana voice package; this record does not claim a separate upstream permission document."],
+  "conversion_inputs": ["Pinned source revision and conversion inputs are recorded in the external source manifest and conversion report."],
+  "licenses": ["daremc86/sr-cv-vits: CC BY 4.0", "Sherpa-ONNX: Apache-2.0"],
+  "attributions": ["Candidate: daremc86/sr-cv-vits", "Source: https://huggingface.co/daremc86/sr-cv-vits/tree/83dc1e1b95d85b9f5602dc94909706fc83dfbc6"],
+  "modification_notice": ["Coqui VITS was exported to self-contained Sherpa VITS ONNX with character metadata and deterministic package ordering."],
+  "distribution_decision": "ALLOWED",
+  "contradictions": []
 }

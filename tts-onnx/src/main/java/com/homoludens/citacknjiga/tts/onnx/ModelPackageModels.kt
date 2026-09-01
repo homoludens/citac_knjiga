@@ -15,6 +15,13 @@ public data class InstalledModelPackage(
     val requiredAbi: String = "arm64-v8a",
     val sampleRateHz: Int = 24_000,
     val channels: Int = 1,
+    val engine: String = "kokoro",
+    val modelRevision: String? = null,
+    val speakerId: Int? = null,
+    val nativeSampleRateHz: Int? = null,
+    val frontendVersion: String? = null,
+    val resamplerVersion: String? = null,
+    val qualificationStatus: String? = null,
 )
 
 public enum class ModelPackageFailureCode {

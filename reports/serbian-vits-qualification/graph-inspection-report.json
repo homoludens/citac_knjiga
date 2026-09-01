@@ -1,11 +1,15 @@
 {
   "schema": "serbian-vits-graph-inspection:1",
-  "status": "UNRESOLVED",
-  "inputs": [],
-  "outputs": [],
-  "operator_domains": [],
+  "status": "PASS",
+  "inputs": ["input", "input_lengths", "scales", "sid", "langid"],
+  "outputs": ["output"],
+  "operator_domains": ["ai.onnx"],
   "external_data": false,
   "network_access": false,
   "resource_limit": "not measured",
-  "reason": "The actual pinned graph is not available; no graph contract is inferred from Kokoro."
+  "sample_rate_hz": 22050,
+  "token_count": 140,
+  "speaker": {"id": 0, "label": "Dragana"},
+  "onnx_version": "1.22.0",
+  "sherpa_revision": "34eba5a27220026b5981b633981c53205515067d"
 }

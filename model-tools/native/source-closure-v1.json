@@ -82,6 +82,18 @@
       "build_mode": "published Maven AAR; not locally source-built"
     }
   ],
+  "optional_source_components": [
+    {
+      "name": "sherpa-onnx-vits",
+      "repository": "https://github.com/k2-fsa/sherpa-onnx.git",
+      "commit": "34eba5a27220026b5981b633981c53205515067d",
+      "license": "Apache-2.0",
+      "target": "cita_sherpa_vits",
+      "jni_source": "tts-onnx/src/main/cpp/native_sherpa_vits.cpp",
+      "output": "libcita_sherpa_vits.so",
+      "network_at_runtime": false
+    }
+  ],
   "closure": {
     "scan_roots": [
       "app",

@@ -299,6 +299,24 @@ public data class GenerationRunEntity(
     val startedAt: Long? = null,
     @ColumnInfo(name = "finished_at")
     val finishedAt: Long? = null,
+    @ColumnInfo(name = "engine")
+    val engine: String? = null,
+    @ColumnInfo(name = "model_revision")
+    val modelRevision: String? = null,
+    @ColumnInfo(name = "speaker_id")
+    val speakerId: Int? = null,
+    @ColumnInfo(name = "frontend_version")
+    val frontendVersion: String? = null,
+    @ColumnInfo(name = "native_sample_rate")
+    val nativeSampleRate: Int? = null,
+    @ColumnInfo(name = "final_sample_rate")
+    val finalSampleRate: Int? = null,
+    @ColumnInfo(name = "resampler_version")
+    val resamplerVersion: String? = null,
+    @ColumnInfo(name = "runtime_id")
+    val runtimeId: String? = null,
+    @ColumnInfo(name = "runtime_version")
+    val runtimeVersion: String? = null,
 )
 
 @Entity(
@@ -393,6 +411,24 @@ public data class AudioSegmentEntity(
     val createdAt: Long,
     @ColumnInfo(name = "updated_at")
     val updatedAt: Long,
+    @ColumnInfo(name = "engine")
+    val engine: String? = null,
+    @ColumnInfo(name = "model_revision")
+    val modelRevision: String? = null,
+    @ColumnInfo(name = "speaker_id")
+    val speakerId: Int? = null,
+    @ColumnInfo(name = "frontend_version")
+    val frontendVersion: String? = null,
+    @ColumnInfo(name = "native_sample_rate")
+    val nativeSampleRate: Int? = null,
+    @ColumnInfo(name = "final_sample_rate")
+    val finalSampleRate: Int? = null,
+    @ColumnInfo(name = "resampler_version")
+    val resamplerVersion: String? = null,
+    @ColumnInfo(name = "runtime_id")
+    val runtimeId: String? = null,
+    @ColumnInfo(name = "runtime_version")
+    val runtimeVersion: String? = null,
 )
 
 @Entity(

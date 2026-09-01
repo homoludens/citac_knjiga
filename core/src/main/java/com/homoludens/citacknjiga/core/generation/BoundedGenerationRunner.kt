@@ -35,6 +35,15 @@ public data class GenerationProvenance(
     public val pronunciationVersion: String,
     public val inferenceSettingsHash: String,
     public val audioProcessingVersion: String,
+    public val engine: String? = null,
+    public val modelRevision: String? = null,
+    public val speakerId: Int? = null,
+    public val nativeSampleRateHz: Int? = null,
+    public val finalSampleRateHz: Int? = null,
+    public val frontendVersion: String? = null,
+    public val resamplerVersion: String? = null,
+    public val runtimeId: String? = null,
+    public val runtimeVersion: String? = null,
 ) {
     init {
         require(generationKey.isNotBlank()) { "Generation key cannot be blank" }
@@ -226,6 +235,15 @@ public class BoundedGenerationRunner(
         checkProvenance(run.inferenceSettingsHash == provenance.inferenceSettingsHash, "different inference settings")
         checkProvenance(run.audioProcessingVersion == provenance.audioProcessingVersion, "different audio-processing version")
         checkProvenance(audio.sampleRateHz == 24_000 && audio.channels == 1, "audio is not 24 kHz mono")
+        checkProvenance(run.engine == provenance.engine, "different TTS engine")
+        checkProvenance(run.modelRevision == provenance.modelRevision, "different model revision")
+        checkProvenance(run.speakerId == provenance.speakerId, "different speaker")
+        checkProvenance(run.frontendVersion == provenance.frontendVersion, "different frontend")
+        checkProvenance(run.nativeSampleRate == provenance.nativeSampleRateHz, "different native sample rate")
+        checkProvenance(run.finalSampleRate == provenance.finalSampleRateHz, "different final sample rate")
+        checkProvenance(run.resamplerVersion == provenance.resamplerVersion, "different resampler")
+        checkProvenance(run.runtimeId == provenance.runtimeId, "different runtime")
+        checkProvenance(run.runtimeVersion == provenance.runtimeVersion, "different runtime version")
     }
 
     /** Never overwrite a file retained by a previous verified Room checkpoint. */

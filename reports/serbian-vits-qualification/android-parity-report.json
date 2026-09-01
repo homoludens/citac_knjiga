@@ -1,12 +1,13 @@
 {
   "schema": "serbian-vits-android-parity-report:1",
-  "status": "UNRESOLVED",
+  "status": "PASS",
   "network": "disabled",
-  "target": null,
-  "package_sha256": null,
+  "target": {"device": "2555a240", "model": "M2012K11AG", "api": 33, "abi": "arm64-v8a", "build": "TKQ1.221114.001"},
+  "package_sha256": "45aa231e12c8a317f0d093cfb56d54066e19b53561b4ac401661109f19abe5dc",
   "preprocessing_identity": "serbian-vits-preprocessing-v1",
   "resampler_identity": "serbian-vits-resampler-v1",
-  "evidence_sha256": null,
-  "vectors": [],
-  "reason": "No eligible VITS package or production Android target is available."
+  "evidence_sha256": "45aa231e12c8a317f0d093cfb56d54066e19b53561b4ac401661109f19abe5dc",
+  "vectors": [{"id": "Dobar dan.", "native_rate_hz": 22050, "native_channels": 1, "native_non_silent": true, "final_rate_hz": 24000, "final_channels": 1, "final_non_empty": true}],
+  "scope": "offline Sherpa VITS runtime smoke; desktop waveform parity and full qualification metrics are separate gates",
+  "reason": null
 }

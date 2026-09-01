@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import sys
 from zipfile import BadZipFile, ZipFile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from qualification.qualification import PACKAGE_SCHEMA, validate_package_entries
+from qualification.qualification import PACKAGE_SCHEMA, validate_package_entries, validate_vits_package_roles
 
 
 def validate(path: Path) -> dict:
@@ -29,8 +30,15 @@ def validate(path: Path) -> dict:
         raise ValueError("package candidate identity is not the pinned Dragana model")
     declared = [entry["path"] for entry in manifest.get("entries", [])]
     validate_package_entries(names, declared + [manifest_name])
+    validate_vits_package_roles([entry["role"] for entry in manifest["entries"]])
     if manifest.get("legal") != "ALLOWED":
         raise ValueError("package legal status is not ALLOWED")
+    attribution = manifest.get("attribution", {})
+    if attribution.get("license") != "CC-BY-4.0" or not attribution.get("source_url") or not attribution.get("modification_notice"):
+        raise ValueError("package attribution or modification notice is incomplete")
+    qualification = manifest.get("qualification", {})
+    if qualification.get("status") != "PASS" or qualification.get("api") != 33 or qualification.get("abi") != "arm64-v8a":
+        raise ValueError("package is not qualified on API 33 arm64-v8a")
     graph = manifest.get("graph_contract", {})
     if graph.get("status") != "INSPECTED" or graph.get("external_data") or graph.get("network_access") or graph.get("operator_domains") != ["ai.onnx"]:
         raise ValueError("package graph contract is not self-contained standard ONNX")
@@ -38,6 +46,11 @@ def validate(path: Path) -> dict:
         raise ValueError("package preprocessing contract is not declared")
     if manifest.get("resampler") != {"identity": "serbian-vits-resampler-v1", "native_rate_hz": 22050, "final_rate_hz": 24000, "channels": 1}:
         raise ValueError("package resampler contract is not declared")
+    with ZipFile(path) as archive:
+        for entry in manifest["entries"]:
+            payload = archive.read(entry["path"])
+            if len(payload) != entry["size_bytes"] or hashlib.sha256(payload).hexdigest() != entry["sha256"]:
+                raise ValueError(f"package checksum mismatch: {entry['path']}")
     return manifest
 
 

@@ -15,6 +15,15 @@ public data class GenerationKeyInput(
     public val pronunciationVersion: String,
     public val inferenceSettings: Map<String, String>,
     public val audioProcessingVersion: String,
+    public val engine: String? = null,
+    public val modelRevision: String? = null,
+    public val speakerId: Int? = null,
+    public val frontendVersion: String? = null,
+    public val nativeSampleRateHz: Int? = null,
+    public val finalSampleRateHz: Int? = null,
+    public val resamplerVersion: String? = null,
+    public val runtimeId: String? = null,
+    public val runtimeVersion: String? = null,
 )
 
 /** The shared dependency identity and the token-specific generation identity. */
@@ -52,6 +61,17 @@ public object GenerationKeyCalculator {
             writeField(value)
         }
         writeField("audio_processing_version", canonicalVersion(input.audioProcessingVersion, "audioProcessingVersion"))
+        listOf(
+            "engine" to input.engine,
+            "model_revision" to input.modelRevision,
+            "speaker_id" to input.speakerId?.toString(),
+            "frontend_version" to input.frontendVersion,
+            "native_sample_rate_hz" to input.nativeSampleRateHz?.toString(),
+            "final_sample_rate_hz" to input.finalSampleRateHz?.toString(),
+            "resampler_version" to input.resamplerVersion,
+            "runtime_id" to input.runtimeId,
+            "runtime_version" to input.runtimeVersion,
+        ).forEach { (name, value) -> if (value != null) writeField(name, value) }
     }
 
     public fun generationKey(input: GenerationKeyInput): String = calculate(input).generationKey

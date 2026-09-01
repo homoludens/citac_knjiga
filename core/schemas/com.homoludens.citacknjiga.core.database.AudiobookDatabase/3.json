@@ -1,0 +1,1323 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "ebb9cec32bdb40d5f2c78c09d46c41d2",
+    "entities": [
+      {
+        "tableName": "book_project",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `title` TEXT NOT NULL, `author` TEXT, `source_uri` TEXT NOT NULL, `source_fingerprint` TEXT NOT NULL, `source_path` TEXT, `cover_path` TEXT, `language` TEXT NOT NULL DEFAULT 'sr', `status` TEXT NOT NULL, `last_error` TEXT, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "author",
+            "columnName": "author",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sourceUri",
+            "columnName": "source_uri",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceFingerprint",
+            "columnName": "source_fingerprint",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourcePath",
+            "columnName": "source_path",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "coverPath",
+            "columnName": "cover_path",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "language",
+            "columnName": "language",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'sr'"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastError",
+            "columnName": "last_error",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_book_project_source_fingerprint",
+            "unique": true,
+            "columnNames": [
+              "source_fingerprint"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_book_project_source_fingerprint` ON `${TABLE_NAME}` (`source_fingerprint`)"
+          },
+          {
+            "name": "index_book_project_status",
+            "unique": false,
+            "columnNames": [
+              "status"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_book_project_status` ON `${TABLE_NAME}` (`status`)"
+          }
+        ]
+      },
+      {
+        "tableName": "chapter",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `book_project_id` TEXT NOT NULL, `ordinal` INTEGER NOT NULL, `title` TEXT NOT NULL, `source_locator` TEXT, `canonical_markdown_path` TEXT, `status` TEXT NOT NULL, `last_error` TEXT, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`book_project_id`) REFERENCES `book_project`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bookProjectId",
+            "columnName": "book_project_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ordinal",
+            "columnName": "ordinal",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceLocator",
+            "columnName": "source_locator",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "canonicalMarkdownPath",
+            "columnName": "canonical_markdown_path",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastError",
+            "columnName": "last_error",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_chapter_book_project_id_ordinal",
+            "unique": true,
+            "columnNames": [
+              "book_project_id",
+              "ordinal"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_chapter_book_project_id_ordinal` ON `${TABLE_NAME}` (`book_project_id`, `ordinal`)"
+          },
+          {
+            "name": "index_chapter_book_project_id",
+            "unique": false,
+            "columnNames": [
+              "book_project_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_chapter_book_project_id` ON `${TABLE_NAME}` (`book_project_id`)"
+          },
+          {
+            "name": "index_chapter_status",
+            "unique": false,
+            "columnNames": [
+              "status"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_chapter_status` ON `${TABLE_NAME}` (`status`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "book_project",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "book_project_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "narration_block",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `chapter_id` TEXT NOT NULL, `ordinal` INTEGER NOT NULL, `block_type` TEXT NOT NULL, `source_text` TEXT NOT NULL, `source_locator` TEXT, `normalized_text` TEXT, `normalized_text_hash` TEXT, `phoneme_hash` TEXT, `token_hash` TEXT, `preprocessing_version` TEXT, `pronunciation_version` TEXT, `status` TEXT NOT NULL, `last_error` TEXT, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`chapter_id`) REFERENCES `chapter`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chapterId",
+            "columnName": "chapter_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ordinal",
+            "columnName": "ordinal",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "blockType",
+            "columnName": "block_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceText",
+            "columnName": "source_text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceLocator",
+            "columnName": "source_locator",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "normalizedText",
+            "columnName": "normalized_text",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "normalizedTextHash",
+            "columnName": "normalized_text_hash",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "phonemeHash",
+            "columnName": "phoneme_hash",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "tokenHash",
+            "columnName": "token_hash",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "preprocessingVersion",
+            "columnName": "preprocessing_version",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "pronunciationVersion",
+            "columnName": "pronunciation_version",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastError",
+            "columnName": "last_error",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_narration_block_chapter_id_ordinal",
+            "unique": true,
+            "columnNames": [
+              "chapter_id",
+              "ordinal"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_narration_block_chapter_id_ordinal` ON `${TABLE_NAME}` (`chapter_id`, `ordinal`)"
+          },
+          {
+            "name": "index_narration_block_chapter_id",
+            "unique": false,
+            "columnNames": [
+              "chapter_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_narration_block_chapter_id` ON `${TABLE_NAME}` (`chapter_id`)"
+          },
+          {
+            "name": "index_narration_block_status",
+            "unique": false,
+            "columnNames": [
+              "status"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_narration_block_status` ON `${TABLE_NAME}` (`status`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "chapter",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "chapter_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "audio_segment",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `chapter_id` TEXT NOT NULL, `narration_block_id` TEXT NOT NULL, `sequence` INTEGER NOT NULL, `chunk_ordinal` INTEGER NOT NULL, `generation_key` TEXT, `generation_run_id` TEXT, `model_package_id` TEXT, `model_package_sha256` TEXT, `voice_sha256` TEXT, `preprocessing_version` TEXT, `pronunciation_version` TEXT, `inference_settings_hash` TEXT, `audio_processing_version` TEXT, `status` TEXT NOT NULL, `audio_path` TEXT, `audio_sha256` TEXT, `size_bytes` INTEGER, `duration_ms` INTEGER, `sample_rate` INTEGER NOT NULL DEFAULT 24000, `channels` INTEGER NOT NULL DEFAULT 1, `attempt_count` INTEGER NOT NULL, `last_error` TEXT, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, `engine` TEXT, `model_revision` TEXT, `speaker_id` INTEGER, `frontend_version` TEXT, `native_sample_rate` INTEGER, `final_sample_rate` INTEGER, `resampler_version` TEXT, `runtime_id` TEXT, `runtime_version` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`chapter_id`) REFERENCES `chapter`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`narration_block_id`) REFERENCES `narration_block`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`generation_run_id`) REFERENCES `generation_run`(`id`) ON UPDATE CASCADE ON DELETE SET NULL , FOREIGN KEY(`model_package_id`) REFERENCES `model_package`(`id`) ON UPDATE CASCADE ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chapterId",
+            "columnName": "chapter_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "narrationBlockId",
+            "columnName": "narration_block_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sequence",
+            "columnName": "sequence",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chunkOrdinal",
+            "columnName": "chunk_ordinal",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "generationKey",
+            "columnName": "generation_key",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "generationRunId",
+            "columnName": "generation_run_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "modelPackageId",
+            "columnName": "model_package_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "modelPackageSha256",
+            "columnName": "model_package_sha256",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "voiceSha256",
+            "columnName": "voice_sha256",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "preprocessingVersion",
+            "columnName": "preprocessing_version",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "pronunciationVersion",
+            "columnName": "pronunciation_version",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "inferenceSettingsHash",
+            "columnName": "inference_settings_hash",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "audioProcessingVersion",
+            "columnName": "audio_processing_version",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "audioPath",
+            "columnName": "audio_path",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "audioSha256",
+            "columnName": "audio_sha256",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sizeBytes",
+            "columnName": "size_bytes",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "durationMs",
+            "columnName": "duration_ms",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "sampleRate",
+            "columnName": "sample_rate",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "24000"
+          },
+          {
+            "fieldPath": "channels",
+            "columnName": "channels",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          },
+          {
+            "fieldPath": "attemptCount",
+            "columnName": "attempt_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastError",
+            "columnName": "last_error",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "engine",
+            "columnName": "engine",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "modelRevision",
+            "columnName": "model_revision",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "speakerId",
+            "columnName": "speaker_id",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "frontendVersion",
+            "columnName": "frontend_version",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "nativeSampleRate",
+            "columnName": "native_sample_rate",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "finalSampleRate",
+            "columnName": "final_sample_rate",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "resamplerVersion",
+            "columnName": "resampler_version",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "runtimeId",
+            "columnName": "runtime_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "runtimeVersion",
+            "columnName": "runtime_version",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_audio_segment_chapter_id_sequence",
+            "unique": true,
+            "columnNames": [
+              "chapter_id",
+              "sequence"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_audio_segment_chapter_id_sequence` ON `${TABLE_NAME}` (`chapter_id`, `sequence`)"
+          },
+          {
+            "name": "index_audio_segment_narration_block_id_chunk_ordinal",
+            "unique": true,
+            "columnNames": [
+              "narration_block_id",
+              "chunk_ordinal"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_audio_segment_narration_block_id_chunk_ordinal` ON `${TABLE_NAME}` (`narration_block_id`, `chunk_ordinal`)"
+          },
+          {
+            "name": "index_audio_segment_chapter_id_status",
+            "unique": false,
+            "columnNames": [
+              "chapter_id",
+              "status"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_audio_segment_chapter_id_status` ON `${TABLE_NAME}` (`chapter_id`, `status`)"
+          },
+          {
+            "name": "index_audio_segment_generation_run_id",
+            "unique": false,
+            "columnNames": [
+              "generation_run_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_audio_segment_generation_run_id` ON `${TABLE_NAME}` (`generation_run_id`)"
+          },
+          {
+            "name": "index_audio_segment_model_package_id",
+            "unique": false,
+            "columnNames": [
+              "model_package_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_audio_segment_model_package_id` ON `${TABLE_NAME}` (`model_package_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "chapter",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "chapter_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "narration_block",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "narration_block_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "generation_run",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "generation_run_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "model_package",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "model_package_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "generation_run",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `book_project_id` TEXT NOT NULL, `model_package_id` TEXT, `preprocessing_version` TEXT NOT NULL, `pronunciation_version` TEXT NOT NULL, `inference_settings_hash` TEXT NOT NULL, `audio_processing_version` TEXT NOT NULL, `status` TEXT NOT NULL, `attempt_count` INTEGER NOT NULL, `last_error` TEXT, `requested_at` INTEGER NOT NULL, `started_at` INTEGER, `finished_at` INTEGER, `engine` TEXT, `model_revision` TEXT, `speaker_id` INTEGER, `frontend_version` TEXT, `native_sample_rate` INTEGER, `final_sample_rate` INTEGER, `resampler_version` TEXT, `runtime_id` TEXT, `runtime_version` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`book_project_id`) REFERENCES `book_project`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`model_package_id`) REFERENCES `model_package`(`id`) ON UPDATE CASCADE ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bookProjectId",
+            "columnName": "book_project_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "modelPackageId",
+            "columnName": "model_package_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "preprocessingVersion",
+            "columnName": "preprocessing_version",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pronunciationVersion",
+            "columnName": "pronunciation_version",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inferenceSettingsHash",
+            "columnName": "inference_settings_hash",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "audioProcessingVersion",
+            "columnName": "audio_processing_version",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "attemptCount",
+            "columnName": "attempt_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastError",
+            "columnName": "last_error",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "requestedAt",
+            "columnName": "requested_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startedAt",
+            "columnName": "started_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "finishedAt",
+            "columnName": "finished_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "engine",
+            "columnName": "engine",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "modelRevision",
+            "columnName": "model_revision",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "speakerId",
+            "columnName": "speaker_id",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "frontendVersion",
+            "columnName": "frontend_version",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "nativeSampleRate",
+            "columnName": "native_sample_rate",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "finalSampleRate",
+            "columnName": "final_sample_rate",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "resamplerVersion",
+            "columnName": "resampler_version",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "runtimeId",
+            "columnName": "runtime_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "runtimeVersion",
+            "columnName": "runtime_version",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_generation_run_book_project_id_status",
+            "unique": false,
+            "columnNames": [
+              "book_project_id",
+              "status"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_generation_run_book_project_id_status` ON `${TABLE_NAME}` (`book_project_id`, `status`)"
+          },
+          {
+            "name": "index_generation_run_model_package_id",
+            "unique": false,
+            "columnNames": [
+              "model_package_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_generation_run_model_package_id` ON `${TABLE_NAME}` (`model_package_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "book_project",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "book_project_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "model_package",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "model_package_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "model_package",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `package_identity` TEXT NOT NULL, `package_version` TEXT NOT NULL, `package_sha256` TEXT NOT NULL, `model_sha256` TEXT NOT NULL, `voice_sha256` TEXT NOT NULL, `preprocessing_version` TEXT NOT NULL, `pronunciation_version` TEXT NOT NULL, `package_path` TEXT NOT NULL, `status` TEXT NOT NULL, `imported_at` INTEGER NOT NULL, `last_used_at` INTEGER, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "packageIdentity",
+            "columnName": "package_identity",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "packageVersion",
+            "columnName": "package_version",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "packageSha256",
+            "columnName": "package_sha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "modelSha256",
+            "columnName": "model_sha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "voiceSha256",
+            "columnName": "voice_sha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "preprocessingVersion",
+            "columnName": "preprocessing_version",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pronunciationVersion",
+            "columnName": "pronunciation_version",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "packagePath",
+            "columnName": "package_path",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "importedAt",
+            "columnName": "imported_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastUsedAt",
+            "columnName": "last_used_at",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_model_package_package_identity",
+            "unique": true,
+            "columnNames": [
+              "package_identity"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_model_package_package_identity` ON `${TABLE_NAME}` (`package_identity`)"
+          },
+          {
+            "name": "index_model_package_package_sha256",
+            "unique": true,
+            "columnNames": [
+              "package_sha256"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_model_package_package_sha256` ON `${TABLE_NAME}` (`package_sha256`)"
+          },
+          {
+            "name": "index_model_package_status",
+            "unique": false,
+            "columnNames": [
+              "status"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_model_package_status` ON `${TABLE_NAME}` (`status`)"
+          }
+        ]
+      },
+      {
+        "tableName": "playback_position",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`book_project_id` TEXT NOT NULL, `chapter_id` TEXT, `audio_segment_id` TEXT, `position_ms` INTEGER NOT NULL, `speed` REAL NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`book_project_id`), FOREIGN KEY(`book_project_id`) REFERENCES `book_project`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`chapter_id`) REFERENCES `chapter`(`id`) ON UPDATE CASCADE ON DELETE SET NULL , FOREIGN KEY(`audio_segment_id`) REFERENCES `audio_segment`(`id`) ON UPDATE CASCADE ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "bookProjectId",
+            "columnName": "book_project_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chapterId",
+            "columnName": "chapter_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "audioSegmentId",
+            "columnName": "audio_segment_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "positionMs",
+            "columnName": "position_ms",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "speed",
+            "columnName": "speed",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "book_project_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_playback_position_chapter_id",
+            "unique": false,
+            "columnNames": [
+              "chapter_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_playback_position_chapter_id` ON `${TABLE_NAME}` (`chapter_id`)"
+          },
+          {
+            "name": "index_playback_position_audio_segment_id",
+            "unique": false,
+            "columnNames": [
+              "audio_segment_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_playback_position_audio_segment_id` ON `${TABLE_NAME}` (`audio_segment_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "book_project",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "book_project_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "chapter",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "chapter_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "audio_segment",
+            "onDelete": "SET NULL",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "audio_segment_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "export_job",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `book_project_id` TEXT NOT NULL, `destination_uri` TEXT NOT NULL, `selected_chapter_ids_json` TEXT NOT NULL, `total_chapters` INTEGER NOT NULL, `completed_chapters` INTEGER NOT NULL, `current_chapter_ordinal` INTEGER, `manifest_path` TEXT, `manifest_name` TEXT, `cover_name` TEXT, `status` TEXT NOT NULL, `last_error` TEXT, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`book_project_id`) REFERENCES `book_project`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bookProjectId",
+            "columnName": "book_project_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "destinationUri",
+            "columnName": "destination_uri",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "selectedChapterIdsJson",
+            "columnName": "selected_chapter_ids_json",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "totalChapters",
+            "columnName": "total_chapters",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completedChapters",
+            "columnName": "completed_chapters",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "currentChapterOrdinal",
+            "columnName": "current_chapter_ordinal",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "manifestPath",
+            "columnName": "manifest_path",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "manifestName",
+            "columnName": "manifest_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "coverName",
+            "columnName": "cover_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastError",
+            "columnName": "last_error",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_export_job_book_project_id_status",
+            "unique": false,
+            "columnNames": [
+              "book_project_id",
+              "status"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_export_job_book_project_id_status` ON `${TABLE_NAME}` (`book_project_id`, `status`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "book_project",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "book_project_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "export_job_chapter",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`export_job_id` TEXT NOT NULL, `chapter_id` TEXT NOT NULL, `ordinal` INTEGER NOT NULL, `title` TEXT NOT NULL, `source_segment_ids_json` TEXT NOT NULL, `file_name` TEXT NOT NULL, `file_uri` TEXT, `temporary_uri` TEXT, `sha256` TEXT, `size_bytes` INTEGER, `duration_ms` INTEGER, `status` TEXT NOT NULL, `attempt_count` INTEGER NOT NULL, `last_error` TEXT, `created_at` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL, PRIMARY KEY(`export_job_id`, `chapter_id`), FOREIGN KEY(`export_job_id`) REFERENCES `export_job`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`chapter_id`) REFERENCES `chapter`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "exportJobId",
+            "columnName": "export_job_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chapterId",
+            "columnName": "chapter_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ordinal",
+            "columnName": "ordinal",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceSegmentIdsJson",
+            "columnName": "source_segment_ids_json",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fileName",
+            "columnName": "file_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fileUri",
+            "columnName": "file_uri",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "temporaryUri",
+            "columnName": "temporary_uri",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sha256",
+            "columnName": "sha256",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sizeBytes",
+            "columnName": "size_bytes",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "durationMs",
+            "columnName": "duration_ms",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "attemptCount",
+            "columnName": "attempt_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastError",
+            "columnName": "last_error",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "export_job_id",
+            "chapter_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_export_job_chapter_export_job_id_ordinal",
+            "unique": true,
+            "columnNames": [
+              "export_job_id",
+              "ordinal"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_export_job_chapter_export_job_id_ordinal` ON `${TABLE_NAME}` (`export_job_id`, `ordinal`)"
+          },
+          {
+            "name": "index_export_job_chapter_export_job_id_status",
+            "unique": false,
+            "columnNames": [
+              "export_job_id",
+              "status"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_export_job_chapter_export_job_id_status` ON `${TABLE_NAME}` (`export_job_id`, `status`)"
+          },
+          {
+            "name": "index_export_job_chapter_chapter_id",
+            "unique": false,
+            "columnNames": [
+              "chapter_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_export_job_chapter_chapter_id` ON `${TABLE_NAME}` (`chapter_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "export_job",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "export_job_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "chapter",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "chapter_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ebb9cec32bdb40d5f2c78c09d46c41d2')"
+    ]
+  }
+}

@@ -1,6 +1,7 @@
 package com.homoludens.citacknjiga
 
 import android.content.Context
+import android.os.Build
 import kotlinx.coroutines.Dispatchers
 import com.homoludens.citacknjiga.core.database.AudiobookDao
 import com.homoludens.citacknjiga.core.diagnostics.LocalDiagnostics
@@ -14,6 +15,8 @@ import com.homoludens.citacknjiga.document.epub.EpubImportPreviewService
 import com.homoludens.citacknjiga.document.epub.RoomEpubProjectIndex
 import com.homoludens.citacknjiga.document.epub.SafEpubSourceRepository
 import com.homoludens.citacknjiga.proof.AndroidTypedTextProofEngine
+import com.homoludens.citacknjiga.proof.AndroidVitsTypedTextProofEngine
+import com.homoludens.citacknjiga.proof.EngineSelectingTypedTextProofEngine
 import com.homoludens.citacknjiga.proof.EpubChapterProofService
 import com.homoludens.citacknjiga.proof.TypedTextProofEngine
 import com.homoludens.citacknjiga.playback.export.AudiobookPlayerController
@@ -24,6 +27,8 @@ import com.homoludens.citacknjiga.playback.export.RoomPlaybackValidationContextS
 import com.homoludens.citacknjiga.playback.export.RoomAudiobookExportService
 import com.homoludens.citacknjiga.playback.export.SafAudiobookExporter
 import com.homoludens.citacknjiga.tts.onnx.ModelPackageStore
+import com.homoludens.citacknjiga.tts.onnx.TtsEnginePreference
+import com.homoludens.citacknjiga.tts.onnx.TtsEngineSelector
 import com.homoludens.citacknjiga.tts.onnx.preprocessing.SerbianPreprocessor
 
 public enum class AppDistribution(public val id: String) {
@@ -61,6 +66,7 @@ public class AppContainer(
     public val audiobookExportService: RoomAudiobookExportService? = null,
     public val privateStorage: AppPrivateStorage? = null,
     public val modelPackageStore: ModelPackageStore? = null,
+    public val ttsEnginePreference: TtsEnginePreference? = null,
 ) {
     public companion object {
         public fun production(context: Context): AppContainer {
@@ -69,6 +75,15 @@ public class AppContainer(
             val contentResolver = context.contentResolver
             val privateStorage = AppPrivateStorage(filesDir)
             val modelStore = ModelPackageStore(privateStorage.rootDirectory)
+            val engineSelector = TtsEngineSelector(
+                vitsStore = modelStore.vitsModelPackageStore,
+                apiLevel = Build.VERSION.SDK_INT,
+                abi = Build.SUPPORTED_ABIS.firstOrNull().orEmpty(),
+            )
+            val enginePreference = TtsEnginePreference(
+                selector = engineSelector,
+                preferences = context.getSharedPreferences("tts", Context.MODE_PRIVATE),
+            )
             val dao = createAudiobookDao(context)
             val readyAudio = ReadyAudioRepository(
                 source = RoomReadyAudioSource(dao),
@@ -83,10 +98,20 @@ public class AppContainer(
                 artifactStore = AtomicArtifactStore(privateStorage),
                 projectIndex = RoomEpubProjectIndex(dao),
             )
-            val proofEngine = AndroidTypedTextProofEngine(
+            val kokoroProofEngine = AndroidTypedTextProofEngine(
                 modelStore = modelStore,
                 preprocessorFactory = { SerbianPreprocessor.fromAssets(assets, filesDir) },
                 artifactDirectory = privateStorage.typedProofDirectory,
+            )
+            val proofEngine = EngineSelectingTypedTextProofEngine(
+                preference = enginePreference,
+                kokoro = kokoroProofEngine,
+                vits = {
+                    AndroidVitsTypedTextProofEngine(
+                        modelStore = modelStore.vitsModelPackageStore,
+                        artifactDirectory = privateStorage.typedProofDirectory,
+                    )
+                },
             )
             return AppContainer(
                 diagnostics = LocalDiagnostics(),
@@ -112,6 +137,7 @@ public class AppContainer(
                 ),
                 privateStorage = privateStorage,
                 modelPackageStore = modelStore,
+                ttsEnginePreference = enginePreference,
             )
         }
     }

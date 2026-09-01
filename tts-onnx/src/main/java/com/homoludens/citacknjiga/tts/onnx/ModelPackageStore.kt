@@ -39,6 +39,7 @@ public class ModelPackageStore(
     filesDir: File,
     private val compatibility: ModelPackageCompatibility = ModelPackageCompatibility(),
 ) {
+    public val vitsModelPackageStore: VitsModelPackageStore = VitsModelPackageStore(filesDir)
     private val privateStorage = AppPrivateStorage(filesDir)
     private val packageDir = privateStorage.modelPackagesDirectory
     private val activeFile = privateStorage.activeModelPackage
@@ -115,6 +116,27 @@ public class ModelPackageStore(
     public fun tryImportPackage(source: ModelPackageSource): ModelPackageImportResult =
         try {
             ModelPackageImportResult.Success(importPackage(source))
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (failure: Throwable) {
+            ModelPackageImportResult.Failure(normalizeFailure(failure))
+        }
+
+    /** Imports VITS into its own slot; Kokoro's active and rollback files are untouched. */
+    public fun importVitsPackage(source: ModelPackageSource): InstalledModelPackage =
+        vitsModelPackageStore.importPackage(source)
+
+    public fun activeVitsPackage(): InstalledModelPackage? = vitsModelPackageStore.activePackage()
+
+    public fun importVitsFromSaf(contentResolver: ContentResolver, uri: Uri): InstalledModelPackage {
+        val source = contentResolver.openInputStream(uri)
+            ?: throw ModelPackageImportException(ModelPackageFailureCode.SOURCE_UNAVAILABLE)
+        source.use { input -> return importVitsPackage(ModelPackageSource { input }) }
+    }
+
+    public fun tryImportVitsFromSaf(contentResolver: ContentResolver, uri: Uri): ModelPackageImportResult =
+        try {
+            ModelPackageImportResult.Success(importVitsFromSaf(contentResolver, uri))
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: Throwable) {

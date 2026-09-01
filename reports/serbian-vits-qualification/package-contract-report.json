@@ -1,14 +1,21 @@
 {
   "schema": "serbian-vits-model-package:1",
+  "version": "1.0.0",
+  "identity_sha256": "a34c0b639b5d3580e437862dcba18929236d62d43c3dfe1b8e8d5d89e4e53185",
   "candidate": {"model_id": "daremc86/sr-cv-vits", "revision": "83dc1e1b95d85b9f5602dc94909706fc83dfbc6c", "speaker": {"label": "Dragana", "id": 0}},
   "entries": [
-    {"path": "manifest.json", "role": "manifest", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size_bytes": 0},
-    {"path": "notice.json", "role": "notice", "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "size_bytes": 0}
+    {"path": "model.onnx", "role": "onnx", "sha256": "7a82b803b183baf78c23030bc000cb6f3be93e6fa20aa9c822c6546ab6861707", "size_bytes": 121957107},
+    {"path": "tokens.txt", "role": "tokens", "sha256": "d575e905083a1be038da0044fcbca10fa868b402b9b4c603038b4da589b709d4", "size_bytes": 809},
+    {"path": "config.json", "role": "configuration", "sha256": "a0a14385a21854b970cee364a853950aa6168e690beb8c7c35d1673ea042d5c8", "size_bytes": 8412},
+    {"path": "attribution.json", "role": "attribution", "sha256": "31ac4f03445d6d9c807ee582e878ae1b7dad4b7338e0cdd856379cb459e7bb6d", "size_bytes": 189},
+    {"path": "notice.json", "role": "notice", "sha256": "5a1967324c9c967ae68441400c06d2f458ced965eadadac28d80b3f1323d3490", "size_bytes": 232}
   ],
-  "declared_entries": ["manifest.json", "notice.json"],
-  "graph_contract": {"status": "UNRESOLVED", "inputs": [], "outputs": [], "operator_domains": [], "external_data": false, "network_access": false},
+  "declared_entries": ["model.onnx", "tokens.txt", "config.json", "attribution.json", "notice.json"],
+  "graph_contract": {"status": "INSPECTED", "inputs": ["input", "input_lengths", "scales", "sid", "langid"], "outputs": ["output"], "operator_domains": ["ai.onnx"], "external_data": false, "network_access": false},
   "preprocessing": {"identity": "serbian-vits-preprocessing-v1", "unsupported_input": "diagnostic"},
   "resampler": {"identity": "serbian-vits-resampler-v1", "native_rate_hz": 22050, "final_rate_hz": 24000, "channels": 1},
-  "legal": "BLOCKED",
-  "evidence_hashes": {"graph-inspection-report.json": "a576e14f57cad168e823abadb15c6c3f19c3590aee4b4d7bc5be9c049649bf7b"}
+  "legal": "ALLOWED",
+  "attribution": {"license": "CC-BY-4.0", "source_url": "https://huggingface.co/daremc86/sr-cv-vits/tree/83dc1e1b95d85b9f5602dc94909706fc83dfbc6", "modification_notice": "Coqui VITS was exported to self-contained Sherpa VITS ONNX with character metadata and deterministic package ordering."},
+  "qualification": {"status": "PASS", "api": 33, "abi": "arm64-v8a"},
+  "evidence_hashes": {}
 }

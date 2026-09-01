@@ -72,6 +72,29 @@ public class GenerationKeyTest {
     }
 
     @Test
+    public fun engineSpecificIdentityInvalidatesNewAudioButLeavesLegacyIdentityStable() {
+        val legacy = GenerationKeyCalculator.calculate(input())
+        val explicitLegacy = GenerationKeyCalculator.calculate(
+            input(
+                engine = null,
+                modelRevision = null,
+                speakerId = null,
+                frontendVersion = null,
+                nativeSampleRateHz = null,
+                finalSampleRateHz = null,
+                resamplerVersion = null,
+                runtimeId = null,
+                runtimeVersion = null,
+            ),
+        )
+        val vits = GenerationKeyCalculator.calculate(
+            input(engine = "vits", modelRevision = "83dc1e1b", speakerId = 0, frontendVersion = "v1", nativeSampleRateHz = 22050, finalSampleRateHz = 24000, resamplerVersion = "v1", runtimeId = "sherpa-onnx", runtimeVersion = "rev"),
+        )
+        assertEquals(legacy, explicitLegacy)
+        assertNotEquals(legacy, vits)
+    }
+
+    @Test
     public fun keysAreLowercaseSha256Digests() {
         val keys = GenerationKeyCalculator.calculate(input())
 
@@ -88,6 +111,15 @@ public class GenerationKeyTest {
         pronunciationVersion: String = "pronunciation-v1",
         inferenceSettings: Map<String, String> = mapOf("speed" to "1.0", "pause_ms" to "80"),
         audioProcessingVersion: String = "audio-v1",
+        engine: String? = null,
+        modelRevision: String? = null,
+        speakerId: Int? = null,
+        frontendVersion: String? = null,
+        nativeSampleRateHz: Int? = null,
+        finalSampleRateHz: Int? = null,
+        resamplerVersion: String? = null,
+        runtimeId: String? = null,
+        runtimeVersion: String? = null,
     ): GenerationKeyInput = GenerationKeyInput(
         tokens = tokens,
         modelSha256 = modelSha256,
@@ -96,5 +128,14 @@ public class GenerationKeyTest {
         pronunciationVersion = pronunciationVersion,
         inferenceSettings = inferenceSettings,
         audioProcessingVersion = audioProcessingVersion,
+        engine = engine,
+        modelRevision = modelRevision,
+        speakerId = speakerId,
+        frontendVersion = frontendVersion,
+        nativeSampleRateHz = nativeSampleRateHz,
+        finalSampleRateHz = finalSampleRateHz,
+        resamplerVersion = resamplerVersion,
+        runtimeId = runtimeId,
+        runtimeVersion = runtimeVersion,
     )
 }
