@@ -90,6 +90,17 @@
     <string name="delete_book_title">Delete book?</string>
     <string name="delete_book_message">“%1$s” and all of its audio and internal data will be permanently deleted. The original file will remain untouched.</string>
     <string name="delete_book_confirm">Delete</string>
+    <string name="regenerate_book">Regenerate book</string>
+    <string name="regenerate_chapter">Regenerate chapter</string>
+    <string name="regenerate_book_title">Regenerate the whole book?</string>
+    <string name="regenerate_chapter_title">Regenerate chapter?</string>
+    <string name="regenerate_book_message">Existing audio in the whole book will be removed before replacement. Source text and other book state remain untouched.</string>
+    <string name="regenerate_chapter_message">Existing audio in “%1$s” will be removed before replacement. Source text and the other chapters remain untouched.</string>
+    <string name="regenerate_confirm">Remove and generate</string>
+    <string name="regeneration_queuing">Preparing regeneration.</string>
+    <string name="regeneration_queued">Regeneration is queued. Audio will be available after the replacement is validated.</string>
+    <string name="regeneration_failed">Regeneration failed. Source text and other chapters were not changed. Try again.</string>
+    <string name="regeneration_retry">Try regeneration again</string>
     <string name="listening_progress">Listening progress</string>
     <string name="chapter_fallback">Chapter</string>
     <string name="chapters">Chapters</string>
@@ -111,6 +122,7 @@
     <string name="generation_queued">Generation is waiting to start.</string>
     <string name="generation_completed">Generation is complete.</string>
     <string name="generation_failed_action">Generation failed. Try again.</string>
+    <string name="generation_cancelled">Generation was cancelled. You can try again.</string>
     <string name="generation_pause">Pause</string>
     <string name="generation_resume">Resume</string>
     <string name="generation_cancel">Cancel generation</string>

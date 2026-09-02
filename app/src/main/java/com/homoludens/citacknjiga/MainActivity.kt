@@ -31,6 +31,7 @@ public class MainActivity : ComponentActivity() {
                 modelPackageStore = container.modelPackageStore,
                 ttsEnginePreference = container.ttsEnginePreference,
                 projectDeletionCoordinator = container.projectDeletionCoordinator,
+                generationInvalidationCoordinator = container.generationInvalidationCoordinator,
             )
         }
     }

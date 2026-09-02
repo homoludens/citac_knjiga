@@ -49,6 +49,7 @@ import com.homoludens.citacknjiga.R
 import com.homoludens.citacknjiga.core.database.BookProjectStatus
 import com.homoludens.citacknjiga.core.database.ChapterStatus
 import com.homoludens.citacknjiga.core.database.GenerationRunStatus
+import com.homoludens.citacknjiga.core.generation.GenerationScope
 
 public enum class GenerationAction {
     PAUSE,
@@ -63,6 +64,8 @@ public fun LibraryScreen(
     onBookClick: (String) -> Unit,
     onGenerationAction: (String, GenerationAction) -> Unit = { _, _ -> },
     onDeleteBook: (String) -> Unit = {},
+    onRegenerate: (String, GenerationScope) -> Unit = { _, _ -> },
+    regenerationFeedback: RegenerationFeedback? = null,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -79,6 +82,8 @@ public fun LibraryScreen(
                     onClick = { onBookClick(book.project.id) },
                     onGenerationAction = onGenerationAction,
                     onDeleteBook = onDeleteBook,
+                    onRegenerate = onRegenerate,
+                    regenerationFeedback = regenerationFeedback,
                 )
             }
         }
@@ -91,6 +96,8 @@ private fun LibraryBookCard(
     onClick: () -> Unit,
     onGenerationAction: (String, GenerationAction) -> Unit,
     onDeleteBook: (String) -> Unit,
+    onRegenerate: (String, GenerationScope) -> Unit,
+    regenerationFeedback: RegenerationFeedback?,
 ) {
     val title = book.title.ifBlank { stringResource(R.string.book_fallback) }
     val author = book.author.ifBlank { stringResource(R.string.author_fallback) }
@@ -138,6 +145,8 @@ private fun LibraryBookCard(
                         modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
                     )
                 }
+                RegenerationFeedbackContent(book, regenerationFeedback, onRegenerate)
+                RegenerateBookAction(book, onRegenerate)
                 DeleteBookAction(book, onDeleteBook)
             }
         }
@@ -149,6 +158,8 @@ public fun BookDetailScreen(
     book: LibraryBookDisplay?,
     onGenerationAction: (String, GenerationAction) -> Unit = { _, _ -> },
     onDeleteBook: (String) -> Unit = {},
+    onRegenerate: (String, GenerationScope) -> Unit = { _, _ -> },
+    regenerationFeedback: RegenerationFeedback? = null,
     modifier: Modifier = Modifier,
 ) {
     if (book == null) {
@@ -197,9 +208,10 @@ public fun BookDetailScreen(
                 }
             }
         }
+        RegenerationFeedbackContent(book, regenerationFeedback, onRegenerate)
         Text(stringResource(R.string.chapters), style = MaterialTheme.typography.titleLarge)
         book.chapters.forEach { chapter ->
-            ChapterRow(chapter)
+            ChapterRow(chapter, book.project.id, onRegenerate)
         }
         if (book.failures.isNotEmpty()) {
             Text(stringResource(R.string.generation_errors), style = MaterialTheme.typography.titleLarge)
@@ -211,7 +223,90 @@ public fun BookDetailScreen(
                 )
             }
         }
+        RegenerateBookAction(book, onRegenerate)
         DeleteBookAction(book, onDeleteBook)
+    }
+}
+
+@Composable
+private fun RegenerateBookAction(
+    book: LibraryBookDisplay,
+    onRegenerate: (String, GenerationScope) -> Unit,
+) {
+    var showConfirmation by remember { mutableStateOf(false) }
+    OutlinedButton(
+        onClick = { showConfirmation = true },
+        modifier = Modifier.fillMaxWidth().testTag("regenerate-book-${book.project.id}"),
+    ) { Text(stringResource(R.string.regenerate_book)) }
+    if (showConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showConfirmation = false },
+            title = { Text(stringResource(R.string.regenerate_book_title)) },
+            text = {
+                Text(
+                    stringResource(
+                        R.string.regenerate_book_message,
+                        book.title.ifBlank { stringResource(R.string.book_fallback) },
+                    ),
+                    modifier = Modifier.testTag("regenerate-book-warning-${book.project.id}"),
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showConfirmation = false
+                        onRegenerate(book.project.id, GenerationScope.CompleteBook)
+                    },
+                    modifier = Modifier.testTag("confirm-regenerate-book-${book.project.id}"),
+                ) { Text(stringResource(R.string.regenerate_confirm)) }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showConfirmation = false },
+                    modifier = Modifier.testTag("cancel-regenerate-book-${book.project.id}"),
+                ) { Text(stringResource(R.string.cancel)) }
+            },
+        )
+    }
+}
+
+@Composable
+private fun RegenerationFeedbackContent(
+    book: LibraryBookDisplay,
+    feedback: RegenerationFeedback?,
+    onRegenerate: (String, GenerationScope) -> Unit,
+) {
+    if (feedback?.projectId != book.project.id) return
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics { liveRegion = if (feedback.status == RegenerationResultStatus.FAILED) {
+                LiveRegionMode.Assertive
+            } else {
+                LiveRegionMode.Polite
+            } },
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Text(
+            stringResource(
+                when (feedback.status) {
+                    RegenerationResultStatus.QUEUING -> R.string.regeneration_queuing
+                    RegenerationResultStatus.QUEUED -> R.string.regeneration_queued
+                    RegenerationResultStatus.FAILED -> R.string.regeneration_failed
+                },
+            ),
+            color = if (feedback.status == RegenerationResultStatus.FAILED) {
+                MaterialTheme.colorScheme.error
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            },
+        )
+        if (feedback.status == RegenerationResultStatus.FAILED) {
+            OutlinedButton(
+                onClick = { onRegenerate(book.project.id, feedback.scope) },
+                modifier = Modifier.fillMaxWidth().testTag("retry-regeneration-${book.project.id}"),
+            ) { Text(stringResource(R.string.regeneration_retry)) }
+        }
     }
 }
 
@@ -309,7 +404,12 @@ private fun GenerationProgress(
                     }
                 }
                 GenerationRunStatus.COMPLETED -> Text(stringResource(R.string.generation_completed))
-                GenerationRunStatus.CANCELLED -> Unit
+                GenerationRunStatus.CANCELLED -> {
+                    Text(stringResource(R.string.generation_cancelled))
+                    GenerationActionButton(stringResource(R.string.generation_retry)) {
+                        onGenerationAction(runId, GenerationAction.RETRY)
+                    }
+                }
                 null -> Unit
             }
         }
@@ -322,7 +422,12 @@ private fun GenerationActionButton(label: String, onClick: () -> Unit) {
 }
 
 @Composable
-private fun ChapterRow(chapter: ChapterDisplay) {
+private fun ChapterRow(
+    chapter: ChapterDisplay,
+    projectId: String,
+    onRegenerate: (String, GenerationScope) -> Unit,
+) {
+    var showConfirmation by remember { mutableStateOf(false) }
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(5.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text("${chapter.chapter.ordinal + 1}. ${chapter.chapter.title}", modifier = Modifier.weight(1f))
@@ -346,6 +451,40 @@ private fun ChapterRow(chapter: ChapterDisplay) {
                 safeFailureMessage(it),
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
+            )
+        }
+        OutlinedButton(
+            onClick = { showConfirmation = true },
+            modifier = Modifier.fillMaxWidth().testTag("regenerate-chapter-${chapter.chapter.id}"),
+        ) { Text(stringResource(R.string.regenerate_chapter)) }
+        if (showConfirmation) {
+            AlertDialog(
+                onDismissRequest = { showConfirmation = false },
+                title = { Text(stringResource(R.string.regenerate_chapter_title)) },
+                text = {
+                    Text(
+                        stringResource(
+                            R.string.regenerate_chapter_message,
+                            chapter.chapter.title,
+                        ),
+                        modifier = Modifier.testTag("regenerate-chapter-warning-${chapter.chapter.id}"),
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showConfirmation = false
+                            onRegenerate(projectId, GenerationScope.Chapter(chapter.chapter.id))
+                        },
+                        modifier = Modifier.testTag("confirm-regenerate-chapter-${chapter.chapter.id}"),
+                    ) { Text(stringResource(R.string.regenerate_confirm)) }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showConfirmation = false },
+                        modifier = Modifier.testTag("cancel-regenerate-chapter-${chapter.chapter.id}"),
+                    ) { Text(stringResource(R.string.cancel)) }
+                },
             )
         }
         Spacer(Modifier.height(4.dp))
@@ -401,7 +540,8 @@ private fun generationStateDescription(status: GenerationRunStatus?): String = w
     GenerationRunStatus.QUEUED -> stringResource(R.string.generation_queued)
     GenerationRunStatus.COMPLETED -> stringResource(R.string.generation_completed)
     GenerationRunStatus.FAILED -> stringResource(R.string.generation_failed_action)
-    GenerationRunStatus.CANCELLED, null -> ""
+    GenerationRunStatus.CANCELLED -> stringResource(R.string.generation_cancelled)
+    null -> ""
 }
 
 @Composable

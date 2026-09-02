@@ -192,6 +192,7 @@ public class EpubChapterProofServiceTest {
         override fun observeAllChapters(): Flow<List<ChapterEntity>> = flowOf(listOf(chapter))
         override fun findChapterById(chapterId: String): ChapterEntity? = chapter.takeIf { it.id == chapterId }
         override fun findNarrationBlockById(blockId: String): NarrationBlockEntity? = null
+        override fun findAllNarrationBlocks(): List<NarrationBlockEntity> = emptyList()
         override fun findAllGenerationRuns(): List<GenerationRunEntity> = listOf(run)
         override fun findGenerationRunById(runId: String): GenerationRunEntity? = run.takeIf { it.id == runId }
         override fun findAllAudioSegments(): List<AudioSegmentEntity> = audioSegments.toList()
@@ -211,6 +212,7 @@ public class EpubChapterProofServiceTest {
         override fun updateNarrationBlock(block: NarrationBlockEntity) { }
         override fun updateGenerationRun(run: GenerationRunEntity) { this.run = run }
         override fun updateAudioSegment(segment: AudioSegmentEntity) { this.segment = segment }
+        override fun deleteAudioSegments(segmentIds: List<String>) { audioSegments.removeAll { it.id in segmentIds } }
         override fun transitionProject(
             projectId: String,
             fromStatus: BookProjectStatus,

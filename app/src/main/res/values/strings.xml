@@ -90,6 +90,17 @@
     <string name="delete_book_title">Избрисати књигу?</string>
     <string name="delete_book_message">Књига „%1$s“ и сви њени аудио и интерни подаци биће трајно избрисани. Оригинална датотека остаје нетакнута.</string>
     <string name="delete_book_confirm">Избриши</string>
+    <string name="regenerate_book">Поново генериши књигу</string>
+    <string name="regenerate_chapter">Поново генериши поглавље</string>
+    <string name="regenerate_book_title">Поново генерисати целу књигу?</string>
+    <string name="regenerate_chapter_title">Поново генерисати поглавље?</string>
+    <string name="regenerate_book_message">Постојећи звук у целој књизи биће уклоњен пре замене. Изворни текст и остала стања књиге остају нетакнути.</string>
+    <string name="regenerate_chapter_message">Постојећи звук у поглављу „%1$s“ биће уклоњен пре замене. Изворни текст и остала поглавља остају нетакнути.</string>
+    <string name="regenerate_confirm">Уклони и генериши</string>
+    <string name="regeneration_queuing">Припрема поновног генерисања.</string>
+    <string name="regeneration_queued">Поновно генерисање је постављено у ред. Звук ће бити доступан након провере замене.</string>
+    <string name="regeneration_failed">Поновно генерисање није успело. Изворни текст и остала поглавља нису промењени. Покушајте поново.</string>
+    <string name="regeneration_retry">Покушај поново</string>
     <string name="listening_progress">Напредак слушања</string>
     <string name="chapter_fallback">Поглавље</string>
     <string name="chapters">Поглавља</string>
@@ -111,6 +122,7 @@
     <string name="generation_queued">Генерисање чека на почетак.</string>
     <string name="generation_completed">Генерисање је завршено.</string>
     <string name="generation_failed_action">Генерисање није успело. Покушајте поново.</string>
+    <string name="generation_cancelled">Генерисање је отказано. Можете покушати поново.</string>
     <string name="generation_pause">Паузирај</string>
     <string name="generation_resume">Настави</string>
     <string name="generation_cancel">Откажи генерисање</string>

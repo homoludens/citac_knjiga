@@ -88,6 +88,12 @@ import com.homoludens.citacknjiga.library.LibraryScreen
 import com.homoludens.citacknjiga.library.LibraryViewState
 import com.homoludens.citacknjiga.library.BookDetailScreen
 import com.homoludens.citacknjiga.library.GenerationAction
+import com.homoludens.citacknjiga.library.LibraryRegenerationController
+import com.homoludens.citacknjiga.library.RegenerationFeedback
+import com.homoludens.citacknjiga.library.RegenerationResult
+import com.homoludens.citacknjiga.library.RegenerationResultStatus
+import com.homoludens.citacknjiga.core.generation.GenerationInvalidationCoordinator
+import com.homoludens.citacknjiga.core.generation.GenerationScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -119,11 +125,65 @@ public fun CitacKnjigaApp(
     modelPackageStore: ModelPackageStore? = null,
     ttsEnginePreference: TtsEnginePreference? = null,
     projectDeletionCoordinator: ProjectDeletionCoordinator? = null,
+    generationInvalidationCoordinator: GenerationInvalidationCoordinator? = null,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val navController = rememberNavController()
     val deletionScope = rememberCoroutineScope()
+    val regenerationScope = rememberCoroutineScope()
+    val regenerationController = remember(audiobookDao, generationInvalidationCoordinator, ttsEnginePreference) {
+        if (audiobookDao != null && generationInvalidationCoordinator != null) {
+            LibraryRegenerationController(
+                findProject = audiobookDao::findProjectById,
+                findChapters = audiobookDao::findAllChapters,
+                findNarrationBlocks = audiobookDao::findAllNarrationBlocks,
+                findRun = audiobookDao::findGenerationRunById,
+                findSegments = audiobookDao::findAllAudioSegments,
+                invalidateAndQueue = generationInvalidationCoordinator::invalidateAndQueue,
+                selectedEngine = { ttsEnginePreference?.selected ?: TtsEngine.KOKORO },
+            )
+        } else {
+            null
+        }
+    }
+    var regenerationFeedback by remember { mutableStateOf<RegenerationFeedback?>(null) }
+
+    fun applyRegenerationResult(result: RegenerationResult) {
+        regenerationFeedback = RegenerationFeedback(
+            projectId = result.projectId,
+            scope = result.scope,
+            status = result.status,
+            runId = result.queued?.runId,
+        )
+    }
+
+    val onRegenerate: (String, GenerationScope) -> Unit = { projectId, scope ->
+        val controller = regenerationController
+        if (controller != null) {
+            regenerationFeedback = RegenerationFeedback(projectId, scope, RegenerationResultStatus.QUEUING)
+            regenerationScope.launch(Dispatchers.IO) {
+                val result = controller.regenerate(projectId, scope)
+                withContext(Dispatchers.Main.immediate) { applyRegenerationResult(result) }
+            }
+        }
+    }
+
+    val onGenerationAction: (String, GenerationAction) -> Unit = { runId, action ->
+        val controller = regenerationController
+        if (action == GenerationAction.RETRY && controller != null) {
+            regenerationScope.launch(Dispatchers.IO) {
+                val result = controller.retry(runId)
+                if (result == null) {
+                    sendGenerationAction(context, runId, action)
+                } else {
+                    withContext(Dispatchers.Main.immediate) { applyRegenerationResult(result) }
+                }
+            }
+        } else {
+            sendGenerationAction(context, runId, action)
+        }
+    }
     val onDeleteBook: (String) -> Unit = { projectId ->
         projectDeletionCoordinator?.let { coordinator ->
             deletionScope.launch(Dispatchers.IO) {
@@ -154,8 +214,10 @@ public fun CitacKnjigaApp(
                     epubChapterProofService = epubChapterProofService,
                     onOpenBook = { id -> navController.navigate(AppRoute.Book.forId(id)) },
                     onOpenDiagnostics = { navController.navigate(AppRoute.Diagnostics.path) },
-                    onGenerationAction = { runId, action -> sendGenerationAction(context, runId, action) },
+                    onGenerationAction = onGenerationAction,
                     onDeleteBook = onDeleteBook,
+                    onRegenerate = onRegenerate,
+                    regenerationFeedback = regenerationFeedback,
                     ttsEnginePreference = ttsEnginePreference,
                 )
             }
@@ -179,11 +241,13 @@ public fun CitacKnjigaApp(
                     audiobookExportService = audiobookExportService,
                     bookId = entry.arguments?.getString(AppRoute.Book.argument),
                     onBack = navController::popBackStack,
-                    onGenerationAction = { runId, action -> sendGenerationAction(context, runId, action) },
+                    onGenerationAction = onGenerationAction,
                     onDeleteBook = { projectId ->
                         onDeleteBook(projectId)
                         navController.popBackStack()
                     },
+                    onRegenerate = onRegenerate,
+                    regenerationFeedback = regenerationFeedback,
                 )
             }
         }
@@ -204,6 +268,8 @@ private fun StartScreen(
     onOpenDiagnostics: () -> Unit,
     onGenerationAction: (String, GenerationAction) -> Unit,
     onDeleteBook: (String) -> Unit,
+    onRegenerate: (String, GenerationScope) -> Unit,
+    regenerationFeedback: RegenerationFeedback?,
     ttsEnginePreference: TtsEnginePreference?,
 ) {
     val libraryController = remember(audiobookDao) { audiobookDao?.let(::LibraryController) }
@@ -296,6 +362,8 @@ private fun StartScreen(
                 onBookClick = onOpenBook,
                 onGenerationAction = onGenerationAction,
                 onDeleteBook = onDeleteBook,
+                onRegenerate = onRegenerate,
+                regenerationFeedback = regenerationFeedback,
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 20.dp),
             )
             EpubImportPreviewContent(
@@ -424,6 +492,8 @@ private fun BookRoute(
     onBack: () -> Unit,
     onGenerationAction: (String, GenerationAction) -> Unit,
     onDeleteBook: (String) -> Unit,
+    onRegenerate: (String, GenerationScope) -> Unit,
+    regenerationFeedback: RegenerationFeedback?,
 ) {
     val context = LocalContext.current
     val exportScope = rememberCoroutineScope()
@@ -537,6 +607,8 @@ private fun BookRoute(
                 book = book,
                 onGenerationAction = onGenerationAction,
                 onDeleteBook = onDeleteBook,
+                onRegenerate = onRegenerate,
+                regenerationFeedback = regenerationFeedback,
                 modifier = Modifier.weight(1f),
             )
             if (book != null && audiobookExportService != null && !exportBusy) {

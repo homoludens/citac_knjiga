@@ -32,6 +32,10 @@ import com.homoludens.citacknjiga.library.LibraryBookDisplay
 import com.homoludens.citacknjiga.library.LibraryScreen
 import com.homoludens.citacknjiga.library.LibraryViewState
 import com.homoludens.citacknjiga.library.ProgressDisplay
+import com.homoludens.citacknjiga.library.BookDetailScreen
+import com.homoludens.citacknjiga.library.RegenerationFeedback
+import com.homoludens.citacknjiga.library.RegenerationResultStatus
+import com.homoludens.citacknjiga.core.generation.GenerationScope
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -154,6 +158,54 @@ public class AccessibilityUiTest {
         assertEquals(0, deleted.size)
         composeRule.onNodeWithTag("confirm-delete-book-book-1").performClick()
         assertEquals(listOf("book-1"), deleted)
+    }
+
+    @Test
+    public fun regenerationCancelDoesNotQueueAndBookActionUsesCompleteScope() {
+        val scopes = mutableListOf<GenerationScope>()
+        composeRule.setContent {
+            CompositionLocalProvider(LocalContext provides serbianContext()) {
+                MaterialTheme {
+                    BookDetailScreen(
+                        book = runningBook(),
+                        onRegenerate = { _, scope -> scopes += scope },
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithTag("regenerate-chapter-chapter-1").performClick()
+        composeRule.onNodeWithTag("regenerate-chapter-warning-chapter-1").assertExists()
+        composeRule.onNodeWithTag("cancel-regenerate-chapter-chapter-1").performClick()
+        assertEquals(emptyList<GenerationScope>(), scopes)
+
+        composeRule.onNodeWithTag("regenerate-book-book-1").performClick()
+        composeRule.onNodeWithTag("confirm-regenerate-book-book-1").performClick()
+        assertEquals(listOf(GenerationScope.CompleteBook), scopes)
+    }
+
+    @Test
+    public fun regenerationFeedbackExposesSuccessFailureAndRetry() {
+        val retried = mutableListOf<GenerationScope>()
+        composeRule.setContent {
+            CompositionLocalProvider(LocalContext provides serbianContext()) {
+                MaterialTheme {
+                    BookDetailScreen(
+                        book = runningBook(),
+                        regenerationFeedback = RegenerationFeedback(
+                            projectId = "book-1",
+                            scope = GenerationScope.Chapter("chapter-1"),
+                            status = RegenerationResultStatus.FAILED,
+                        ),
+                        onRegenerate = { _, scope -> retried += scope },
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("Поновно генерисање није успело. Изворни текст и остала поглавља нису промењени. Покушајте поново.").assertExists()
+        composeRule.onNodeWithTag("retry-regeneration-book-1").performClick()
+        assertEquals(listOf(GenerationScope.Chapter("chapter-1")), retried)
     }
 
     @Test

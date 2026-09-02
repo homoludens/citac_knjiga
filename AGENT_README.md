@@ -30,6 +30,10 @@ target.
   generation coordinator for complete-book and chapter requests. Kokoro and VITS
   planners persist package/run/segment provenance, and WorkManager dispatches the
   persisted run to the selected engine without PDF/EPUB-specific generation flows.
+- OpenSpec `manage-library-and-model-downloads` task 2.4 adds confirmed chapter
+  and whole-book regeneration actions. The app rebuilds requests from persisted
+  narration blocks, uses the current engine preference, invalidates only the
+  selected scope, and exposes queued, failed, canceled, and retry states.
 
 - Archived OpenSpec change `fix-real-world-epub-import` is implemented across the
   `document-epub` and `app` modules. It now uses immutable production limits,

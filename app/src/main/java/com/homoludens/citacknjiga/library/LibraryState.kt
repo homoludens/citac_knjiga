@@ -9,7 +9,14 @@ import com.homoludens.citacknjiga.core.database.ChapterEntity
 import com.homoludens.citacknjiga.core.database.ChapterStatus
 import com.homoludens.citacknjiga.core.database.GenerationRunEntity
 import com.homoludens.citacknjiga.core.database.GenerationRunStatus
+import com.homoludens.citacknjiga.core.database.NarrationBlockEntity
 import com.homoludens.citacknjiga.core.database.PlaybackPositionEntity
+import com.homoludens.citacknjiga.core.generation.GenerationEngine
+import com.homoludens.citacknjiga.core.generation.GenerationRequest
+import com.homoludens.citacknjiga.core.generation.GenerationRequestFactory
+import com.homoludens.citacknjiga.core.generation.GenerationScope
+import com.homoludens.citacknjiga.core.generation.QueuedGeneration
+import com.homoludens.citacknjiga.tts.onnx.TtsEngine
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -66,6 +73,95 @@ public data class LibraryBookDisplay(
 public data class LibraryViewState(
     public val books: List<LibraryBookDisplay> = emptyList(),
 )
+
+public enum class RegenerationResultStatus {
+    QUEUING,
+    QUEUED,
+    FAILED,
+}
+
+public data class RegenerationFeedback(
+    public val projectId: String,
+    public val scope: GenerationScope,
+    public val status: RegenerationResultStatus,
+    public val runId: String? = null,
+)
+
+public data class RegenerationResult(
+    public val projectId: String,
+    public val scope: GenerationScope,
+    public val status: RegenerationResultStatus,
+    public val queued: QueuedGeneration? = null,
+)
+
+/** Builds fresh persisted requests so retry always uses current source and engine selection. */
+public class LibraryRegenerationController(
+    private val findProject: (String) -> BookProjectEntity?,
+    private val findChapters: () -> Collection<ChapterEntity>,
+    private val findNarrationBlocks: () -> Collection<NarrationBlockEntity>,
+    private val findRun: (String) -> GenerationRunEntity?,
+    private val findSegments: () -> Collection<AudioSegmentEntity>,
+    private val invalidateAndQueue: (GenerationRequest) -> QueuedGeneration,
+    private val selectedEngine: () -> TtsEngine,
+) {
+    public fun regenerate(projectId: String, scope: GenerationScope): RegenerationResult {
+        return try {
+            val project = findProject(projectId) ?: return failed(projectId, scope)
+            val request = GenerationRequestFactory.fromExistingNarrationBlocks(
+                project = project,
+                chapters = findChapters(),
+                narrationBlocks = findNarrationBlocks(),
+                scope = scope,
+                engine = selectedEngine().toGenerationEngine(),
+            )
+            if (request.narrationBlocks.isEmpty()) return failed(projectId, scope)
+            RegenerationResult(
+                projectId = projectId,
+                scope = scope,
+                status = RegenerationResultStatus.QUEUED,
+                queued = invalidateAndQueue(request),
+            )
+        } catch (_: Exception) {
+            failed(projectId, scope)
+        }
+    }
+
+    /** Reconstructs the persisted chapter/book scope before starting a clean replacement. */
+    public fun retry(runId: String): RegenerationResult? {
+        val run = findRun(runId) ?: return null
+        val projectChapters = findChapters().filter { it.bookProjectId == run.bookProjectId }
+        val narrationBlocks = findNarrationBlocks()
+        val runChapterIds = findSegments()
+            .filter { it.generationRunId == runId }
+            .map(AudioSegmentEntity::chapterId)
+            .toSet()
+        if (runChapterIds.isEmpty()) return null
+        val narratableChapterIds = projectChapters
+            .filter { chapter ->
+                narrationBlocks.any { block ->
+                    block.chapterId == chapter.id &&
+                        block.blockType != com.homoludens.citacknjiga.core.database.NarrationBlockType.SKIPPED &&
+                        block.sourceText.isNotBlank()
+                }
+            }
+            .map(ChapterEntity::id)
+            .toSet()
+        val scope = when {
+            runChapterIds == narratableChapterIds -> GenerationScope.CompleteBook
+            runChapterIds.size == 1 -> GenerationScope.Chapter(runChapterIds.single())
+            else -> return null
+        }
+        return regenerate(run.bookProjectId, scope)
+    }
+
+    private fun failed(projectId: String, scope: GenerationScope): RegenerationResult =
+        RegenerationResult(projectId, scope, RegenerationResultStatus.FAILED)
+
+    private fun TtsEngine.toGenerationEngine(): GenerationEngine = when (this) {
+        TtsEngine.KOKORO -> GenerationEngine.KOKORO
+        TtsEngine.VITS -> GenerationEngine.VITS
+    }
+}
 
 public object LibraryDisplayMapper {
     public fun mapBooks(
