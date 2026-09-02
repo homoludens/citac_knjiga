@@ -6,7 +6,13 @@ target.
 
 ## Status
 
-- OpenSpec change `add-pdfbox-android-parser` has selected
+- The active OpenSpec change is `complete-mvp-release`, with 12 remaining tasks
+  covering PDF import reliability, final VITS qualification, portable export,
+  device-matrix evidence, capability audit, signed artifacts, and publication.
+  Its complete proposal, five capability specs, design, and task list are under
+  `openspec/changes/complete-mvp-release/`. All previous changes are preserved
+  under `openspec/changes/archive/`.
+- Archived OpenSpec change `add-pdfbox-android-parser` selected
   `com.tom-roush:pdfbox-android:2.0.27.0` for the API 33 `arm64-v8a` production
   target and API 35 `x86_64` development target. Its locked Bouncy Castle
   closure is `bcprov-jdk15to18`, `bcpkix-jdk15to18`, and `bcutil-jdk15to18`, all
@@ -20,7 +26,7 @@ target.
   checks pass within their documented scope. Release APKs remain unsigned
   because no production keystore or signing credentials are available.
 
-- OpenSpec change `fix-real-world-epub-import` is implemented across the
+- Archived OpenSpec change `fix-real-world-epub-import` is implemented across the
   `document-epub` and `app` modules. It now uses immutable production limits,
   bounded ZIP/XML validation, lexical reference resolution, one controlled
   compatibility retry, structured diagnostics, private-source cleanup, parser
@@ -33,9 +39,9 @@ target.
   --type change --strict`. Existing unrelated worktree changes and generated
   build directories remain uncommitted.
 
-- OpenSpec change `build-serbian-audiobook-mvp` is in progress:
-  `openspec/changes/build-serbian-audiobook-mvp/` (proposal, design, 6 specs,
-  12 task phases).
+- Archived OpenSpec change `build-serbian-audiobook-mvp` was the original MVP plan:
+  `openspec/changes/archive/2026-09-02-build-serbian-audiobook-mvp/` (proposal,
+  design, 6 specs, 12 task phases).
 - Phase 2 model export/parity is complete: tasks 2.4-2.7 froze and exercised
   the FP32 parity contract, desktop ONNX validation, and the bounded Sherpa
   experiment; task 2.8 selects direct ONNX Runtime Android `1.29.0` as the
@@ -346,7 +352,7 @@ target.
   metadata, cover, spine, navigation, basic EPUB3 content, and malformed
   recovery needs without adding a production dependency. The experiment only
   observes security markers; enforcement remains task 7.5. Details are in
-  `openspec/changes/build-serbian-audiobook-mvp/epub-importer-decision.md`.
+  `openspec/changes/archive/2026-09-02-build-serbian-audiobook-mvp/epub-importer-decision.md`.
 - Task 7.4 adds `SafEpubSourceRepository` in `document-epub`. A selected
   `ContentResolver` URI is copied through `AtomicArtifactStore` to private
   temporary storage, fingerprinted with SHA-256, checked against the Room-backed
@@ -695,7 +701,7 @@ target.
 
 ## PDF page import change
 
-- OpenSpec change `add-pdfbox-android-parser` promotes PdfBox-Android
+- Archived OpenSpec change `add-pdfbox-android-parser` promotes PdfBox-Android
   `2.0.27.0` after the 13-fixture candidate suite passed 6/6 on Poco F3 API 33
   `arm64-v8a` and 6/6 on the API 35 `x86_64` emulator. API 30 and API 36 are
   non-gating and not executed. The candidate AAR and all Bouncy Castle 1.72
@@ -723,7 +729,7 @@ target.
 
 ## Serbian VITS backend qualification
 
-- OpenSpec change `qualify-serbian-vits-backend` adds an isolated, dependency-
+- Archived OpenSpec change `qualify-serbian-vits-backend` adds an isolated, dependency-
   light qualification harness under `model-tools/qualification/` and
   redacted evidence under `reports/serbian-vits-qualification/`.
 - The exact candidate is `daremc86/sr-cv-vits` revision
@@ -737,13 +743,14 @@ target.
   Serbian input policy, deterministic number/abbreviation handling, one
   resampling step, candidate-specific evidence links, and fail-closed gate
   promotion. Raw model/checkpoint/audio artifacts remain outside the repo.
-- Because the overall outcome is still rejection, the runtime change keeps VITS
-  unavailable until the API 33 native ARM64 generation gate passes. Kokoro
-  remains available with unchanged existing provenance.
+- Because the overall outcome is still rejection, production release claims keep
+  VITS unqualified until the API 33 native ARM64 generation gate passes. The
+  opt-in debug runtime is available for device testing, while Kokoro remains
+  available with unchanged existing provenance.
 
 ## Serbian VITS runtime change
 
-- `enable-sherpa-vits-runtime` now has an isolated VITS package slot,
+- Archived `enable-sherpa-vits-runtime` has an isolated VITS package slot,
   model-owned frontend/audio boundary, cancellable Sherpa JNI session, and
   nullable engine-qualified Room provenance fields. Kokoro files and legacy
   rows remain separate and unchanged in meaning.
@@ -753,14 +760,15 @@ target.
   `83dc1e1b95d85b9f5602dc94909706fc83dfbc6c`, Dragana speaker `0`, CC-BY-4.0.
 - Legal distribution is accepted for this project, and the deterministic
   external package `serbian-vits-1.0.0.zip` has a validated identity and
-  self-contained graph. VITS remains unavailable until the full API 33 native
-  ARM64 qualification gate passes. No raw checkpoint, generated audio, or
-  network runtime dependency is added.
+  self-contained graph. The opt-in debug runtime is available for testing, but
+  VITS remains unqualified for production until the full API 33 native ARM64
+  gate passes. No raw checkpoint, generated audio, or network runtime dependency
+  is added.
 - The first real Sherpa VITS smoke run passed on Poco F3 `2555a240` (`M2012K11AG`,
   API 33, native `arm64-v8a`) with networking disabled. It generated non-silent
   native 22,050 Hz mono audio and validated final 24,000 Hz mono output. Full
   parity, resource, interruption, recovery, and equivalent API 33 `x86_64`
-  evidence remain open, so VITS is still unavailable in production.
+  evidence remain open, so VITS is not production-qualified.
 - The Sherpa JNI runtime is an opt-in source build using the pinned checkout and
   `CITA_ENABLE_SHERPA_VITS`; normal APKs intentionally omit it. Engine selection
   also probes `libcita_sherpa_vits.so`, so a qualified package cannot expose VITS

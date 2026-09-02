@@ -1,6 +1,6 @@
 ## Why
 
-Serbian readers lack a privacy-preserving way to turn DRM-free ebooks into persistent, locally generated audiobooks using the existing Dragana Kokoro voice. The highest-risk parts—the exact Serbian preprocessing pipeline, Android-compatible model export, and sustained on-device inference—must be proven before investing in whole-book Android workflows.
+Serbian readers lack a privacy-preserving way to turn DRM-free ebooks into persistent, locally generated audiobooks using the existing Dragana Kokoro voice. The highest-risk correctness parts—the exact Serbian preprocessing pipeline and Android-compatible model export—must be proven before investing in whole-book Android workflows. On-device performance is measured early to guide optimization without blocking application development.
 
 ## What Changes
 
@@ -17,7 +17,7 @@ Serbian readers lack a privacy-preserving way to turn DRM-free ebooks into persi
 
 ### New Capabilities
 
-- `model-runtime`: Versioned model packaging, integrity checks, ONNX parity, Android inference, and device performance gates.
+- `model-runtime`: Versioned model packaging, integrity checks, ONNX parity, Android inference, and device performance reporting.
 - `serbian-text-processing`: Deterministic Serbian narration cleanup, normalization, phonemization, tokenization, chunking, and pronunciation-version tracking.
 - `epub-import`: Safe DRM-free EPUB ingestion into ordered chapters and structured narration blocks.
 - `durable-generation`: Persistent incremental audio generation, recovery, invalidation, progress, storage management, and error handling.

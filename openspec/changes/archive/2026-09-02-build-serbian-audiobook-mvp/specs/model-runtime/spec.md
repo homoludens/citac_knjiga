@@ -40,10 +40,9 @@ The system SHALL record the model package checksum, voice checksum, preprocessin
 - **WHEN** a different model package becomes active
 - **THEN** segments made with the previous provenance remain identifiable as stale and are not silently treated as current
 
-### Requirement: Device qualification
-The Android proof-of-concept SHALL measure model load time, real-time factor, peak memory, CPU utilization, thermal behavior, and battery use on the reference device before whole-book implementation proceeds.
+### Requirement: Device performance reporting
+The Android proof-of-concept SHALL run a short comparison of controlled CPU and XNNPACK configurations on the reference device and report real-time factor and peak process memory.
 
-#### Scenario: Reference-device benchmark
-- **WHEN** the representative sustained benchmark completes on a Poco F3 or declared equivalent
-- **THEN** the results and the explicit proceed, optimize, or stop decision are stored with the model package evaluation
-
+#### Scenario: Reference-device measurement
+- **WHEN** a short benchmark completes on a Poco F3 or declared equivalent
+- **THEN** real-time factor and peak process memory are stored for comparison without an acceptance threshold or downstream implementation gate
