@@ -8,17 +8,17 @@
 
 ## 2. Production Dependency
 
-- [ ] 2.1 If and only if qualification passes, add the exact PdfBox-Android coordinate and transitive versions to the version catalog and `document-pdf`, and verify dependency locking, checksum verification, and offline production builds.
-- [ ] 2.2 Record Apache PDFBox, PdfBox-Android, and Bouncy Castle attribution and update source-closure and dependency-license inventories, and verify release notice and closure checks pass.
-- [ ] 2.3 Add centralized Android resource-loader initialization to the production composition root and test setup, and verify application startup and parser instrumentation complete without initialization errors.
+- [x] 2.1 If and only if qualification passes, add the exact PdfBox-Android coordinate and transitive versions to the version catalog and `document-pdf`, and verify dependency locking, checksum verification, and offline production builds.
+- [x] 2.2 Record Apache PDFBox, PdfBox-Android, and Bouncy Castle attribution and update source-closure and dependency-license inventories, and verify release notice and closure checks pass.
+- [x] 2.3 Add centralized Android resource-loader initialization to the production composition root and test setup, and verify application startup and parser instrumentation complete without initialization errors.
 
 ## 3. Parser Adapter
 
-- [ ] 3.1 Implement the production `PdfPageImporter` adapter over the staged private file, including page-count inspection and inclusive selected-page inspection, and verify the adapter returns only requested page numbers.
-- [ ] 3.2 Collect PdfBox text positions per page and convert page rotation, crop-box, and glyph bounds into normalized top-left rectangles, and verify coordinates remain within `NormalizedRect` bounds on rotated and non-standard pages.
-- [ ] 3.3 Group collected positions into stable text blocks with whitespace normalization and existing narration block types, and verify canonical output preserves Serbian text, Unicode, page order, and block locators.
-- [ ] 3.4 Map protected, malformed, truncated, unsupported, unreadable, image-only, and external-reference cases to existing diagnostics without returning partial text, and verify the parser unit and Android fixture tests cover each failure class.
-- [ ] 3.5 Add deadline and coroutine-cancellation checks around page and position processing while honoring the existing byte and text limits, and verify timeout and cancellation tests remove temporary parser state and publish nothing.
+- [x] 3.1 Implement the production `PdfPageImporter` adapter over the staged private file, including page-count inspection and inclusive selected-page inspection, and verify the adapter returns only requested page numbers.
+- [x] 3.2 Collect PdfBox text positions per page and convert page rotation, crop-box, and glyph bounds into normalized top-left rectangles, and verify coordinates remain within `NormalizedRect` bounds on rotated and non-standard pages.
+- [x] 3.3 Group collected positions into stable text blocks with whitespace normalization and existing narration block types, and verify canonical output preserves Serbian text, Unicode, page order, and block locators.
+- [x] 3.4 Map protected, malformed, truncated, unsupported, unreadable, image-only, and external-reference cases to existing diagnostics without returning partial text, and verify the parser unit and Android fixture tests cover each failure class.
+- [x] 3.5 Add deadline and coroutine-cancellation checks around page and position processing while honoring the existing byte and text limits, and verify timeout and cancellation tests remove temporary parser state and publish nothing.
 
 ## 4. Application Integration
 

@@ -26,6 +26,10 @@ kotlin { jvmToolchain(libs.versions.jvm.get().toInt()) }
 dependencies {
     implementation(project(":core"))
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.pdfbox.android)
+    implementation(libs.bcprov.jdk15to18)
+    implementation(libs.bcpkix.jdk15to18)
+    implementation(libs.bcutil.jdk15to18)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.core)
     androidTestImplementation(libs.androidx.test.runner)

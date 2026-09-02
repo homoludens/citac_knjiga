@@ -213,7 +213,7 @@ public class PdfImportPreviewService(
         try {
             if (!repository.verifyCurrent(source)) return failAndDiscard(source, sourceChangedDiagnostic())
             val deadline = PdfDeadline.start(limits)
-            val controls = PdfInspectionControls(deadline)
+            val controls = PdfInspectionControls(deadline = deadline, limits = limits)
             val countResult = importer.pageCount(source, controls)
             deadline.check()
             val count = (countResult as? PdfPageCountResult.Accepted)?.count?.pageCount

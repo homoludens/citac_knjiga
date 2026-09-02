@@ -23,6 +23,7 @@ import com.homoludens.citacknjiga.document.epub.EpubDocumentParser
 import com.homoludens.citacknjiga.document.epub.EpubImportPreviewService
 import com.homoludens.citacknjiga.document.epub.RoomEpubProjectIndex
 import com.homoludens.citacknjiga.document.epub.SafEpubSourceRepository
+import com.homoludens.citacknjiga.document.pdf.PdfBoxResourceLoaderInitializer
 import com.homoludens.citacknjiga.proof.AndroidTypedTextProofEngine
 import com.homoludens.citacknjiga.proof.AndroidVitsTypedTextProofEngine
 import com.homoludens.citacknjiga.proof.EngineSelectingTypedTextProofEngine
@@ -84,6 +85,7 @@ public class AppContainer(
 ) {
     public companion object {
         public fun production(context: Context): AppContainer {
+            PdfBoxResourceLoaderInitializer.initialize(context)
             val filesDir = context.filesDir
             val assets = context.assets
             val contentResolver = context.contentResolver

@@ -22,6 +22,8 @@ ONNX runtime, Compose, etc.)._
 | Component | Version | License | Redistributable? | Notes |
 |---|---|---|---|---|
 | ONNX Runtime (Android) | 1.29.0 | MIT | yes | Selected task 2.8: exact Maven Central AAR; SHA-256 `e97540ca78fe36f6fe2013f82843414fb843b6c7681fb04644cba5e1406662dd`; CPU baseline with bounded XNNPACK experiment; arm64-v8a filter; not device-qualified |
+| PdfBox-Android | 2.0.27.0 | Apache-2.0 | yes | Selected for production PDF extraction after API 33 `arm64-v8a` and API 35 `x86_64` qualification; artifact SHA-256 `30277f879cfd571db2a137582c95516a0d4ea6778e945519bc58ca93d57d88c7`; see `document-pdf/pdfbox-source-closure.json` |
+| Bouncy Castle (`bcprov`, `bcpkix`, `bcutil` jdk15to18) | 1.72 | MIT-like | yes | PdfBox-Android runtime transitive closure; exact artifact hashes and license URL are checked in under `document-pdf/` |
 | eSpeak-NG engine + Serbian data | 1.52.0 / checked-in closure | GPL-3.0-or-later (file-level data audit required) | yes, with GPL source/notices | Task 3.6's resolution accepts the native arm64/JNI implementation in the app. Source, build provenance, notices, and data audit remain release obligations; see `model-tools/phonemization-decision.md`. |
 | Android NDK components | TBD | BSD-3-Clause | yes | Only if retained |
 

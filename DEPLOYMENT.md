@@ -1,5 +1,32 @@
 # Deployment & Environment — citac_knjiga
 
+## PDF import verification
+
+PdfBox-Android `2.0.27.0` is enabled in `document-pdf` after qualification on
+API 33 `arm64-v8a` (production) and API 35 `x86_64` (development). Bouncy Castle
+`1.72` is part of the locked transitive runtime closure. API 30 and API 36 are
+non-gating and are recorded as not executed.
+
+Run the offline production and test gates:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew --offline \
+  :app:compileStandardDebugKotlin \
+  :document-pdf:testDebugUnitTest \
+  :document-pdf:connectedDebugAndroidTest \
+  :document-pdf:lintDebug \
+  :document-pdf:assembleRelease
+```
+
+The qualification report is `pdf-qualification/qualification-report.json`.
+Run `python3 scripts/check_pdf_qualification.py` and
+`python3 scripts/audit_dependencies.py` before release. PdfBox notices,
+checksums, source closure, and the generated dependency inventories must remain
+in sync; rollback means restoring the prior dependency-lock, verification, and
+`PdfFeatureAvailability` gate together.
+
 ## EPUB import verification
 
 The affected-module gate for `fix-real-world-epub-import` is:

@@ -3014,6 +3014,29 @@
       "version": "1.29.0"
     },
     {
+      "coordinate": "com.tom-roush:pdfbox-android:2.0.27.0",
+      "group": "com.tom-roush",
+      "license_ids": [
+        "Apache-2.0"
+      ],
+      "license_names": [
+        "The Apache Software License, Version 2.0"
+      ],
+      "license_urls": [
+        "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/com.tom-roush/pdfbox-android/2.0.27.0/14c319fe0831b445e1c6121561a9cf5a5814411e/pdfbox-android-2.0.27.0.pom",
+        "sha256": "92438da87a07bc5e1acf4de9e27c2fb3f4015a61e13c493975c7e1d5bb2060b6"
+      },
+      "name": "pdfbox-android",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/com.tom-roush/pdfbox-android/2.0.27.0/14c319fe0831b445e1c6121561a9cf5a5814411e/pdfbox-android-2.0.27.0.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/TomRoush/PdfBox-Android",
+      "used_in_tests": true,
+      "version": "2.0.27.0"
+    },
+    {
       "coordinate": "junit:junit:4.13.2",
       "group": "junit",
       "license_ids": [
@@ -3035,6 +3058,75 @@
       "source_url": "https://github.com/junit-team/junit4",
       "used_in_tests": true,
       "version": "4.13.2"
+    },
+    {
+      "coordinate": "org.bouncycastle:bcpkix-jdk15to18:1.72",
+      "group": "org.bouncycastle",
+      "license_ids": [
+        "MIT"
+      ],
+      "license_names": [
+        "Bouncy Castle Licence"
+      ],
+      "license_urls": [
+        "http://www.bouncycastle.org/licence.html"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.bouncycastle/bcpkix-jdk15to18/1.72/aba24950f2a7e4c322230a4f52d8e5dc0c9596ed/bcpkix-jdk15to18-1.72.pom",
+        "sha256": "f08dc01210f4d1c8ea9de1350b6a7fd9d25ad355e46f5b0a99f5509cabb49feb"
+      },
+      "name": "bcpkix-jdk15to18",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.bouncycastle/bcpkix-jdk15to18/1.72/aba24950f2a7e4c322230a4f52d8e5dc0c9596ed/bcpkix-jdk15to18-1.72.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/bcgit/bc-java",
+      "used_in_tests": true,
+      "version": "1.72"
+    },
+    {
+      "coordinate": "org.bouncycastle:bcprov-jdk15to18:1.72",
+      "group": "org.bouncycastle",
+      "license_ids": [
+        "MIT"
+      ],
+      "license_names": [
+        "Bouncy Castle Licence"
+      ],
+      "license_urls": [
+        "http://www.bouncycastle.org/licence.html"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.bouncycastle/bcprov-jdk15to18/1.72/e56324d54c4cd42b897b2073d8710e53eafc72f9/bcprov-jdk15to18-1.72.pom",
+        "sha256": "96de53b7e4cd5b156a59c9748986bbd26c4e4739afb80d56abf59ac9f6154e9e"
+      },
+      "name": "bcprov-jdk15to18",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.bouncycastle/bcprov-jdk15to18/1.72/e56324d54c4cd42b897b2073d8710e53eafc72f9/bcprov-jdk15to18-1.72.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/bcgit/bc-java",
+      "used_in_tests": true,
+      "version": "1.72"
+    },
+    {
+      "coordinate": "org.bouncycastle:bcutil-jdk15to18:1.72",
+      "group": "org.bouncycastle",
+      "license_ids": [
+        "MIT"
+      ],
+      "license_names": [
+        "Bouncy Castle Licence"
+      ],
+      "license_urls": [
+        "http://www.bouncycastle.org/licence.html"
+      ],
+      "metadata": {
+        "path": "~/.gradle/caches/modules-2/files-2.1/org.bouncycastle/bcutil-jdk15to18/1.72/b29484908813c7eeabffe8b99512263b89b60c45/bcutil-jdk15to18-1.72.pom",
+        "sha256": "b5a6fee3e65ff71cb5b0c0261ef2b64718a043bf21241e9eced0f1092d0c75cf"
+      },
+      "name": "bcutil-jdk15to18",
+      "provenance": "Gradle cache POM: ~/.gradle/caches/modules-2/files-2.1/org.bouncycastle/bcutil-jdk15to18/1.72/b29484908813c7eeabffe8b99512263b89b60c45/bcutil-jdk15to18-1.72.pom",
+      "scope": "runtime",
+      "source_url": "https://github.com/bcgit/bc-java",
+      "used_in_tests": true,
+      "version": "1.72"
     },
     {
       "coordinate": "org.hamcrest:hamcrest-core:1.3",

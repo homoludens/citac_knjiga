@@ -1,0 +1,30 @@
+{
+  "schema": "citac-knjiga-pdfbox-source-closure-v1",
+  "components": [
+    {
+      "coordinate": "com.tom-roush:pdfbox-android:2.0.27.0",
+      "upstream": "https://github.com/TomRoush/PdfBox-Android",
+      "license": "Apache-2.0",
+      "artifact_sha256": "30277f879cfd571db2a137582c95516a0d4ea6778e945519bc58ca93d57d88c7"
+    },
+    {
+      "coordinate": "org.bouncycastle:bcprov-jdk15to18:1.72",
+      "upstream": "https://www.bouncycastle.org/",
+      "license": "MIT-like",
+      "artifact_sha256": "ea66ea8a450810b2193e8bf9a7ad3e46307c9896224c0f407d1b7d96ba1221cc"
+    },
+    {
+      "coordinate": "org.bouncycastle:bcpkix-jdk15to18:1.72",
+      "upstream": "https://www.bouncycastle.org/",
+      "license": "MIT-like",
+      "artifact_sha256": "d9b97477b72499bcee02f5a906510810257ff36a94bf69fbca0b1e65e7ffdb6e"
+    },
+    {
+      "coordinate": "org.bouncycastle:bcutil-jdk15to18:1.72",
+      "upstream": "https://www.bouncycastle.org/",
+      "license": "MIT-like",
+      "artifact_sha256": "d92184bdeb3105a11ad9e36acbd66b5f8eed091b08b9c8f3e2549e42b7f131f1"
+    }
+  ],
+  "source_policy": "Only the staged local PDF is opened; no PDF URI, hyperlink, embedded file, or remote resource is resolved."
+}

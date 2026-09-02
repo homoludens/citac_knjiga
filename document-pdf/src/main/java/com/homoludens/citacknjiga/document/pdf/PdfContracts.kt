@@ -137,6 +137,10 @@ public class PdfDeadline private constructor(
 ) {
     public suspend fun check() {
         coroutineContext.ensureActive()
+        checkNow()
+    }
+
+    public fun checkNow() {
         if (nowNanos() > deadlineNanos) throw PdfInspectionTimeoutException()
     }
 
@@ -153,6 +157,7 @@ public class PdfInspectionTimeoutException : IllegalStateException("PDF inspecti
 public data class PdfInspectionControls(
     public val deadline: PdfDeadline,
     public val resourcePolicy: PdfResourcePolicy = LocalPdfResourcePolicy,
+    public val limits: PdfImportLimits = PdfImportLimits.Production,
 )
 
 public enum class PdfStageError {
@@ -192,8 +197,8 @@ public data class NormalizedRect(
 }
 
 public object PdfFeatureAvailability {
-    /** Qualification is intentionally a hard production gate. */
-    public const val QUALIFIED: Boolean = false
+    /** The selected candidate passed the defined API 33/API 35 matrix. */
+    public const val QUALIFIED: Boolean = true
 }
 
 public class PdfFeatureUnavailableException : UnsupportedOperationException(

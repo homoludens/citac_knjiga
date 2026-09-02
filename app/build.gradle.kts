@@ -133,6 +133,7 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":tts-onnx"))
     implementation(project(":document-epub"))
+    implementation(project(":document-pdf"))
     implementation(project(":playback-export"))
 
     testImplementation(libs.junit)

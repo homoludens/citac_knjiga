@@ -35,6 +35,8 @@ def child_text(element: ET.Element, *names: str) -> str | None:
 
 def normalize_license(name: str) -> str:
     value = name.lower().replace("license", "").replace("the ", "").strip()
+    if "bouncy castle" in value:
+        return "MIT"
     if "apache" in value:
         return "Apache-2.0"
     if value == "mit" or value.startswith("mit "):

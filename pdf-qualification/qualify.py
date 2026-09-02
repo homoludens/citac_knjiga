@@ -10,6 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 APIS = ("30", "33", "35", "36")
+GATING_APIS = ("33", "35")
 CANDIDATES = ("androidx-pdf", "pdfbox-android", "platform-pdf-renderer")
 
 
@@ -51,8 +52,9 @@ def report(output: Path) -> dict:
         checksums = generated_fixtures(Path(directory))
     matrix = {
         candidate: {
-            api: {
+                api: {
                     "status": "not-executed",
+                    "gating": api in GATING_APIS,
                     "reason": (
                         "run qualify_android.py with an attached target to collect instrumentation evidence"
                     ),
@@ -102,10 +104,16 @@ def report(output: Path) -> dict:
             "apk_delta_bytes": None,
             "apk_delta_status": "not-measured-no instrumentation run",
         },
+        "qualification_scope": {
+            "production": {"api": "33", "abi": "arm64-v8a"},
+            "development": {"api": "35", "abi": "x86_64"},
+            "non_gating": ["30", "36"],
+        },
         "notes": [
             "The platform renderer has no text or block geometry API.",
             "Candidate dependencies are intentionally absent from the production Gradle graph.",
-            "A no-pass result keeps the PDF picker and parser disabled.",
+            "This host-only report is no-pass because it does not execute Android instrumentation.",
+            "API 30 and API 36 are non-gating and not executed for this change.",
         ],
     }
 

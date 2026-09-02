@@ -6,6 +6,18 @@ target.
 
 ## Status
 
+- OpenSpec change `add-pdfbox-android-parser` has qualified and selected
+  PdfBox-Android `2.0.27.0` for the API 33 `arm64-v8a` production target and
+  API 35 `x86_64` development target. The locked production adapter now reads
+  only staged private files, preserves page/text geometry and provenance, and
+  fails closed for protected, malformed, unreadable, and image-only content.
+  API 33/API 35 qualification evidence passes; API 30/API 36 are explicitly
+  non-gating and not executed. App/UI integration remains a later phase.
+- The PdfBox JVM suite, Android instrumentation suite on the available API 35
+  emulator, offline app compile, dependency audit, source closure, and notices
+  are passing. The parser feature gate is enabled only for the checked-in
+  qualification scope.
+
 - OpenSpec change `fix-real-world-epub-import` is implemented across the
   `document-epub` and `app` modules. It now uses immutable production limits,
   bounded ZIP/XML validation, lexical reference resolution, one controlled

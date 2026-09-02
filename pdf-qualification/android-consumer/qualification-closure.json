@@ -26,5 +26,6 @@
       "artifact_sha256": "d92184bdeb3105a11ad9e36acbd66b5f8eed091b08b9c8f3e2549e42b7f131f1"
     }
   ],
-  "closure_scope": "resolved runtime graph after Gradle dependency resolution; no production graph input"
+  "closure_scope": "resolved production document-pdf runtime graph after Gradle dependency resolution",
+  "production_selected": true
 }

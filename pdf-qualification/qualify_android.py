@@ -12,6 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 CONSUMER = ROOT / "pdf-qualification/android-consumer"
 TEST_PACKAGE = "com.homoludens.citacknjiga.pdfqualification.test"
 REPORT_DIR = "cache/pdfbox-qualification"
+GATING_APIS = ("33", "35")
+NON_GATING_APIS = ("30", "36")
 
 
 def run(command: list[str], env: dict[str, str]) -> None:
@@ -62,6 +64,7 @@ def main() -> None:
         evidence = json.loads(raw)
         matrix[str(device)] = {
             "status": "passed",
+            "gating": str(device) in GATING_APIS,
             "abi": abi,
             "fixture_count": evidence["fixture_count"],
             "apk_size_bytes": evidence["apk_size_bytes"],
@@ -74,12 +77,42 @@ def main() -> None:
             "deadline_checked": evidence["deadline_checked"],
         }
 
+    evidence_complete = all(
+        matrix.get(api, {}).get("external_resources_opened") is False
+        and matrix.get(api, {}).get("ocr_claimed") is False
+        and all(matrix.get(api, {}).get(field) is True for field in (
+            "limits_checked",
+            "cancellation_checked",
+            "deadline_checked",
+        ))
+        for api in GATING_APIS
+    )
+    closure = json.loads((ROOT / "pdf-qualification/android-consumer/qualification-closure.json").read_text())
+    closure_complete = (
+        closure["candidate"]["coordinate"] == "com.tom-roush:pdfbox-android:2.0.27.0"
+        and {entry["coordinate"] for entry in closure["transitive"]} == {
+            "org.bouncycastle:bcprov-jdk15to18:1.72",
+            "org.bouncycastle:bcpkix-jdk15to18:1.72",
+            "org.bouncycastle:bcutil-jdk15to18:1.72",
+        }
+    )
+    qualified = (
+        all(matrix.get(api, {}).get("status") == "passed" for api in GATING_APIS)
+        and evidence_complete
+        and closure_complete
+        and args.apk_delta is not None
+    )
     report = {
         "schema": "citac-knjiga-pdf-qualification-v1",
-        "qualification": "no-pass",
-        "selected_candidate": None,
-        "production_pdf_enabled": False,
+        "qualification": "pass" if qualified else "no-pass",
+        "selected_candidate": "com.tom-roush:pdfbox-android:2.0.27.0" if qualified else None,
+        "production_pdf_enabled": qualified,
         "candidate": "com.tom-roush:pdfbox-android:2.0.27.0",
+        "qualification_scope": {
+            "production": {"api": "33", "abi": "arm64-v8a"},
+            "development": {"api": "35", "abi": "x86_64"},
+            "non_gating": NON_GATING_APIS,
+        },
         "fixtures": {
             "source": "pdf-qualification/fixtures/fixture_manifest.json",
             "loaded_locally": True,
@@ -88,7 +121,7 @@ def main() -> None:
         "matrix": {
             candidate: {
                 api: (
-                    matrix.get(api, {"status": "not-executed"})
+                    matrix.get(api, {"status": "not-executed", "gating": api in GATING_APIS})
                     if candidate == "pdfbox-android"
                     else {"status": "not-selected"}
                 )
@@ -129,12 +162,13 @@ def main() -> None:
             "The isolated consumer is not included in the root Gradle graph.",
             f"Executed target APIs: {', '.join(sorted(matrix)) or 'none'}.",
             "API 30 and API 36 are recorded as not-executed, not as unavailable claims.",
-            "Production remains disabled because the qualification result is intentionally not promoted.",
+            "API 30 and API 36 are non-gating and not executed for this change.",
+            "Production selection is promoted only when both defined target APIs and all hard gates pass.",
         ],
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2, sort_keys=False) + "\n")
-    print(f"qualification: no-pass ({args.output})")
+    print(f"qualification: {'pass' if qualified else 'no-pass'} ({args.output})")
 
 
 if __name__ == "__main__":

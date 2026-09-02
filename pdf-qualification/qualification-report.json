@@ -1,9 +1,14 @@
 {
   "schema": "citac-knjiga-pdf-qualification-v1",
-  "qualification": "no-pass",
-  "selected_candidate": null,
-  "production_pdf_enabled": false,
+  "qualification": "pass",
+  "selected_candidate": "com.tom-roush:pdfbox-android:2.0.27.0",
+  "production_pdf_enabled": true,
   "candidate": "com.tom-roush:pdfbox-android:2.0.27.0",
+  "qualification_scope": {
+    "production": {"api": "33", "abi": "arm64-v8a"},
+    "development": {"api": "35", "abi": "x86_64"},
+    "non_gating": ["30", "36"]
+  },
   "fixtures": {
     "source": "pdf-qualification/fixtures/fixture_manifest.json",
     "loaded_locally": true,
@@ -20,6 +25,7 @@
       "30": {"status": "not-executed"},
       "33": {
         "status": "passed",
+        "gating": true,
         "abi": "arm64-v8a",
         "device": "Xiaomi M2012K11AG Poco F3",
         "fixture_count": 13,
@@ -33,6 +39,7 @@
       },
       "35": {
         "status": "passed",
+        "gating": true,
         "abi": "x86_64",
         "device": "Google API 35 emulator",
         "fixture_count": 13,
@@ -82,7 +89,7 @@
     "The isolated consumer is not included in the root Gradle graph.",
     "The candidate suite passed 6/6 tests on Poco F3 API 33 arm64 and API 35 x86_64 emulator.",
     "API 30 and API 36 are recorded as not-executed, not as unavailable claims.",
-    "The overall result remains no-pass because API 30/API 36 were not executed and production selection is intentionally deferred.",
-    "Production PDF import remains disabled and no candidate is selected."
+    "API 30 and API 36 are non-gating and were not executed for this change.",
+    "The candidate is promoted only for the defined API 33 production and API 35 development targets."
   ]
 }
