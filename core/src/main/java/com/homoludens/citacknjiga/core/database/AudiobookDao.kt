@@ -93,6 +93,61 @@ public interface AudiobookDao {
     @Query("SELECT * FROM generation_run ORDER BY requested_at DESC, id DESC")
     public fun observeAllGenerationRuns(): Flow<List<GenerationRunEntity>>
 
+    /** Aggregates durable segment estimates; only READY segments contribute completed words. */
+    @Query(
+        """
+        SELECT chapter.id AS scope_id,
+               COALESCE(SUM(CASE WHEN audio_segment.status = 'READY'
+                                 THEN COALESCE(audio_segment.estimated_word_count, 0)
+                                 ELSE 0 END), 0) AS completed_words,
+               COALESCE(SUM(COALESCE(audio_segment.estimated_word_count, 0)), 0) AS total_words,
+               COUNT(CASE WHEN audio_segment.status = 'READY' THEN 1 ELSE NULL END) AS completed_segments,
+               COUNT(audio_segment.id) AS total_segments,
+               COUNT(audio_segment.estimated_word_count) AS estimated_segments,
+               (
+                   SELECT chapter_run.status
+                   FROM generation_run AS chapter_run
+                   INNER JOIN audio_segment AS run_segment
+                       ON run_segment.generation_run_id = chapter_run.id
+                   WHERE run_segment.chapter_id = chapter.id
+                   ORDER BY chapter_run.requested_at DESC, chapter_run.id DESC
+                   LIMIT 1
+               ) AS generation_status
+        FROM chapter
+        LEFT JOIN audio_segment ON audio_segment.chapter_id = chapter.id
+        GROUP BY chapter.id
+        ORDER BY chapter.book_project_id, chapter.ordinal, chapter.id
+        """,
+    )
+    public fun observeChapterGenerationProgress(): Flow<List<GenerationProgressSnapshot>>
+
+    /** Aggregates all chapter segments belonging to each durable project row. */
+    @Query(
+        """
+        SELECT book_project.id AS scope_id,
+               COALESCE(SUM(CASE WHEN audio_segment.status = 'READY'
+                                 THEN COALESCE(audio_segment.estimated_word_count, 0)
+                                 ELSE 0 END), 0) AS completed_words,
+               COALESCE(SUM(COALESCE(audio_segment.estimated_word_count, 0)), 0) AS total_words,
+               COUNT(CASE WHEN audio_segment.status = 'READY' THEN 1 ELSE NULL END) AS completed_segments,
+               COUNT(audio_segment.id) AS total_segments,
+               COUNT(audio_segment.estimated_word_count) AS estimated_segments,
+               (
+                   SELECT book_run.status
+                   FROM generation_run AS book_run
+                   WHERE book_run.book_project_id = book_project.id
+                   ORDER BY book_run.requested_at DESC, book_run.id DESC
+                   LIMIT 1
+               ) AS generation_status
+        FROM book_project
+        LEFT JOIN chapter ON chapter.book_project_id = book_project.id
+        LEFT JOIN audio_segment ON audio_segment.chapter_id = chapter.id
+        GROUP BY book_project.id
+        ORDER BY book_project.updated_at DESC, book_project.id DESC
+        """,
+    )
+    public fun observeBookGenerationProgress(): Flow<List<GenerationProgressSnapshot>>
+
     @Query("SELECT * FROM playback_position ORDER BY updated_at DESC, book_project_id")
     public fun observeAllPlaybackPositions(): Flow<List<PlaybackPositionEntity>>
 

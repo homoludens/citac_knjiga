@@ -34,6 +34,10 @@ target.
   and whole-book regeneration actions. The app rebuilds requests from persisted
   narration blocks, uses the current engine preference, invalidates only the
   selected scope, and exposes queued, failed, canceled, and retry states.
+- OpenSpec `manage-library-and-model-downloads` task 3.2 adds Room-backed chapter
+  and book word-progress snapshots. Completed words count only `READY` segments;
+  nullable legacy estimates fall back to segment counts, and generation status is
+  read from durable generation-run rows.
 
 - Archived OpenSpec change `fix-real-world-epub-import` is implemented across the
   `document-epub` and `app` modules. It now uses immutable production limits,

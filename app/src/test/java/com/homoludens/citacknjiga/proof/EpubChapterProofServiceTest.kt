@@ -14,6 +14,7 @@ import com.homoludens.citacknjiga.core.database.ExportJobChapterEntity
 import com.homoludens.citacknjiga.core.database.GenerationRunEntity
 import com.homoludens.citacknjiga.core.database.GenerationRunStatus
 import com.homoludens.citacknjiga.core.database.GenerationRunWithSegments
+import com.homoludens.citacknjiga.core.database.GenerationProgressSnapshot
 import com.homoludens.citacknjiga.core.database.ModelPackageEntity
 import com.homoludens.citacknjiga.core.database.NarrationBlockEntity
 import com.homoludens.citacknjiga.core.database.PlaybackPositionEntity
@@ -198,6 +199,8 @@ public class EpubChapterProofServiceTest {
         override fun findAllAudioSegments(): List<AudioSegmentEntity> = audioSegments.toList()
         override fun observeAllAudioSegments(): Flow<List<AudioSegmentEntity>> = flowOf(listOf(segment))
         override fun observeAllGenerationRuns(): Flow<List<GenerationRunEntity>> = flowOf(listOf(run))
+        override fun observeChapterGenerationProgress(): Flow<List<GenerationProgressSnapshot>> = flowOf(emptyList())
+        override fun observeBookGenerationProgress(): Flow<List<GenerationProgressSnapshot>> = flowOf(emptyList())
         override fun observeAllPlaybackPositions(): Flow<List<PlaybackPositionEntity>> = flowOf(emptyList())
         override fun findPlaybackPosition(projectId: String): PlaybackPositionEntity? = null
         override fun savePlaybackPosition(position: PlaybackPositionEntity) { }

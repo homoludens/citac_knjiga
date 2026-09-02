@@ -11,6 +11,7 @@ import com.homoludens.citacknjiga.core.database.ChapterWithRelations
 import com.homoludens.citacknjiga.core.database.GenerationRunEntity
 import com.homoludens.citacknjiga.core.database.GenerationRunStatus
 import com.homoludens.citacknjiga.core.database.GenerationRunWithSegments
+import com.homoludens.citacknjiga.core.database.GenerationProgressSnapshot
 import com.homoludens.citacknjiga.core.database.ModelPackageEntity
 import com.homoludens.citacknjiga.core.database.NarrationBlockEntity
 import com.homoludens.citacknjiga.core.database.PlaybackPositionEntity
@@ -176,11 +177,14 @@ public class PlaybackPositionPersistenceTest {
         override fun observeAllChapters(): Flow<List<ChapterEntity>> = emptyFlow()
         override fun findChapterById(chapterId: String): ChapterEntity? = null
         override fun findNarrationBlockById(blockId: String): NarrationBlockEntity? = null
+        override fun findAllNarrationBlocks(): List<NarrationBlockEntity> = emptyList()
         override fun findAllGenerationRuns(): List<GenerationRunEntity> = emptyList()
         override fun findGenerationRunById(runId: String): GenerationRunEntity? = null
         override fun findAllAudioSegments(): List<AudioSegmentEntity> = emptyList()
         override fun observeAllAudioSegments(): Flow<List<AudioSegmentEntity>> = emptyFlow()
         override fun observeAllGenerationRuns(): Flow<List<GenerationRunEntity>> = emptyFlow()
+        override fun observeChapterGenerationProgress(): Flow<List<GenerationProgressSnapshot>> = emptyFlow()
+        override fun observeBookGenerationProgress(): Flow<List<GenerationProgressSnapshot>> = emptyFlow()
         override fun observeAllPlaybackPositions(): Flow<List<PlaybackPositionEntity>> = emptyFlow()
         override fun findPlaybackPosition(projectId: String): PlaybackPositionEntity? = position
         override fun savePlaybackPosition(position: PlaybackPositionEntity) { this.position = position; writeCount++ }
@@ -195,6 +199,7 @@ public class PlaybackPositionPersistenceTest {
         override fun updateNarrationBlock(block: NarrationBlockEntity) = Unit
         override fun updateGenerationRun(run: GenerationRunEntity) = Unit
         override fun updateAudioSegment(segment: AudioSegmentEntity) = Unit
+        override fun deleteAudioSegments(segmentIds: List<String>) = Unit
         override fun transitionProject(projectId: String, fromStatus: BookProjectStatus, toStatus: BookProjectStatus, lastError: String?, updatedAt: Long): Int = 0
         override fun transitionChapter(chapterId: String, fromStatus: ChapterStatus, toStatus: ChapterStatus, lastError: String?, updatedAt: Long): Int = 0
         override fun transitionGenerationRun(runId: String, fromStatus: GenerationRunStatus, toStatus: GenerationRunStatus, attemptIncrement: Int, lastError: String?, startedAt: Long?, finishedAt: Long?): Int = 0

@@ -9,6 +9,7 @@ import com.homoludens.citacknjiga.core.database.ChapterEntity
 import com.homoludens.citacknjiga.core.database.ChapterStatus
 import com.homoludens.citacknjiga.core.database.GenerationRunEntity
 import com.homoludens.citacknjiga.core.database.GenerationRunStatus
+import com.homoludens.citacknjiga.core.database.GenerationProgressSnapshot
 import com.homoludens.citacknjiga.core.database.PlaybackPositionEntity
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -62,6 +63,85 @@ public class LibraryStateTest {
                 positions = emptyList(),
             ).isEmpty(),
         )
+    }
+
+    @Test
+    public fun mapperUsesReadyWordsForChapterAndBookProgress() {
+        val project = project()
+        val chapters = listOf(chapter("chapter-0", 0, ChapterStatus.PARTIAL))
+        val segments = listOf(
+            segment("ready", "chapter-0", AudioSegmentStatus.READY),
+            segment("pending", "chapter-0", AudioSegmentStatus.PENDING),
+            segment("failed", "chapter-0", AudioSegmentStatus.FAILED),
+        )
+        val snapshot = GenerationProgressSnapshot(
+            scopeId = "chapter-0",
+            completedWords = 12,
+            totalWords = 100,
+            completedSegments = 1,
+            totalSegments = 3,
+            estimatedSegments = 3,
+            generationStatus = GenerationRunStatus.RUNNING,
+        )
+        val bookSnapshot = snapshot.copy(
+            scopeId = project.id,
+            completedWords = 12,
+            totalWords = 100,
+        )
+
+        val book = LibraryDisplayMapper.mapBook(
+            project = project,
+            chapters = chapters,
+            segments = segments,
+            runs = emptyList(),
+            positions = emptyList(),
+            chapterProgress = listOf(snapshot),
+            bookProgress = bookSnapshot,
+        )
+
+        assertEquals(12L, book.chapters.single().progress.completedWords)
+        assertEquals(100L, book.chapters.single().progress.totalWords)
+        assertEquals(12, book.chapters.single().progress.percentage)
+        assertEquals(12, snapshot.percentage)
+        assertEquals(GenerationRunStatus.RUNNING, book.chapters.single().generationStatus)
+        assertEquals(12L, book.generationProgress.completedWords)
+        assertEquals(12, book.generationProgress.percentage)
+        assertEquals(GenerationRunStatus.RUNNING, book.generationStatus)
+    }
+
+    @Test
+    public fun mapperFallsBackToSegmentCountsWhenAllEstimatesAreMissing() {
+        val project = project()
+        val chapters = listOf(chapter("chapter-0", 0, ChapterStatus.PARTIAL))
+        val segments = listOf(
+            segment("ready", "chapter-0", AudioSegmentStatus.READY),
+            segment("pending", "chapter-0", AudioSegmentStatus.PENDING),
+        )
+        val snapshot = GenerationProgressSnapshot(
+            scopeId = "chapter-0",
+            completedWords = 0,
+            totalWords = 0,
+            completedSegments = 1,
+            totalSegments = 2,
+            estimatedSegments = 0,
+            generationStatus = GenerationRunStatus.PAUSED,
+        )
+
+        val book = LibraryDisplayMapper.mapBook(
+            project = project,
+            chapters = chapters,
+            segments = segments,
+            runs = emptyList(),
+            positions = emptyList(),
+            chapterProgress = listOf(snapshot),
+            bookProgress = snapshot.copy(scopeId = project.id),
+        )
+
+        assertEquals(1L, book.chapters.single().progress.completedWords)
+        assertEquals(2L, book.chapters.single().progress.totalWords)
+        assertEquals(50, book.chapters.single().progress.percentage)
+        assertEquals(50, snapshot.percentage)
+        assertEquals(GenerationRunStatus.PAUSED, book.generationStatus)
     }
 
     private fun project() = BookProjectEntity(

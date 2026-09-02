@@ -9,6 +9,7 @@ import com.homoludens.citacknjiga.core.database.ChapterEntity
 import com.homoludens.citacknjiga.core.database.ChapterStatus
 import com.homoludens.citacknjiga.core.database.GenerationRunEntity
 import com.homoludens.citacknjiga.core.database.GenerationRunStatus
+import com.homoludens.citacknjiga.core.database.GenerationProgressSnapshot
 import com.homoludens.citacknjiga.core.database.NarrationBlockEntity
 import com.homoludens.citacknjiga.core.database.PlaybackPositionEntity
 import com.homoludens.citacknjiga.core.generation.GenerationEngine
@@ -31,8 +32,21 @@ import kotlinx.coroutines.flow.stateIn
 public data class ProgressDisplay(
     public val completed: Int,
     public val total: Int,
+    public val completedWords: Long = completed.toLong(),
+    public val totalWords: Long = total.toLong(),
 ) {
-    public val fraction: Float = if (total == 0) 0f else (completed.toFloat() / total).coerceIn(0f, 1f)
+    public val percentage: Int = if (totalWords <= 0L) {
+        0
+    } else {
+        ((completedWords.toDouble() / totalWords.toDouble()) * 100.0).toInt().coerceIn(0, 100)
+    }
+    public val fraction: Float = if (totalWords <= 0L) {
+        0f
+    } else {
+        (completedWords.toDouble() / totalWords.toDouble()).toFloat().coerceIn(0f, 1f)
+    }
+
+    public val usesWordEstimate: Boolean = completedWords != completed.toLong() || totalWords != total.toLong()
 }
 
 public data class ListeningProgressDisplay(
@@ -50,6 +64,7 @@ public data class ChapterDisplay(
     public val progress: ProgressDisplay,
     public val durationMs: Long,
     public val storageBytes: Long,
+    public val generationStatus: GenerationRunStatus? = null,
 )
 
 public data class LibraryBookDisplay(
@@ -171,13 +186,24 @@ public object LibraryDisplayMapper {
         runs: List<GenerationRunEntity>,
         positions: List<PlaybackPositionEntity>,
         fileSize: (String) -> Long = { File(it).length() },
+        chapterProgress: List<GenerationProgressSnapshot> = emptyList(),
+        bookProgress: List<GenerationProgressSnapshot> = emptyList(),
     ): List<LibraryBookDisplay> = projects.filterNot { it.isDeleting }.map { project ->
         val projectChapters = chapters.filter { it.bookProjectId == project.id }
         val projectSegments = segments.filter { segment ->
             projectChapters.any { it.id == segment.chapterId }
         }
         val projectRuns = runs.filter { it.bookProjectId == project.id }
-        mapBook(project, projectChapters, projectSegments, projectRuns, positions, fileSize)
+        mapBook(
+            project = project,
+            chapters = projectChapters,
+            segments = projectSegments,
+            runs = projectRuns,
+            positions = positions,
+            fileSize = fileSize,
+            chapterProgress = chapterProgress,
+            bookProgress = bookProgress.firstOrNull { it.scopeId == project.id },
+        )
     }
 
     public fun mapBook(
@@ -187,18 +213,23 @@ public object LibraryDisplayMapper {
         runs: List<GenerationRunEntity>,
         positions: List<PlaybackPositionEntity>,
         fileSize: (String) -> Long = { File(it).length() },
+        chapterProgress: List<GenerationProgressSnapshot> = emptyList(),
+        bookProgress: GenerationProgressSnapshot? = null,
     ): LibraryBookDisplay {
         val chapterDisplays = chapters.sortedBy { it.ordinal }.map { chapter ->
             val chapterSegments = segments.filter { it.chapterId == chapter.id }
+            val chapterProgressSnapshot = chapterProgress.firstOrNull { it.scopeId == chapter.id }
+            val chapterRun = chapterProgressSnapshot?.generationStatus ?: runs
+                .filter { run -> chapterSegments.any { it.generationRunId == run.id } }
+                .maxWithOrNull(compareBy<GenerationRunEntity> { it.requestedAt }.thenBy { it.id })
+                ?.status
             ChapterDisplay(
                 chapter = chapter,
-                progress = ProgressDisplay(
-                    completed = chapterSegments.count { it.status == AudioSegmentStatus.READY },
-                    total = chapterSegments.size,
-                ),
+                progress = chapterProgressSnapshot?.toDisplay() ?: legacyProgress(chapterSegments),
                 durationMs = chapterSegments.sumOf { it.durationMs ?: 0L },
                 storageBytes = chapterSegments.sumOf { it.sizeBytes ?: 0L } +
                     chapter.canonicalMarkdownPath?.let(fileSize).safeSize(),
+                generationStatus = chapterRun,
             )
         }
         val currentPosition = positions.firstOrNull { it.bookProjectId == project.id }
@@ -217,13 +248,11 @@ public object LibraryDisplayMapper {
         val latestRun = runs
             .filter { it.bookProjectId == project.id }
             .maxWithOrNull(compareBy<GenerationRunEntity> { it.requestedAt }.thenBy { it.id })
+        val progress = bookProgress?.toDisplay() ?: legacyProgress(segments)
         return LibraryBookDisplay(
             project = project,
             chapters = chapterDisplays,
-            generationProgress = ProgressDisplay(
-                completed = segments.count { it.status == AudioSegmentStatus.READY },
-                total = segments.size,
-            ),
+            generationProgress = progress,
             readyChapterCount = chapterDisplays.count { it.chapter.status == ChapterStatus.READY },
             storageBytes = calculateStorage(project, chapterDisplays, fileSize),
             listeningProgress = currentPosition?.let { position ->
@@ -231,9 +260,24 @@ public object LibraryDisplayMapper {
             },
             failures = failures,
             generationRunId = latestRun?.id,
-            generationStatus = latestRun?.status,
+            generationStatus = bookProgress?.generationStatus ?: latestRun?.status,
         )
     }
+
+    private fun GenerationProgressSnapshot.toDisplay(): ProgressDisplay {
+        val wordBased = estimatedSegments > 0
+        return ProgressDisplay(
+            completed = completedSegments,
+            total = totalSegments,
+            completedWords = if (wordBased) completedWords else completedSegments.toLong(),
+            totalWords = if (wordBased) totalWords else totalSegments.toLong(),
+        )
+    }
+
+    private fun legacyProgress(segments: List<AudioSegmentEntity>): ProgressDisplay = ProgressDisplay(
+        completed = segments.count { it.status == AudioSegmentStatus.READY },
+        total = segments.size,
+    )
 
     private fun calculateStorage(
         project: BookProjectEntity,
@@ -257,16 +301,31 @@ public class LibraryController(
     private val segments: Flow<List<AudioSegmentEntity>> = dao.observeAllAudioSegments()
     private val runs: Flow<List<GenerationRunEntity>> = dao.observeAllGenerationRuns()
     private val positions: Flow<List<PlaybackPositionEntity>> = dao.observeAllPlaybackPositions()
+    private val chapterProgress: Flow<List<GenerationProgressSnapshot>> = dao.observeChapterGenerationProgress()
+    private val bookProgress: Flow<List<GenerationProgressSnapshot>> = dao.observeBookGenerationProgress()
 
-    public val state: StateFlow<LibraryViewState> = combine(
+    private val rows = combine(
         projects,
         chapters,
         segments,
         runs,
         positions,
     ) { projectRows, chapterRows, segmentRows, runRows, positionRows ->
+        LibraryRows(projectRows, chapterRows, segmentRows, runRows, positionRows)
+    }
+
+    public val state: StateFlow<LibraryViewState> = combine(rows, chapterProgress, bookProgress) {
+        currentRows, chapterProgressRows, bookProgressRows ->
         LibraryViewState(
-            LibraryDisplayMapper.mapBooks(projectRows, chapterRows, segmentRows, runRows, positionRows),
+            LibraryDisplayMapper.mapBooks(
+                projects = currentRows.projects,
+                chapters = currentRows.chapters,
+                segments = currentRows.segments,
+                runs = currentRows.runs,
+                positions = currentRows.positions,
+                chapterProgress = chapterProgressRows,
+                bookProgress = bookProgressRows,
+            ),
         )
     }.stateIn(scope, SharingStarted.WhileSubscribed(5_000), LibraryViewState())
 
@@ -274,3 +333,11 @@ public class LibraryController(
         scope.cancel()
     }
 }
+
+private data class LibraryRows(
+    val projects: List<BookProjectEntity>,
+    val chapters: List<ChapterEntity>,
+    val segments: List<AudioSegmentEntity>,
+    val runs: List<GenerationRunEntity>,
+    val positions: List<PlaybackPositionEntity>,
+)

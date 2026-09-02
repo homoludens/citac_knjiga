@@ -435,6 +435,34 @@ public data class AudioSegmentEntity(
     val runtimeVersion: String? = null,
 )
 
+/** Room-computed progress for one chapter or book scope. */
+public data class GenerationProgressSnapshot(
+    @ColumnInfo(name = "scope_id")
+    val scopeId: String,
+    @ColumnInfo(name = "completed_words")
+    val completedWords: Long,
+    @ColumnInfo(name = "total_words")
+    val totalWords: Long,
+    @ColumnInfo(name = "completed_segments")
+    val completedSegments: Int,
+    @ColumnInfo(name = "total_segments")
+    val totalSegments: Int,
+    @ColumnInfo(name = "estimated_segments")
+    val estimatedSegments: Int,
+    @ColumnInfo(name = "generation_status")
+    val generationStatus: GenerationRunStatus?,
+) {
+    /** Uses the durable segment count only when no segment has an estimate. */
+    public val percentage: Int
+        get() {
+            val completed = if (estimatedSegments == 0) completedSegments.toLong() else completedWords
+            val total = if (estimatedSegments == 0) totalSegments.toLong() else totalWords
+            return if (total <= 0L) 0 else {
+                ((completed.toDouble() / total.toDouble()) * 100.0).toInt().coerceIn(0, 100)
+            }
+        }
+}
+
 @Entity(
     tableName = "playback_position",
     foreignKeys = [
@@ -653,7 +681,8 @@ public class RoomEnumConverters {
     public fun generationRunStatusToStorage(value: GenerationRunStatus): String = value.name
 
     @TypeConverter
-    public fun storageToGenerationRunStatus(value: String): GenerationRunStatus = GenerationRunStatus.valueOf(value)
+    public fun storageToGenerationRunStatus(value: String?): GenerationRunStatus? =
+        value?.let(GenerationRunStatus::valueOf)
 
     @TypeConverter
     public fun modelPackageStatusToStorage(value: ModelPackageStatus): String = value.name
