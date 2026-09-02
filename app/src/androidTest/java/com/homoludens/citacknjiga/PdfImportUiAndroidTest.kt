@@ -16,14 +16,20 @@ import com.homoludens.citacknjiga.core.document.DocumentBlock
 import com.homoludens.citacknjiga.core.document.ImportProvenance
 import com.homoludens.citacknjiga.core.document.PageLocator
 import com.homoludens.citacknjiga.document.pdf.NormalizedRect
+import com.homoludens.citacknjiga.document.pdf.PdfAcceptanceResult
+import com.homoludens.citacknjiga.document.pdf.PdfDocumentProjector
 import com.homoludens.citacknjiga.document.pdf.PdfImportInspection
 import com.homoludens.citacknjiga.document.pdf.PdfImportPreview
 import com.homoludens.citacknjiga.document.pdf.PdfPage
 import com.homoludens.citacknjiga.document.pdf.PdfTextBlock
 import com.homoludens.citacknjiga.document.pdf.PageRange
 import com.homoludens.citacknjiga.document.pdf.StagedPdfSource
+import com.homoludens.citacknjiga.document.pdf.ImportedPdfSource
+import com.homoludens.citacknjiga.core.document.ImportDiagnostic
+import com.homoludens.citacknjiga.core.document.ImportDiagnosticCode
 import java.io.File
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -56,6 +62,92 @@ public class PdfImportUiAndroidTest {
         composeRule.onNodeWithText("Опсег страница није исправан.").assertExists()
         composeRule.onNodeWithText("Прихвати и увези").assertExists()
         assertFalse(accepted)
+    }
+
+    @Test
+    public fun loadingStateExposesCancellationAction() {
+        var canceled = false
+        composeRule.setContent {
+            CompositionLocalProvider(LocalContext provides serbianContext()) {
+                MaterialTheme {
+                    PdfImportPreviewContent(
+                        state = PdfImportUiState.Loading,
+                        enabled = true,
+                        onSelect = {},
+                        onPreview = { _, _ -> },
+                        onAccept = {},
+                        onCancel = {},
+                        onCancelLoading = { canceled = true },
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("Припрема PDF прегледа. Можете сачекати или отказати.").assertExists()
+        composeRule.onNodeWithText("Откажи PDF увоз").performClick()
+        assertTrue(canceled)
+    }
+
+    @Test
+    public fun errorStateShowsSafePdfMessage() {
+        composeRule.setContent {
+            CompositionLocalProvider(LocalContext provides serbianContext()) {
+                MaterialTheme {
+                    PdfImportPreviewContent(
+                        state = PdfImportUiState.Error(
+                            ImportDiagnostic(
+                                ImportDiagnosticCode.PROTECTED_PDF,
+                                message = "source uri must not be shown",
+                                action = "retry",
+                            ),
+                        ),
+                        enabled = true,
+                        onSelect = {},
+                        onPreview = { _, _ -> },
+                        onAccept = {},
+                        onCancel = {},
+                        onCancelLoading = {},
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("Заштићени PDF није подржан. Изаберите незаштићену датотеку.").assertExists()
+        composeRule.onNodeWithText("source uri must not be shown").assertDoesNotExist()
+    }
+
+    @Test
+    public fun acceptedStateShowsTextWithoutGenerationAction() {
+        val acceptedPreview = preview()
+        composeRule.setContent {
+            CompositionLocalProvider(LocalContext provides serbianContext()) {
+                MaterialTheme {
+                    PdfImportPreviewContent(
+                        state = PdfImportUiState.Accepted(
+                            PdfAcceptanceResult.Published(
+                                ImportedPdfSource(
+                                    projectId = acceptedPreview.stagedSource.projectId,
+                                    sourceUri = acceptedPreview.stagedSource.sourceUri,
+                                    fingerprint = acceptedPreview.stagedSource.fingerprint,
+                                    sourceFile = acceptedPreview.stagedSource.sourceFile,
+                                    sizeBytes = acceptedPreview.stagedSource.sizeBytes,
+                                ),
+                                PdfDocumentProjector.toIr(acceptedPreview),
+                            ),
+                        ),
+                        enabled = true,
+                        onSelect = {},
+                        onPreview = { _, _ -> },
+                        onAccept = {},
+                        onCancel = {},
+                        onCancelLoading = {},
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("PDF увоз је прихваћен и сачуван. Генерисање звука није покренуто.").assertExists()
+        composeRule.onNodeWithText("Преглед текста").assertExists()
     }
 
     private fun preview(): PdfImportPreview {

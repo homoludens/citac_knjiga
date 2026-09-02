@@ -16,10 +16,18 @@ import com.tom_roush.pdfbox.pdmodel.graphics.image.JPEGFactory
 import com.tom_roush.pdfbox.pdmodel.interactive.action.PDActionURI
 import com.tom_roush.pdfbox.pdmodel.interactive.annotation.PDAnnotationLink
 import com.homoludens.citacknjiga.core.document.ImportDiagnosticCode
+import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
+import com.homoludens.citacknjiga.core.storage.AtomicArtifactStore
 import java.io.File
 import java.security.MessageDigest
+import java.util.UUID
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.BeforeClass
 import org.junit.Test
@@ -43,6 +51,114 @@ public class PdfBoxPdfPageImporterAndroidTest {
         assertTrue(page.blocks.single().bounds.right in 0f..1f)
         assertTrue(page.blocks.single().bounds.bottom in 0f..1f)
         assertTrue(PdfPageInspector.inspect(page).warnings.any { it.code.name == "EXTERNAL_RESOURCE" })
+    }
+
+    @Test
+    public fun stagedPdfRemainsReadableAfterSourceProviderDisappears() = runBlocking {
+        val root = uniqueRoot("provider-disappears")
+        val input = root.resolve("input.pdf")
+        val outside = root.resolve("outside.txt").apply { writeText("unchanged") }
+        createPdf(input, outside)
+        val bytes = input.readBytes()
+        var providerAvailable = true
+        var opens = 0
+        val storage = AppPrivateStorage(root)
+        val repository = SafPdfSourceRepository(
+            sourceReader = PdfSourceReader {
+                opens++
+                if (providerAvailable) bytes.inputStream() else null
+            },
+            storage = storage,
+            artifactStore = AtomicArtifactStore(storage),
+            projectIndex = EmptyIndex(),
+            projectIdFactory = { "provider-disappears" },
+        )
+        val source = (repository.stageSource("content://provider/pdf") as PdfStageResult.Staged).source
+        try {
+            providerAvailable = false
+            val result = PdfBoxPdfPageImporter().inspect(source, PageRange(1, 2), controls())
+            val inspection = (result as PdfInspectionResult.Accepted).inspection
+
+            assertEquals(1, opens)
+            assertEquals(listOf("Prva strana", "Druga strana"), inspection.pages.map { it.text })
+            assertTrue(source.sourceFile.canonicalPath.startsWith(root.canonicalPath + File.separator))
+            assertEquals("unchanged", outside.readText())
+        } finally {
+            repository.discardStaged(source)
+            root.deleteRecursively()
+        }
+    }
+
+    @Test
+    public fun canceledPreviewDeletesStagedParserInput() = runBlocking {
+        val root = uniqueRoot("cancellation")
+        val input = createPdf(root.resolve("input.pdf"))
+        val bytes = input.readBytes()
+        val enteredParser = CompletableDeferred<Unit>()
+        val storage = AppPrivateStorage(root)
+        val repository = SafPdfSourceRepository(
+            sourceReader = PdfSourceReader { bytes.inputStream() },
+            storage = storage,
+            artifactStore = AtomicArtifactStore(storage),
+            projectIndex = EmptyIndex(),
+            projectIdFactory = { "cancellation" },
+        )
+        val realImporter = PdfBoxPdfPageImporter()
+        val importer = object : PdfPageImporter {
+            override suspend fun pageCount(source: StagedPdfSource, controls: PdfInspectionControls) =
+                realImporter.pageCount(source, controls)
+
+            override suspend fun inspect(
+                source: StagedPdfSource,
+                range: PageRange,
+                controls: PdfInspectionControls,
+            ): PdfInspectionResult {
+                enteredParser.complete(Unit)
+                awaitCancellation()
+            }
+        }
+        try {
+            val job = launch {
+                PdfImportPreviewService(repository, importer).previewSource("content://provider/pdf", 1, 1)
+            }
+            enteredParser.await()
+            job.cancelAndJoin()
+
+            assertTrue(job.isCancelled)
+            assertFalse(storage.temporaryDirectory.walkTopDown().any { it.isFile })
+        } finally {
+            root.deleteRecursively()
+        }
+    }
+
+    @Test
+    public fun malformedAndProtectedPreviewsPublishNoTextOrPrivateState() = runBlocking {
+        val root = uniqueRoot("closed-failures")
+        val malformed = "%PDF-1.7\n1 0 obj<<".toByteArray()
+        val protectedFile = root.resolve("protected-input.pdf")
+        createProtectedPdf(protectedFile)
+        try {
+            listOf(
+                malformed to ImportDiagnosticCode.MALFORMED_PDF,
+                protectedFile.readBytes() to ImportDiagnosticCode.PROTECTED_PDF,
+            ).forEachIndexed { index, (bytes, expected) ->
+                val storage = AppPrivateStorage(root)
+                val repository = SafPdfSourceRepository(
+                    sourceReader = PdfSourceReader { bytes.inputStream() },
+                    storage = storage,
+                    artifactStore = AtomicArtifactStore(storage),
+                    projectIndex = EmptyIndex(),
+                    projectIdFactory = { "closed-failure-$index" },
+                )
+                val result = PdfImportPreviewService(repository, PdfBoxPdfPageImporter())
+                    .previewSource("content://provider/pdf", 1, 1)
+
+                assertEquals(expected, (result as PdfPreviewResult.Failed).diagnostic.code)
+                assertFalse(storage.temporaryDirectory.walkTopDown().any { it.isFile })
+            }
+        } finally {
+            root.deleteRecursively()
+        }
     }
 
     @Test
@@ -111,12 +227,17 @@ public class PdfBoxPdfPageImporterAndroidTest {
         return StagedPdfSource("android-test", "content://provider/pdf", digest, file, file.length())
     }
 
-    private fun createPdf(): File {
-        val file = ApplicationProvider.getApplicationContext<Context>().cacheDir.resolve("source.pdf")
+    private fun createPdf(
+        file: File = ApplicationProvider.getApplicationContext<Context>().cacheDir.resolve("source.pdf"),
+        externalTarget: File? = null,
+    ): File {
+        file.parentFile?.mkdirs()
         PDDocument().use { document ->
             document.addPage(textPage(document, "Prva strana", 0))
             document.addPage(textPage(document, "Druga strana", 90).also { page ->
-                val link = PDAnnotationLink().apply { action = PDActionURI().apply { uri = "file:///outside.pdf" } }
+                val link = PDAnnotationLink().apply {
+                    action = PDActionURI().apply { uri = externalTarget?.toURI()?.toString() ?: "file:///outside.pdf" }
+                }
                 page.annotations = listOf(link)
             })
             document.save(file)
@@ -135,6 +256,28 @@ public class PdfBoxPdfPageImporterAndroidTest {
                 stream.endText()
             }
         }
+
+    private fun createProtectedPdf(file: File) {
+        file.parentFile?.mkdirs()
+        PDDocument().use { document ->
+            document.addPage(PDPage(PDRectangle.LETTER))
+            document.protect(StandardProtectionPolicy("owner", "user", AccessPermission()))
+            document.save(file)
+        }
+    }
+
+    private fun uniqueRoot(name: String): File = ApplicationProvider.getApplicationContext<Context>().cacheDir
+        .resolve("pdf-$name-${UUID.randomUUID()}").apply { mkdirs() }
+
+    private class EmptyIndex : PdfProjectIndex {
+        override fun findByFingerprint(fingerprint: String): ExistingPdfProject? = null
+
+        override fun recordAcceptedDocument(
+            source: ImportedPdfSource,
+            document: com.homoludens.citacknjiga.core.document.DocumentIr,
+            canonicalChapterPaths: Map<String, String>,
+        ) = Unit
+    }
 
     public companion object {
         @JvmStatic
