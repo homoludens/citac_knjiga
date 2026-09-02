@@ -18,7 +18,7 @@ import androidx.room.TypeConverters
         ExportJobEntity::class,
         ExportJobChapterEntity::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 @TypeConverters(RoomEnumConverters::class)
@@ -74,11 +74,18 @@ public abstract class AudiobookDatabase : RoomDatabase() {
             }
         }
 
+        public val MIGRATION_3_4: androidx.room.migration.Migration = object : androidx.room.migration.Migration(3, 4) {
+            override fun migrate(database: androidx.sqlite.db.SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE book_project ADD COLUMN is_deleting INTEGER NOT NULL DEFAULT 0")
+                database.execSQL("ALTER TABLE audio_segment ADD COLUMN estimated_word_count INTEGER")
+            }
+        }
+
         public fun create(context: Context, name: String = "audiobook.db"): AudiobookDatabase =
             Room.databaseBuilder(
                 context.applicationContext,
                 AudiobookDatabase::class.java,
                 name,
-            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build()
+            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build()
     }
 }

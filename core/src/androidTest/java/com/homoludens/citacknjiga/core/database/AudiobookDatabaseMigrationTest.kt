@@ -5,6 +5,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import java.io.IOException
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -109,11 +110,86 @@ public class AudiobookDatabaseMigrationTest {
     }
 
     @Test
+    @Throws(IOException::class)
+    public fun versionThreeMigratesDeletingStateAndWordEstimate() {
+        migrationTestHelper.createDatabase(DATABASE_NAME, 3).use { database ->
+            database.execSQL(
+                """
+                INSERT INTO book_project
+                    (id, title, source_uri, source_fingerprint, language, status, created_at, updated_at)
+                VALUES ('book', 'Book', 'content://book', 'fingerprint', 'sr', 'READY', 1, 1)
+                """.trimIndent(),
+            )
+            database.execSQL(
+                """
+                INSERT INTO chapter
+                    (id, book_project_id, ordinal, title, status, created_at, updated_at)
+                VALUES ('chapter', 'book', 0, 'Chapter', 'READY', 1, 1)
+                """.trimIndent(),
+            )
+            database.execSQL(
+                """
+                INSERT INTO narration_block
+                    (id, chapter_id, ordinal, block_type, source_text, status, created_at, updated_at)
+                VALUES ('block', 'chapter', 0, 'PARAGRAPH', 'Text', 'PROCESSED', 1, 1)
+                """.trimIndent(),
+            )
+            database.execSQL(
+                """
+                INSERT INTO audio_segment
+                    (id, chapter_id, narration_block_id, sequence, chunk_ordinal,
+                     status, attempt_count, created_at, updated_at)
+                VALUES ('segment', 'chapter', 'block', 0, 0, 'READY', 0, 1, 1)
+                """.trimIndent(),
+            )
+        }
+
+        migrationTestHelper.runMigrationsAndValidate(
+            DATABASE_NAME,
+            4,
+            true,
+            AudiobookDatabase.MIGRATION_3_4,
+        ).use { database ->
+            assertEquals(4, database.version)
+            database.query("SELECT is_deleting FROM book_project WHERE id = 'book'").use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertEquals(0, cursor.getInt(0))
+            }
+            database.query("SELECT estimated_word_count FROM audio_segment WHERE id = 'segment'").use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertTrue(cursor.isNull(0))
+            }
+        }
+
+        val database = AudiobookDatabase.create(context, DATABASE_NAME)
+        try {
+            val dao = database.audiobookDao()
+            val project = dao.findProjectById("book")!!
+            val segment = dao.findAudioSegmentById("segment")!!
+            assertFalse(project.isDeleting)
+            assertEquals(null, segment.estimatedWordCount)
+            dao.updateProject(project.copy(isDeleting = true))
+            dao.updateAudioSegment(segment.copy(estimatedWordCount = 42))
+        } finally {
+            database.close()
+        }
+
+        AudiobookDatabase.create(context, DATABASE_NAME).let { database ->
+            try {
+                assertTrue(database.audiobookDao().findProjectById("book")!!.isDeleting)
+                assertEquals(42, database.audiobookDao().findAudioSegmentById("segment")!!.estimatedWordCount)
+            } finally {
+                database.close()
+            }
+        }
+    }
+
+    @Test
     public fun newerDatabaseFailsWithoutDestructiveFallback() {
         context.openOrCreateDatabase(DATABASE_NAME, 0, null).let { database ->
             try {
                 database.execSQL("CREATE TABLE future_table (id TEXT NOT NULL PRIMARY KEY)")
-                database.version = 4
+                database.version = 5
             } finally {
                 database.close()
             }

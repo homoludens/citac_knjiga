@@ -106,6 +106,8 @@ public data class BookProjectEntity(
     val sourcePath: String? = null,
     @ColumnInfo(name = "cover_path")
     val coverPath: String? = null,
+    @ColumnInfo(name = "is_deleting", defaultValue = "0")
+    val isDeleting: Boolean = false,
     @ColumnInfo(name = "language", defaultValue = "'sr'")
     val language: String = "sr",
     @ColumnInfo(name = "status")
@@ -371,6 +373,8 @@ public data class AudioSegmentEntity(
     val sequence: Int,
     @ColumnInfo(name = "chunk_ordinal")
     val chunkOrdinal: Int,
+    @ColumnInfo(name = "estimated_word_count")
+    val estimatedWordCount: Int? = null,
     @ColumnInfo(name = "generation_key")
     val generationKey: String? = null,
     @ColumnInfo(name = "generation_run_id")
