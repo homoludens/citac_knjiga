@@ -87,6 +87,7 @@ import com.homoludens.citacknjiga.library.LibraryController
 import com.homoludens.citacknjiga.library.LibraryScreen
 import com.homoludens.citacknjiga.library.LibraryViewState
 import com.homoludens.citacknjiga.library.BookDetailScreen
+import com.homoludens.citacknjiga.library.DocumentTextPreviewScreen
 import com.homoludens.citacknjiga.library.GenerationAction
 import com.homoludens.citacknjiga.library.LibraryRegenerationController
 import com.homoludens.citacknjiga.library.RegenerationFeedback
@@ -94,6 +95,7 @@ import com.homoludens.citacknjiga.library.RegenerationResult
 import com.homoludens.citacknjiga.library.RegenerationResultStatus
 import com.homoludens.citacknjiga.core.generation.GenerationInvalidationCoordinator
 import com.homoludens.citacknjiga.core.generation.GenerationScope
+import com.homoludens.citacknjiga.core.database.NarrationBlockEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -241,6 +243,7 @@ public fun CitacKnjigaApp(
                     audiobookExportService = audiobookExportService,
                     bookId = entry.arguments?.getString(AppRoute.Book.argument),
                     onBack = navController::popBackStack,
+                    onOpenTextPreview = { id -> navController.navigate(AppRoute.TextPreview.forId(id)) },
                     onGenerationAction = onGenerationAction,
                     onDeleteBook = { projectId ->
                         onDeleteBook(projectId)
@@ -248,6 +251,16 @@ public fun CitacKnjigaApp(
                     },
                     onRegenerate = onRegenerate,
                     regenerationFeedback = regenerationFeedback,
+                )
+            }
+            composable(
+                route = AppRoute.TextPreview.path,
+                arguments = listOf(navArgument(AppRoute.TextPreview.argument) { type = NavType.StringType }),
+            ) { entry ->
+                TextPreviewRoute(
+                    audiobookDao = audiobookDao,
+                    bookId = entry.arguments?.getString(AppRoute.TextPreview.argument),
+                    onBack = navController::popBackStack,
                 )
             }
         }
@@ -490,6 +503,7 @@ private fun BookRoute(
     audiobookExportService: RoomAudiobookExportService?,
     bookId: String?,
     onBack: () -> Unit,
+    onOpenTextPreview: (String) -> Unit,
     onGenerationAction: (String, GenerationAction) -> Unit,
     onDeleteBook: (String) -> Unit,
     onRegenerate: (String, GenerationScope) -> Unit,
@@ -605,6 +619,7 @@ private fun BookRoute(
         Column(modifier = Modifier.padding(paddingValues)) {
             BookDetailScreen(
                 book = book,
+                onOpenTextPreview = { book?.project?.id?.let(onOpenTextPreview) },
                 onGenerationAction = onGenerationAction,
                 onDeleteBook = onDeleteBook,
                 onRegenerate = onRegenerate,
@@ -695,6 +710,56 @@ private fun BookRoute(
                     startExport(plan)
                 }) { Text(stringResource(R.string.save_new_names)) }
             },
+        )
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun TextPreviewRoute(
+    audiobookDao: AudiobookDao?,
+    bookId: String?,
+    onBack: () -> Unit,
+) {
+    val libraryController = remember(audiobookDao) { audiobookDao?.let(::LibraryController) }
+    val libraryFlow: Flow<LibraryViewState> = libraryController?.state ?: flowOf(LibraryViewState())
+    val libraryState by libraryFlow.collectAsState(initial = LibraryViewState())
+    val book = libraryState.books.firstOrNull { it.project.id == bookId }
+    val blocks by androidx.compose.runtime.produceState<List<NarrationBlockEntity>?>(
+        initialValue = null,
+        key1 = audiobookDao,
+        key2 = bookId,
+    ) {
+        value = withContext(Dispatchers.IO) {
+            if (audiobookDao == null || bookId == null) {
+                emptyList()
+            } else {
+                val chapterIds = audiobookDao.findAllChapters()
+                    .filter { chapter -> chapter.bookProjectId == bookId }
+                    .map { chapter -> chapter.id }
+                    .toSet()
+                audiobookDao.findAllNarrationBlocks().filter { block ->
+                    block.chapterId in chapterIds
+                }
+            }
+        }
+    }
+    DisposableEffect(libraryController) {
+        onDispose { libraryController?.close() }
+    }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.document_preview_title)) },
+                navigationIcon = { TextButton(onClick = onBack) { Text(stringResource(R.string.back)) } },
+            )
+        },
+    ) { paddingValues ->
+        DocumentTextPreviewScreen(
+            book = book,
+            blocks = blocks.orEmpty(),
+            loading = blocks == null,
+            modifier = Modifier.padding(paddingValues),
         )
     }
 }

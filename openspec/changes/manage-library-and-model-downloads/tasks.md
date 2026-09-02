@@ -16,7 +16,7 @@
 
 - [x] 3.1 Calculate and persist approximate Unicode-aware word estimates during segment planning; verify totals exclude skipped content and remain stable after process restart.
 - [x] 3.2 Aggregate completed and total estimated words for chapters and books from Room state; verify percentages increase only for ready segments and fall back safely for legacy rows.
-- [ ] 3.3 Remove complete narration-text rendering from library and book detail screens and add an explicit sampled/full preview surface; verify large imported documents do not expand the main screen with all text.
+- [x] 3.3 Remove complete narration-text rendering from library and book detail screens and add an explicit sampled/full preview surface; verify large imported documents do not expand the main screen with all text.
 - [ ] 3.4 Add localized generation, deletion, regeneration, and progress strings with accessibility semantics; verify Compose tests cover queued, running, paused, failed, canceled, and completed states.
 
 ## 4. Direct GitHub Model Downloads

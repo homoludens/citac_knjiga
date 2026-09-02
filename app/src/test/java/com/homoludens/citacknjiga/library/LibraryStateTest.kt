@@ -50,6 +50,8 @@ public class LibraryStateTest {
         assertEquals("start", AppRoute.Start.path)
         assertEquals("book/book-1", AppRoute.Book.forId("book-1"))
         assertEquals("book/{bookId}", AppRoute.Book.path)
+        assertEquals("text-preview/book-1", AppRoute.TextPreview.forId("book-1"))
+        assertEquals("text-preview/{bookId}", AppRoute.TextPreview.path)
     }
 
     @Test

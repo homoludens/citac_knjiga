@@ -156,6 +156,7 @@ private fun LibraryBookCard(
 @Composable
 public fun BookDetailScreen(
     book: LibraryBookDisplay?,
+    onOpenTextPreview: () -> Unit = {},
     onGenerationAction: (String, GenerationAction) -> Unit = { _, _ -> },
     onDeleteBook: (String) -> Unit = {},
     onRegenerate: (String, GenerationScope) -> Unit = { _, _ -> },
@@ -188,6 +189,10 @@ public fun BookDetailScreen(
             }
         }
         if (book.hasGenerationWork) GenerationProgress(book, onGenerationAction)
+        OutlinedButton(
+            onClick = onOpenTextPreview,
+            modifier = Modifier.fillMaxWidth().testTag("document-preview-${book.project.id}"),
+        ) { Text(stringResource(R.string.document_preview_action)) }
         book.listeningProgress?.let { listening ->
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {

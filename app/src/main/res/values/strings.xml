@@ -86,6 +86,14 @@
     <string name="author_fallback">Аутор није наведен</string>
     <string name="errors_count_format">Грешке: %1$d</string>
     <string name="book_not_found">Књига није пронађена.</string>
+    <string name="document_preview_title">Преглед текста</string>
+    <string name="document_preview_action">Прикажи текст</string>
+    <string name="document_preview_description">Текст се приказује одвојено од библиотеке и стања генерисања.</string>
+    <string name="document_preview_loading">Учитавање текста прегледа.</string>
+    <string name="document_preview_sample_label">Узорак текста</string>
+    <string name="document_preview_full_label">Цео текст</string>
+    <string name="document_preview_show_full">Прикажи цео текст</string>
+    <string name="document_preview_show_sample">Прикажи само узорак</string>
     <string name="delete_book">Избриши књигу</string>
     <string name="delete_book_title">Избрисати књигу?</string>
     <string name="delete_book_message">Књига „%1$s“ и сви њени аудио и интерни подаци биће трајно избрисани. Оригинална датотека остаје нетакнута.</string>

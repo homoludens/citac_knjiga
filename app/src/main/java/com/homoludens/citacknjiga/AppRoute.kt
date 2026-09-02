@@ -17,4 +17,11 @@ public sealed interface AppRoute {
 
         public fun forId(id: String): String = "book/$id"
     }
+
+    public data object TextPreview : AppRoute {
+        public const val argument: String = "bookId"
+        override val path: String = "text-preview/{$argument}"
+
+        public fun forId(id: String): String = "text-preview/$id"
+    }
 }

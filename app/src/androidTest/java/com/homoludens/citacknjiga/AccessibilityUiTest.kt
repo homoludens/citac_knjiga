@@ -19,6 +19,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.test.core.app.ApplicationProvider
 import com.homoludens.citacknjiga.core.database.BookProjectEntity
@@ -26,6 +27,8 @@ import com.homoludens.citacknjiga.core.database.BookProjectStatus
 import com.homoludens.citacknjiga.core.database.ChapterEntity
 import com.homoludens.citacknjiga.core.database.ChapterStatus
 import com.homoludens.citacknjiga.core.database.GenerationRunStatus
+import com.homoludens.citacknjiga.core.database.NarrationBlockEntity
+import com.homoludens.citacknjiga.core.database.NarrationBlockType
 import com.homoludens.citacknjiga.library.ChapterDisplay
 import com.homoludens.citacknjiga.library.GenerationAction
 import com.homoludens.citacknjiga.library.LibraryBookDisplay
@@ -33,6 +36,7 @@ import com.homoludens.citacknjiga.library.LibraryScreen
 import com.homoludens.citacknjiga.library.LibraryViewState
 import com.homoludens.citacknjiga.library.ProgressDisplay
 import com.homoludens.citacknjiga.library.BookDetailScreen
+import com.homoludens.citacknjiga.library.DocumentTextPreviewScreen
 import com.homoludens.citacknjiga.library.RegenerationFeedback
 import com.homoludens.citacknjiga.library.RegenerationResultStatus
 import com.homoludens.citacknjiga.core.generation.GenerationScope
@@ -206,6 +210,37 @@ public class AccessibilityUiTest {
         composeRule.onNodeWithText("Поновно генерисање није успело. Изворни текст и остала поглавља нису промењени. Покушајте поново.").assertExists()
         composeRule.onNodeWithTag("retry-regeneration-book-1").performClick()
         assertEquals(listOf(GenerationScope.Chapter("chapter-1")), retried)
+    }
+
+    @Test
+    public fun largeDocumentPreviewDoesNotShowFullTextUntilRequested() {
+        val fullText = "Почетак " + "садржај ".repeat(1_010) + "HIDDEN_MARKER"
+        composeRule.setContent {
+            CompositionLocalProvider(LocalContext provides serbianContext()) {
+                MaterialTheme {
+                    DocumentTextPreviewScreen(
+                        book = runningBook(),
+                        blocks = listOf(
+                            NarrationBlockEntity(
+                                id = "block-1",
+                                chapterId = "chapter-1",
+                                ordinal = 0,
+                                blockType = NarrationBlockType.PARAGRAPH,
+                                sourceText = fullText,
+                                createdAt = 1,
+                                updatedAt = 1,
+                            ),
+                        ),
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("Узорак текста").assertExists()
+        composeRule.onNode(hasText("HIDDEN_MARKER", substring = true)).assertDoesNotExist()
+        composeRule.onNodeWithTag("document-preview-full-book-1").performClick()
+        composeRule.onNodeWithTag("document-preview-sample-book-1").assertExists()
+        composeRule.onNode(hasText("HIDDEN_MARKER", substring = true)).assertExists()
     }
 
     @Test
