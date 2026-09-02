@@ -54,7 +54,7 @@
     <string name="proof_description">Унесите текст на латиници или ћирилици. Обрада и звук остају на уређају.</string>
     <string name="text">Текст</string>
     <string name="status_format">Стање: %1$s</string>
-    <string name="generation_failed">Генерисање није успело. Проверите модел и покушајте поново.</string>
+    <string name="generation_failed">Генерисање није успело. Покушајте поново.</string>
     <string name="enter_text">Унесите српски текст за генерисање.</string>
     <string name="retry">Покушај поново</string>
     <string name="generate">Генериши</string>
@@ -113,8 +113,12 @@
     <string name="chapter_fallback">Поглавље</string>
     <string name="chapters">Поглавља</string>
     <string name="generation_errors">Грешке генерације</string>
-    <string name="generation_progress_format">Генерисање: %1$d/%2$d делова</string>
-    <string name="audio_progress_format">Звук: %1$d/%2$d делова, %3$s</string>
+    <string name="generation_progress_format">Генерисање: %1$d/%2$d делова (%3$d%%)</string>
+    <string name="generation_progress_words_format">Генерисање: приближно %1$d од %2$d речи (%3$d%%)</string>
+    <string name="generation_progress_accessibility_format">%1$s. Стање: %2$s</string>
+    <string name="generation_unavailable">Генерисање није доступно. Завршетак није потврђен.</string>
+    <string name="audio_progress_format">Звук: %1$d/%2$d делова (%3$d%%), %4$s</string>
+    <string name="audio_progress_words_format">Звук: приближно %1$d од %2$d речи (%3$d%%), %4$s</string>
     <string name="cover_description_format">Насловна страна књиге %1$s</string>
     <string name="status_importing">увоз</string>
     <string name="status_ready">спремна</string>

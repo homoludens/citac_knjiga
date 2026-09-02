@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -63,16 +64,97 @@ public class AccessibilityUiTest {
             }
         }
 
-        composeRule.onNodeWithText("Генерисање: 1/2 делова", useUnmergedTree = true)
+        composeRule.onNodeWithText("Генерисање: приближно 25 од 50 речи (50%)", useUnmergedTree = true)
             .assert(
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.StateDescription,
                     "Генерисање је у току. Можете паузирати или отказати.",
                 ),
             )
+        composeRule.onNodeWithTag("generation-progress-bar-book-1", useUnmergedTree = true)
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.ContentDescription,
+                    listOf(
+                        "Генерисање: приближно 25 од 50 речи (50%). Стање: Генерисање је у току. Можете паузирати или отказати.",
+                    ),
+                ),
+            )
         composeRule.onNodeWithText("Паузирај").assert(hasClickAction()).performClick()
         composeRule.onNodeWithText("Откажи генерисање").assert(hasClickAction()).performClick()
         assertEquals(listOf("run-1" to GenerationAction.PAUSE, "run-1" to GenerationAction.CANCEL), actions)
+    }
+
+    @Test
+    public fun generationStatesAreLocalizedAndExposeTheCorrectActions() {
+        val expected = mapOf(
+            GenerationRunStatus.QUEUED to "Генерисање чека на почетак.",
+            GenerationRunStatus.RUNNING to "Генерисање је у току. Можете паузирати или отказати.",
+            GenerationRunStatus.PAUSED to "Генерисање је паузирано. Наставите када будете спремни.",
+            GenerationRunStatus.FAILED to "Генерисање није успело. Покушајте поново.",
+            GenerationRunStatus.CANCELLED to "Генерисање је отказано. Можете покушати поново.",
+            GenerationRunStatus.COMPLETED to "Генерисање је завршено.",
+        )
+
+        val books = expected.keys.map { status ->
+            val book = runningBook()
+            book.copy(
+                project = book.project.copy(id = "book-${status.name}"),
+                generationRunId = "run-${status.name}",
+                generationStatus = status,
+            )
+        }
+        composeRule.setContent {
+            CompositionLocalProvider(LocalContext provides serbianContext()) {
+                MaterialTheme { LibraryScreen(state = LibraryViewState(books), onBookClick = {}) }
+            }
+        }
+
+        expected.forEach { (status, message) ->
+            composeRule.onNodeWithTag("generation-status-book-${status.name}", useUnmergedTree = true)
+                .assertTextEquals(message)
+            composeRule.onNodeWithTag("generation-progress-text-book-${status.name}", useUnmergedTree = true)
+                .assert(
+                    SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, message),
+                )
+        }
+        assertEquals(1, composeRule.onAllNodesWithText("Паузирај").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithText("Настави").fetchSemanticsNodes().size)
+        assertEquals(3, composeRule.onAllNodesWithText("Откажи генерисање").fetchSemanticsNodes().size)
+        assertEquals(2, composeRule.onAllNodesWithText("Понови генерисање").fetchSemanticsNodes().size)
+    }
+
+    @Test
+    public fun unavailableGenerationNeverClaimsCompletion() {
+        val book = runningBook().copy(
+            generationStatus = null,
+            project = runningBook().project.copy(status = BookProjectStatus.READY),
+        )
+        composeRule.setContent {
+            CompositionLocalProvider(LocalContext provides serbianContext()) {
+                MaterialTheme { LibraryScreen(LibraryViewState(listOf(book)), onBookClick = {}) }
+            }
+        }
+
+        composeRule.onNodeWithText("Генерисање је завршено.").assertDoesNotExist()
+        composeRule.onNodeWithText("Генерисање није доступно. Завршетак није потврђен.").assertExists()
+    }
+
+    @Test
+    public fun failedGenerationNeverClaimsCompletion() {
+        composeRule.setContent {
+            CompositionLocalProvider(LocalContext provides serbianContext()) {
+                MaterialTheme {
+                    LibraryScreen(
+                        LibraryViewState(listOf(runningBook().copy(generationStatus = GenerationRunStatus.FAILED))),
+                        onBookClick = {},
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("Генерисање је завршено.").assertDoesNotExist()
+        composeRule.onNodeWithText("Генерисање није успело. Покушајте поново.").assertExists()
     }
 
     @Test
@@ -140,7 +222,7 @@ public class AccessibilityUiTest {
 
         assertEquals(1, composeRule.onAllNodesWithText("Библиотека").fetchSemanticsNodes().size)
         assertEquals(1, composeRule.onAllNodesWithText("Поглавља: 1/1 спремно").fetchSemanticsNodes().size)
-        assertEquals(1, composeRule.onAllNodesWithText("Генерисање: 1/2 делова").fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithText("Генерисање: приближно 25 од 50 речи (50%)").fetchSemanticsNodes().size)
     }
 
     @Test
@@ -253,6 +335,8 @@ public class AccessibilityUiTest {
 
         assertEquals("Serbian text to speech", english.getString(R.string.start_title))
         assertEquals("Generation is running. You can pause or cancel it.", english.getString(R.string.generation_running))
+        assertEquals("Generation: approximately 25 of 50 words (50%)", english.getString(R.string.generation_progress_words_format, 25, 50, 50))
+        assertEquals("Generation is unavailable. Completion is not confirmed.", english.getString(R.string.generation_unavailable))
         assertEquals("The export destination is no longer available. Choose another folder.", english.getString(R.string.export_destination_unavailable))
     }
 
@@ -278,12 +362,12 @@ public class AccessibilityUiTest {
                     createdAt = 1,
                     updatedAt = 1,
                 ),
-                progress = ProgressDisplay(1, 1),
+                progress = ProgressDisplay(1, 1, completedWords = 20, totalWords = 20),
                 durationMs = 1_000,
                 storageBytes = 1,
             ),
         ),
-        generationProgress = ProgressDisplay(1, 2),
+        generationProgress = ProgressDisplay(1, 2, completedWords = 25, totalWords = 50),
         readyChapterCount = 1,
         storageBytes = 1,
         listeningProgress = null,

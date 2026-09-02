@@ -351,35 +351,64 @@ private fun GenerationProgress(
     onGenerationAction: (String, GenerationAction) -> Unit,
 ) {
     val runId = book.generationRunId
-    val status = book.generationStatus
-    val progress = stringResource(
-        R.string.generation_progress_format,
-        book.generationProgress.completed,
-        book.generationProgress.total,
-    )
+    val status = book.generationStatus ?: book.status.generationRunStatus()
+    val progress = book.generationProgress.text()
     val statusDescription = generationStateDescription(status)
-    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+    val progressAccessibility = stringResource(
+        R.string.generation_progress_accessibility_format,
+        progress,
+        statusDescription,
+    )
+    val statusColor = when (status) {
+        GenerationRunStatus.FAILED -> MaterialTheme.colorScheme.error
+        null -> MaterialTheme.colorScheme.onSurfaceVariant
+        else -> MaterialTheme.colorScheme.onSurface
+    }
+    Column(
+        modifier = Modifier.testTag("generation-progress-${book.project.id}"),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+    ) {
         Text(
             progress,
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.semantics {
-                liveRegion = LiveRegionMode.Polite
-                stateDescription = statusDescription
-            },
+            modifier = Modifier
+                .testTag("generation-progress-text-${book.project.id}")
+                .semantics {
+                    liveRegion = if (status == GenerationRunStatus.FAILED) {
+                        LiveRegionMode.Assertive
+                    } else {
+                        LiveRegionMode.Polite
+                    }
+                    stateDescription = statusDescription
+                },
         )
         LinearProgressIndicator(
             progress = { book.generationProgress.fraction },
             modifier = Modifier
                 .fillMaxWidth()
+                .testTag("generation-progress-bar-${book.project.id}")
                 .semantics {
                     progressBarRangeInfo = ProgressBarRangeInfo(book.generationProgress.fraction, 0f..1f)
+                    contentDescription = progressAccessibility
                     stateDescription = progress
+                },
+        )
+        Text(
+            statusDescription,
+            color = statusColor,
+            modifier = Modifier
+                .testTag("generation-status-${book.project.id}")
+                .semantics {
+                    liveRegion = if (status == GenerationRunStatus.FAILED || status == null) {
+                        LiveRegionMode.Assertive
+                    } else {
+                        LiveRegionMode.Polite
+                    }
                 },
         )
         if (runId != null) {
             when (status) {
                 GenerationRunStatus.RUNNING -> {
-                    Text(stringResource(R.string.generation_running))
                     GenerationActionButton(stringResource(R.string.generation_pause)) {
                         onGenerationAction(runId, GenerationAction.PAUSE)
                     }
@@ -388,7 +417,6 @@ private fun GenerationProgress(
                     }
                 }
                 GenerationRunStatus.PAUSED -> {
-                    Text(stringResource(R.string.generation_paused))
                     GenerationActionButton(stringResource(R.string.generation_resume)) {
                         onGenerationAction(runId, GenerationAction.RESUME)
                     }
@@ -397,20 +425,17 @@ private fun GenerationProgress(
                     }
                 }
                 GenerationRunStatus.QUEUED -> {
-                    Text(stringResource(R.string.generation_queued))
                     GenerationActionButton(stringResource(R.string.generation_cancel)) {
                         onGenerationAction(runId, GenerationAction.CANCEL)
                     }
                 }
                 GenerationRunStatus.FAILED -> {
-                    Text(stringResource(R.string.generation_failed_action), color = MaterialTheme.colorScheme.error)
                     GenerationActionButton(stringResource(R.string.generation_retry)) {
                         onGenerationAction(runId, GenerationAction.RETRY)
                     }
                 }
-                GenerationRunStatus.COMPLETED -> Text(stringResource(R.string.generation_completed))
+                GenerationRunStatus.COMPLETED -> Unit
                 GenerationRunStatus.CANCELLED -> {
-                    Text(stringResource(R.string.generation_cancelled))
                     GenerationActionButton(stringResource(R.string.generation_retry)) {
                         onGenerationAction(runId, GenerationAction.RETRY)
                     }
@@ -439,15 +464,44 @@ private fun ChapterRow(
             Text(chapter.chapter.status.displayName(), style = MaterialTheme.typography.labelMedium)
         }
         if (chapter.progress.total > 0) {
-            LinearProgressIndicator(progress = { chapter.progress.fraction }, modifier = Modifier.fillMaxWidth())
+            val status = chapter.generationStatus ?: chapter.chapter.status.generationRunStatus()
+            val statusDescription = generationStateDescription(status)
+            val progress = chapter.progress.chapterText(chapter.durationMs)
+            val progressAccessibility = stringResource(
+                R.string.generation_progress_accessibility_format,
+                progress,
+                statusDescription,
+            )
+            LinearProgressIndicator(
+                progress = { chapter.progress.fraction },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("chapter-progress-bar-${chapter.chapter.id}")
+                    .semantics {
+                        progressBarRangeInfo = ProgressBarRangeInfo(chapter.progress.fraction, 0f..1f)
+                        contentDescription = progressAccessibility
+                        stateDescription = progress
+                    },
+            )
             Text(
-                stringResource(
-                    R.string.audio_progress_format,
-                    chapter.progress.completed,
-                    chapter.progress.total,
-                    formatDuration(chapter.durationMs),
-                ),
+                progress,
                 style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.semantics {
+                    liveRegion = if (status == GenerationRunStatus.FAILED) {
+                        LiveRegionMode.Assertive
+                    } else {
+                        LiveRegionMode.Polite
+                    }
+                    stateDescription = statusDescription
+                },
+            )
+            Text(
+                statusDescription,
+                color = if (status == GenerationRunStatus.FAILED) {
+                    MaterialTheme.colorScheme.error
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
             )
         }
         Text(stringResource(R.string.storage_format, formatBytes(chapter.storageBytes)), style = MaterialTheme.typography.labelSmall)
@@ -529,6 +583,16 @@ private fun BookProjectStatus.displayName(): String = when (this) {
     BookProjectStatus.FAILED -> stringResource(R.string.status_failed)
 }
 
+private fun BookProjectStatus.generationRunStatus(): GenerationRunStatus? = when (this) {
+    BookProjectStatus.GENERATING -> GenerationRunStatus.RUNNING
+    BookProjectStatus.PAUSED -> GenerationRunStatus.PAUSED
+    BookProjectStatus.COMPLETED -> GenerationRunStatus.COMPLETED
+    BookProjectStatus.FAILED -> GenerationRunStatus.FAILED
+    BookProjectStatus.IMPORTING,
+    BookProjectStatus.READY,
+    -> null
+}
+
 @Composable
 private fun ChapterStatus.displayName(): String = when (this) {
     ChapterStatus.PENDING -> stringResource(R.string.status_pending)
@@ -536,6 +600,15 @@ private fun ChapterStatus.displayName(): String = when (this) {
     ChapterStatus.PARTIAL -> stringResource(R.string.status_partial)
     ChapterStatus.READY -> stringResource(R.string.status_ready)
     ChapterStatus.FAILED -> stringResource(R.string.status_failed)
+}
+
+private fun ChapterStatus.generationRunStatus(): GenerationRunStatus? = when (this) {
+    ChapterStatus.GENERATING -> GenerationRunStatus.RUNNING
+    ChapterStatus.READY -> GenerationRunStatus.COMPLETED
+    ChapterStatus.FAILED -> GenerationRunStatus.FAILED
+    ChapterStatus.PENDING,
+    ChapterStatus.PARTIAL,
+    -> null
 }
 
 @Composable
@@ -546,7 +619,43 @@ private fun generationStateDescription(status: GenerationRunStatus?): String = w
     GenerationRunStatus.COMPLETED -> stringResource(R.string.generation_completed)
     GenerationRunStatus.FAILED -> stringResource(R.string.generation_failed_action)
     GenerationRunStatus.CANCELLED -> stringResource(R.string.generation_cancelled)
-    null -> ""
+    null -> stringResource(R.string.generation_unavailable)
+}
+
+@Composable
+private fun ProgressDisplay.text(): String = if (usesWordEstimate) {
+    stringResource(
+        R.string.generation_progress_words_format,
+        completedWords,
+        totalWords,
+        percentage,
+    )
+} else {
+    stringResource(
+        R.string.generation_progress_format,
+        completed,
+        total,
+        percentage,
+    )
+}
+
+@Composable
+private fun ProgressDisplay.chapterText(durationMs: Long): String = if (usesWordEstimate) {
+    stringResource(
+        R.string.audio_progress_words_format,
+        completedWords,
+        totalWords,
+        percentage,
+        formatDuration(durationMs),
+    )
+} else {
+    stringResource(
+        R.string.audio_progress_format,
+        completed,
+        total,
+        percentage,
+        formatDuration(durationMs),
+    )
 }
 
 @Composable

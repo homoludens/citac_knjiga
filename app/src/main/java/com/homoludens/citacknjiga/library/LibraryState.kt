@@ -81,7 +81,7 @@ public data class LibraryBookDisplay(
     public val title: String = project.title
     public val author: String = project.author.orEmpty()
     public val coverPath: String? = project.coverPath
-    public val hasGenerationWork: Boolean = generationProgress.total > 0
+    public val hasGenerationWork: Boolean = generationProgress.total > 0 || generationRunId != null || generationStatus != null
     public val status: BookProjectStatus = project.status
 }
 

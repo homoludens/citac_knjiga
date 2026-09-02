@@ -54,7 +54,7 @@
     <string name="proof_description">Enter Latin or Cyrillic text. Processing and audio stay on this device.</string>
     <string name="text">Text</string>
     <string name="status_format">Status: %1$s</string>
-    <string name="generation_failed">Generation failed. Check the model and try again.</string>
+    <string name="generation_failed">Generation failed. Try again.</string>
     <string name="enter_text">Enter Serbian text to generate.</string>
     <string name="retry">Try again</string>
     <string name="generate">Generate</string>
@@ -113,8 +113,12 @@
     <string name="chapter_fallback">Chapter</string>
     <string name="chapters">Chapters</string>
     <string name="generation_errors">Generation errors</string>
-    <string name="generation_progress_format">Generation: %1$d/%2$d segments</string>
-    <string name="audio_progress_format">Audio: %1$d/%2$d segments, %3$s</string>
+    <string name="generation_progress_format">Generation: %1$d/%2$d segments (%3$d%%)</string>
+    <string name="generation_progress_words_format">Generation: approximately %1$d of %2$d words (%3$d%%)</string>
+    <string name="generation_progress_accessibility_format">%1$s. Status: %2$s</string>
+    <string name="generation_unavailable">Generation is unavailable. Completion is not confirmed.</string>
+    <string name="audio_progress_format">Audio: %1$d/%2$d segments (%3$d%%), %4$s</string>
+    <string name="audio_progress_words_format">Audio: approximately %1$d of %2$d words (%3$d%%), %4$s</string>
     <string name="cover_description_format">Cover of %1$s</string>
     <string name="status_importing">importing</string>
     <string name="status_ready">ready</string>

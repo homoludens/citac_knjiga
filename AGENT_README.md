@@ -38,6 +38,11 @@ target.
   and book word-progress snapshots. Completed words count only `READY` segments;
   nullable legacy estimates fall back to segment counts, and generation status is
   read from durable generation-run rows.
+- OpenSpec `manage-library-and-model-downloads` task 3.4 adds localized approximate
+  word/percentage progress, explicit queued/running/paused/failed/canceled/completed
+  and unavailable states, and status-aware Compose accessibility semantics. The
+  library and chapter views retain compact rendering while exposing deletion,
+  regeneration, retry, and progress actions in Serbian and English.
 
 - Archived OpenSpec change `fix-real-world-epub-import` is implemented across the
   `document-epub` and `app` modules. It now uses immutable production limits,
