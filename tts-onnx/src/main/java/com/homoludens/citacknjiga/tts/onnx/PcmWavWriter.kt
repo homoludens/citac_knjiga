@@ -2,6 +2,7 @@ package com.homoludens.citacknjiga.tts.onnx
 
 import java.io.File
 import java.io.FileOutputStream
+import java.io.OutputStream
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.util.UUID
@@ -30,24 +31,7 @@ public object PcmWavWriter {
         val temporary = File(destination.parentFile, ".${destination.name}.${UUID.randomUUID()}.tmp")
         try {
             FileOutputStream(temporary).use { stream ->
-                val dataSize = output.pcm.size * 2
-                stream.writeAscii("RIFF")
-                stream.writeLittleEndianInt(36 + dataSize)
-                stream.writeAscii("WAVE")
-                stream.writeAscii("fmt ")
-                stream.writeLittleEndianInt(16)
-                stream.writeLittleEndianShort(1)
-                stream.writeLittleEndianShort(output.channels)
-                stream.writeLittleEndianInt(output.sampleRateHz)
-                stream.writeLittleEndianInt(output.sampleRateHz * output.channels * 2)
-                stream.writeLittleEndianShort(output.channels * 2)
-                stream.writeLittleEndianShort(16)
-                stream.writeAscii("data")
-                stream.writeLittleEndianInt(dataSize)
-                output.pcm.forEach { sample ->
-                    val scale = if (sample < 0f) 32_768f else Short.MAX_VALUE.toFloat()
-                    stream.writeLittleEndianShort((sample * scale).roundToInt())
-                }
+                write(stream, output, expectedTokenCount, speed)
                 stream.fd.sync()
             }
             try {
@@ -66,14 +50,41 @@ public object PcmWavWriter {
         }
     }
 
-    private fun FileOutputStream.writeAscii(value: String) = write(value.toByteArray(Charsets.US_ASCII))
+    public fun write(
+        stream: OutputStream,
+        output: OnnxTtsOutput,
+        expectedTokenCount: Int,
+        speed: Float = 1f,
+    ) {
+        OnnxAudioOutputValidator.validate(output, expectedTokenCount, speed)
+        val dataSize = output.pcm.size * 2
+        stream.writeAscii("RIFF")
+        stream.writeLittleEndianInt(36 + dataSize)
+        stream.writeAscii("WAVE")
+        stream.writeAscii("fmt ")
+        stream.writeLittleEndianInt(16)
+        stream.writeLittleEndianShort(1)
+        stream.writeLittleEndianShort(output.channels)
+        stream.writeLittleEndianInt(output.sampleRateHz)
+        stream.writeLittleEndianInt(output.sampleRateHz * output.channels * 2)
+        stream.writeLittleEndianShort(output.channels * 2)
+        stream.writeLittleEndianShort(16)
+        stream.writeAscii("data")
+        stream.writeLittleEndianInt(dataSize)
+        output.pcm.forEach { sample ->
+            val scale = if (sample < 0f) 32_768f else Short.MAX_VALUE.toFloat()
+            stream.writeLittleEndianShort((sample * scale).roundToInt())
+        }
+    }
 
-    private fun FileOutputStream.writeLittleEndianShort(value: Int) {
+    private fun OutputStream.writeAscii(value: String) = write(value.toByteArray(Charsets.US_ASCII))
+
+    private fun OutputStream.writeLittleEndianShort(value: Int) {
         write(value and 0xff)
         write((value ushr 8) and 0xff)
     }
 
-    private fun FileOutputStream.writeLittleEndianInt(value: Int) {
+    private fun OutputStream.writeLittleEndianInt(value: Int) {
         write(value and 0xff)
         write((value ushr 8) and 0xff)
         write((value ushr 16) and 0xff)

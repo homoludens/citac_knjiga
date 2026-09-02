@@ -26,6 +26,11 @@ target.
   checks pass within their documented scope. Release APKs remain unsigned
   because no production keystore or signing credentials are available.
 
+- OpenSpec `manage-library-and-model-downloads` task 2.2 now exposes one durable
+  generation coordinator for complete-book and chapter requests. Kokoro and VITS
+  planners persist package/run/segment provenance, and WorkManager dispatches the
+  persisted run to the selected engine without PDF/EPUB-specific generation flows.
+
 - Archived OpenSpec change `fix-real-world-epub-import` is implemented across the
   `document-epub` and `app` modules. It now uses immutable production limits,
   bounded ZIP/XML validation, lexical reference resolution, one controlled

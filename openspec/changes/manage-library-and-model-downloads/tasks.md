@@ -8,7 +8,7 @@
 ## 2. Durable Regeneration
 
 - [x] 2.1 Define one engine-independent generation request for a complete book or selected chapter over existing PDF/EPUB narration blocks; verify both source formats produce the same request shape.
-- [ ] 2.2 Implement the durable Kokoro coordinator and adapt the existing VITS coordinator behind the shared generation boundary; verify both engines create valid persisted runs and segments.
+- [x] 2.2 Implement the durable Kokoro coordinator and adapt the existing VITS coordinator behind the shared generation boundary; verify both engines create valid persisted runs and segments.
 - [ ] 2.3 Implement chapter/book invalidation that removes targeted audio and resets targeted segments before queueing; verify unrelated chapters and projects remain unchanged.
 - [ ] 2.4 Add chapter-level and whole-book regeneration actions with explicit destructive confirmation; verify canceled, failed, and successful actions expose correct states and retry paths.
 

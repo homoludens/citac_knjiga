@@ -9,15 +9,20 @@ import com.homoludens.citacknjiga.core.diagnostics.LocalDiagnostics
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.core.storage.AtomicArtifactStore
 import com.homoludens.citacknjiga.core.generation.BoundedGenerationRunner
+import com.homoludens.citacknjiga.core.generation.BoundedGenerationResult
+import com.homoludens.citacknjiga.core.generation.SegmentGenerator
 import com.homoludens.citacknjiga.core.generation.GenerationNotificationController
 import com.homoludens.citacknjiga.core.generation.GenerationRunExecutor
+import com.homoludens.citacknjiga.core.generation.DurableGenerationCoordinator
 import com.homoludens.citacknjiga.core.generation.GenerationWorkContract
 import com.homoludens.citacknjiga.core.generation.GenerationStateService
 import com.homoludens.citacknjiga.core.generation.GenerationWorkerFactory
+import com.homoludens.citacknjiga.core.generation.SelectingGenerationRunExecutor
 import com.homoludens.citacknjiga.core.generation.RoomGenerationNotificationDataSource
 import com.homoludens.citacknjiga.core.generation.RoomGenerationQueue
 import com.homoludens.citacknjiga.core.generation.GenerationWorkScheduler
 import com.homoludens.citacknjiga.generation.VitsGenerationCoordinator
+import com.homoludens.citacknjiga.generation.KokoroGenerationCoordinator
 import com.homoludens.citacknjiga.document.epub.ContentResolverEpubSourceReader
 import com.homoludens.citacknjiga.document.epub.EpubCanonicalTextService
 import com.homoludens.citacknjiga.document.epub.EpubDocumentParser
@@ -52,6 +57,8 @@ import com.homoludens.citacknjiga.tts.onnx.TtsEnginePreference
 import com.homoludens.citacknjiga.tts.onnx.TtsEngineSelector
 import com.homoludens.citacknjiga.tts.onnx.VitsGenerationExecutor
 import com.homoludens.citacknjiga.tts.onnx.VitsSegmentGeneratorFactory
+import com.homoludens.citacknjiga.tts.onnx.KokoroGenerationExecutor
+import com.homoludens.citacknjiga.tts.onnx.KokoroSegmentGeneratorFactory
 import com.homoludens.citacknjiga.tts.onnx.preprocessing.SerbianPreprocessor
 import com.homoludens.citacknjiga.core.lifecycle.ProjectDeletionCoordinator
 import com.homoludens.citacknjiga.core.lifecycle.ProjectPlaybackStopper
@@ -97,6 +104,7 @@ public class AppContainer(
     public val modelPackageStore: ModelPackageStore? = null,
     public val ttsEnginePreference: TtsEnginePreference? = null,
     public val vitsGenerationCoordinator: VitsGenerationCoordinator? = null,
+    public val generationCoordinator: DurableGenerationCoordinator? = null,
     public val generationWorkerFactory: GenerationWorkerFactory? = null,
     public val projectDeletionCoordinator: ProjectDeletionCoordinator? = null,
 ) {
@@ -188,6 +196,14 @@ public class AppContainer(
             )
             val generationState = GenerationStateService(database)
             val vitsFactory = VitsSegmentGeneratorFactory(modelStore.vitsModelPackageStore)
+            val runExecutor: suspend (String, SegmentGenerator) -> BoundedGenerationResult = { runId, generator ->
+                BoundedGenerationRunner(
+                    state = generationState,
+                    storage = privateStorage,
+                    artifactStore = AtomicArtifactStore(privateStorage),
+                    generator = generator,
+                ).run(runId)
+            }
             val vitsExecutor: GenerationRunExecutor = VitsGenerationExecutor(
                 openGenerator = { modelPackageId -> vitsFactory.open(modelPackageId) },
                 modelPackageIdForRun = { runId ->
@@ -195,17 +211,29 @@ public class AppContainer(
                         check(run.engine == "vits") { "Only VITS runs are supported by the VITS worker" }
                     }?.modelPackageId
                 },
-                executeRun = { runId, generator ->
-                    BoundedGenerationRunner(
-                        state = generationState,
-                        storage = privateStorage,
-                        artifactStore = AtomicArtifactStore(privateStorage),
-                        generator = generator,
-                    ).run(runId)
+                executeRun = { runId, generator -> runExecutor(runId, generator) },
+            )
+            val kokoroFactory = KokoroSegmentGeneratorFactory(
+                store = modelStore,
+                preprocessorFactory = { SerbianPreprocessor.fromAssets(assets, filesDir) },
+            )
+            val kokoroExecutor: GenerationRunExecutor = KokoroGenerationExecutor(
+                openGenerator = { modelPackageId -> kokoroFactory.open(modelPackageId) },
+                modelPackageIdForRun = { runId ->
+                    database.audiobookDao().findGenerationRunById(runId)?.also { run ->
+                        check(run.engine == "kokoro") { "Only Kokoro runs are supported by the Kokoro worker" }
+                    }?.modelPackageId
                 },
+                executeRun = { runId, generator -> runExecutor(runId, generator) },
             )
             val workerFactory = GenerationWorkerFactory(
-                executor = vitsExecutor,
+                executor = SelectingGenerationRunExecutor(
+                    database = database,
+                    executors = mapOf(
+                        com.homoludens.citacknjiga.core.generation.GenerationEngine.KOKORO to kokoroExecutor,
+                        com.homoludens.citacknjiga.core.generation.GenerationEngine.VITS to vitsExecutor,
+                    ),
+                ),
                 notifications = GenerationNotificationController(
                     context = context,
                     dataSource = RoomGenerationNotificationDataSource(database),
@@ -213,13 +241,20 @@ public class AppContainer(
             )
             val generationQueue = RoomGenerationQueue(database, privateStorage)
             val vitsCoordinator = VitsGenerationCoordinator(
-                database = database,
                 vitsStore = modelStore.vitsModelPackageStore,
-                schedulerProvider = {
+            )
+            val kokoroCoordinator = KokoroGenerationCoordinator(
+                modelStore = modelStore,
+                preprocessorFactory = { SerbianPreprocessor.fromAssets(assets, filesDir) },
+            )
+            val durableGenerationCoordinator = DurableGenerationCoordinator(
+                database = database,
+                planners = listOf(kokoroCoordinator, vitsCoordinator),
+                enqueue = { runId ->
                     GenerationWorkScheduler(
                         workManager = androidx.work.WorkManager.getInstance(context),
                         queue = generationQueue,
-                    )
+                    ).enqueue(runId)
                 },
             )
             return AppContainer(
@@ -251,6 +286,7 @@ public class AppContainer(
                 modelPackageStore = modelStore,
                 ttsEnginePreference = enginePreference,
                 vitsGenerationCoordinator = vitsCoordinator,
+                generationCoordinator = durableGenerationCoordinator,
                 generationWorkerFactory = workerFactory,
                 projectDeletionCoordinator = deletionCoordinator,
             )

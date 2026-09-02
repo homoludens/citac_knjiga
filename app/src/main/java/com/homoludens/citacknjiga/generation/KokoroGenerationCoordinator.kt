@@ -8,25 +8,23 @@ import com.homoludens.citacknjiga.core.generation.GenerationEnginePlanner
 import com.homoludens.citacknjiga.core.generation.GenerationProvenance
 import com.homoludens.citacknjiga.core.generation.GenerationRequest
 import com.homoludens.citacknjiga.core.generation.PlannedGenerationSegment
-import com.homoludens.citacknjiga.tts.onnx.VitsGenerationContract
-import com.homoludens.citacknjiga.tts.onnx.VitsModelPackageStore
-import com.homoludens.citacknjiga.tts.onnx.VitsSerbianFrontend
-import com.homoludens.citacknjiga.tts.onnx.VitsVocabulary
+import com.homoludens.citacknjiga.tts.onnx.KokoroGenerationContract
+import com.homoludens.citacknjiga.tts.onnx.ModelPackageStore
+import com.homoludens.citacknjiga.tts.onnx.preprocessing.SerbianPreprocessor
 
-/** Plans durable VITS work from the same request used by every document format. */
-public class VitsGenerationCoordinator(
-    private val vitsStore: VitsModelPackageStore,
+/** Plans durable Kokoro work from verified package metadata and imported blocks. */
+public class KokoroGenerationCoordinator(
+    private val modelStore: ModelPackageStore,
+    private val preprocessorFactory: () -> SerbianPreprocessor,
 ) : GenerationEnginePlanner {
-    override val engine: GenerationEngine = GenerationEngine.VITS
+    override val engine: GenerationEngine = GenerationEngine.KOKORO
 
     override fun plan(request: GenerationRequest): GenerationEnginePlan {
-        require(request.engine == engine) { "VITS planner received a ${request.engine.id} request" }
-        val packageInfo = vitsStore.activePackage()
-            ?: error("No qualified Serbian VITS package is installed")
-        require(packageInfo.engine == engine.id) { "Active VITS package has invalid engine provenance" }
-        val vocabulary = VitsVocabulary.read(vitsStore, packageInfo)
-        val frontend = VitsSerbianFrontend(vocabulary, VitsVocabulary.BLANK_ID)
-        val roomPackageId = VitsGenerationContract.roomPackageId(packageInfo)
+        require(request.engine == engine) { "Kokoro planner received a ${request.engine.id} request" }
+        val packageInfo = modelStore.activePackage()
+            ?: error("No verified Kokoro package is installed")
+        require(packageInfo.engine == engine.id) { "Active Kokoro package has invalid engine provenance" }
+        val roomPackageId = KokoroGenerationContract.roomPackageId(packageInfo)
         val model = ModelPackageEntity(
             id = roomPackageId,
             packageIdentity = "${packageInfo.packageId}@${packageInfo.packageVersion}",
@@ -34,33 +32,33 @@ public class VitsGenerationCoordinator(
             packageSha256 = packageInfo.identitySha256,
             modelSha256 = packageInfo.modelSha256,
             voiceSha256 = packageInfo.voiceSha256,
-            preprocessingVersion = VitsGenerationContract.PREPROCESSING_VERSION,
-            pronunciationVersion = VitsGenerationContract.PREPROCESSING_VERSION,
-            packagePath = "model-packages/vits-active.zip",
-            status = ModelPackageStatus.INSTALLED,
+            preprocessingVersion = KokoroGenerationContract.PREPROCESSING_VERSION,
+            pronunciationVersion = KokoroGenerationContract.PREPROCESSING_VERSION,
+            packagePath = "model-packages/active.zip",
+            status = ModelPackageStatus.ACTIVE,
             importedAt = System.currentTimeMillis(),
         )
+        val preprocessor = preprocessorFactory()
         return GenerationEnginePlan(
             modelPackage = model,
             segments = request.narrationBlocks.map { block ->
-                val prepared = frontend.process(block.text)
+                val prepared = preprocessor.process(block.text)
                 PlannedGenerationSegment(
                     narrationBlockId = block.id,
                     chapterId = block.chapterId,
                     provenance = GenerationProvenance(
-                        generationKey = VitsGenerationContract.generationKey(packageInfo, prepared.tokenIds),
+                        generationKey = KokoroGenerationContract.generationKey(packageInfo, prepared.tokenIds),
                         modelPackageId = roomPackageId,
                         modelPackageSha256 = packageInfo.identitySha256,
                         voiceSha256 = packageInfo.voiceSha256,
-                        preprocessingVersion = VitsGenerationContract.PREPROCESSING_VERSION,
-                        pronunciationVersion = VitsGenerationContract.PREPROCESSING_VERSION,
-                        inferenceSettingsHash = VitsGenerationContract.INFERENCE_SETTINGS_HASH,
-                        audioProcessingVersion = VitsGenerationContract.AUDIO_PROCESSING_VERSION,
+                        preprocessingVersion = KokoroGenerationContract.PREPROCESSING_VERSION,
+                        pronunciationVersion = KokoroGenerationContract.PREPROCESSING_VERSION,
+                        inferenceSettingsHash = KokoroGenerationContract.INFERENCE_SETTINGS_HASH,
+                        audioProcessingVersion = KokoroGenerationContract.AUDIO_PROCESSING_VERSION,
                         engine = packageInfo.engine,
                         modelRevision = packageInfo.modelRevision,
                         speakerId = packageInfo.speakerId,
-                        frontendVersion = packageInfo.frontendVersion,
-                        nativeSampleRateHz = packageInfo.nativeSampleRateHz,
+                        nativeSampleRateHz = packageInfo.nativeSampleRateHz ?: packageInfo.sampleRateHz,
                         finalSampleRateHz = packageInfo.sampleRateHz,
                         resamplerVersion = packageInfo.resamplerVersion,
                         runtimeId = packageInfo.runtimeId,
