@@ -116,12 +116,14 @@ public class DurableGenerationCoordinator(
             val sequence = sequenceByChapter.getOrDefault(planned.chapterId, 0)
             sequenceByChapter[planned.chapterId] = sequence + 1
             val provenance = planned.provenance
+            val sourceText = request.narrationBlocks.first { it.id == planned.narrationBlockId }.text
             AudioSegmentEntity(
                 id = "$runId-${planned.narrationBlockId}",
                 chapterId = planned.chapterId,
                 narrationBlockId = planned.narrationBlockId,
                 sequence = sequence,
                 chunkOrdinal = 0,
+                estimatedWordCount = ApproximateWordCounter.count(sourceText),
                 generationKey = provenance.generationKey,
                 generationRunId = runId,
                 modelPackageId = provenance.modelPackageId,

@@ -92,8 +92,18 @@ public class DurableGenerationCoordinatorAndroidTest {
             assertEquals(run.id, segment.generationRunId)
             assertEquals("${engine.id}-model", run.modelPackageId)
             assertEquals("${engine.id}-model", segment.modelPackageId)
+            assertEquals(3, segment.estimatedWordCount)
             assertTrue(segment.generationKey!!.isNotBlank())
         }
+    }
+
+    @Test
+    public fun plannedWordEstimateRemainsReadableAfterDatabaseReopen() {
+        val queued = coordinator().queue(request(GenerationEngine.VITS))
+        database.close()
+        database = AudiobookDatabase.create(context, databaseName)
+
+        assertEquals(3, database.audiobookDao().findAudioSegmentById(queued.segmentIds.single())!!.estimatedWordCount)
     }
 
     @Test

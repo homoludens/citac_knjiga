@@ -47,6 +47,25 @@ public class GenerationRequestTest {
     }
 
     @Test
+    public fun skippedAndBlankBlocksCannotContributeNarratableText() {
+        val project = project()
+        val request = GenerationRequestFactory.fromExistingNarrationBlocks(
+            project = project,
+            chapters = listOf(chapter("chapter-1", project.id, 0)),
+            narrationBlocks = listOf(
+                block("spoken", "chapter-1", 0, "Један, два!"),
+                block("skipped", "chapter-1", 1, "Три", NarrationBlockType.SKIPPED),
+                block("blank", "chapter-1", 2, "\u2003\t"),
+            ),
+            scope = GenerationScope.CompleteBook,
+            engine = GenerationEngine.VITS,
+        )
+
+        assertEquals(listOf("spoken"), request.narrationBlocks.map { it.id })
+        assertEquals(2, ApproximateWordCounter.count(request.narrationBlocks.single().text))
+    }
+
+    @Test
     public fun chapterScopeSelectsOnlyTheRequestedChapter() {
         val project = project()
         val chapters = listOf(chapter("chapter-1", project.id, 1), chapter("chapter-2", project.id, 2))
