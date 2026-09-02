@@ -207,6 +207,11 @@ public class PdfImportPreviewService(
         }
     }
 
+    public suspend fun previewStaged(source: StagedPdfSource, startPage: Int, endPage: Int): PdfPreviewResult {
+        coroutineContext.ensureActive()
+        return inspectStaged(source, startPage, endPage)
+    }
+
     public fun discard(preview: PdfImportPreview) = repository.discardStaged(preview.stagedSource)
 
     private suspend fun inspectStaged(source: StagedPdfSource, startPage: Int, endPage: Int): PdfPreviewResult {

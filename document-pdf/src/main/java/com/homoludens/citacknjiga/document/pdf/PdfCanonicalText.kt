@@ -26,7 +26,7 @@ public class PdfCanonicalTextService(
 ) {
     public fun preview(document: DocumentIr, warnings: List<ImportWarning> = emptyList()): PdfCanonicalPreview {
         val artifacts = document.chapters.sortedBy { it.ordinal }.map { chapter ->
-            val id = "${document.provenance.fingerprint}-page-${chapter.locator.pageNumber}"
+            val id = PdfDocumentProjector.chapterId(document.provenance.projectId, chapter)
             val markdown = renderer.render(chapter)
             val owner = document.provenance.projectId.ifBlank { document.provenance.fingerprint }
             PdfChapterArtifact(id, storage.canonicalChapterText(owner, id), markdown, "")

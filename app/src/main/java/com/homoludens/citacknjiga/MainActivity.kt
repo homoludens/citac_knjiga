@@ -21,6 +21,8 @@ public class MainActivity : ComponentActivity() {
                 audiobookDao = container.audiobookDao,
                 proofEngine = container.typedTextProofEngine,
                 epubImportPreviewService = container.epubImportPreviewService,
+                pdfImportPreviewService = container.pdfImportPreviewService,
+                pdfAcceptanceService = container.pdfAcceptanceService,
                 epubChapterProofService = container.epubChapterProofService,
                 playbackController = container.playbackController,
                 audiobookExportService = container.audiobookExportService,

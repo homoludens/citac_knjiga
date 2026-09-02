@@ -2,6 +2,7 @@ package com.homoludens.citacknjiga.document.pdf
 
 import com.homoludens.citacknjiga.core.database.NarrationBlockType
 import com.homoludens.citacknjiga.core.document.DocumentBlock
+import com.homoludens.citacknjiga.core.document.DocumentIr
 import com.homoludens.citacknjiga.core.document.ImportProvenance
 import com.homoludens.citacknjiga.core.document.PageLocator
 import com.homoludens.citacknjiga.core.document.PdfImportLimits
@@ -70,6 +71,79 @@ public class PdfImportTest {
         assertEquals("PDF_FEATURE_UNAVAILABLE", (result as PdfPreviewResult.Failed).diagnostic.code.name)
         assertFalse(storage.temporaryDirectory.walkTopDown().any { it.isFile })
         assertTrue(index.sources.isEmpty())
+    }
+
+    @Test
+    public fun previewShowsTextBeforeAcceptanceAndAcceptanceDoesNotCreateAudio() = runBlocking {
+        val root = createTempDirectory().toFile()
+        val storage = AppPrivateStorage(root)
+        val index = RecordingIndex()
+        val repository = SafPdfSourceRepository(
+            sourceReader = PdfSourceReader { "%PDF-1.4\nlocal".byteInputStream() },
+            storage = storage,
+            artifactStore = AtomicArtifactStore(storage),
+            projectIndex = index,
+            projectIdFactory = { "preview" },
+        )
+        val importer = object : PdfPageImporter {
+            override suspend fun pageCount(source: StagedPdfSource, controls: PdfInspectionControls) =
+                PdfPageCountResult.Accepted(PdfPageCount(1))
+
+            override suspend fun inspect(
+                source: StagedPdfSource,
+                range: PageRange,
+                controls: PdfInspectionControls,
+            ): PdfInspectionResult {
+                val locator = PageLocator(source.fingerprint, 1)
+                val textBlock = PdfTextBlock(
+                    DocumentBlock(0, NarrationBlockType.PARAGRAPH, "Преглед текста", locator.block(0)),
+                    NormalizedRect(0f, 0f, 1f, 0.1f),
+                )
+                return PdfInspectionResult.Accepted(
+                    PdfImportInspection(
+                        pageCount = 1,
+                        range = range,
+                        pages = listOf(PdfPage(1, "Преглед текста", listOf(textBlock), locator)),
+                        warnings = emptyList(),
+                        blockingDiagnostics = emptyList(),
+                        provenance = ImportProvenance(
+                            source.fingerprint,
+                            source.sourceUri,
+                            source.sourceFile.path,
+                            source.projectId,
+                        ),
+                    ),
+                )
+            }
+        }
+        val previewResult = PdfImportPreviewService(repository, importer).previewSource("content://books/pdf", 1, 1)
+        assertTrue("preview result: $previewResult", previewResult is PdfPreviewResult.Ready)
+        val preview = (previewResult as PdfPreviewResult.Ready).preview
+
+        assertEquals("Преглед текста", preview.inspection.pages.single().text)
+        assertTrue("preview diagnostics: ${preview.inspection.blockingDiagnostics}", preview.canAccept)
+        assertTrue(index.acceptedDocument == null)
+
+        val acceptance = PdfAcceptanceService(
+            repository = repository,
+            index = index,
+            canonical = PdfCanonicalTextService(storage, AtomicArtifactStore(storage)),
+            storage = storage,
+            artifactStore = AtomicArtifactStore(storage),
+        )
+        val document = PdfDocumentProjector.toIr(preview)
+        val expected = PdfDocumentProjector.toIr(preview)
+        assertEquals(document.provenance, expected.provenance)
+        assertEquals(document.canonicalSerialization(), expected.canonicalSerialization())
+        val result = acceptance.accept(preview, document)
+
+        assertTrue("acceptance result: $result", result is PdfAcceptanceResult.Published)
+        assertTrue("accepted document missing", index.acceptedDocument != null)
+        assertEquals(
+            storage.canonicalChapterText("preview", "preview-pdf-page-1").path,
+            index.canonicalChapterPaths.values.single(),
+        )
+        assertFalse(storage.readyAudioDirectory.walkTopDown().any { it.isFile })
     }
 
     @Test
@@ -155,5 +229,21 @@ public class PdfImportTest {
         val sources = mutableListOf<ExistingPdfProject>()
         override fun findByFingerprint(fingerprint: String): ExistingPdfProject? = sources.firstOrNull()
         override fun recordAcceptedDocument(source: ImportedPdfSource, document: com.homoludens.citacknjiga.core.document.DocumentIr, canonicalChapterPaths: Map<String, String>) = Unit
+    }
+
+    private class RecordingIndex : PdfProjectIndex {
+        var acceptedDocument: DocumentIr? = null
+        var canonicalChapterPaths: Map<String, String> = emptyMap()
+
+        override fun findByFingerprint(fingerprint: String): ExistingPdfProject? = null
+
+        override fun recordAcceptedDocument(
+            source: ImportedPdfSource,
+            document: DocumentIr,
+            canonicalChapterPaths: Map<String, String>,
+        ) {
+            acceptedDocument = document
+            this.canonicalChapterPaths = canonicalChapterPaths
+        }
     }
 }

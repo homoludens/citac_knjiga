@@ -10,5 +10,7 @@ public class PdfOrphanReconciler(
     private val artifactStore: AtomicArtifactStore = AtomicArtifactStore(storage),
 ) {
     public fun reconcile(referencedFiles: Collection<File>, maxAgeMillis: Long): Int =
-        artifactStore.cleanupOrphanFiles(storage.temporaryDirectory, referencedFiles, maxAgeMillis)
+        storage.temporaryDirectory.listFiles { file -> file.isDirectory && file.name.startsWith("pdf-") }
+            ?.sumOf { directory -> artifactStore.cleanupOrphanFiles(directory, referencedFiles, maxAgeMillis) }
+            ?: 0
 }

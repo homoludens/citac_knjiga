@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -48,6 +49,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.homoludens.citacknjiga.core.database.AudiobookDao
+import com.homoludens.citacknjiga.core.document.ImportDiagnostic
+import com.homoludens.citacknjiga.core.document.ImportDiagnosticCode
 import com.homoludens.citacknjiga.core.diagnostics.LocalDiagnostics
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.core.generation.GenerationNotificationActionReceiver
@@ -56,6 +59,15 @@ import com.homoludens.citacknjiga.document.epub.EpubAcceptanceResult
 import com.homoludens.citacknjiga.document.epub.EpubImportPreview
 import com.homoludens.citacknjiga.document.epub.EpubPreviewResult
 import com.homoludens.citacknjiga.document.epub.EpubImportPreviewService
+import com.homoludens.citacknjiga.document.pdf.PdfAcceptanceResult
+import com.homoludens.citacknjiga.document.pdf.PdfAcceptanceService
+import com.homoludens.citacknjiga.document.pdf.PdfDocumentProjector
+import com.homoludens.citacknjiga.document.pdf.PdfFeatureAvailability
+import com.homoludens.citacknjiga.document.pdf.PdfImportPreview
+import com.homoludens.citacknjiga.document.pdf.PdfImportPreviewService
+import com.homoludens.citacknjiga.document.pdf.PdfPreviewResult
+import com.homoludens.citacknjiga.document.pdf.PageRange
+import com.homoludens.citacknjiga.document.pdf.PdfDiagnosticFormatter
 import com.homoludens.citacknjiga.proof.LocalWavPlayer
 import com.homoludens.citacknjiga.proof.EpubChapterGenerationResult
 import com.homoludens.citacknjiga.proof.EpubChapterProofService
@@ -96,6 +108,8 @@ public fun CitacKnjigaApp(
     audiobookDao: AudiobookDao? = null,
     proofEngine: TypedTextProofEngine? = null,
     epubImportPreviewService: EpubImportPreviewService? = null,
+    pdfImportPreviewService: PdfImportPreviewService? = null,
+    pdfAcceptanceService: PdfAcceptanceService? = null,
     epubChapterProofService: EpubChapterProofService? = null,
     playbackController: AudiobookPlayerController? = null,
     audiobookExportService: RoomAudiobookExportService? = null,
@@ -119,6 +133,8 @@ public fun CitacKnjigaApp(
                     audiobookDao = audiobookDao,
                     proofEngine = proofEngine,
                     epubImportPreviewService = epubImportPreviewService,
+                    pdfImportPreviewService = pdfImportPreviewService,
+                    pdfAcceptanceService = pdfAcceptanceService,
                     epubChapterProofService = epubChapterProofService,
                     onOpenBook = { id -> navController.navigate(AppRoute.Book.forId(id)) },
                     onOpenDiagnostics = { navController.navigate(AppRoute.Diagnostics.path) },
@@ -160,6 +176,8 @@ private fun StartScreen(
     audiobookDao: AudiobookDao?,
     proofEngine: TypedTextProofEngine?,
     epubImportPreviewService: EpubImportPreviewService?,
+    pdfImportPreviewService: PdfImportPreviewService?,
+    pdfAcceptanceService: PdfAcceptanceService?,
     epubChapterProofService: EpubChapterProofService?,
     onOpenBook: (String) -> Unit,
     onOpenDiagnostics: () -> Unit,
@@ -186,6 +204,10 @@ private fun StartScreen(
         mutableStateOf<ImportPreviewUiState>(ImportPreviewUiState.Idle)
     }
     var importJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+    var pdfImportState by remember(pdfImportPreviewService) {
+        mutableStateOf<PdfImportUiState>(PdfImportUiState.Idle)
+    }
+    var pdfImportJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
     var chapterGeneration by remember { mutableStateOf<ChapterGenerationUiState>(ChapterGenerationUiState.Idle) }
     val importLauncher = rememberLauncherForActivityResult(OpenDocument()) { uri: Uri? ->
         if (uri != null && epubImportPreviewService != null) {
@@ -199,6 +221,20 @@ private fun StartScreen(
             }
         }
     }
+    val pdfImportLauncher = rememberLauncherForActivityResult(OpenDocument()) { uri: Uri? ->
+        if (uri != null && PdfFeatureAvailability.QUALIFIED && pdfImportPreviewService != null) {
+            (pdfImportState as? PdfImportUiState.Ready)?.let { pdfImportPreviewService.discard(it.preview) }
+            pdfImportState = PdfImportUiState.Loading
+            pdfImportJob = playbackScope.launch(Dispatchers.IO) {
+                val result = pdfImportPreviewService.previewSource(uri.toString(), 1, 1)
+                withContext(Dispatchers.Main.immediate) {
+                    pdfImportState = result.toUiState()
+                }
+            }
+        }
+    }
+    val latestPdfState by rememberUpdatedState(pdfImportState)
+    val latestPdfJob by rememberUpdatedState(pdfImportJob)
     DisposableEffect(controller, player) {
         onDispose {
             player.close()
@@ -207,6 +243,12 @@ private fun StartScreen(
     }
     DisposableEffect(libraryController) {
         onDispose { libraryController?.close() }
+    }
+    DisposableEffect(pdfImportPreviewService) {
+        onDispose {
+            latestPdfJob?.cancel()
+            (latestPdfState as? PdfImportUiState.Ready)?.let { pdfImportPreviewService?.discard(it.preview) }
+        }
     }
     val state by controller.state.collectAsState()
     Scaffold(
@@ -276,6 +318,58 @@ private fun StartScreen(
                 },
                 onPlayGenerated = { result -> player.play(result.audio.file, playbackScope) },
                 onStopGenerated = player::stop,
+            )
+            PdfImportPreviewContent(
+                state = if (PdfFeatureAvailability.QUALIFIED) {
+                    pdfImportState
+                } else {
+                    PdfImportUiState.Error(pdfUnavailableDiagnostic())
+                },
+                enabled = PdfFeatureAvailability.QUALIFIED &&
+                    pdfImportPreviewService != null && pdfAcceptanceService != null,
+                onSelect = { pdfImportLauncher.launch(arrayOf("application/pdf")) },
+                onPreview = { startPage, endPage ->
+                    (pdfImportState as? PdfImportUiState.Ready)?.let { ready ->
+                        val service = pdfImportPreviewService ?: return@PdfImportPreviewContent
+                        pdfImportState = PdfImportUiState.Loading
+                        pdfImportJob = playbackScope.launch(Dispatchers.IO) {
+                            val result = service.previewStaged(ready.preview.stagedSource, startPage, endPage)
+                            withContext(Dispatchers.Main.immediate) {
+                                pdfImportState = result.toUiState()
+                            }
+                        }
+                    }
+                },
+                onAccept = { preview ->
+                    val acceptance = pdfAcceptanceService ?: return@PdfImportPreviewContent
+                    pdfImportState = PdfImportUiState.Accepting
+                    pdfImportJob = playbackScope.launch(Dispatchers.IO) {
+                        val result = try {
+                            acceptance.accept(preview, PdfDocumentProjector.toIr(preview))
+                        } catch (cancelled: CancellationException) {
+                            throw cancelled
+                        } catch (_: Exception) {
+                            PdfAcceptanceResult.Failed(
+                                ImportDiagnostic(
+                                    ImportDiagnosticCode.ACCEPTANCE_FAILED,
+                                    message = "The PDF import could not be completed.",
+                                    action = "Select the PDF again and retry.",
+                                ),
+                            )
+                        }
+                        withContext(Dispatchers.Main.immediate) {
+                            pdfImportState = result.toUiState()
+                        }
+                    }
+                },
+                onCancel = { preview ->
+                    pdfImportPreviewService?.discard(preview)
+                    pdfImportState = PdfImportUiState.Idle
+                },
+                onCancelLoading = {
+                    pdfImportJob?.cancel()
+                    pdfImportState = PdfImportUiState.Idle
+                },
             )
             TypedTextProofContent(
                 paddingValues = PaddingValues(0.dp),
@@ -522,6 +616,15 @@ private sealed interface ImportPreviewUiState {
     ) : ImportPreviewUiState
 }
 
+internal sealed interface PdfImportUiState {
+    data object Idle : PdfImportUiState
+    data object Loading : PdfImportUiState
+    data object Accepting : PdfImportUiState
+    data class Ready(val preview: PdfImportPreview) : PdfImportUiState
+    data class Accepted(val result: PdfAcceptanceResult.Published) : PdfImportUiState
+    data class Error(val diagnostic: ImportDiagnostic) : PdfImportUiState
+}
+
 private sealed interface ChapterGenerationUiState {
     data object Idle : ChapterGenerationUiState
     data class Generating(val chapterOrdinal: Int) : ChapterGenerationUiState
@@ -540,6 +643,29 @@ private fun EpubAcceptanceResult?.toUiState(): ImportPreviewUiState = when (this
     is EpubAcceptanceResult.Failed -> ImportPreviewUiState.Error(error, diagnostics = securityDiagnostics)
     null -> ImportPreviewUiState.Error()
 }
+
+private fun PdfPreviewResult.toUiState(): PdfImportUiState = when (this) {
+    is PdfPreviewResult.Ready -> PdfImportUiState.Ready(preview)
+    is PdfPreviewResult.Duplicate -> PdfImportUiState.Error(
+        ImportDiagnostic(
+            ImportDiagnosticCode.ACCEPTANCE_FAILED,
+            message = "This PDF has already been imported.",
+            action = "Open the existing book instead.",
+        ),
+    )
+    is PdfPreviewResult.Failed -> PdfImportUiState.Error(diagnostic)
+}
+
+private fun PdfAcceptanceResult.toUiState(): PdfImportUiState = when (this) {
+    is PdfAcceptanceResult.Published -> PdfImportUiState.Accepted(this)
+    is PdfAcceptanceResult.Failed -> PdfImportUiState.Error(diagnostic)
+}
+
+private fun pdfUnavailableDiagnostic() = ImportDiagnostic(
+    ImportDiagnosticCode.PDF_FEATURE_UNAVAILABLE,
+    message = "PDF import is unavailable because parser qualification did not pass.",
+    action = "Use EPUB import or wait for a qualified offline PDF parser.",
+)
 
 @Composable
 private fun epubErrorMessage(state: ImportPreviewUiState.Error): String = when {
@@ -682,6 +808,136 @@ private fun EpubImportPreviewContent(
                 }
                 Button(onClick = { onAccept(preview) }) { Text(stringResource(R.string.accept_import)) }
                 OutlinedButton(onClick = { onCancel(preview) }) { Text(stringResource(R.string.cancel)) }
+            }
+        }
+    }
+}
+
+internal fun parsePdfPageRange(startPage: String, endPage: String, pageCount: Int): PageRange? =
+    runCatching {
+        PageRange.validate(startPage.trim().toInt(), endPage.trim().toInt(), pageCount)
+    }.getOrNull()
+
+@Composable
+internal fun PdfImportPreviewContent(
+    state: PdfImportUiState,
+    enabled: Boolean,
+    onSelect: () -> Unit,
+    onPreview: (startPage: Int, endPage: Int) -> Unit,
+    onAccept: (PdfImportPreview) -> Unit,
+    onCancel: (PdfImportPreview) -> Unit,
+    onCancelLoading: () -> Unit,
+) {
+    var startPage by remember { mutableStateOf("1") }
+    var endPage by remember { mutableStateOf("1") }
+    var invalidRange by remember { mutableStateOf(false) }
+    val pageCount = (state as? PdfImportUiState.Ready)?.preview?.inspection?.pageCount ?: 0
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Text(stringResource(R.string.import_pdf_title), style = MaterialTheme.typography.headlineSmall)
+        Text(stringResource(R.string.import_pdf_description), style = MaterialTheme.typography.bodyMedium)
+        Button(onClick = onSelect, enabled = enabled && state !is PdfImportUiState.Loading) {
+            Text(stringResource(R.string.choose_pdf))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = startPage,
+                onValueChange = { startPage = it; invalidRange = false },
+                modifier = Modifier.weight(1f),
+                label = { Text(stringResource(R.string.pdf_start_page)) },
+                singleLine = true,
+                enabled = enabled,
+            )
+            OutlinedTextField(
+                value = endPage,
+                onValueChange = { endPage = it; invalidRange = false },
+                modifier = Modifier.weight(1f),
+                label = { Text(stringResource(R.string.pdf_end_page)) },
+                singleLine = true,
+                enabled = enabled,
+            )
+        }
+        if (pageCount > 0) {
+            Text(stringResource(R.string.pdf_page_count_format, pageCount))
+        }
+        if (invalidRange) {
+            Text(
+                stringResource(R.string.pdf_invalid_range),
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
+            )
+        }
+        when (state) {
+            PdfImportUiState.Idle -> Unit
+            PdfImportUiState.Loading -> {
+                Text(
+                    stringResource(R.string.pdf_preparing_preview),
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                )
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                OutlinedButton(onClick = onCancelLoading) { Text(stringResource(R.string.pdf_cancel_import)) }
+            }
+            PdfImportUiState.Accepting -> {
+                Text(
+                    stringResource(R.string.pdf_accepting_import),
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                )
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            }
+            is PdfImportUiState.Error -> {
+                Text(
+                    PdfDiagnosticFormatter.format(state.diagnostic),
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
+                )
+            }
+            is PdfImportUiState.Accepted -> {
+                Text(stringResource(R.string.pdf_import_accepted))
+                state.result.document.chapters.forEach { chapter ->
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(chapter.title, style = MaterialTheme.typography.titleMedium)
+                            Text(chapter.blocks.joinToString("\n") { it.sourceText })
+                        }
+                    }
+                }
+            }
+            is PdfImportUiState.Ready -> {
+                val preview = state.preview
+                Button(
+                    onClick = {
+                        val range = parsePdfPageRange(startPage, endPage, pageCount)
+                        if (range == null) invalidRange = true else onPreview(range.startPage, range.endPage)
+                    },
+                    enabled = enabled,
+                ) { Text(stringResource(R.string.pdf_preview_range)) }
+                Text(stringResource(R.string.pdf_preview_text), style = MaterialTheme.typography.titleMedium)
+                preview.inspection.pages.forEach { page ->
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(stringResource(R.string.pdf_page_format, page.pageNumber), style = MaterialTheme.typography.titleMedium)
+                            Text(page.text)
+                        }
+                    }
+                }
+                if (preview.inspection.warnings.isNotEmpty()) {
+                    Text(stringResource(R.string.warnings), style = MaterialTheme.typography.titleMedium)
+                    preview.inspection.warnings.forEach { warning ->
+                        Text(stringResource(R.string.pdf_warning_format, warning.message), color = MaterialTheme.colorScheme.error)
+                    }
+                }
+                preview.inspection.blockingDiagnostics.forEach { diagnostic ->
+                    Text(PdfDiagnosticFormatter.format(diagnostic), color = MaterialTheme.colorScheme.error)
+                }
+                Button(onClick = { onAccept(preview) }, enabled = enabled && preview.canAccept) {
+                    Text(stringResource(R.string.accept_import))
+                }
+                OutlinedButton(onClick = { onCancel(preview) }) { Text(stringResource(R.string.pdf_discard)) }
             }
         }
     }

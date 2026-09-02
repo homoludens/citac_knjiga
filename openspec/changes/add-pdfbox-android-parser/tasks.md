@@ -22,10 +22,10 @@
 
 ## 4. Application Integration
 
-- [ ] 4.1 Construct the PDF source repository, parser, preview service, canonical text service, and acceptance service in `AppContainer.production`, and verify a staged fixture reaches the parser instead of `UnavailablePdfPageImporter`.
-- [ ] 4.2 Add the local PDF picker, page-count/range fields, loading, preview, diagnostics, cancellation, discard, and acceptance states beside EPUB import in `StartScreen`, and verify Compose tests reject invalid ranges and show preview text before acceptance.
-- [ ] 4.3 Wire accepted PDF previews through `PdfDocumentProjector` and `PdfAcceptanceService` into existing project, chapter, and narration-block persistence, and verify no generation job or audio is created during acceptance.
-- [ ] 4.4 Enable `PdfFeatureAvailability` only from a passing qualification result and preserve the unavailable diagnostic on any failed gate, and verify a no-pass build cannot expose a usable PDF import path.
+- [x] 4.1 Construct the PDF source repository, parser, preview service, canonical text service, and acceptance service in `AppContainer.production`, and verify a staged fixture reaches the parser instead of `UnavailablePdfPageImporter`.
+- [x] 4.2 Add the local PDF picker, page-count/range fields, loading, preview, diagnostics, cancellation, discard, and acceptance states beside EPUB import in `StartScreen`, and verify Compose tests reject invalid ranges and show preview text before acceptance.
+- [x] 4.3 Wire accepted PDF previews through `PdfDocumentProjector` and `PdfAcceptanceService` into existing project, chapter, and narration-block persistence, and verify no generation job or audio is created during acceptance.
+- [x] 4.4 Enable `PdfFeatureAvailability` only from a passing qualification result and preserve the unavailable diagnostic on any failed gate, and verify a no-pass build cannot expose a usable PDF import path.
 
 ## 5. Verification And Release
 

@@ -197,8 +197,8 @@ public data class NormalizedRect(
 }
 
 public object PdfFeatureAvailability {
-    /** The selected candidate passed the defined API 33/API 35 matrix. */
-    public const val QUALIFIED: Boolean = true
+    /** Generated from the checked-in qualification report; missing/invalid reports fail closed. */
+    public val QUALIFIED: Boolean = BuildConfig.PDF_QUALIFIED
 }
 
 public class PdfFeatureUnavailableException : UnsupportedOperationException(

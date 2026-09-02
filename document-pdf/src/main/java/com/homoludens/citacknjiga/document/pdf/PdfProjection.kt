@@ -98,7 +98,7 @@ public object PdfDocumentProjector {
         return PdfRoomProjection(project, chapters, blocks)
     }
 
-    private fun chapterId(projectId: String, chapter: DocumentChapter): String =
+    public fun chapterId(projectId: String, chapter: DocumentChapter): String =
         "$projectId-pdf-page-${chapter.locator.pageNumber}"
 }
 

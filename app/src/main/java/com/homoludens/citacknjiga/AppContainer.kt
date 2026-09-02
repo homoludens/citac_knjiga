@@ -23,7 +23,16 @@ import com.homoludens.citacknjiga.document.epub.EpubDocumentParser
 import com.homoludens.citacknjiga.document.epub.EpubImportPreviewService
 import com.homoludens.citacknjiga.document.epub.RoomEpubProjectIndex
 import com.homoludens.citacknjiga.document.epub.SafEpubSourceRepository
+import com.homoludens.citacknjiga.document.pdf.ContentResolverPdfSourceReader
+import com.homoludens.citacknjiga.document.pdf.PdfAcceptanceService
 import com.homoludens.citacknjiga.document.pdf.PdfBoxResourceLoaderInitializer
+import com.homoludens.citacknjiga.document.pdf.PdfBoxPdfPageImporter
+import com.homoludens.citacknjiga.document.pdf.PdfCanonicalTextService
+import com.homoludens.citacknjiga.document.pdf.PdfFeatureAvailability
+import com.homoludens.citacknjiga.document.pdf.PdfImportPreviewService
+import com.homoludens.citacknjiga.document.pdf.PdfOrphanReconciler
+import com.homoludens.citacknjiga.document.pdf.RoomPdfProjectIndex
+import com.homoludens.citacknjiga.document.pdf.SafPdfSourceRepository
 import com.homoludens.citacknjiga.proof.AndroidTypedTextProofEngine
 import com.homoludens.citacknjiga.proof.AndroidVitsTypedTextProofEngine
 import com.homoludens.citacknjiga.proof.EngineSelectingTypedTextProofEngine
@@ -74,6 +83,8 @@ public class AppContainer(
     public val audiobookDatabase: AudiobookDatabase? = null,
     public val typedTextProofEngine: TypedTextProofEngine? = null,
     public val epubImportPreviewService: EpubImportPreviewService? = null,
+    public val pdfImportPreviewService: PdfImportPreviewService? = null,
+    public val pdfAcceptanceService: PdfAcceptanceService? = null,
     public val epubChapterProofService: EpubChapterProofService? = null,
     public val playbackController: AudiobookPlayerController? = null,
     public val audiobookExportService: RoomAudiobookExportService? = null,
@@ -102,6 +113,11 @@ public class AppContainer(
             )
             val database = AudiobookDatabase.create(context)
             val dao = database.audiobookDao()
+            val artifactStore = AtomicArtifactStore(privateStorage)
+            PdfOrphanReconciler(privateStorage, artifactStore).reconcile(
+                referencedFiles = emptyList(),
+                maxAgeMillis = 24L * 60L * 60L * 1_000L,
+            )
             val readyAudio = ReadyAudioRepository(
                 source = RoomReadyAudioSource(dao),
                 storage = privateStorage,
@@ -115,6 +131,29 @@ public class AppContainer(
                 artifactStore = AtomicArtifactStore(privateStorage),
                 projectIndex = RoomEpubProjectIndex(dao),
             )
+            val pdfServices = if (PdfFeatureAvailability.QUALIFIED) {
+                val pdfIndex = RoomPdfProjectIndex(dao)
+                val pdfRepository = SafPdfSourceRepository(
+                    sourceReader = ContentResolverPdfSourceReader(contentResolver),
+                    storage = privateStorage,
+                    artifactStore = artifactStore,
+                    projectIndex = pdfIndex,
+                )
+                val canonical = PdfCanonicalTextService(privateStorage, artifactStore)
+                val preview = PdfImportPreviewService(
+                    repository = pdfRepository,
+                    importer = PdfBoxPdfPageImporter(),
+                )
+                preview to PdfAcceptanceService(
+                    repository = pdfRepository,
+                    index = pdfIndex,
+                    canonical = canonical,
+                    storage = privateStorage,
+                    artifactStore = artifactStore,
+                )
+            } else {
+                null
+            }
             val kokoroProofEngine = AndroidTypedTextProofEngine(
                 modelStore = modelStore,
                 preprocessorFactory = { SerbianPreprocessor.fromAssets(assets, filesDir) },
@@ -177,6 +216,8 @@ public class AppContainer(
                     parser = EpubDocumentParser(privateStorage),
                     canonicalText = EpubCanonicalTextService(privateStorage, AtomicArtifactStore(privateStorage)),
                 ),
+                pdfImportPreviewService = pdfServices?.first,
+                pdfAcceptanceService = pdfServices?.second,
                 epubChapterProofService = EpubChapterProofService(
                     dao = dao,
                     storage = privateStorage,

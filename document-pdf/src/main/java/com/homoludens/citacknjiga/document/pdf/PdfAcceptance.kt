@@ -50,12 +50,7 @@ public class PdfAcceptanceService(
     }
 
     private fun matchesPreview(preview: PdfImportPreview, document: DocumentIr): Boolean = runCatching {
-        val expected = PdfDocumentProjector.toIr(
-            preview = preview,
-            title = document.title,
-            author = document.author,
-            language = document.language,
-        )
+        val expected = PdfDocumentProjector.toIr(preview)
         document.provenance == expected.provenance &&
             document.canonicalSerialization() == expected.canonicalSerialization()
     }.getOrDefault(false)
@@ -63,7 +58,7 @@ public class PdfAcceptanceService(
     private fun outputFiles(document: DocumentIr): List<java.io.File> {
         val owner = document.provenance.projectId.ifBlank { document.provenance.fingerprint }
         return document.chapters.map { chapter ->
-            storage.canonicalChapterText(owner, "${document.provenance.fingerprint}-page-${chapter.locator.pageNumber}")
+            storage.canonicalChapterText(owner, PdfDocumentProjector.chapterId(document.provenance.projectId, chapter))
         }
     }
 
