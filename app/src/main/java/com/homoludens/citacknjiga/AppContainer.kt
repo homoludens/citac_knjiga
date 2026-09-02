@@ -21,6 +21,7 @@ import com.homoludens.citacknjiga.core.generation.SelectingGenerationRunExecutor
 import com.homoludens.citacknjiga.core.generation.RoomGenerationNotificationDataSource
 import com.homoludens.citacknjiga.core.generation.RoomGenerationQueue
 import com.homoludens.citacknjiga.core.generation.GenerationWorkScheduler
+import com.homoludens.citacknjiga.core.generation.GenerationInvalidationCoordinator
 import com.homoludens.citacknjiga.generation.VitsGenerationCoordinator
 import com.homoludens.citacknjiga.generation.KokoroGenerationCoordinator
 import com.homoludens.citacknjiga.document.epub.ContentResolverEpubSourceReader
@@ -105,6 +106,7 @@ public class AppContainer(
     public val ttsEnginePreference: TtsEnginePreference? = null,
     public val vitsGenerationCoordinator: VitsGenerationCoordinator? = null,
     public val generationCoordinator: DurableGenerationCoordinator? = null,
+    public val generationInvalidationCoordinator: GenerationInvalidationCoordinator? = null,
     public val generationWorkerFactory: GenerationWorkerFactory? = null,
     public val projectDeletionCoordinator: ProjectDeletionCoordinator? = null,
 ) {
@@ -257,6 +259,11 @@ public class AppContainer(
                     ).enqueue(runId)
                 },
             )
+            val generationInvalidationCoordinator = GenerationInvalidationCoordinator(
+                database = database,
+                storage = privateStorage,
+                generationCoordinator = durableGenerationCoordinator,
+            )
             return AppContainer(
                 diagnostics = LocalDiagnostics(),
                 variant = AppVariant.fromBuildConfig(),
@@ -287,6 +294,7 @@ public class AppContainer(
                 ttsEnginePreference = enginePreference,
                 vitsGenerationCoordinator = vitsCoordinator,
                 generationCoordinator = durableGenerationCoordinator,
+                generationInvalidationCoordinator = generationInvalidationCoordinator,
                 generationWorkerFactory = workerFactory,
                 projectDeletionCoordinator = deletionCoordinator,
             )

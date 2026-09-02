@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -93,6 +94,20 @@ public class PlaybackQueueCoordinatorTest {
 
         assertEquals(listOf("second"), player.items.map { it.mediaId })
         assertEquals(0L, player.positionMs)
+        coordinator.close()
+    }
+
+    @Test
+    public fun removesAnAppliedItemThatDisappearsFromRoomWhilePlaying() {
+        val player = FakeQueuePlayer()
+        val coordinator = coordinator(player)
+        coordinator.update(listOf(audio("first", "chapter", 0)))
+        player.isPlaying = true
+
+        coordinator.update(emptyList())
+
+        assertTrue(player.items.isEmpty())
+        assertFalse(player.isPlaying)
         coordinator.close()
     }
 

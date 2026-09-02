@@ -142,11 +142,12 @@ public class PlaybackQueueCoordinator(
             return
         }
         if (currentId != null && currentId !in snapshot.catalog.mediaItemIds && player.isPlaying) {
-            if (currentId !in snapshot.unavailableIds) {
+            val wasApplied = applied?.catalog?.mediaItemIds?.contains(currentId) == true
+            if (currentId !in snapshot.unavailableIds && !wasApplied) {
                 pendingSnapshot = snapshot
                 return
             }
-            // An item that became unavailable is never left in a playing queue.
+            // A removed item, like an explicitly unavailable item, is never left playing.
             val nextId = applied?.catalog?.mediaItemIds
                 ?.dropWhile { it != currentId }
                 ?.drop(1)

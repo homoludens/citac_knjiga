@@ -75,6 +75,9 @@ public interface AudiobookDao {
     @Query("SELECT * FROM narration_block WHERE id = :blockId LIMIT 1")
     public fun findNarrationBlockById(blockId: String): NarrationBlockEntity?
 
+    @Query("SELECT * FROM narration_block")
+    public fun findAllNarrationBlocks(): List<NarrationBlockEntity>
+
     @Query("SELECT * FROM generation_run")
     public fun findAllGenerationRuns(): List<GenerationRunEntity>
 
@@ -146,6 +149,9 @@ public interface AudiobookDao {
 
     @Update
     public fun updateAudioSegment(segment: AudioSegmentEntity)
+
+    @Query("DELETE FROM audio_segment WHERE id IN (:segmentIds)")
+    public fun deleteAudioSegments(segmentIds: List<String>)
 
     /** Conditional updates keep a validated transition from overwriting a concurrent state change. */
     @Query(
