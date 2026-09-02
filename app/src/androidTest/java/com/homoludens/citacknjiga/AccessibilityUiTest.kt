@@ -19,6 +19,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -265,7 +266,7 @@ public class AccessibilityUiTest {
         composeRule.onNodeWithTag("cancel-regenerate-chapter-chapter-1").performClick()
         assertEquals(emptyList<GenerationScope>(), scopes)
 
-        composeRule.onNodeWithTag("regenerate-book-book-1").performClick()
+        composeRule.onNodeWithTag("regenerate-book-book-1").performScrollTo().performClick()
         composeRule.onNodeWithTag("confirm-regenerate-book-book-1").performClick()
         assertEquals(listOf(GenerationScope.CompleteBook), scopes)
     }
