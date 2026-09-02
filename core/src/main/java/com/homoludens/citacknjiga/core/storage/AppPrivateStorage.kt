@@ -79,10 +79,17 @@ public class AppPrivateStorage(filesDir: File) {
     private fun child(parent: File, vararg components: String): File {
         require(components.all(::isSafeComponent)) { "Private storage path component is unsafe" }
         val candidate = components.fold(parent) { current, component -> File(current, component) }.canonicalFile
-        require(candidate.toPath().startsWith(rootDirectory.toPath())) {
-            "Private storage path escapes the app-private root"
+        return requireContained(candidate)
+    }
+
+    /** Returns a canonical path below this app-private root, rejecting the root itself. */
+    public fun requireContained(file: File): File {
+        val canonical = file.canonicalFile
+        require(canonical.toPath().startsWith(rootDirectory.toPath())) {
+            "Path escapes the app-private root"
         }
-        return candidate
+        require(canonical != rootDirectory) { "Path must be below the app-private root" }
+        return canonical
     }
 
     private companion object {

@@ -191,12 +191,7 @@ public class AtomicArtifactStore(
     }
 
     private fun contained(file: File): File {
-        val canonical = file.canonicalFile
-        require(canonical.toPath().startsWith(storage.rootDirectory.toPath())) {
-            "Artifact path escapes the app-private root"
-        }
-        require(canonical != storage.rootDirectory) { "Artifact path must be below the app-private root" }
-        return canonical
+        return storage.requireContained(file)
     }
 
     private fun deleteMatchingFiles(
