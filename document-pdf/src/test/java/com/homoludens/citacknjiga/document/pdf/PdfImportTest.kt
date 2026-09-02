@@ -2,6 +2,8 @@ package com.homoludens.citacknjiga.document.pdf
 
 import com.homoludens.citacknjiga.core.database.NarrationBlockType
 import com.homoludens.citacknjiga.core.document.DocumentBlock
+import com.homoludens.citacknjiga.core.document.ImportDiagnostic
+import com.homoludens.citacknjiga.core.document.ImportDiagnosticCode
 import com.homoludens.citacknjiga.core.document.DocumentIr
 import com.homoludens.citacknjiga.core.document.ImportProvenance
 import com.homoludens.citacknjiga.core.document.PageLocator
@@ -32,7 +34,10 @@ public class PdfImportTest {
 
     @Test
     public fun normalizationPreservesBreaksAndDiscretionaryHyphen() {
-        assertEquals("Prvi red\nDrugi\u00adred", PdfTextNormalizer.normalize("  Prvi   red\r\n Drugi\u00adred  "))
+        assertEquals(
+            "Prvi red\nDrugi\u00adred\nЋирилица 漢字",
+            PdfTextNormalizer.normalize(" \tPrvi   red\r\n Drugi\u00adred\rЋирилица 漢字  "),
+        )
     }
 
     @Test
@@ -53,6 +58,31 @@ public class PdfImportTest {
             block("b", 0.5f, 0.2f, 0.9f, 0.6f),
         )))
         assertTrue(overlapping.diagnostics.any { it.code.name == "UNRELIABLE_LAYOUT" })
+    }
+
+    @Test
+    public fun limitsAndDiagnosticsRemainActionableBeforeAcceptance() {
+        val limited = PdfPageInspector.inspect(
+            page(blocks = listOf(block("tekst", 0.1f, 0.1f, 0.7f, 0.2f))),
+            PdfImportLimits(maxPageTextBytes = 4),
+        )
+        assertTrue(limited.diagnostics.any { it.code == ImportDiagnosticCode.PAGE_TEXT_TOO_LARGE })
+
+        val imageOnly = PdfPageInspector.inspect(
+            page(blocks = emptyList()).copy(text = "", hasImageContent = true, externalResourceCount = 1),
+        )
+        assertTrue(imageOnly.diagnostics.any { it.code == ImportDiagnosticCode.OCR_UNSUPPORTED })
+        assertTrue(imageOnly.warnings.any { it.code.name == "EXTERNAL_RESOURCE" })
+        assertEquals(
+            "Спољни ресурси су игнорисани; коришћени су само локални PDF подаци.",
+            PdfDiagnosticFormatter.format(
+                ImportDiagnostic(
+                    ImportDiagnosticCode.EXTERNAL_RESOURCE_IGNORED,
+                    message = "ignored",
+                    action = "continue",
+                ),
+            ),
+        )
     }
 
     @Test
@@ -85,43 +115,17 @@ public class PdfImportTest {
             projectIndex = index,
             projectIdFactory = { "preview" },
         )
-        val importer = object : PdfPageImporter {
-            override suspend fun pageCount(source: StagedPdfSource, controls: PdfInspectionControls) =
-                PdfPageCountResult.Accepted(PdfPageCount(1))
-
-            override suspend fun inspect(
-                source: StagedPdfSource,
-                range: PageRange,
-                controls: PdfInspectionControls,
-            ): PdfInspectionResult {
-                val locator = PageLocator(source.fingerprint, 1)
-                val textBlock = PdfTextBlock(
-                    DocumentBlock(0, NarrationBlockType.PARAGRAPH, "Преглед текста", locator.block(0)),
-                    NormalizedRect(0f, 0f, 1f, 0.1f),
-                )
-                return PdfInspectionResult.Accepted(
-                    PdfImportInspection(
-                        pageCount = 1,
-                        range = range,
-                        pages = listOf(PdfPage(1, "Преглед текста", listOf(textBlock), locator)),
-                        warnings = emptyList(),
-                        blockingDiagnostics = emptyList(),
-                        provenance = ImportProvenance(
-                            source.fingerprint,
-                            source.sourceUri,
-                            source.sourceFile.path,
-                            source.projectId,
-                        ),
-                    ),
-                )
-            }
-        }
+        val importer = previewImporter()
         val previewResult = PdfImportPreviewService(repository, importer).previewSource("content://books/pdf", 1, 1)
         assertTrue("preview result: $previewResult", previewResult is PdfPreviewResult.Ready)
         val preview = (previewResult as PdfPreviewResult.Ready).preview
 
         assertEquals("Преглед текста", preview.inspection.pages.single().text)
         assertTrue("preview diagnostics: ${preview.inspection.blockingDiagnostics}", preview.canAccept)
+        assertEquals(preview.stagedSource.fingerprint, preview.inspection.provenance.fingerprint)
+        assertEquals("content://books/pdf", preview.inspection.provenance.sourceUri)
+        assertEquals(preview.stagedSource.sourceFile.path, preview.inspection.provenance.sourcePath)
+        assertEquals("preview", preview.inspection.provenance.projectId)
         assertTrue(index.acceptedDocument == null)
 
         val acceptance = PdfAcceptanceService(
@@ -144,6 +148,37 @@ public class PdfImportTest {
             index.canonicalChapterPaths.values.single(),
         )
         assertFalse(storage.readyAudioDirectory.walkTopDown().any { it.isFile })
+    }
+
+    @Test
+    public fun acceptanceRollsBackPublishedSourceAndCanonicalArtifactsWhenIndexFails() = runBlocking {
+        val root = createTempDirectory().toFile()
+        val storage = AppPrivateStorage(root)
+        val repository = SafPdfSourceRepository(
+            sourceReader = PdfSourceReader { "%PDF-1.4\nlocal".byteInputStream() },
+            storage = storage,
+            artifactStore = AtomicArtifactStore(storage),
+            projectIndex = FailingIndex(),
+            projectIdFactory = { "rollback" },
+        )
+        val previewResult = PdfImportPreviewService(repository, previewImporter())
+            .previewSource("content://books/pdf", 1, 1)
+        val preview = (previewResult as PdfPreviewResult.Ready).preview
+        val document = PdfDocumentProjector.toIr(preview)
+
+        val result = PdfAcceptanceService(
+            repository = repository,
+            index = FailingIndex(),
+            canonical = PdfCanonicalTextService(storage, AtomicArtifactStore(storage)),
+            storage = storage,
+            artifactStore = AtomicArtifactStore(storage),
+        ).accept(preview, document)
+
+        assertEquals(ImportDiagnosticCode.ACCEPTANCE_FAILED, (result as PdfAcceptanceResult.Failed).diagnostic.code)
+        assertFalse(storage.sourcePdf("rollback").exists())
+        assertFalse(storage.canonicalTextDirectory.walkTopDown().any { it.isFile })
+        assertFalse(storage.importWarnings("rollback").exists())
+        assertFalse(storage.temporaryDirectory.walkTopDown().any { it.isFile })
     }
 
     @Test
@@ -225,6 +260,38 @@ public class PdfImportTest {
         NormalizedRect(left, top, right, bottom),
     )
 
+    private fun previewImporter(): PdfPageImporter = object : PdfPageImporter {
+        override suspend fun pageCount(source: StagedPdfSource, controls: PdfInspectionControls) =
+            PdfPageCountResult.Accepted(PdfPageCount(1))
+
+        override suspend fun inspect(
+            source: StagedPdfSource,
+            range: PageRange,
+            controls: PdfInspectionControls,
+        ): PdfInspectionResult {
+            val locator = PageLocator(source.fingerprint, 1)
+            val textBlock = PdfTextBlock(
+                DocumentBlock(0, NarrationBlockType.PARAGRAPH, "Преглед текста", locator.block(0)),
+                NormalizedRect(0f, 0f, 1f, 0.1f),
+            )
+            return PdfInspectionResult.Accepted(
+                PdfImportInspection(
+                    pageCount = 1,
+                    range = range,
+                    pages = listOf(PdfPage(1, "Преглед текста", listOf(textBlock), locator)),
+                    warnings = emptyList(),
+                    blockingDiagnostics = emptyList(),
+                    provenance = ImportProvenance(
+                        source.fingerprint,
+                        source.sourceUri,
+                        source.sourceFile.path,
+                        source.projectId,
+                    ),
+                ),
+            )
+        }
+    }
+
     private class FakeIndex : PdfProjectIndex {
         val sources = mutableListOf<ExistingPdfProject>()
         override fun findByFingerprint(fingerprint: String): ExistingPdfProject? = sources.firstOrNull()
@@ -244,6 +311,18 @@ public class PdfImportTest {
         ) {
             acceptedDocument = document
             this.canonicalChapterPaths = canonicalChapterPaths
+        }
+    }
+
+    private class FailingIndex : PdfProjectIndex {
+        override fun findByFingerprint(fingerprint: String): ExistingPdfProject? = null
+
+        override fun recordAcceptedDocument(
+            source: ImportedPdfSource,
+            document: DocumentIr,
+            canonicalChapterPaths: Map<String, String>,
+        ) {
+            error("simulated index failure")
         }
     }
 }
