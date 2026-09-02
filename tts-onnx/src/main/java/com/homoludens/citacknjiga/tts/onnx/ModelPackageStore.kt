@@ -45,6 +45,7 @@ public class ModelPackageStore(
     private val activeFile = privateStorage.activeModelPackage
     private val previousFile = privateStorage.lastValidModelPackage
     private val transactionFile = File(packageDir, ".model-package-transaction")
+    private val previousBackupFile = File(packageDir, ".model-package-previous-backup")
     private val processLock = ReentrantReadWriteLock()
 
     /** Copies a SAF document into private temporary storage before inspecting it. */
@@ -68,7 +69,10 @@ public class ModelPackageStore(
     }
 
     /** Testable equivalent of [importFromSaf] for a provider-backed stream. */
-    public fun importPackage(source: ModelPackageSource): InstalledModelPackage {
+    public fun importPackage(
+        source: ModelPackageSource,
+        expectedPackageVersion: String? = null,
+    ): InstalledModelPackage {
         return withWriteOperation {
             val temporary = try {
                 File.createTempFile(".model-package-", ".tmp", packageDir)
@@ -94,6 +98,7 @@ public class ModelPackageStore(
                 }
 
                 val metadata = validateArchive(temporary)
+                requireExpectedPackageVersion(metadata, expectedPackageVersion)
                 publish(temporary)
                 metadata
             } finally {
@@ -123,8 +128,10 @@ public class ModelPackageStore(
         }
 
     /** Imports VITS into its own slot; Kokoro's active and rollback files are untouched. */
-    public fun importVitsPackage(source: ModelPackageSource): InstalledModelPackage =
-        vitsModelPackageStore.importPackage(source)
+    public fun importVitsPackage(
+        source: ModelPackageSource,
+        expectedPackageVersion: String? = null,
+    ): InstalledModelPackage = vitsModelPackageStore.importPackage(source, expectedPackageVersion)
 
     public fun activeVitsPackage(): InstalledModelPackage? = vitsModelPackageStore.activePackage()
 
@@ -364,25 +371,43 @@ public class ModelPackageStore(
     private fun publish(temporary: File) {
         writeTransactionMarker()
         var movedPrevious = false
+        var publishedNew = false
         try {
+            if (previousFile.exists()) moveComplete(previousFile, previousBackupFile)
             if (activeFile.exists()) {
                 moveComplete(activeFile, previousFile)
                 movedPrevious = true
             }
             moveComplete(temporary, activeFile)
+            publishedNew = true
             syncFile(activeFile)
             transactionFile.delete()
+            previousBackupFile.delete()
             cleanupTemporaryCandidates()
         } catch (exception: Exception) {
-            if (movedPrevious && !activeFile.exists() && previousFile.exists()) {
-                runCatching {
-                    moveComplete(previousFile, activeFile)
+            val restored = runCatching {
+                if (publishedNew && activeFile.exists()) Files.deleteIfExists(activeFile.toPath())
+                if (movedPrevious) moveComplete(previousFile, activeFile)
+                if (previousBackupFile.exists()) {
+                    if (previousFile.exists()) Files.deleteIfExists(previousFile.toPath())
+                    moveComplete(previousBackupFile, previousFile)
                 }
-            }
+                transactionFile.delete()
+            }.isSuccess
+            if (!restored) transactionFile.writeText("model-package-transaction-v1")
             throw ModelPackageImportException(
                 ModelPackageFailureCode.PUBLICATION,
                 "Could not publish the verified model package",
                 exception,
+            )
+        }
+    }
+
+    private fun requireExpectedPackageVersion(metadata: InstalledModelPackage, expectedPackageVersion: String?) {
+        if (expectedPackageVersion != null && metadata.packageVersion != expectedPackageVersion) {
+            throw ModelPackageImportException(
+                ModelPackageFailureCode.INCOMPATIBLE,
+                "Model package version is not approved for this release",
             )
         }
     }
@@ -393,13 +418,28 @@ public class ModelPackageStore(
         val previous = runCatching { validateArchive(previousFile) }.getOrNull()
         when {
             active != null -> {
-                if (previousFile.exists() && previous == null) previousFile.delete()
+                val backup = runCatching { validateArchive(previousBackupFile) }.getOrNull()
+                if (previous == null && backup != null) {
+                    if (previousFile.exists()) Files.deleteIfExists(previousFile.toPath())
+                    moveComplete(previousBackupFile, previousFile)
+                } else {
+                    previousBackupFile.delete()
+                }
                 transactionFile.delete()
             }
             previous != null -> {
                 if (activeFile.exists()) Files.deleteIfExists(activeFile.toPath())
                 moveComplete(previousFile, activeFile)
+                if (previousBackupFile.exists()) {
+                    if (previousFile.exists()) Files.deleteIfExists(previousFile.toPath())
+                    moveComplete(previousBackupFile, previousFile)
+                }
                 syncFile(activeFile)
+                transactionFile.delete()
+            }
+            runCatching { validateArchive(previousBackupFile) }.isSuccess -> {
+                if (previousFile.exists()) Files.deleteIfExists(previousFile.toPath())
+                moveComplete(previousBackupFile, previousFile)
                 transactionFile.delete()
             }
             else -> throw ModelPackageImportException(ModelPackageFailureCode.NO_VALID_PACKAGE)

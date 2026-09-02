@@ -5,6 +5,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
+import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.security.MessageDigest
@@ -16,17 +17,26 @@ public class VitsModelPackageStore(filesDir: File) {
     private val directory = AppPrivateStorage(filesDir).modelPackagesDirectory
     private val active = File(directory, "vits-active.zip")
     private val previous = File(directory, "vits-last-valid.zip")
+    private val previousBackup = File(directory, ".vits-previous-backup")
+    private val transaction = File(directory, ".vits-package-transaction")
     private val lockFile = File(directory, ".vits-package.lock")
     private val processLock = ReentrantReadWriteLock()
 
-    public fun importPackage(source: ModelPackageSource): InstalledModelPackage = write {
+    public fun importPackage(
+        source: ModelPackageSource,
+        expectedPackageVersion: String? = null,
+    ): InstalledModelPackage = write {
         val temporary = File.createTempFile(".vits-package-", ".tmp", directory)
         try {
             source.openStream().use { input -> temporary.outputStream().use { input.copyTo(it) } }
             val metadata = validate(temporary)
-            if (active.isFile) Files.move(active.toPath(), previous.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            Files.move(temporary.toPath(), active.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            sync(active)
+            if (expectedPackageVersion != null && metadata.packageVersion != expectedPackageVersion) {
+                throw ModelPackageImportException(
+                    ModelPackageFailureCode.INCOMPATIBLE,
+                    "Model package version is not approved for this release",
+                )
+            }
+            publish(temporary)
             metadata
         } finally {
             temporary.delete()
@@ -34,6 +44,7 @@ public class VitsModelPackageStore(filesDir: File) {
     }
 
     public fun activePackage(): InstalledModelPackage? = write {
+        recoverTransaction()
         if (active.isFile) {
             runCatching { validate(active) }.getOrNull()?.let { return@write it }
         }
@@ -167,6 +178,90 @@ public class VitsModelPackageStore(filesDir: File) {
             throw exception
         } catch (exception: Exception) {
             throw ModelPackageImportException(ModelPackageFailureCode.INVALID_MANIFEST, cause = exception)
+        }
+    }
+
+    private fun publish(temporary: File) {
+        writeTransactionMarker()
+        var movedActive = false
+        var publishedNew = false
+        try {
+            if (previous.isFile) moveComplete(previous, previousBackup)
+            if (active.isFile) {
+                moveComplete(active, previous)
+                movedActive = true
+            }
+            moveComplete(temporary, active)
+            publishedNew = true
+            sync(active)
+            transaction.delete()
+            previousBackup.delete()
+        } catch (exception: Exception) {
+            val restored = runCatching {
+                if (publishedNew && active.exists()) Files.deleteIfExists(active.toPath())
+                if (movedActive) moveComplete(previous, active)
+                if (previousBackup.exists()) {
+                    if (previous.exists()) Files.deleteIfExists(previous.toPath())
+                    moveComplete(previousBackup, previous)
+                }
+                transaction.delete()
+            }.isSuccess
+            if (!restored) transaction.writeText("vits-package-transaction-v1")
+            throw ModelPackageImportException(
+                ModelPackageFailureCode.PUBLICATION,
+                "Could not publish the verified VITS model package",
+                exception,
+            )
+        }
+    }
+
+    private fun recoverTransaction() {
+        if (!transaction.isFile) return
+        val activeValid = runCatching { validate(active) }.getOrNull()
+        if (activeValid != null) {
+            val previousValid = runCatching { validate(previous) }.getOrNull()
+            val backupValid = runCatching { validate(previousBackup) }.getOrNull()
+            if (previousValid == null && backupValid != null) {
+                if (previous.exists()) Files.deleteIfExists(previous.toPath())
+                moveComplete(previousBackup, previous)
+            } else {
+                previousBackup.delete()
+            }
+            transaction.delete()
+            return
+        }
+        val previousValid = runCatching { validate(previous) }.getOrNull()
+        if (previousValid != null) {
+            if (active.exists()) Files.deleteIfExists(active.toPath())
+            moveComplete(previous, active)
+            if (previousBackup.exists()) {
+                if (previous.exists()) Files.deleteIfExists(previous.toPath())
+                moveComplete(previousBackup, previous)
+            }
+            transaction.delete()
+            return
+        }
+        if (runCatching { validate(previousBackup) }.isSuccess) {
+            if (previous.exists()) Files.deleteIfExists(previous.toPath())
+            moveComplete(previousBackup, previous)
+            transaction.delete()
+            return
+        }
+        throw ModelPackageImportException(ModelPackageFailureCode.NO_VALID_PACKAGE)
+    }
+
+    private fun writeTransactionMarker() {
+        transaction.writeText("vits-package-transaction-v1")
+    }
+
+    private fun moveComplete(source: File, destination: File) {
+        try {
+            Files.move(
+                source.toPath(), destination.toPath(),
+                StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING,
+            )
+        } catch (_: AtomicMoveNotSupportedException) {
+            Files.move(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING)
         }
     }
 

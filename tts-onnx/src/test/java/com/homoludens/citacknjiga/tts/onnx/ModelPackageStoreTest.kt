@@ -107,6 +107,23 @@ public class ModelPackageStoreTest {
     }
 
     @Test
+    public fun releaseVersionMismatchDoesNotReplaceActivePackage() {
+        val root = createTempDirectory().toFile()
+        val store = store(root)
+        store.importPackage(ModelPackageSource { ByteArrayInputStream(packageBytes("first")) })
+
+        val failure = assertThrows(ModelPackageImportException::class.java) {
+            store.importPackage(
+                ModelPackageSource { ByteArrayInputStream(packageBytes("second")) },
+                expectedPackageVersion = "2.0.0",
+            )
+        }
+
+        assertEquals(ModelPackageFailureCode.INCOMPATIBLE, failure.code)
+        assertEquals("first", store.activePackage()?.packageId)
+    }
+
+    @Test
     public fun invalidActivePackageRollsBackToLastValidPackage() {
         val root = createTempDirectory().toFile()
         val store = store(root)

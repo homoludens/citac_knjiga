@@ -2,6 +2,7 @@ package com.homoludens.citacknjiga.modeldownload
 
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.diagnostics.ModelReleaseDescriptor
+import com.homoludens.citacknjiga.tts.onnx.ModelPackageStore
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.IOException
@@ -96,6 +97,27 @@ public class ModelDownloadTest {
 
         assertEquals(ModelDownloadFailureCode.INVALID_RESPONSE, failure.code)
         fixture.assertNoTemporaryFiles()
+    }
+
+    @Test
+    public fun outerChecksumFailureDoesNotTouchTheActivePackage() {
+        val root = Files.createTempDirectory("model-download-checksum-test").toFile()
+        root.resolve("model-packages").mkdirs()
+        val active = root.resolve("model-packages/active.zip").apply {
+            writeText("previous-package")
+        }
+        val staged = root.resolve("staged.zip").apply { writeText("altered-download") }
+
+        val failure = assertThrows(ModelDownloadException::class.java) {
+            ModelPackageDownloadInstaller(ModelPackageStore(root)).install(
+                ModelReleaseDescriptor.KOKORO,
+                staged,
+            )
+        }
+
+        assertEquals(ModelDownloadFailureCode.CHECKSUM_MISMATCH, failure.code)
+        assertEquals("previous-package", active.readText())
+        root.deleteRecursively()
     }
 
     private class Fixture(response: ModelDownloadResponse) {

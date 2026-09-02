@@ -17,6 +17,11 @@ import com.homoludens.citacknjiga.core.generation.GenerationWorkerFactory
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.diagnostics.ModelEngine
 import com.homoludens.citacknjiga.diagnostics.ModelReleaseDescriptor
+import com.homoludens.citacknjiga.tts.onnx.InstalledModelPackage
+import com.homoludens.citacknjiga.tts.onnx.ModelPackageFailureCode
+import com.homoludens.citacknjiga.tts.onnx.ModelPackageImportException
+import com.homoludens.citacknjiga.tts.onnx.ModelPackageSource
+import com.homoludens.citacknjiga.tts.onnx.ModelPackageStore
 import java.io.Closeable
 import java.io.File
 import java.io.IOException
@@ -42,6 +47,10 @@ public enum class ModelDownloadFailureCode {
     DISCONNECTED,
     SHORT_RESPONSE,
     OVERSIZED_RESPONSE,
+    CHECKSUM_MISMATCH,
+    INVALID_PACKAGE,
+    INCOMPATIBLE_PACKAGE,
+    PUBLICATION,
     STORAGE,
     ERROR,
 }
@@ -67,6 +76,51 @@ public class ModelDownloadResponse(
 
 public fun interface ModelDownloadTransport {
     public fun open(descriptor: ModelReleaseDescriptor): ModelDownloadResponse
+}
+
+public fun interface ModelDownloadPackageInstaller {
+    public fun install(descriptor: ModelReleaseDescriptor, stagedFile: File): InstalledModelPackage
+}
+
+/** Verifies the release asset before delegating package checks and publication to each engine store. */
+public class ModelPackageDownloadInstaller(
+    private val modelPackageStore: ModelPackageStore,
+) : ModelDownloadPackageInstaller {
+    override fun install(descriptor: ModelReleaseDescriptor, stagedFile: File): InstalledModelPackage {
+        val outerSha256 = stagedFile.takeIf(File::isFile)?.inputStream()?.use { input ->
+            ModelPackageStore.sha256(input)
+        }
+        if (outerSha256 != descriptor.outerSha256) {
+            throw ModelDownloadException(ModelDownloadFailureCode.CHECKSUM_MISMATCH)
+        }
+
+        val installed = try {
+            when (descriptor.engine) {
+                ModelEngine.KOKORO -> modelPackageStore.importPackage(
+                    ModelPackageSource { stagedFile.inputStream() },
+                    expectedPackageVersion = descriptor.version,
+                )
+                ModelEngine.VITS -> modelPackageStore.importVitsPackage(
+                    ModelPackageSource { stagedFile.inputStream() },
+                    expectedPackageVersion = descriptor.version,
+                )
+            }
+        } catch (failure: ModelPackageImportException) {
+            throw ModelDownloadException(failure.toDownloadFailureCode(), cause = failure)
+        }
+
+        return installed
+    }
+
+    private fun ModelPackageImportException.toDownloadFailureCode(): ModelDownloadFailureCode = when (code) {
+        ModelPackageFailureCode.CHECKSUM_MISMATCH -> ModelDownloadFailureCode.CHECKSUM_MISMATCH
+        ModelPackageFailureCode.INCOMPATIBLE -> ModelDownloadFailureCode.INCOMPATIBLE_PACKAGE
+        ModelPackageFailureCode.PUBLICATION -> ModelDownloadFailureCode.PUBLICATION
+        ModelPackageFailureCode.INVALID_ARCHIVE,
+        ModelPackageFailureCode.INVALID_MANIFEST,
+        -> ModelDownloadFailureCode.INVALID_PACKAGE
+        else -> ModelDownloadFailureCode.ERROR
+    }
 }
 
 /** Opens only the immutable release asset selected by the application. */
@@ -137,6 +191,10 @@ internal class ModelDownloadStorage(private val storage: AppPrivateStorage) {
     fun stagedFile(engine: ModelEngine, workId: String): File {
         require(workId.matches(WORK_ID)) { "Model download work id is invalid" }
         return storage.temporaryFile(owner, "${engine.name.lowercase()}-$workId.part")
+    }
+
+    fun delete(engine: ModelEngine, workId: String) {
+        stagedFile(engine, workId).delete()
     }
 
     private companion object {
@@ -264,6 +322,9 @@ public object ModelDownloadWorkContract {
     public const val PERCENTAGE_KEY: String = "percentage"
     public const val STATUS_KEY: String = "download_status"
     public const val ERROR_CODE_KEY: String = "error_code"
+    public const val PACKAGE_ID_KEY: String = "package_id"
+    public const val PACKAGE_VERSION_KEY: String = "package_version"
+    public const val PACKAGE_SHA256_KEY: String = "package_sha256"
     public const val UNIQUE_WORK_PREFIX: String = "model-download-"
     public const val TAG_PREFIX: String = "model-download:"
 
@@ -276,6 +337,8 @@ internal class ModelDownloadWorker(
     appContext: Context,
     workerParams: WorkerParameters,
     private val session: ModelDownloadSession,
+    private val packageInstaller: ModelDownloadPackageInstaller,
+    private val downloadStorage: ModelDownloadStorage,
 ) : CoroutineWorker(appContext, workerParams) {
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         val engine = inputData.getString(ModelDownloadWorkContract.ENGINE_KEY)
@@ -293,12 +356,30 @@ internal class ModelDownloadWorker(
                     lastReportedBytes = progress.bytesDownloaded
                 }
             }
-            setProgress(progressData(engine, ModelDownloadProgress(
-                descriptor.expectedSizeBytes,
-                descriptor.expectedSizeBytes,
-                100,
-            ), "STAGED"))
-            Result.success(workDataOf(ModelDownloadWorkContract.ENGINE_KEY to engine.name.lowercase()))
+            setProgress(
+                progressData(
+                    engine,
+                    ModelDownloadProgress(
+                        descriptor.expectedSizeBytes,
+                        descriptor.expectedSizeBytes,
+                        100,
+                    ),
+                    "VERIFYING",
+                ),
+            )
+            val installed = packageInstaller.install(
+                descriptor,
+                downloadStorage.stagedFile(engine, id.toString()),
+            )
+            val installedData = workDataOf(
+                ModelDownloadWorkContract.ENGINE_KEY to engine.name.lowercase(),
+                ModelDownloadWorkContract.STATUS_KEY to "INSTALLED",
+                ModelDownloadWorkContract.PACKAGE_ID_KEY to installed.packageId,
+                ModelDownloadWorkContract.PACKAGE_VERSION_KEY to installed.packageVersion,
+                ModelDownloadWorkContract.PACKAGE_SHA256_KEY to installed.identitySha256,
+            )
+            setProgress(installedData)
+            Result.success(installedData)
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: ModelDownloadException) {
@@ -319,6 +400,8 @@ internal class ModelDownloadWorker(
                 ),
             )
             Result.failure(workDataOf(ModelDownloadWorkContract.ERROR_CODE_KEY to ModelDownloadFailureCode.ERROR.name))
+        } finally {
+            downloadStorage.delete(engine, id.toString())
         }
     }
 
@@ -342,6 +425,8 @@ internal class ModelDownloadWorker(
 public class ModelDownloadWorkerFactory(
     private val storage: AppPrivateStorage,
     private val transport: ModelDownloadTransport = HttpsModelDownloadTransport(),
+    private val packageInstaller: ModelDownloadPackageInstaller =
+        ModelPackageDownloadInstaller(ModelPackageStore(storage.rootDirectory)),
 ) : WorkerFactory() {
     override fun createWorker(
         appContext: Context,
@@ -352,6 +437,8 @@ public class ModelDownloadWorkerFactory(
             appContext,
             workerParameters,
             ModelDownloadSession(ModelDownloadStorage(storage), transport),
+            packageInstaller,
+            ModelDownloadStorage(storage),
         )
     } else {
         null

@@ -66,6 +66,7 @@ import com.homoludens.citacknjiga.core.lifecycle.ProjectPlaybackStopper
 import com.homoludens.citacknjiga.core.lifecycle.ProjectWorkCanceller
 import com.homoludens.citacknjiga.modeldownload.AppWorkerFactory
 import com.homoludens.citacknjiga.modeldownload.HttpsModelDownloadTransport
+import com.homoludens.citacknjiga.modeldownload.ModelPackageDownloadInstaller
 import com.homoludens.citacknjiga.modeldownload.ModelDownloadWorkScheduler
 import com.homoludens.citacknjiga.modeldownload.ModelDownloadWorkerFactory
 import androidx.work.WorkerFactory
@@ -251,6 +252,7 @@ public class AppContainer(
             val modelDownloadWorkerFactory = ModelDownloadWorkerFactory(
                 storage = privateStorage,
                 transport = HttpsModelDownloadTransport(),
+                packageInstaller = ModelPackageDownloadInstaller(modelStore),
             )
             val generationQueue = RoomGenerationQueue(database, privateStorage)
             val vitsCoordinator = VitsGenerationCoordinator(

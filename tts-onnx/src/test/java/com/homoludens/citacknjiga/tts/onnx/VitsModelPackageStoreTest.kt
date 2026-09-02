@@ -38,6 +38,24 @@ public class VitsModelPackageStoreTest {
     }
 
     @Test
+    public fun releaseVersionMismatchDoesNotReplaceVitsState() {
+        val root = createTempDirectory().toFile()
+        val store = VitsModelPackageStore(root)
+        val first = store.importPackage(ModelPackageSource { ByteArrayInputStream(packageBytes("first")) })
+
+        val failure = runCatching {
+            store.importPackage(
+                ModelPackageSource { ByteArrayInputStream(packageBytes("second")) },
+                expectedPackageVersion = "2.0.0",
+            )
+        }.exceptionOrNull()
+
+        assertTrue(failure is ModelPackageImportException)
+        assertEquals(ModelPackageFailureCode.INCOMPATIBLE, (failure as ModelPackageImportException).code)
+        assertEquals(first, store.activePackage())
+    }
+
+    @Test
     public fun failedVitsImportLeavesKokoroPackageSlotsUntouched() {
         val root = createTempDirectory().toFile()
         val directory = root.resolve("model-packages").apply { mkdirs() }
