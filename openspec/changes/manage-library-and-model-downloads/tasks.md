@@ -2,7 +2,7 @@
 
 - [x] 1.1 Add the persistent deleting project state and per-segment estimated word count through a Room schema migration; verify existing databases migrate and existing projects remain readable.
 - [x] 1.2 Define the complete app-owned artifact inventory for a project and a root-contained cleanup policy; verify unit tests never target the original SAF URI or external export files.
-- [ ] 1.3 Implement project-scoped deletion coordination with a persistent deleting marker and exclusive publication lock; verify an in-flight generation worker cannot publish after deletion.
+- [x] 1.3 Implement project-scoped deletion coordination with a persistent deleting marker and exclusive publication lock; verify an in-flight generation worker cannot publish after deletion.
 - [ ] 1.4 Add transactional project deletion, WorkManager cancellation, playback stop, and startup cleanup recovery; verify source, canonical, cover, audio, temporary, Room, and playback state are removed after restart.
 
 ## 2. Durable Regeneration

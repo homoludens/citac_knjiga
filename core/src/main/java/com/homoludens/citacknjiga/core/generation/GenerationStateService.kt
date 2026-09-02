@@ -9,17 +9,22 @@ import com.homoludens.citacknjiga.core.database.ChapterEntity
 import com.homoludens.citacknjiga.core.database.ChapterStatus
 import com.homoludens.citacknjiga.core.database.GenerationRunEntity
 import com.homoludens.citacknjiga.core.database.GenerationRunStatus
+import com.homoludens.citacknjiga.core.lifecycle.ProjectOperationCoordinator
 import com.homoludens.citacknjiga.core.storage.PublishedArtifact
 
 /** Persists validated state changes as one transaction with their related checks. */
 public class GenerationStateService(
     private val database: AudiobookDatabase,
     private val retryPolicy: GenerationRetryPolicy = GenerationRetryPolicy(),
+    private val projectOperations: ProjectOperationCoordinator = ProjectOperationCoordinator(database),
     private val clock: () -> Long = System::currentTimeMillis,
 ) : GenerationStateGateway {
     private val dao = database.audiobookDao()
 
     override fun findGenerationRun(runId: String): GenerationRunEntity? = dao.findGenerationRunById(runId)
+
+    override fun <T> withProjectPublicationLock(projectId: String, action: () -> T): T? =
+        projectOperations.withPublicationLock(projectId, action)
 
     override fun startGenerationRun(runId: String): GenerationRunEntity = inTransaction {
         val run = dao.findGenerationRunById(runId) ?: missing("generation run", runId)

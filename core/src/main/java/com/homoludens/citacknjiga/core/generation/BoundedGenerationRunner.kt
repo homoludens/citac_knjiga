@@ -100,6 +100,9 @@ public interface GenerationStateGateway {
     public fun failGenerationRun(runId: String, error: GenerationError): GenerationRunEntity
 
     public fun finishGenerationRun(runId: String): GenerationRunEntity
+
+    /** Publication-capable implementations serialize this with project deletion. */
+    public fun <T> withProjectPublicationLock(projectId: String, action: () -> T): T? = action()
 }
 
 public enum class BoundedGenerationStatus {
@@ -168,16 +171,17 @@ public class BoundedGenerationRunner(
                 }
                 currentCoroutineContext().ensureActive()
                 failurePhase = GenerationFailurePhase.PUBLICATION
-                val published = artifactStore.publish(
-                    ownerId = "generation-$runId-${claimed.segment.id}",
-                    destination = publicationDestination(current, claimed.segment, audio.artifactExtension),
-                    writer = audio.writer,
-                    validator = audio.validator,
-                )
-                // Publication and its database checkpoint are one atomic segment from the runner's view.
-                withContext(NonCancellable) {
-                    state.completeAudioSegment(claimed.segment.id, published, audio)
-                }
+                val published = state.withProjectPublicationLock(current.bookProjectId) {
+                    val artifact = artifactStore.publish(
+                        ownerId = "generation-$runId-${claimed.segment.id}",
+                        destination = publicationDestination(current, claimed.segment, audio.artifactExtension),
+                        writer = audio.writer,
+                        validator = audio.validator,
+                    )
+                    // Publication and its database checkpoint are one atomic segment from the runner's view.
+                    state.completeAudioSegment(claimed.segment.id, artifact, audio)
+                    artifact
+                } ?: throw CancellationException("Project ${current.bookProjectId} is being deleted")
                 generated += claimed.segment.id
                 remainingStorage.remove(claimed.segment.id)
                 val afterFailure = storagePolicy?.let { policy ->

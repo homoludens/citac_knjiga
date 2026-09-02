@@ -125,6 +125,16 @@ public interface AudiobookDao {
     @Update
     public fun updateProject(project: BookProjectEntity)
 
+    /** Marks a project before its owned files and rows are removed. */
+    @Query(
+        """
+        UPDATE book_project
+        SET is_deleting = 1, updated_at = :updatedAt
+        WHERE id = :projectId AND is_deleting = 0
+        """,
+    )
+    public fun markProjectDeleting(projectId: String, updatedAt: Long): Int
+
     @Update
     public fun updateChapter(chapter: ChapterEntity)
 
