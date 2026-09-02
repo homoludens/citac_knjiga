@@ -64,6 +64,11 @@ import com.homoludens.citacknjiga.tts.onnx.preprocessing.SerbianPreprocessor
 import com.homoludens.citacknjiga.core.lifecycle.ProjectDeletionCoordinator
 import com.homoludens.citacknjiga.core.lifecycle.ProjectPlaybackStopper
 import com.homoludens.citacknjiga.core.lifecycle.ProjectWorkCanceller
+import com.homoludens.citacknjiga.modeldownload.AppWorkerFactory
+import com.homoludens.citacknjiga.modeldownload.HttpsModelDownloadTransport
+import com.homoludens.citacknjiga.modeldownload.ModelDownloadWorkScheduler
+import com.homoludens.citacknjiga.modeldownload.ModelDownloadWorkerFactory
+import androidx.work.WorkerFactory
 
 public enum class AppDistribution(public val id: String) {
     STANDARD("standard"),
@@ -108,6 +113,8 @@ public class AppContainer(
     public val generationCoordinator: DurableGenerationCoordinator? = null,
     public val generationInvalidationCoordinator: GenerationInvalidationCoordinator? = null,
     public val generationWorkerFactory: GenerationWorkerFactory? = null,
+    public val workerFactory: WorkerFactory? = null,
+    public val modelDownloadScheduler: ModelDownloadWorkScheduler? = null,
     public val projectDeletionCoordinator: ProjectDeletionCoordinator? = null,
 ) {
     public companion object {
@@ -241,6 +248,10 @@ public class AppContainer(
                     dataSource = RoomGenerationNotificationDataSource(database),
                 ),
             )
+            val modelDownloadWorkerFactory = ModelDownloadWorkerFactory(
+                storage = privateStorage,
+                transport = HttpsModelDownloadTransport(),
+            )
             val generationQueue = RoomGenerationQueue(database, privateStorage)
             val vitsCoordinator = VitsGenerationCoordinator(
                 vitsStore = modelStore.vitsModelPackageStore,
@@ -296,6 +307,10 @@ public class AppContainer(
                 generationCoordinator = durableGenerationCoordinator,
                 generationInvalidationCoordinator = generationInvalidationCoordinator,
                 generationWorkerFactory = workerFactory,
+                workerFactory = AppWorkerFactory(workerFactory, modelDownloadWorkerFactory),
+                modelDownloadScheduler = ModelDownloadWorkScheduler(
+                    workManagerProvider = { androidx.work.WorkManager.getInstance(context) },
+                ),
                 projectDeletionCoordinator = deletionCoordinator,
             )
         }

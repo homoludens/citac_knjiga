@@ -29,6 +29,6 @@ public class CitacKnjigaApplication : Application(), Configuration.Provider {
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
-        .setWorkerFactory(requireNotNull(configuredContainer.generationWorkerFactory))
+        .setWorkerFactory(requireNotNull(configuredContainer.workerFactory))
         .build()
 }
