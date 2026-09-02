@@ -12,7 +12,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-TASKS = ROOT / "openspec/changes/build-serbian-audiobook-mvp/tasks.md"
+TASKS = ROOT / "openspec/changes/archive/2026-09-02-build-serbian-audiobook-mvp/tasks.md"
 CAPABILITY_AUDIT = ROOT / "reports/task-11-8-mvp-capability-matrix.md"
 QUALIFICATION = ROOT / "reports/task-11-4-android-qualification.md"
 DEPLOYMENT = ROOT / "DEPLOYMENT.md"

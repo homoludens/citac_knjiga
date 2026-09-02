@@ -142,8 +142,7 @@ public class PlaybackQueueCoordinator(
             return
         }
         if (currentId != null && currentId !in snapshot.catalog.mediaItemIds && player.isPlaying) {
-            val wasApplied = applied?.catalog?.mediaItemIds?.contains(currentId) == true
-            if (currentId !in snapshot.unavailableIds && !wasApplied) {
+            if (currentId !in snapshot.unavailableIds) {
                 pendingSnapshot = snapshot
                 return
             }

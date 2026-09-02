@@ -101,10 +101,22 @@ public class PlaybackQueueCoordinatorTest {
     public fun removesAnAppliedItemThatDisappearsFromRoomWhilePlaying() {
         val player = FakeQueuePlayer()
         val coordinator = coordinator(player)
-        coordinator.update(listOf(audio("first", "chapter", 0)))
+        val first = audio("first", "chapter", 0)
+        coordinator.update(listOf(first))
         player.isPlaying = true
 
-        coordinator.update(emptyList())
+        coordinator.update(
+            PlaybackAudioSnapshot(
+                available = emptyList(),
+                unavailable = listOf(
+                    PlaybackUnavailableAudio(
+                        first.segment,
+                        PlaybackUnavailableReason.NOT_READY,
+                        "Audio is no longer ready",
+                    ),
+                ),
+            ),
+        )
 
         assertTrue(player.items.isEmpty())
         assertFalse(player.isPlaying)

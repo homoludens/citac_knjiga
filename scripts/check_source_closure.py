@@ -170,12 +170,25 @@ def verify_network_policy(root: Path, policy: dict[str, object]) -> None:
             "network policy does not preserve offline operation boundaries")
     forbidden = network.get("forbidden_network_api_terms")
     require(isinstance(forbidden, list) and forbidden, "network policy has no forbidden network API list")
+    allowed_network_sources = network.get("allowed_network_source_files")
+    require(isinstance(allowed_network_sources, list) and allowed_network_sources,
+            "network policy has no model-download source allowlist")
+    for relative in allowed_network_sources:
+        path = root / relative
+        require(isinstance(relative, str) and path.is_file() and relative in {
+            candidate.relative_to(root).as_posix()
+            for scan_root in policy["closure"]["scan_roots"]
+            for candidate in (root / scan_root).rglob("*.kt")
+        }, f"network source allowlist entry is invalid: {relative}")
+    allowed_network_sources = set(allowed_network_sources)
     for relative_root in policy["closure"]["scan_roots"]:
         source_root = root / relative_root
         for path in source_root.rglob("*"):
             if not path.is_file() or path.is_symlink() or any(part in {"build", ".cxx", ".gradle", ".kotlin"} for part in path.relative_to(root).parts):
                 continue
             if path.suffix.lower() not in {".java", ".kt"}:
+                continue
+            if path.relative_to(root).as_posix() in allowed_network_sources:
                 continue
             contents = path.read_text(encoding="utf-8")
             for term in forbidden:

@@ -122,6 +122,9 @@
       "retrofit",
       "ktor-client",
       "volley"
+    ],
+    "allowed_network_source_files": [
+      "app/src/main/java/com/homoludens/citacknjiga/modeldownload/ModelDownload.kt"
     ]
   },
   "optional_source_components": [

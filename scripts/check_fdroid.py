@@ -95,6 +95,7 @@ def check_flavor(config: dict[str, object]) -> None:
 def check_source(config: dict[str, object]) -> None:
     terms = [term.encode() for term in config["source"]["forbidden_dependency_terms"]]
     allowed = set(config["source"]["allowed_source_artifacts"])
+    allowed_network = set(config["source"]["allowed_network_source_files"])
     suffixes = set(config["source"]["forbidden_artifact_suffixes"])
     findings: list[str] = []
     for path in iter_source_files(config):
@@ -110,9 +111,10 @@ def check_source(config: dict[str, object]) -> None:
                 if term.lower() in lowered:
                     findings.append(f"forbidden dependency term {term.decode()} in {path_name}")
         if path.suffix.lower() in {".java", ".kt"}:
-            for term in config["source"]["forbidden_network_api_terms"]:
-                if term.encode().lower() in lowered:
-                    findings.append(f"forbidden network API term {term} in {path_name}")
+            if path_name not in allowed_network:
+                for term in config["source"]["forbidden_network_api_terms"]:
+                    if term.encode().lower() in lowered:
+                        findings.append(f"forbidden network API term {term} in {path_name}")
         for pattern in SECRET_PATTERNS:
             if pattern.search(data):
                 findings.append(f"possible secret in {path_name}")

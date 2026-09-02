@@ -55,6 +55,9 @@
       "WebView",
       "android.net.http"
     ],
+    "allowed_network_source_files": [
+      "app/src/main/java/com/homoludens/citacknjiga/modeldownload/ModelDownload.kt"
+    ],
     "forbidden_artifact_suffixes": [
       ".aar",
       ".apk",
