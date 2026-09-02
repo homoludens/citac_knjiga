@@ -206,6 +206,7 @@ public class EpubChapterProofServiceTest {
         override fun findAllModelPackages(): List<ModelPackageEntity> = emptyList()
         override fun findModelPackageById(modelPackageId: String): ModelPackageEntity? = null
         override fun updateProject(project: BookProjectEntity) { this.project = project }
+        override fun markProjectDeleting(projectId: String, updatedAt: Long): Int = 0
         override fun updateChapter(chapter: ChapterEntity) { this.chapter = chapter }
         override fun updateNarrationBlock(block: NarrationBlockEntity) { }
         override fun updateGenerationRun(run: GenerationRunEntity) { this.run = run }

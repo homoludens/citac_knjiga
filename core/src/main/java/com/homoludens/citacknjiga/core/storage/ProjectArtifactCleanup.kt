@@ -37,7 +37,10 @@ public fun AppPrivateStorage.projectArtifactInventory(
         add("pdf-${project.id}")
         add("epub-${project.id}")
         add("canonical-${project.id}")
+        add("canonical-${project.sourceFingerprint}")
+        add("pdf-canonical-${project.sourceFingerprint}")
         add("cover-${project.id}")
+        add("export-${project.id}")
         projectRunIds.forEach { runId ->
             projectSegments.forEach { segment -> add("generation-$runId-${segment.id}") }
         }
@@ -73,6 +76,7 @@ public class ProjectArtifactCleanupPolicy(
     public fun cleanup(inventory: ProjectArtifactInventory): ProjectArtifactCleanupResult {
         val targets = targets(inventory)
         val deleted = targets.filter { it.isFile && it.delete() }.toSet()
+        check(targets.none(File::exists)) { "Project artifact cleanup was incomplete" }
         return ProjectArtifactCleanupResult(targets, deleted)
     }
 }

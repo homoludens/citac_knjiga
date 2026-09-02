@@ -35,6 +35,7 @@ public class AudiobookPlaybackService : MediaSessionService() {
     private var queueCoordinator: PlaybackQueueCoordinator? = null
     private var queuePrepared = false
     private var destroyed = false
+    private var activeProjectId: String? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -78,14 +79,24 @@ public class AudiobookPlaybackService : MediaSessionService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         destroyed = false
+        if (intent?.action == ACTION_STOP_PROJECT) {
+            val projectId = intent.getStringExtra(EXTRA_BOOK_PROJECT_ID)?.takeIf(String::isNotBlank)
+            if (projectId != null && activeProjectId == projectId) {
+                stopProject(projectId)
+            } else if (activeProjectId == null) {
+                stopSelf(startId)
+            }
+            return START_NOT_STICKY
+        }
         intent?.getStringExtra(EXTRA_BOOK_PROJECT_ID)?.takeIf(String::isNotBlank)?.let { projectId ->
+            activeProjectId = projectId
             loadJob?.cancel()
             loadJob = serviceScope.launch {
                 val book = database.audiobookDao().findProjectById(projectId) ?: return@launch
                 val chapters = database.audiobookDao().findAllChapters()
                     .filter { it.bookProjectId == projectId }
                 withContext(Dispatchers.Main.immediate) {
-                    if (!destroyed) {
+                    if (!destroyed && activeProjectId == projectId) {
                         queueCoordinator?.close()
                         resources.player.pause()
                         queuePrepared = false
@@ -121,6 +132,7 @@ public class AudiobookPlaybackService : MediaSessionService() {
 
     override fun onDestroy() {
         destroyed = true
+        activeProjectId = null
         loadJob?.cancel()
         queueCoordinator?.close()
         runBlocking { positionPersistence.flush() }
@@ -130,6 +142,19 @@ public class AudiobookPlaybackService : MediaSessionService() {
         resources.close()
         database.close()
         super.onDestroy()
+    }
+
+    private fun stopProject(projectId: String) {
+        if (activeProjectId != projectId) return
+        activeProjectId = null
+        loadJob?.cancel()
+        queueCoordinator?.close()
+        queueCoordinator = null
+        queuePrepared = false
+        resources.player.pause()
+        resources.player.clearMediaItems()
+        positionPersistence.close()
+        stopSelf()
     }
 
     private fun mediaItem(
@@ -155,6 +180,7 @@ public class AudiobookPlaybackService : MediaSessionService() {
 
     public companion object {
         public const val ACTION_PLAY_BOOK: String = "com.homoludens.citacknjiga.action.PLAY_BOOK"
+        public const val ACTION_STOP_PROJECT: String = "com.homoludens.citacknjiga.action.STOP_PROJECT"
         public const val EXTRA_BOOK_PROJECT_ID: String = "book_project_id"
         private const val SESSION_ID: String = "citac_knjiga_audiobook"
         private const val DEFAULT_SEEK_BACK_MS: Long = 15_000L
@@ -163,6 +189,11 @@ public class AudiobookPlaybackService : MediaSessionService() {
         public fun intent(context: Context, projectId: String): Intent =
             Intent(context, AudiobookPlaybackService::class.java)
                 .setAction(ACTION_PLAY_BOOK)
+                .putExtra(EXTRA_BOOK_PROJECT_ID, projectId)
+
+        public fun stopIntent(context: Context, projectId: String): Intent =
+            Intent(context, AudiobookPlaybackService::class.java)
+                .setAction(ACTION_STOP_PROJECT)
                 .putExtra(EXTRA_BOOK_PROJECT_ID, projectId)
     }
 }

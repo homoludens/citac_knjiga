@@ -11,6 +11,7 @@ import com.homoludens.citacknjiga.core.storage.AtomicArtifactStore
 import com.homoludens.citacknjiga.core.generation.BoundedGenerationRunner
 import com.homoludens.citacknjiga.core.generation.GenerationNotificationController
 import com.homoludens.citacknjiga.core.generation.GenerationRunExecutor
+import com.homoludens.citacknjiga.core.generation.GenerationWorkContract
 import com.homoludens.citacknjiga.core.generation.GenerationStateService
 import com.homoludens.citacknjiga.core.generation.GenerationWorkerFactory
 import com.homoludens.citacknjiga.core.generation.RoomGenerationNotificationDataSource
@@ -39,6 +40,7 @@ import com.homoludens.citacknjiga.proof.EngineSelectingTypedTextProofEngine
 import com.homoludens.citacknjiga.proof.EpubChapterProofService
 import com.homoludens.citacknjiga.proof.TypedTextProofEngine
 import com.homoludens.citacknjiga.playback.export.AudiobookPlayerController
+import com.homoludens.citacknjiga.playback.export.AudiobookPlaybackService
 import com.homoludens.citacknjiga.playback.export.ReadyAudioRepository
 import com.homoludens.citacknjiga.playback.export.RoomReadyAudioSource
 import com.homoludens.citacknjiga.playback.export.MediaExtractorPlaybackAudioFormatValidator
@@ -51,6 +53,9 @@ import com.homoludens.citacknjiga.tts.onnx.TtsEngineSelector
 import com.homoludens.citacknjiga.tts.onnx.VitsGenerationExecutor
 import com.homoludens.citacknjiga.tts.onnx.VitsSegmentGeneratorFactory
 import com.homoludens.citacknjiga.tts.onnx.preprocessing.SerbianPreprocessor
+import com.homoludens.citacknjiga.core.lifecycle.ProjectDeletionCoordinator
+import com.homoludens.citacknjiga.core.lifecycle.ProjectPlaybackStopper
+import com.homoludens.citacknjiga.core.lifecycle.ProjectWorkCanceller
 
 public enum class AppDistribution(public val id: String) {
     STANDARD("standard"),
@@ -93,6 +98,7 @@ public class AppContainer(
     public val ttsEnginePreference: TtsEnginePreference? = null,
     public val vitsGenerationCoordinator: VitsGenerationCoordinator? = null,
     public val generationWorkerFactory: GenerationWorkerFactory? = null,
+    public val projectDeletionCoordinator: ProjectDeletionCoordinator? = null,
 ) {
     public companion object {
         public fun production(context: Context): AppContainer {
@@ -114,6 +120,17 @@ public class AppContainer(
             val database = AudiobookDatabase.create(context)
             val dao = database.audiobookDao()
             val artifactStore = AtomicArtifactStore(privateStorage)
+            val deletionCoordinator = ProjectDeletionCoordinator(
+                database = database,
+                storage = privateStorage,
+                workCanceller = ProjectWorkCanceller { runId ->
+                    androidx.work.WorkManager.getInstance(context)
+                        .cancelUniqueWork(GenerationWorkContract.uniqueWorkName(runId))
+                },
+                playbackStopper = ProjectPlaybackStopper { projectId ->
+                    context.startService(AudiobookPlaybackService.stopIntent(context, projectId))
+                },
+            )
             PdfOrphanReconciler(privateStorage, artifactStore).reconcile(
                 referencedFiles = emptyList(),
                 maxAgeMillis = 24L * 60L * 60L * 1_000L,
@@ -235,6 +252,7 @@ public class AppContainer(
                 ttsEnginePreference = enginePreference,
                 vitsGenerationCoordinator = vitsCoordinator,
                 generationWorkerFactory = workerFactory,
+                projectDeletionCoordinator = deletionCoordinator,
             )
         }
     }

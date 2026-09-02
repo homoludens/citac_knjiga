@@ -11,6 +11,7 @@ import com.homoludens.citacknjiga.core.database.GenerationRunEntity
 import com.homoludens.citacknjiga.core.database.GenerationRunStatus
 import com.homoludens.citacknjiga.core.lifecycle.ProjectOperationCoordinator
 import com.homoludens.citacknjiga.core.storage.PublishedArtifact
+import kotlinx.coroutines.CancellationException
 
 /** Persists validated state changes as one transaction with their related checks. */
 public class GenerationStateService(
@@ -31,6 +32,7 @@ public class GenerationStateService(
         if (run.status != GenerationRunStatus.QUEUED) return@inTransaction run
         val project = dao.findProjectById(run.bookProjectId)
             ?: throw StateConsistencyException("Generation run $runId references missing project ${run.bookProjectId}")
+        if (project.isDeleting) throw CancellationException("Project ${project.id} is being deleted")
         if (project.status != BookProjectStatus.GENERATING) {
             GenerationStateValidator.validateProject(project.status, BookProjectStatus.GENERATING)
             checkUpdated(
@@ -86,6 +88,9 @@ public class GenerationStateService(
     override fun claimNextSegment(runId: String): ClaimedGenerationSegment? = inTransaction {
         val run = dao.findGenerationRunById(runId) ?: missing("generation run", runId)
         if (run.status != GenerationRunStatus.RUNNING) return@inTransaction null
+        val project = dao.findProjectById(run.bookProjectId)
+            ?: throw StateConsistencyException("Generation run $runId references missing project ${run.bookProjectId}")
+        if (project.isDeleting) return@inTransaction null
         val pending = dao.findAllAudioSegments()
             .asSequence()
             .filter { it.generationRunId == runId && it.status == AudioSegmentStatus.PENDING }
@@ -179,6 +184,9 @@ public class GenerationStateService(
     override fun finishGenerationRun(runId: String): GenerationRunEntity = inTransaction {
         val run = dao.findGenerationRunById(runId) ?: missing("generation run", runId)
         if (run.status != GenerationRunStatus.RUNNING) return@inTransaction run
+        val project = dao.findProjectById(run.bookProjectId)
+            ?: throw StateConsistencyException("Generation run $runId references missing project ${run.bookProjectId}")
+        if (project.isDeleting) return@inTransaction run
         val assigned = dao.findAllAudioSegments().filter { it.generationRunId == runId }
         if (assigned.any { it.status == AudioSegmentStatus.FAILED }) {
             return@inTransaction transitionGenerationRunInTransaction(
@@ -202,8 +210,7 @@ public class GenerationStateService(
         }
         val completed = transitionGenerationRunInTransaction(run.id, GenerationRunStatus.COMPLETED)
         val chapters = dao.findAllChapters().filter { it.bookProjectId == run.bookProjectId }
-        val project = dao.findProjectById(run.bookProjectId)
-        if (project != null && project.status == BookProjectStatus.GENERATING && chapters.all { it.status == ChapterStatus.READY }) {
+        if (project.status == BookProjectStatus.GENERATING && chapters.all { it.status == ChapterStatus.READY }) {
             GenerationStateValidator.validateProject(project.status, BookProjectStatus.COMPLETED)
             checkUpdated(
                 dao.transitionProject(project.id, project.status, BookProjectStatus.COMPLETED, null, clock()),

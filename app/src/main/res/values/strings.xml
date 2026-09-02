@@ -86,6 +86,10 @@
     <string name="author_fallback">Аутор није наведен</string>
     <string name="errors_count_format">Грешке: %1$d</string>
     <string name="book_not_found">Књига није пронађена.</string>
+    <string name="delete_book">Избриши књигу</string>
+    <string name="delete_book_title">Избрисати књигу?</string>
+    <string name="delete_book_message">Књига „%1$s“ и сви њени аудио и интерни подаци биће трајно избрисани. Оригинална датотека остаје нетакнута.</string>
+    <string name="delete_book_confirm">Избриши</string>
     <string name="listening_progress">Напредак слушања</string>
     <string name="chapter_fallback">Поглавље</string>
     <string name="chapters">Поглавља</string>

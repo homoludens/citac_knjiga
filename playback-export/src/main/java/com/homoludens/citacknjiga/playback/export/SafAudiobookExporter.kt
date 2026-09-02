@@ -211,7 +211,7 @@ public class SafAudiobookExporter(
         ExportStoragePreflight(privateAvailableBytes).requireCapacity(destination, storageEstimate)
 
         val chapterFiles = chapters.zip(prepared).map { (input, chapter) ->
-            val temporary = storage.temporaryFile("export", "chapter-${UUID.randomUUID()}.audio")
+            val temporary = storage.temporaryFile("export-${exportRequest.project.id}", "chapter-${UUID.randomUUID()}.audio")
             val assembled = if (chapterAssembler is DurationAwareChapterAudioAssembler) {
                 chapterAssembler.assemble(
                     chapter.sources,

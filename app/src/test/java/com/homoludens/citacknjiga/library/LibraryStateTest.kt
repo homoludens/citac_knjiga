@@ -51,6 +51,19 @@ public class LibraryStateTest {
         assertEquals("book/{bookId}", AppRoute.Book.path)
     }
 
+    @Test
+    public fun deletingProjectsAreNotShownInLibrary() {
+        assertTrue(
+            LibraryDisplayMapper.mapBooks(
+                projects = listOf(project().copy(isDeleting = true)),
+                chapters = emptyList(),
+                segments = emptyList(),
+                runs = emptyList(),
+                positions = emptyList(),
+            ).isEmpty(),
+        )
+    }
+
     private fun project() = BookProjectEntity(
         id = "book-1",
         title = "Књига",

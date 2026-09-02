@@ -53,6 +53,7 @@ import com.homoludens.citacknjiga.core.document.ImportDiagnostic
 import com.homoludens.citacknjiga.core.document.ImportDiagnosticCode
 import com.homoludens.citacknjiga.core.diagnostics.LocalDiagnostics
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
+import com.homoludens.citacknjiga.core.lifecycle.ProjectDeletionCoordinator
 import com.homoludens.citacknjiga.core.generation.GenerationNotificationActionReceiver
 import com.homoludens.citacknjiga.core.generation.GenerationNotificationController
 import com.homoludens.citacknjiga.document.epub.EpubAcceptanceResult
@@ -117,10 +118,25 @@ public fun CitacKnjigaApp(
     privateStorage: AppPrivateStorage? = null,
     modelPackageStore: ModelPackageStore? = null,
     ttsEnginePreference: TtsEnginePreference? = null,
+    projectDeletionCoordinator: ProjectDeletionCoordinator? = null,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val navController = rememberNavController()
+    val deletionScope = rememberCoroutineScope()
+    val onDeleteBook: (String) -> Unit = { projectId ->
+        projectDeletionCoordinator?.let { coordinator ->
+            deletionScope.launch(Dispatchers.IO) {
+                try {
+                    coordinator.deleteProject(projectId)
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    // The deleting marker keeps the operation recoverable on the next launch.
+                }
+            }
+        }
+    }
     MaterialTheme {
         NavHost(
             navController = navController,
@@ -139,6 +155,7 @@ public fun CitacKnjigaApp(
                     onOpenBook = { id -> navController.navigate(AppRoute.Book.forId(id)) },
                     onOpenDiagnostics = { navController.navigate(AppRoute.Diagnostics.path) },
                     onGenerationAction = { runId, action -> sendGenerationAction(context, runId, action) },
+                    onDeleteBook = onDeleteBook,
                     ttsEnginePreference = ttsEnginePreference,
                 )
             }
@@ -163,6 +180,10 @@ public fun CitacKnjigaApp(
                     bookId = entry.arguments?.getString(AppRoute.Book.argument),
                     onBack = navController::popBackStack,
                     onGenerationAction = { runId, action -> sendGenerationAction(context, runId, action) },
+                    onDeleteBook = { projectId ->
+                        onDeleteBook(projectId)
+                        navController.popBackStack()
+                    },
                 )
             }
         }
@@ -182,6 +203,7 @@ private fun StartScreen(
     onOpenBook: (String) -> Unit,
     onOpenDiagnostics: () -> Unit,
     onGenerationAction: (String, GenerationAction) -> Unit,
+    onDeleteBook: (String) -> Unit,
     ttsEnginePreference: TtsEnginePreference?,
 ) {
     val libraryController = remember(audiobookDao) { audiobookDao?.let(::LibraryController) }
@@ -273,6 +295,7 @@ private fun StartScreen(
                 state = libraryState,
                 onBookClick = onOpenBook,
                 onGenerationAction = onGenerationAction,
+                onDeleteBook = onDeleteBook,
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 20.dp),
             )
             EpubImportPreviewContent(
@@ -400,6 +423,7 @@ private fun BookRoute(
     bookId: String?,
     onBack: () -> Unit,
     onGenerationAction: (String, GenerationAction) -> Unit,
+    onDeleteBook: (String) -> Unit,
 ) {
     val context = LocalContext.current
     val exportScope = rememberCoroutineScope()
@@ -512,6 +536,7 @@ private fun BookRoute(
             BookDetailScreen(
                 book = book,
                 onGenerationAction = onGenerationAction,
+                onDeleteBook = onDeleteBook,
                 modifier = Modifier.weight(1f),
             )
             if (book != null && audiobookExportService != null && !exportBusy) {

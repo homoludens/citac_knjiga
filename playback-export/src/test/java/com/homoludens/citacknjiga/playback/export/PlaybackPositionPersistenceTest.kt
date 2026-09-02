@@ -190,6 +190,7 @@ public class PlaybackPositionPersistenceTest {
         override fun findAllModelPackages(): List<ModelPackageEntity> = emptyList()
         override fun findModelPackageById(modelPackageId: String): ModelPackageEntity? = null
         override fun updateProject(project: BookProjectEntity) = Unit
+        override fun markProjectDeleting(projectId: String, updatedAt: Long): Int = 0
         override fun updateChapter(chapter: ChapterEntity) = Unit
         override fun updateNarrationBlock(block: NarrationBlockEntity) = Unit
         override fun updateGenerationRun(run: GenerationRunEntity) = Unit

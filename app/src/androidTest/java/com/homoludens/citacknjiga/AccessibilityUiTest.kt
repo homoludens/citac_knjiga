@@ -14,6 +14,7 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
@@ -132,6 +133,27 @@ public class AccessibilityUiTest {
         assertEquals(1, composeRule.onAllNodesWithText("Библиотека").fetchSemanticsNodes().size)
         assertEquals(1, composeRule.onAllNodesWithText("Поглавља: 1/1 спремно").fetchSemanticsNodes().size)
         assertEquals(1, composeRule.onAllNodesWithText("Генерисање: 1/2 делова").fetchSemanticsNodes().size)
+    }
+
+    @Test
+    public fun deleteActionRequiresConfirmation() {
+        val deleted = mutableListOf<String>()
+        composeRule.setContent {
+            CompositionLocalProvider(LocalContext provides serbianContext()) {
+                MaterialTheme {
+                    LibraryScreen(
+                        state = LibraryViewState(listOf(runningBook())),
+                        onBookClick = {},
+                        onDeleteBook = { deleted += it },
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithTag("delete-book-book-1").performClick()
+        assertEquals(0, deleted.size)
+        composeRule.onNodeWithTag("confirm-delete-book-book-1").performClick()
+        assertEquals(listOf("book-1"), deleted)
     }
 
     @Test

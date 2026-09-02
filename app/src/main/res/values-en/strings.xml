@@ -86,6 +86,10 @@
     <string name="author_fallback">Author not provided</string>
     <string name="errors_count_format">Errors: %1$d</string>
     <string name="book_not_found">Book not found.</string>
+    <string name="delete_book">Delete book</string>
+    <string name="delete_book_title">Delete book?</string>
+    <string name="delete_book_message">“%1$s” and all of its audio and internal data will be permanently deleted. The original file will remain untouched.</string>
+    <string name="delete_book_confirm">Delete</string>
     <string name="listening_progress">Listening progress</string>
     <string name="chapter_fallback">Chapter</string>
     <string name="chapters">Chapters</string>

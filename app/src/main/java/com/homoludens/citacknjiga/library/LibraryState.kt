@@ -75,7 +75,7 @@ public object LibraryDisplayMapper {
         runs: List<GenerationRunEntity>,
         positions: List<PlaybackPositionEntity>,
         fileSize: (String) -> Long = { File(it).length() },
-    ): List<LibraryBookDisplay> = projects.map { project ->
+    ): List<LibraryBookDisplay> = projects.filterNot { it.isDeleting }.map { project ->
         val projectChapters = chapters.filter { it.bookProjectId == project.id }
         val projectSegments = segments.filter { segment ->
             projectChapters.any { it.id == segment.chapterId }

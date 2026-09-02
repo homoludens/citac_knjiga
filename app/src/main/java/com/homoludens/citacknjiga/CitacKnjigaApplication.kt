@@ -2,9 +2,14 @@ package com.homoludens.citacknjiga
 
 import android.app.Application
 import androidx.work.Configuration
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 public class CitacKnjigaApplication : Application(), Configuration.Provider {
     private val configuredContainer: AppContainer by lazy { AppContainer.production(this) }
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     public lateinit var container: AppContainer
         private set
@@ -12,6 +17,9 @@ public class CitacKnjigaApplication : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         container = configuredContainer
+        container.projectDeletionCoordinator?.let { coordinator ->
+            applicationScope.launch { coordinator.reconcileDeletingProjects() }
+        }
         container.diagnostics.info(
             component = "app",
             message = "application_started",

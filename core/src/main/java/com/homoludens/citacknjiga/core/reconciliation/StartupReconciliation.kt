@@ -85,19 +85,27 @@ public class StartupReconciliation(
     public fun reconcile(expectedGenerationKeys: Map<String, String> = emptyMap()): ReconciliationReport {
         val removedTemporaryFileCount = artifactStore.cleanupStaleTemporaryFiles(temporaryMaxAgeMillis)
         val snapshot = database.snapshot()
+        val deletingProjectIds = snapshot.projects.filter { it.isDeleting }.mapTo(mutableSetOf()) { it.id }
+        val chapterProjectIds = snapshot.chapters.associate { it.id to it.bookProjectId }
         val runsById = snapshot.generationRuns.associateBy { it.id }
         val segmentsByChapter = snapshot.audioSegments.groupBy { it.chapterId }
         val changedRuns = snapshot.generationRuns
-            .filter { it.status == GenerationRunStatus.RUNNING }
+            .filter { it.status == GenerationRunStatus.RUNNING && it.bookProjectId !in deletingProjectIds }
             .map { it.copy(status = GenerationRunStatus.QUEUED, startedAt = null, finishedAt = null) }
         val changedSegments = snapshot.audioSegments
-            .filter { it.status == AudioSegmentStatus.GENERATING }
+            .filter {
+                it.status == AudioSegmentStatus.GENERATING &&
+                    chapterProjectIds[it.chapterId] !in deletingProjectIds
+            }
             .map { it.copy(status = AudioSegmentStatus.PENDING) }
         val invalidReadySegmentIds = mutableListOf<String>()
         val staleProvenanceSegmentIds = mutableListOf<String>()
         val staleGenerationKeySegmentIds = mutableListOf<String>()
         val changedReadySegments = snapshot.audioSegments
-            .filter { it.status == AudioSegmentStatus.READY }
+            .filter {
+                it.status == AudioSegmentStatus.READY &&
+                    chapterProjectIds[it.chapterId] !in deletingProjectIds
+            }
             .mapNotNull { segment ->
                 val integrityFailure = !hasValidArtifact(segment)
                 val provenanceFailure = !hasCurrentProvenance(
@@ -129,7 +137,7 @@ public class StartupReconciliation(
         val segmentsToUpdate = repairedSegments.values.filter { segment ->
             segment != originalSegmentsById[segment.id]
         }
-        val changedChapters = snapshot.chapters.mapNotNull { chapter ->
+        val changedChapters = snapshot.chapters.filter { it.bookProjectId !in deletingProjectIds }.mapNotNull { chapter ->
             val chapterSegments = segmentsByChapter[chapter.id].orEmpty()
                 .map { repairedSegments[it.id] ?: it }
             val hasNonReadySegment = chapterSegments.isNotEmpty() &&
@@ -150,7 +158,7 @@ public class StartupReconciliation(
             changedChapters.firstOrNull { it.id == chapter.id } ?: chapter
         }
         val chaptersByProject = repairedChapterState.groupBy { it.bookProjectId }
-        val changedProjects = snapshot.projects.mapNotNull { project ->
+        val changedProjects = snapshot.projects.filterNot { it.isDeleting }.mapNotNull { project ->
             val projectChapters = chaptersByProject[project.id].orEmpty()
             val hasIncompleteChapter = projectChapters.any { it.status != ChapterStatus.READY }
             val newStatus = when {

@@ -15,13 +15,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Alignment
@@ -29,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.contentDescription
@@ -55,6 +62,7 @@ public fun LibraryScreen(
     state: LibraryViewState,
     onBookClick: (String) -> Unit,
     onGenerationAction: (String, GenerationAction) -> Unit = { _, _ -> },
+    onDeleteBook: (String) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -70,6 +78,7 @@ public fun LibraryScreen(
                     book,
                     onClick = { onBookClick(book.project.id) },
                     onGenerationAction = onGenerationAction,
+                    onDeleteBook = onDeleteBook,
                 )
             }
         }
@@ -81,6 +90,7 @@ private fun LibraryBookCard(
     book: LibraryBookDisplay,
     onClick: () -> Unit,
     onGenerationAction: (String, GenerationAction) -> Unit,
+    onDeleteBook: (String) -> Unit,
 ) {
     val title = book.title.ifBlank { stringResource(R.string.book_fallback) }
     val author = book.author.ifBlank { stringResource(R.string.author_fallback) }
@@ -128,6 +138,7 @@ private fun LibraryBookCard(
                         modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
                     )
                 }
+                DeleteBookAction(book, onDeleteBook)
             }
         }
     }
@@ -137,6 +148,7 @@ private fun LibraryBookCard(
 public fun BookDetailScreen(
     book: LibraryBookDisplay?,
     onGenerationAction: (String, GenerationAction) -> Unit = { _, _ -> },
+    onDeleteBook: (String) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     if (book == null) {
@@ -199,6 +211,37 @@ public fun BookDetailScreen(
                 )
             }
         }
+        DeleteBookAction(book, onDeleteBook)
+    }
+}
+
+@Composable
+private fun DeleteBookAction(book: LibraryBookDisplay, onDeleteBook: (String) -> Unit) {
+    var showConfirmation by remember { mutableStateOf(false) }
+    OutlinedButton(
+        onClick = { showConfirmation = true },
+        modifier = Modifier.fillMaxWidth().testTag("delete-book-${book.project.id}"),
+    ) {
+        Text(stringResource(R.string.delete_book))
+    }
+    if (showConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showConfirmation = false },
+            title = { Text(stringResource(R.string.delete_book_title)) },
+            text = { Text(stringResource(R.string.delete_book_message, book.title.ifBlank { stringResource(R.string.book_fallback) })) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showConfirmation = false
+                        onDeleteBook(book.project.id)
+                    },
+                    modifier = Modifier.testTag("confirm-delete-book-${book.project.id}"),
+                ) { Text(stringResource(R.string.delete_book_confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmation = false }) { Text(stringResource(R.string.cancel)) }
+            },
+        )
     }
 }
 
