@@ -31,4 +31,4 @@
 
 - [x] 5.1 Run end-to-end PDF and EPUB flows covering import, compact library display, chapter regeneration, whole-book regeneration, approximate progress, playback recovery, and deletion; verify the original external files remain unchanged.
 - [x] 5.2 Run migration, JVM, Android, lint, source-closure, dependency, and release-manifest checks for the changed modules; verify no model payload or generated audio enters APK artifacts.
-- [ ] 5.3 Update `DEPLOYMENT.md` and `AGENT_README.md` with direct-download configuration, pinned release hashes, network policy, deletion/regeneration behavior, progress semantics, rollback, and verification commands.
+- [x] 5.3 Update `DEPLOYMENT.md` and `AGENT_README.md` with direct-download configuration, pinned release hashes, network policy, deletion/regeneration behavior, progress semantics, rollback, and verification commands.

@@ -1750,7 +1750,35 @@ export through the corrected chapter-level SAF flow from commits `f61f59d`,
 duration, audible-playback, metadata, and chapter-order results here before
 checking off 10.8. Exported media must remain outside the repository.
 
-## Network permission and offline model-download policy (task 4.2)
+## Library lifecycle, regeneration, and progress (tasks 1-3)
+
+Project deletion is app-owned cleanup only. Confirmation stops playback, cancels
+the project WorkManager work, marks the project `DELETING`, removes canonical
+private source/text/cover/audio/temporary artifacts, and deletes the Room rows.
+The original PDF/EPUB SAF URI and external export destinations are never cleanup
+targets. Startup reconciliation retries interrupted deletion after restart.
+
+Chapter and whole-book regeneration are destructive to the selected generated
+audio scope: existing segments are invalidated before the selected request is
+queued, while source text and unrelated chapters/projects remain intact. Failed,
+canceled, or low-storage runs leave no invalid ready segment and expose the
+persisted retry state.
+
+Generation progress is approximate Unicode-aware narratable-word progress. The
+Room aggregate counts estimated words only for `READY` segments, falls back to
+segment counts for legacy rows, and survives process restart. Download progress
+is separate and reports bytes/percentage followed by a visible verifying state.
+
+Focused lifecycle and progress verification:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew :core:testDebugUnitTest :app:testStandardDebugUnitTest \
+  :playback-export:testDebugUnitTest
+```
+
+## Network permission and offline model-download policy (tasks 4.2-4.5)
 
 The direct model-download path is the only planned application network boundary.
 Both `standard` and `fdroid` declare `android.permission.INTERNET`; the app also
@@ -1769,9 +1797,20 @@ descriptors exactly:
 | VITS | `serbian-vits-1.0.0.zip` | 121971081 | `45aa231e12c8a317f0d093cfb56d54066e19b53561b4ac401661109f19abe5dc` |
 
 Only `https://github.com/homoludens/citac_knjiga/releases/download/` paths for
-those two assets are permitted. Document import, generation, and runtime
-dependency acquisition remain offline. Task 4.3 owns the future streaming
-transport; no downloader or network client is implemented in task 4.2.
+those two assets are permitted. `ModelDownloadConfig` rejects arbitrary URLs and
+pins the release tag, filename, version, byte count, and outer SHA-256. The
+`HttpsModelDownloadTransport` is the only allowlisted network source; it streams
+through a connected-network WorkManager job into private temporary storage.
+Document import, generation, and runtime dependency acquisition remain offline.
+
+After transfer, the installer verifies the outer SHA-256 and delegates manifest,
+declared-artifact, engine/API/ABI, and runtime checks to the selected package
+store. Kokoro and VITS publish independently through atomic `active.zip` and
+`last-valid.zip` slots. A short, oversized, disconnected, canceled, corrupt, or
+incompatible download deletes its temporary file and leaves the previous active
+package unchanged. The diagnostics screen exposes separate Kokoro and VITS
+download actions with downloading, verifying, installed, failed, canceled, and
+offline states; it never displays private paths or credentials.
 
 The variant-aware Gradle gate parses the actual AGP merged manifests rather than
 checking source manifests:
@@ -1806,6 +1845,38 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
 Result: four diagnostics tests passed, including Cyrillic/Latin text,
 `content://` and `file://` URI, path/query/fragment, exception, safe hash/ID,
 safe category, and normal category-message cases.
+
+Verification commands for the completed library/model-download change:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew :core:testDebugUnitTest :document-epub:testDebugUnitTest \
+  :document-pdf:testDebugUnitTest :tts-onnx:testDebugUnitTest \
+  :playback-export:testDebugUnitTest :app:testStandardDebugUnitTest \
+  :app:lintStandardDebug :app:lintFdroidDebug :core:lintDebug \
+  :document-epub:lintDebug :document-pdf:lintDebug \
+  :playback-export:lintDebug :tts-onnx:lintDebug \
+  :app:verifyModelDownloadManifests \
+  :app:assembleStandardRelease :app:assembleFdroidRelease
+
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+python3 scripts/audit_dependencies.py
+python3 scripts/check_source_closure.py
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+python3 scripts/check_fdroid.py --require-build
+sh scripts/check_formatting.sh
+python3 scripts/generate_release_docs.py
+python3 scripts/validate_release_docs.py
+```
+
+For connected migration checks, put the SDK `platform-tools` first in `PATH`
+so the `adb` client matches the Android SDK used by Gradle, then run
+`AudiobookDatabaseMigrationTest` from `core`. The available emulator is API 35
+`x86_64`; production ARM64 and the qualified production model remain separate
+release gates. The repository contains no model payload or generated audio.
 
 Task 11.2 release verification was completed with these additional commands,
 all successful on 2026-08-30:

@@ -50,7 +50,15 @@ target.
   standard and F-Droid manifests for the pinned model assets only. Merged-manifest,
   F-Droid, source-closure, privacy, and release-manifest checks reject cleartext,
   routine network clients, arbitrary URLs, and networked document import/generation;
-  task 4.3 still owns transport.
+  the only source allowlist for network APIs is the model-download transport.
+- OpenSpec `manage-library-and-model-downloads` tasks 4.3-4.5 implement cancellable
+  HTTPS streaming to private temporary files, WorkManager connectivity constraints,
+  outer checksum and package validation, independent Kokoro/VITS atomic slots, and
+  separate download/status controls. Failed or canceled downloads retain the prior
+  verified package and never expose private paths or credentials.
+- OpenSpec `manage-library-and-model-downloads` task 5.1 verifies the PDF/EPUB
+  lifecycle flows. Tasks 5.2-5.3 remain for the final repository-wide checks and
+  deployment/project-overview documentation.
 
 - Archived OpenSpec change `fix-real-world-epub-import` is implemented across the
   `document-epub` and `app` modules. It now uses immutable production limits,
