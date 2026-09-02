@@ -249,4 +249,16 @@
     <string name="model_action_publication">The package was not published. Check storage and try again.</string>
     <string name="model_action_missing">No verified package is installed. Import a compatible package.</string>
     <string name="model_action_error">Package verification failed. Try again.</string>
+    <string name="model_download_kokoro">Kokoro model</string>
+    <string name="model_download_vits">Serbian VITS model</string>
+    <string name="model_download_start">Download model</string>
+    <string name="model_download_retry">Retry model download</string>
+    <string name="model_download_cancel">Cancel model download</string>
+    <string name="model_download_idle">Not installed</string>
+    <string name="model_download_offline">Offline or waiting for network</string>
+    <string name="model_download_downloading">Downloading</string>
+    <string name="model_download_verifying">Verifying package</string>
+    <string name="model_download_installed">Installed and verified</string>
+    <string name="model_download_failed">Download or verification failed</string>
+    <string name="model_download_canceled">Download canceled</string>
 </resources>

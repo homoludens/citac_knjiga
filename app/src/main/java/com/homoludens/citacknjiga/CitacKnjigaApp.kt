@@ -110,6 +110,7 @@ import com.homoludens.citacknjiga.tts.onnx.TtsEngine
 import com.homoludens.citacknjiga.tts.onnx.TtsEnginePreference
 import com.homoludens.citacknjiga.diagnostics.DiagnosticsAboutRoute
 import com.homoludens.citacknjiga.diagnostics.EpubImportDiagnosticFormatter
+import com.homoludens.citacknjiga.modeldownload.ModelDownloadWorkScheduler
 
 @Composable
 public fun CitacKnjigaApp(
@@ -126,6 +127,7 @@ public fun CitacKnjigaApp(
     privateStorage: AppPrivateStorage? = null,
     modelPackageStore: ModelPackageStore? = null,
     ttsEnginePreference: TtsEnginePreference? = null,
+    modelDownloadScheduler: ModelDownloadWorkScheduler? = null,
     projectDeletionCoordinator: ProjectDeletionCoordinator? = null,
     generationInvalidationCoordinator: GenerationInvalidationCoordinator? = null,
     modifier: Modifier = Modifier,
@@ -221,6 +223,7 @@ public fun CitacKnjigaApp(
                     onRegenerate = onRegenerate,
                     regenerationFeedback = regenerationFeedback,
                     ttsEnginePreference = ttsEnginePreference,
+                    modelDownloadScheduler = modelDownloadScheduler,
                 )
             }
             composable(AppRoute.Diagnostics.path) {
@@ -228,6 +231,7 @@ public fun CitacKnjigaApp(
                     diagnostics = diagnostics,
                     modelPackageStore = modelPackageStore,
                     vitsModelPackageStore = modelPackageStore?.vitsModelPackageStore,
+                    modelDownloadScheduler = modelDownloadScheduler,
                     privateStorage = privateStorage,
                     variant = variant,
                     onBack = navController::popBackStack,
@@ -284,6 +288,7 @@ private fun StartScreen(
     onRegenerate: (String, GenerationScope) -> Unit,
     regenerationFeedback: RegenerationFeedback?,
     ttsEnginePreference: TtsEnginePreference?,
+    modelDownloadScheduler: ModelDownloadWorkScheduler?,
 ) {
     val libraryController = remember(audiobookDao) { audiobookDao?.let(::LibraryController) }
     val libraryFlow: Flow<LibraryViewState> = libraryController?.state ?: flowOf(LibraryViewState())

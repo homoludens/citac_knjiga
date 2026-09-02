@@ -12,6 +12,7 @@ import androidx.work.Operation
 import androidx.work.WorkManager
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
+import androidx.work.WorkInfo
 import androidx.work.workDataOf
 import com.homoludens.citacknjiga.core.generation.GenerationWorkerFactory
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
@@ -35,6 +36,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 public data class ModelDownloadProgress(
     val bytesDownloaded: Long,
@@ -481,6 +484,10 @@ public class ModelDownloadWorkScheduler(
     public fun cancel(engine: ModelEngine): Operation = workManagerProvider().cancelUniqueWork(
         ModelDownloadWorkContract.uniqueWorkName(engine),
     )
+
+    public fun workInfo(engine: ModelEngine): Flow<WorkInfo?> = workManagerProvider()
+        .getWorkInfosForUniqueWorkFlow(ModelDownloadWorkContract.uniqueWorkName(engine))
+        .map { it.firstOrNull() }
 
     public companion object {
         public fun defaultConstraints(): Constraints = Constraints.Builder()

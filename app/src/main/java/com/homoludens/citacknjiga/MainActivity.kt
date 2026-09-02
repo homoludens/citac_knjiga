@@ -30,6 +30,7 @@ public class MainActivity : ComponentActivity() {
                 privateStorage = container.privateStorage,
                 modelPackageStore = container.modelPackageStore,
                 ttsEnginePreference = container.ttsEnginePreference,
+                modelDownloadScheduler = container.modelDownloadScheduler,
                 projectDeletionCoordinator = container.projectDeletionCoordinator,
                 generationInvalidationCoordinator = container.generationInvalidationCoordinator,
             )

@@ -17,12 +17,15 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,7 +33,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.res.stringResource
@@ -47,6 +52,9 @@ import com.homoludens.citacknjiga.tts.onnx.ModelPackageStore
 import com.homoludens.citacknjiga.tts.onnx.VitsModelPackageStore
 import com.homoludens.citacknjiga.tts.onnx.ModelPackageFailure
 import com.homoludens.citacknjiga.tts.onnx.ModelPackageFailureCode
+import com.homoludens.citacknjiga.modeldownload.ModelDownloadWorkContract
+import com.homoludens.citacknjiga.modeldownload.ModelDownloadWorkScheduler
+import androidx.work.WorkInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -127,6 +135,7 @@ public data class DiagnosticsEvidenceState(
 
 public data class DiagnosticsAboutState(
     val model: DiagnosticsModelState,
+    val vitsModel: DiagnosticsModelState = DiagnosticsModelState(DiagnosticsStatus.MISSING),
     val device: DiagnosticsDeviceState,
     val app: DiagnosticsAppState,
     val attributions: List<DiagnosticsAttributionReference>,
@@ -140,6 +149,7 @@ public data class DiagnosticsAboutState(
             distribution: String = "standard",
         ): DiagnosticsAboutState = DiagnosticsAboutState(
             model = DiagnosticsModelState(DiagnosticsStatus.MISSING),
+            vitsModel = DiagnosticsModelState(DiagnosticsStatus.MISSING),
             device = DiagnosticsDeviceState(
                 manufacturer = "unknown",
                 model = "unknown",
@@ -185,6 +195,7 @@ public class DiagnosticsAboutSnapshotBuilder(
     private val variant: AppVariant,
     private val modelStore: ModelPackageStore?,
     private val storage: AppPrivateStorage?,
+    private val vitsStore: VitsModelPackageStore? = modelStore?.vitsModelPackageStore,
 ) {
     public fun build(latestImportFailure: ModelPackageFailure? = null): DiagnosticsAboutState {
         val packageInfo = runCatching { context.packageManager.getPackageInfo(context.packageName, 0) }.getOrNull()
@@ -221,6 +232,28 @@ public class DiagnosticsAboutSnapshotBuilder(
                 },
             )
         }
+        val vitsModel = when (val store = vitsStore) {
+            null -> DiagnosticsModelState(DiagnosticsStatus.MISSING)
+            else -> runCatching { store.activePackage() }.fold(
+                onSuccess = { packageInfo ->
+                    packageInfo?.let {
+                        DiagnosticsModelState(
+                            status = DiagnosticsStatus.VERIFIED,
+                            packageId = it.packageId,
+                            packageVersion = it.packageVersion,
+                            packageSha256 = it.identitySha256,
+                            modelSha256 = it.modelSha256,
+                            voiceSha256 = it.voiceSha256,
+                            runtimeId = it.runtimeId,
+                            runtimeVersion = it.runtimeVersion,
+                            preprocessingCompatibilityId = it.preprocessingCompatibilityId,
+                            preprocessingContractVersion = it.preprocessingContractVersion,
+                        )
+                    } ?: DiagnosticsModelState(DiagnosticsStatus.MISSING)
+                },
+                onFailure = { DiagnosticsModelState(DiagnosticsStatus.ERROR) },
+            )
+        }
         val runtime = DeviceParityRuntimeIdentity()
         val device = DiagnosticsDeviceState(
             manufacturer = Build.MANUFACTURER,
@@ -241,6 +274,7 @@ public class DiagnosticsAboutSnapshotBuilder(
         )
         return DiagnosticsAboutState(
             model = model,
+            vitsModel = vitsModel,
             device = device,
             app = app,
             attributions = DIAGNOSTICS_ATTRIBUTION_REFERENCES,
@@ -375,6 +409,7 @@ public fun DiagnosticsAboutRoute(
     diagnostics: LocalDiagnostics,
     modelPackageStore: ModelPackageStore?,
     vitsModelPackageStore: VitsModelPackageStore?,
+    modelDownloadScheduler: ModelDownloadWorkScheduler? = null,
     privateStorage: AppPrivateStorage?,
     variant: AppVariant,
     onBack: () -> Unit,
@@ -389,6 +424,8 @@ public fun DiagnosticsAboutRoute(
     var vitsImportBusy by remember { mutableStateOf(false) }
     var vitsImportMessage by remember { mutableStateOf<Int?>(null) }
     var releaseMessage by remember { mutableStateOf<Int?>(null) }
+    val kokoroDownload = rememberModelDownloadInfo(modelDownloadScheduler, ModelEngine.KOKORO)
+    val vitsDownload = rememberModelDownloadInfo(modelDownloadScheduler, ModelEngine.VITS)
     val releaseUrl = BuildConfig.MODEL_RELEASE_URL
     val releaseConfigured = releaseUrl.isNotBlank()
     val releaseAvailable = remember(releaseUrl, context) { ModelReleaseAction.canOpen(context, releaseUrl) }
@@ -403,7 +440,13 @@ public fun DiagnosticsAboutRoute(
                 withContext(Dispatchers.Main.immediate) {
                     importBusy = false
                     latestImportFailure = (result as? com.homoludens.citacknjiga.tts.onnx.ModelPackageImportResult.Failure)?.failure
-                    state = DiagnosticsAboutSnapshotBuilder(context, variant, modelPackageStore, privateStorage)
+                    state = DiagnosticsAboutSnapshotBuilder(
+                        context,
+                        variant,
+                        modelPackageStore,
+                        privateStorage,
+                        vitsModelPackageStore,
+                    )
                         .build(latestImportFailure)
                 }
             }
@@ -449,7 +492,13 @@ public fun DiagnosticsAboutRoute(
     }
     LaunchedEffect(modelPackageStore, privateStorage, variant) {
         state = withContext(Dispatchers.IO) {
-            DiagnosticsAboutSnapshotBuilder(context, variant, modelPackageStore, privateStorage).build(latestImportFailure)
+            DiagnosticsAboutSnapshotBuilder(
+                context,
+                variant,
+                modelPackageStore,
+                privateStorage,
+                vitsModelPackageStore,
+            ).build(latestImportFailure)
         }
     }
     DiagnosticsAboutScreen(
@@ -462,6 +511,11 @@ public fun DiagnosticsAboutRoute(
         vitsImportEnabled = vitsModelPackageStore != null && !vitsImportBusy,
         vitsImportBusy = vitsImportBusy,
         vitsImportMessage = vitsImportMessage?.let { stringResource(it) },
+        modelDownloadScheduler = modelDownloadScheduler,
+        kokoroDownload = kokoroDownload,
+        vitsDownload = vitsDownload,
+        onDownload = { engine -> modelDownloadScheduler?.enqueue(engine) },
+        onCancelDownload = { engine -> modelDownloadScheduler?.cancel(engine) },
         importEnabled = modelPackageStore != null && !importBusy,
         importBusy = importBusy,
         releaseConfigured = releaseConfigured,
@@ -487,6 +541,11 @@ public fun DiagnosticsAboutScreen(
     vitsImportEnabled: Boolean = false,
     vitsImportBusy: Boolean = false,
     vitsImportMessage: String? = null,
+    modelDownloadScheduler: ModelDownloadWorkScheduler? = null,
+    kokoroDownload: WorkInfo? = null,
+    vitsDownload: WorkInfo? = null,
+    onDownload: (ModelEngine) -> Unit = {},
+    onCancelDownload: (ModelEngine) -> Unit = {},
     releaseConfigured: Boolean = false,
     releaseAvailable: Boolean = false,
     releaseMessage: String? = null,
@@ -549,6 +608,22 @@ public fun DiagnosticsAboutScreen(
                     } else if (state.model.failureCode != null) {
                         Text(modelAction(state.model), color = MaterialTheme.colorScheme.error)
                     }
+                    ModelDownloadControls(
+                        engine = ModelEngine.KOKORO,
+                        workInfo = kokoroDownload,
+                        installed = state.model.status == DiagnosticsStatus.VERIFIED,
+                        enabled = modelDownloadScheduler != null,
+                        onDownload = onDownload,
+                        onCancel = onCancelDownload,
+                    )
+                    ModelDownloadControls(
+                        engine = ModelEngine.VITS,
+                        workInfo = vitsDownload,
+                        installed = state.vitsModel.status == DiagnosticsStatus.VERIFIED,
+                        enabled = modelDownloadScheduler != null,
+                        onDownload = onDownload,
+                        onCancel = onCancelDownload,
+                    )
                     if (releaseConfigured) {
                         Button(
                             onClick = onGetModelPackage,
@@ -644,6 +719,117 @@ public fun DiagnosticsAboutScreen(
         }
     }
 }
+
+private enum class DownloadDisplayStatus {
+    IDLE,
+    WAITING,
+    DOWNLOADING,
+    VERIFYING,
+    INSTALLED,
+    FAILED,
+    CANCELED,
+}
+
+private data class DownloadDisplay(
+    val status: DownloadDisplayStatus,
+    val bytesDownloaded: Long = 0L,
+    val totalBytes: Long = 0L,
+)
+
+@Composable
+private fun rememberModelDownloadInfo(
+    scheduler: ModelDownloadWorkScheduler?,
+    engine: ModelEngine,
+): WorkInfo? {
+    val flow = remember(scheduler, engine) { scheduler?.workInfo(engine) }
+    return flow?.collectAsState(initial = null)?.value
+}
+
+@Composable
+private fun ModelDownloadControls(
+    engine: ModelEngine,
+    workInfo: WorkInfo?,
+    installed: Boolean,
+    enabled: Boolean,
+    onDownload: (ModelEngine) -> Unit,
+    onCancel: (ModelEngine) -> Unit,
+) {
+    val display = downloadDisplay(workInfo, installed)
+    val status = downloadStatusText(display.status)
+    val active = display.status == DownloadDisplayStatus.WAITING ||
+        display.status == DownloadDisplayStatus.DOWNLOADING ||
+        display.status == DownloadDisplayStatus.VERIFYING
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics {
+                liveRegion = LiveRegionMode.Polite
+                stateDescription = status
+            },
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Text(downloadEngineName(engine), style = MaterialTheme.typography.titleSmall)
+        Text(status)
+        if (display.totalBytes > 0L && display.status != DownloadDisplayStatus.INSTALLED) {
+            val fraction = (display.bytesDownloaded.toFloat() / display.totalBytes).coerceIn(0f, 1f)
+            LinearProgressIndicator(
+                progress = { fraction },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics { progressBarRangeInfo = ProgressBarRangeInfo(fraction, 0f..1f) },
+            )
+            Text("${formatBytes(display.bytesDownloaded)} / ${formatBytes(display.totalBytes)}")
+        }
+        if (active) {
+            OutlinedButton(onClick = { onCancel(engine) }, enabled = enabled, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.model_download_cancel))
+            }
+        } else {
+            Button(onClick = { onDownload(engine) }, enabled = enabled, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(if (display.status == DownloadDisplayStatus.FAILED) {
+                    R.string.model_download_retry
+                } else {
+                    R.string.model_download_start
+                }))
+            }
+        }
+    }
+}
+
+private fun downloadDisplay(workInfo: WorkInfo?, installed: Boolean): DownloadDisplay {
+    val progress = workInfo?.progress
+    val bytes = progress?.getLong(ModelDownloadWorkContract.BYTES_DOWNLOADED_KEY, 0L) ?: 0L
+    val total = progress?.getLong(ModelDownloadWorkContract.TOTAL_BYTES_KEY, 0L) ?: 0L
+    val status = when (workInfo?.state) {
+        WorkInfo.State.ENQUEUED, WorkInfo.State.BLOCKED -> DownloadDisplayStatus.WAITING
+        WorkInfo.State.RUNNING -> if (
+            progress?.getString(ModelDownloadWorkContract.STATUS_KEY) == "VERIFYING"
+        ) DownloadDisplayStatus.VERIFYING else DownloadDisplayStatus.DOWNLOADING
+        WorkInfo.State.SUCCEEDED -> DownloadDisplayStatus.INSTALLED
+        WorkInfo.State.FAILED -> DownloadDisplayStatus.FAILED
+        WorkInfo.State.CANCELLED -> DownloadDisplayStatus.CANCELED
+        null -> if (installed) DownloadDisplayStatus.INSTALLED else DownloadDisplayStatus.IDLE
+    }
+    return DownloadDisplay(status, bytes, total)
+}
+
+@Composable
+private fun downloadEngineName(engine: ModelEngine): String = stringResource(
+    if (engine == ModelEngine.KOKORO) R.string.model_download_kokoro else R.string.model_download_vits,
+)
+
+@Composable
+private fun downloadStatusText(status: DownloadDisplayStatus): String = stringResource(
+    when (status) {
+        DownloadDisplayStatus.IDLE -> R.string.model_download_idle
+        DownloadDisplayStatus.WAITING -> R.string.model_download_offline
+        DownloadDisplayStatus.DOWNLOADING -> R.string.model_download_downloading
+        DownloadDisplayStatus.VERIFYING -> R.string.model_download_verifying
+        DownloadDisplayStatus.INSTALLED -> R.string.model_download_installed
+        DownloadDisplayStatus.FAILED -> R.string.model_download_failed
+        DownloadDisplayStatus.CANCELED -> R.string.model_download_canceled
+    },
+)
 
 @Composable
 private fun DiagnosticsSection(title: String, content: @Composable () -> Unit) {

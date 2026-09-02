@@ -249,4 +249,16 @@
     <string name="model_action_publication">Пакет није објављен. Проверите простор и покушајте поново.</string>
     <string name="model_action_missing">Нема провереног пакета. Увезите компатибилан пакет.</string>
     <string name="model_action_error">Провера пакета није успела. Покушајте поново.</string>
+    <string name="model_download_kokoro">Kokoro модел</string>
+    <string name="model_download_vits">Serbian VITS модел</string>
+    <string name="model_download_start">Преузми модел</string>
+    <string name="model_download_retry">Понови преузимање модела</string>
+    <string name="model_download_cancel">Откажи преузимање модела</string>
+    <string name="model_download_idle">Није инсталиран</string>
+    <string name="model_download_offline">Ван мреже или се чека мрежа</string>
+    <string name="model_download_downloading">Преузимање у току</string>
+    <string name="model_download_verifying">Провера пакета у току</string>
+    <string name="model_download_installed">Инсталиран и проверен</string>
+    <string name="model_download_failed">Преузимање или провера нису успели</string>
+    <string name="model_download_canceled">Преузимање је отказано</string>
 </resources>

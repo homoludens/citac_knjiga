@@ -131,6 +131,24 @@ public class DiagnosticsAboutUiTest {
     }
 
     @Test
+    public fun separateKokoroAndVitsDownloadActionsExposeTheirStatuses() {
+        composeRule.setContent {
+            CompositionLocalProvider(LocalContext provides serbianContext()) {
+                MaterialTheme {
+                    DiagnosticsAboutScreen(
+                        state = DiagnosticsAboutState.missing(),
+                    )
+                }
+            }
+        }
+
+        assertEquals(1, composeRule.onAllNodesWithText("Kokoro модел", useUnmergedTree = true).fetchSemanticsNodes().size)
+        assertEquals(1, composeRule.onAllNodesWithText("Serbian VITS модел", useUnmergedTree = true).fetchSemanticsNodes().size)
+        assertEquals(2, composeRule.onAllNodesWithText("Није инсталиран", useUnmergedTree = true).fetchSemanticsNodes().size)
+        assertEquals(2, composeRule.onAllNodesWithText("Преузми модел", useUnmergedTree = true).fetchSemanticsNodes().size)
+    }
+
+    @Test
     public fun unavailableModelReleaseActionIsShownButDisabled() {
         composeRule.setContent {
             CompositionLocalProvider(LocalContext provides serbianContext()) {
