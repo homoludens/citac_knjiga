@@ -21,7 +21,7 @@
 
 ## 4. Direct GitHub Model Downloads
 
-- [ ] 4.1 Define pinned Kokoro and VITS release descriptors containing HTTPS asset URLs, repository/release identity, filenames, versions, sizes, and outer SHA-256 values; verify configuration rejects arbitrary URLs and inconsistent metadata.
+- [x] 4.1 Define pinned Kokoro and VITS release descriptors containing HTTPS asset URLs, repository/release identity, filenames, versions, sizes, and outer SHA-256 values; verify configuration rejects arbitrary URLs and inconsistent metadata.
 - [ ] 4.2 Add the required network permission and update standard/F-Droid manifest, source-closure, privacy, and release-policy checks; verify network is allowed only for model asset downloads and generation remains offline.
 - [ ] 4.3 Implement cancellable HTTPS streaming to private temporary storage with WorkManager connectivity constraints and byte/percentage progress; verify cancellation, disconnect, short response, and oversized response remove temporary files.
 - [ ] 4.4 Connect completed downloads to the existing Kokoro/VITS package validators and atomic package slots; verify outer checksum, manifest, compatibility, and artifact failures preserve the prior active package.

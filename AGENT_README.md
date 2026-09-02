@@ -43,6 +43,9 @@ target.
   and unavailable states, and status-aware Compose accessibility semantics. The
   library and chapter views retain compact rendering while exposing deletion,
   regeneration, retry, and progress actions in Serbian and English.
+- OpenSpec `manage-library-and-model-downloads` task 4.1 pins immutable Kokoro and
+  VITS GitHub Release asset descriptors with exact repository paths, versions, sizes,
+  and outer SHA-256 values; descriptor construction rejects inconsistent metadata.
 
 - Archived OpenSpec change `fix-real-world-epub-import` is implemented across the
   `document-epub` and `app` modules. It now uses immutable production limits,
