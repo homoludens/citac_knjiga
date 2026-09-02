@@ -31,5 +31,5 @@
 
 - [x] 5.1 Add JVM coverage for text normalization, geometry ordering, limits, provenance, diagnostics, and atomic rollback, and verify `./gradlew :document-pdf:testDebugUnitTest` passes.
 - [x] 5.2 Add Android instrumentation for real PdfBox extraction, provider disappearance after staging, cancellation, malformed/protected files, external-resource isolation, persistence, and PDF UI states, and verify the affected Android test tasks pass on the available API targets.
-- [ ] 5.3 Run lint, dependency, source-closure, notice, offline-build, and release APK checks with the parser enabled, and verify the release artifact contains no OCR model, PDF upload path, or undeclared dependency.
+- [x] 5.3 Run lint, dependency, source-closure, notice, offline-build, and release APK checks with the parser enabled, and verify the release artifact contains no OCR model, PDF upload path, or undeclared dependency.
 - [ ] 5.4 Update `DEPLOYMENT.md` with PdfBox dependency, qualification, verification, and rollback steps and update `AGENT_README.md` with the selected parser and current gate evidence, and verify both documents match the checked-in release evidence.
