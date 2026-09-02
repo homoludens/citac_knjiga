@@ -25,6 +25,7 @@ ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / "app"
 LOCK = ROOT / "gradle/toolchain.lock.json"
 FDROID_CONFIG = ROOT / "fdroid/check-config-v1.json"
+SOURCE_CLOSURE = ROOT / "model-tools/native/source-closure-v1.json"
 APK_SUFFIXES = {
     ".bin", ".ckpt", ".flac", ".m4a", ".mp3", ".onnx", ".ort", ".pt",
     ".pth", ".safetensors", ".tflite", ".wav", ".zip",
@@ -78,6 +79,13 @@ def sdk_tool(name: str) -> Path:
     tool = sdk / "build-tools" / lock["android"]["build_tools"] / name
     require(tool.is_file(), f"Android build tool is missing: {tool}")
     return tool
+
+
+def network_policy() -> dict[str, object]:
+    closure = json.loads(SOURCE_CLOSURE.read_text(encoding="utf-8"))
+    policy = closure.get("network_policy")
+    require(isinstance(policy, dict), "model-download network policy is missing")
+    return policy
 
 
 def parse_badging(text: str) -> dict[str, str]:
@@ -259,6 +267,7 @@ def verify_output(output: Path, *, allow_unsigned: bool) -> dict[str, object]:
     require(separation.get("model_packages_included") is False, "model packages must be separate from app artifacts")
     require(separation.get("audio_artifacts_included") is False, "generated audio must be separate from app artifacts")
     require(separation.get("secrets_included") is False, "secrets must be absent from app artifacts")
+    require(manifest.get("network_policy") == network_policy(), "release manifest network policy is stale or modified")
     checksums = read_checksums(output)
     verify_checksums(output)
     require(len(manifest["artifacts"]) == 2, "release manifest must describe exactly two app artifacts")
@@ -338,6 +347,7 @@ def build(args: argparse.Namespace) -> None:
             "secrets_included": False,
             "optional_model_packages": "separate user-imported packages; not a release input or output",
         },
+        "network_policy": network_policy(),
     }
     (output / "release-manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     if args.unsigned:

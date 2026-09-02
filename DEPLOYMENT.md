@@ -99,7 +99,9 @@ release-manifest.json
 The manifest records the Git commit, clean-tree state, toolchain/input hashes,
 package IDs/version codes/version names, APK checksums, signing schemes, and
 the signing certificate SHA-256/DN. Model packages, generated audio, and
-secrets are explicitly recorded as excluded. Model packages remain separately
+secrets are explicitly recorded as excluded. It also records the exact
+task-4.2 model-download network policy from source closure; verification rejects
+any stale or broadened policy. Model packages remain separately
 imported app-private ZIPs and are never a build input or release output.
 
 The GitHub workflow `.github/workflows/release.yml` runs on `v*` tags or manual
@@ -1748,31 +1750,42 @@ export through the corrected chapter-level SAF flow from commits `f61f59d`,
 duration, audible-playback, metadata, and chapter-order results here before
 checking off 10.8. Exported media must remain outside the repository.
 
-## Offline manifests and diagnostics (task 11.2)
+## Network permission and offline model-download policy (task 4.2)
 
-The app's only dependency that contributes network-adjacent manifest/runtime
-metadata is `com.microsoft.onnxruntime:onnxruntime-android:1.29.0`. Its merged
-telemetry initializer is non-exported and the app contains no HTTP client,
-URLConnection, socket, WebView, or other routine network path. WorkManager's
-disabled `NetworkStateProxy` is a scheduler component, not a network permission
-or network operation. The merged exported components are the launcher activity,
-the Media3 playback service, and framework receivers/services protected by
-`BIND_JOB_SERVICE` or `DUMP`; app providers and the generation receiver are
-non-exported. No component opens a network path.
+The direct model-download path is the only planned application network boundary.
+Both `standard` and `fdroid` declare `android.permission.INTERNET`; the app also
+sets `android:usesCleartextTraffic="false"` and removes
+`android.permission.ACCESS_NETWORK_STATE` plus Wi-Fi control permissions. The
+manifest permission does not authorize document upload, telemetry, arbitrary
+URLs, or network-backed generation.
 
-The app manifest removes `android.permission.INTERNET` and
-`android.permission.ACCESS_NETWORK_STATE` contributed by dependencies. The
-variant-aware Gradle gate parses the actual AGP merged manifest rather than
+The immutable policy is recorded in
+`model-tools/native/source-closure-v1.json` and matches the task-4.1 Kotlin
+descriptors exactly:
+
+| Engine | Release asset | Expected bytes | Outer SHA-256 |
+|---|---|---:|---|
+| Kokoro | `kokoro-serbian-dragana-v2.zip` | 338316574 | `58c031fd6e37a12cafe3575d26a057e10c45cdfe7c6c7605f6966e7e2406458b` |
+| VITS | `serbian-vits-1.0.0.zip` | 121971081 | `45aa231e12c8a317f0d093cfb56d54066e19b53561b4ac401661109f19abe5dc` |
+
+Only `https://github.com/homoludens/citac_knjiga/releases/download/` paths for
+those two assets are permitted. Document import, generation, and runtime
+dependency acquisition remain offline. Task 4.3 owns the future streaming
+transport; no downloader or network client is implemented in task 4.2.
+
+The variant-aware Gradle gate parses the actual AGP merged manifests rather than
 checking source manifests:
 
 ```sh
 ANDROID_HOME=/home/homoludens/Android/Sdk \
 ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
-  ./gradlew :app:verifyOfflineReleaseManifests --no-daemon --max-workers=1
+  ./gradlew :app:verifyModelDownloadManifests --no-daemon --max-workers=1
 ```
 
-Result on 2026-08-30: `standardRelease` and `fdroidRelease` each verified six
-permissions with no routine network permission.
+The gate requires `INTERNET`, rejects routine network permissions, and requires
+cleartext traffic to be disabled for both `standardRelease` and `fdroidRelease`.
+`python3 scripts/check_source_closure.py` additionally rejects network clients
+and checks the exact descriptor/policy allowlist and offline operation boundary.
 
 `LocalDiagnostics` is the central structured-log boundary. Event messages and
 components must be stable category tokens. Attribute values are retained only
@@ -2146,8 +2159,9 @@ The existing `fdroid` distribution flavor remains separate from `standard` and
 keeps its application ID suffix (`.fdroid`), version suffix (`-fdroid`), and
 empty flavor-specific dependency surface. The deterministic policy is
 `fdroid/check-config-v1.json`; it records the four assembly tasks, locked
-metadata, forbidden permissions/dependencies/payloads, allowed generated native
-libraries, and required notice assets.
+metadata, required `INTERNET` permission for pinned model assets, forbidden
+routine permissions/dependencies/payloads, allowed generated native libraries,
+and required notice assets.
 
 The scanner-like check is:
 
@@ -2157,17 +2171,21 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
   python3 scripts/check_fdroid.py --require-build
 ```
 
-It invokes the static toolchain and native source-closure checks, inspects the
-actual F-Droid merged manifests and release APK with `aapt2`/ZIP parsing, and
-checks permissions, tracker/proprietary dependency markers, embedded
+It invokes the static toolchain and native source-closure/network-policy checks,
+inspects the actual F-Droid merged manifest and release APK with `aapt2`/ZIP
+parsing, and checks permissions, HTTPS-only policy, tracker/proprietary dependency markers, embedded
 model/audio/secrets, declared native libraries, version/build metadata, and
 bundled notices. It does not create a report file, model package, audio file,
 or release artifact.
 
+The F-Droid policy allows `INTERNET` only for the two configured GitHub Release
+model assets. It does not permit document import, generation, or runtime
+dependency acquisition over the network.
+
 On 2026-08-30, the closest available reproducible local run used the locked
 Android SDK/JDK, strict Gradle dependency verification, offline dependency
 resolution, `--rerun-tasks`, and one Gradle worker. JVM tests, `check`, all
-module/app lint tasks, offline merged-manifest verification, and standard plus
+module/app lint tasks, model-download merged-manifest verification, and standard plus
 F-Droid debug/release assemblies passed. The source closure verified seven
 eSpeak data files and 196 source files; the F-Droid APK check passed. The
 native eSpeak library is source-built; the only binary dependency exception is

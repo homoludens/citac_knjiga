@@ -85,13 +85,15 @@ android {
     }
 }
 
-val verifyOfflineReleaseManifests = tasks.register("verifyOfflineReleaseManifests") {
+val verifyModelDownloadManifests = tasks.register("verifyModelDownloadManifests") {
     dependsOn("processStandardReleaseMainManifest", "processFdroidReleaseMainManifest")
     doLast {
         val androidNamespace = "http://schemas.android.com/apk/res/android"
+        val requiredPermissions = setOf("android.permission.INTERNET")
         val prohibitedPermissions = setOf(
-            "android.permission.INTERNET",
             "android.permission.ACCESS_NETWORK_STATE",
+            "android.permission.ACCESS_WIFI_STATE",
+            "android.permission.CHANGE_WIFI_STATE",
         )
         val variants = listOf("standardRelease", "fdroidRelease")
         val parser = DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }
@@ -108,10 +110,17 @@ val verifyOfflineReleaseManifests = tasks.register("verifyOfflineReleaseManifest
                 .filter { it.nodeName == "uses-permission" || it.nodeName.startsWith("uses-permission-") }
                 .map { it.attributes.getNamedItemNS(androidNamespace, "name")?.nodeValue }
                 .filterNotNull()
-            check(permissions.none(prohibitedPermissions::contains)) {
-                "$variant declares a routine network permission: ${permissions.intersect(prohibitedPermissions)}"
+            check(permissions.containsAll(requiredPermissions)) {
+                "$variant is missing the model-download permission: $requiredPermissions"
             }
-            println("offline merged manifest verified: $variant (${permissions.size} permissions; no routine network permission)")
+            check(permissions.none(prohibitedPermissions::contains)) {
+                "$variant declares a prohibited network permission: ${permissions.intersect(prohibitedPermissions)}"
+            }
+            val application = document.getElementsByTagName("application").item(0)
+            check(application.attributes.getNamedItemNS(androidNamespace, "usesCleartextTraffic")?.nodeValue == "false") {
+                "$variant does not explicitly disable cleartext traffic"
+            }
+            println("model-download merged manifest verified: $variant (${permissions.size} permissions; HTTPS only)")
         }
     }
 }

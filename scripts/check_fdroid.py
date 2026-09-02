@@ -144,8 +144,15 @@ def check_manifest(path: Path, config: dict[str, object]) -> None:
         for node in document.getroot().iter()
         if node.tag.rsplit("}", 1)[-1].startswith("uses-permission")
     }
+    required = set(config["manifest"]["required_permissions"])
+    require(required.issubset(permissions), f"{relative(path)} is missing required permission(s): {sorted(required - permissions)}")
     forbidden = permissions.intersection(config["manifest"]["forbidden_permissions"])
-    require(not forbidden, f"{relative(path)} declares routine network permission(s): {sorted(forbidden)}")
+    require(not forbidden, f"{relative(path)} declares prohibited network permission(s): {sorted(forbidden)}")
+    application = document.getroot().find("application")
+    require(application is not None, f"{relative(path)} has no application element")
+    cleartext = application.attrib.get(f"{{{ANDROID_NS}}}usesCleartextTraffic")
+    require(cleartext == str(config["manifest"]["uses_cleartext_traffic"]).lower(),
+            f"{relative(path)} cleartext policy is not enforced")
 
 
 def apk_path() -> Path | None:

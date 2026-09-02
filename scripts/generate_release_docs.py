@@ -51,6 +51,10 @@ INPUTS = (
     "model-tools/legal-inventory.md",
     "model-tools/parity/fp32-thresholds-v2.json",
     "model-tools/parity/fp32-parity-v2-report.json",
+    "app/src/main/AndroidManifest.xml",
+    "app/build.gradle.kts",
+    "app/src/main/java/com/homoludens/citacknjiga/diagnostics/ModelDownloadConfig.kt",
+    "fdroid/check-config-v1.json",
     "DEPLOYMENT.md",
     "reports/task-11-4-android-qualification.md",
     "reports/task-11-8-mvp-capability-matrix.md",
@@ -182,7 +186,13 @@ def render_documents(
     config_hash = next(item["sha256"] for item in package["artifacts"] if "configuration" in item["roles"])
     runtime = package["runtime"]
     native = closure["native"]
+    network = closure["network_policy"]
     data_files = data_manifest["files"]
+    network_assets = "\n".join(
+        f"| `{asset['engine']}` | `{asset['filename']}` | `{asset['size_bytes']}` | `{asset['sha256']}` | <{asset['url']}> |"
+        for asset in network["allowed_assets"]
+    )
+    offline_operations = ", ".join(f"`{operation}`" for operation in network["offline_operations"])
     blocked_reviews = "\n".join(f"- {review}" for review in legal["outstanding_reviews"])
     return {
         "README.md": f"""# Release documentation bundle
@@ -207,7 +217,7 @@ artifacts (12.7) or publication gating (12.8).
 ## Evidence basis
 
 The bundle is based on the dependency/license audit (`b20a036`), toolchain and
-source-closure locks (`273d37b`, `b9c398c`), diagnostics/privacy checks, legal
+source-closure/network-policy locks (`273d37b`, `b9c398c`), diagnostics/privacy checks, legal
 inventory, parity and recovery evidence, benchmark records, and the capability
 matrix. The generated SBOM contains {components} audited Android components over
 {graphs} selected runtime/test configurations. Model payloads, generated audio,
@@ -285,14 +295,21 @@ authoritative package gate.
 
 `citac-knjiga` is designed to process DRM-free EPUB input and generate Serbian
 audio locally. In the documented application path, text, tokens, model data and
-audio are not uploaded. The release and F-Droid manifests are checked for no
-routine network permission, and no analytics or proprietary service is part of
-the audited runtime graph.
+audio are not uploaded. Both release variants declare `INTERNET` only for the
+configured model-asset download boundary; no analytics or proprietary service is
+part of the audited runtime graph.
 
 ## Data handling
 
 - The Android document picker supplies a user-selected EPUB or model package;
-  the app copies it into private storage before using it.
+  the app copies it into private storage before using it. Document import is
+  local and does not use the network.
+- Direct model acquisition is limited to the two pinned HTTPS GitHub Release
+  assets below. It does not accept arbitrary URLs or download documents, code,
+  telemetry, or runtime dependencies.
+- Generation reads private imported text and installed model artifacts locally;
+  it remains offline. Runtime dependency acquisition is a build-time concern
+  and remains outside the app runtime.
 - The original SAF URI is provenance only. Later EPUB work uses the verified
   private source copy, so a provider disappearing does not require the original
   URI.
@@ -311,8 +328,10 @@ Offline behavior does not protect data from the Android OS, a compromised
 device, root access, backups, or a user-selected external export/player. The
 app cannot make claims about other applications after export. A device may
 still have network access for unrelated software; the application does not use
-that network for narration. Privacy checks are static and test-based, not a
-privacy certification or a guarantee against future code changes.
+that network for document import or narration. The download transport is not
+implemented in this task; task 4.3 must retain this allowlist. Privacy checks are
+static and test-based, not a privacy certification or a guarantee against future
+code changes.
 """,
         "threat-model.md": """# Threat model
 
@@ -332,7 +351,7 @@ destinations and diagnostic records.
 | SAF export destination | Partial writes, collisions, low capacity or provider loss damage the project | Preflight capacity checks, `.incomplete` writes, read-back verification, safe finalization, collision handling and persisted checkpoints | Real provider/device loss and two-player playback evidence remain incomplete. |
 | Process death, reboot, update or storage failure | Completed work is regenerated or a partial file is marked ready | Room state machine, bounded segment checkpoints, synced temporary writes, atomic publication and startup reconciliation | Physical force-stop/reboot/update and the required Android-version matrix remain unqualified. |
 | Diagnostics or logs | Document text, URI, path, exception or secret leaks | Safe-token messages, constrained IDs/hashes/numbers and redacted export; no free-form payload logging | OS logs and user/device compromise are outside this component's control. |
-| Network or remote services | Accidental upload or routine tracking | No routine network permission in release/F-Droid manifests; no audited analytics/proprietary service; model and EPUB processing are local | This is not a firewall: other installed software and user export destinations may use network access. |
+| Network or remote services | Accidental upload, arbitrary fetch, or routine tracking | `INTERNET` is limited by the pinned GitHub Release asset policy; cleartext, routine network clients, analytics, and proprietary services are rejected; document import and generation are local | This is not a firewall: other installed software and user export destinations may use network access. The download transport remains a later task. |
 
 Release interpretation: unresolved limitations are recorded, not silently
 accepted. The legal model gate, missing external-player evidence and incomplete
@@ -430,6 +449,20 @@ schema validity is not legal clearance.
 | Preprocessing | `kokoro-sr-ca5590d9`, contract v1, Serbian locale, exact eSpeak-NG IPA mode 3 command |
 | Android runtime | ONNX Runtime Android 1.29.0, API 30+, `arm64-v8a`, CPU provider, threads 1/1 |
 | Parity gate | `fp32-parity-v2`, all 26 required vectors and every declared metric pass |
+
+## Direct model-download policy
+
+The release and F-Droid variants declare `android.permission.INTERNET` for direct
+model acquisition only. Cleartext traffic and arbitrary URLs are rejected. The
+allowlist is immutable application configuration:
+
+| Engine | Filename | Expected bytes | Outer SHA-256 | HTTPS asset |
+|---|---|---:|---|---|
+{network_assets}
+
+Document import, generation, and runtime dependency acquisition remain offline.
+The download transport is intentionally outside this task; any implementation
+must use only the allowlist above and preserve the existing package on failure.
 
 ## Recorded checksums and versions
 

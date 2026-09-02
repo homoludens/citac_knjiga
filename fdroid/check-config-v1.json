@@ -20,12 +20,15 @@
     "toolchain_lock": "gradle/toolchain.lock.json"
   },
   "manifest": {
+    "required_permissions": [
+      "android.permission.INTERNET"
+    ],
     "forbidden_permissions": [
-      "android.permission.INTERNET",
       "android.permission.ACCESS_NETWORK_STATE",
       "android.permission.ACCESS_WIFI_STATE",
       "android.permission.CHANGE_WIFI_STATE"
-    ]
+    ],
+    "uses_cleartext_traffic": false
   },
   "source": {
     "roots": ["app", "core", "document-epub", "playback-export", "tts-onnx", "gradle"],

@@ -20,10 +20,10 @@ artifacts (12.7) or publication gating (12.8).
 ## Evidence basis
 
 The bundle is based on the dependency/license audit (`b20a036`), toolchain and
-source-closure locks (`273d37b`, `b9c398c`), diagnostics/privacy checks, legal
+source-closure/network-policy locks (`273d37b`, `b9c398c`), diagnostics/privacy checks, legal
 inventory, parity and recovery evidence, benchmark records, and the capability
-matrix. The generated SBOM contains 149 audited Android components over
-16 selected runtime/test configurations. Model payloads, generated audio,
+matrix. The generated SBOM contains 153 audited Android components over
+19 selected runtime/test configurations. Model payloads, generated audio,
 document text, secrets and machine-local paths are intentionally absent.
 
 ## Reproduction

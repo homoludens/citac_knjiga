@@ -14,10 +14,23 @@ from scripts.release_artifacts import (
     validate_artifact_directory,
     verify_checksums,
     verify_signature,
+    network_policy,
 )
 
 
 class ReleaseArtifactChecksTest(unittest.TestCase):
+    def test_release_policy_lists_only_pinned_model_assets_and_offline_operations(self):
+        policy = network_policy()
+        self.assertEqual(policy["permission"], "android.permission.INTERNET")
+        self.assertFalse(policy["cleartext"])
+        self.assertEqual(len(policy["allowed_assets"]), 2)
+        self.assertEqual(
+            policy["offline_operations"],
+            ["document_import", "generation", "runtime_dependency_acquisition"],
+        )
+        self.assertTrue(all(url.startswith("https://github.com/homoludens/citac_knjiga/releases/download/")
+                            for url in (asset["url"] for asset in policy["allowed_assets"])))
+
     def test_version_metadata_is_parsed(self):
         self.assertEqual(
             parse_badging("package: name='com.example' versionCode='7' versionName='1.2.3'"),

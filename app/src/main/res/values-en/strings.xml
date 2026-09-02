@@ -212,7 +212,7 @@
     <string name="diagnostics_storage_action">Storage data is unavailable. Check free space before generating.</string>
     <string name="diagnostics_policy_section">Offline policy</string>
     <string name="diagnostics_offline_policy">Text processing, the model, and audio stay on this device.</string>
-    <string name="diagnostics_network_policy">The app has no routine network permission; the model is manually imported through the system.</string>
+    <string name="diagnostics_network_policy">Network is limited to configured GitHub model assets; document import, generation, and runtime dependencies remain offline.</string>
     <string name="diagnostics_evidence_section">Proof and tests</string>
     <string name="diagnostics_evidence_parity">Android model parity</string>
     <string name="diagnostics_evidence_benchmark">Sustained device measurement</string>

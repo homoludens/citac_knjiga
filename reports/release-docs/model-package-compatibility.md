@@ -19,6 +19,21 @@ schema validity is not legal clearance.
 | Android runtime | ONNX Runtime Android 1.29.0, API 30+, `arm64-v8a`, CPU provider, threads 1/1 |
 | Parity gate | `fp32-parity-v2`, all 26 required vectors and every declared metric pass |
 
+## Direct model-download policy
+
+The release and F-Droid variants declare `android.permission.INTERNET` for direct
+model acquisition only. Cleartext traffic and arbitrary URLs are rejected. The
+allowlist is immutable application configuration:
+
+| Engine | Filename | Expected bytes | Outer SHA-256 | HTTPS asset |
+|---|---|---:|---|---|
+| `KOKORO` | `kokoro-serbian-dragana-v2.zip` | `338316574` | `58c031fd6e37a12cafe3575d26a057e10c45cdfe7c6c7605f6966e7e2406458b` | <https://github.com/homoludens/citac_knjiga/releases/download/kokoro-model-v1.0.0/kokoro-serbian-dragana-v2.zip> |
+| `VITS` | `serbian-vits-1.0.0.zip` | `121971081` | `45aa231e12c8a317f0d093cfb56d54066e19b53561b4ac401661109f19abe5dc` | <https://github.com/homoludens/citac_knjiga/releases/download/vits-model-v1.0.0/serbian-vits-1.0.0.zip> |
+
+Document import, generation, and runtime dependency acquisition remain offline.
+The download transport is intentionally outside this task; any implementation
+must use only the allowlist above and preserve the existing package on failure.
+
 ## Recorded checksums and versions
 
 These are identities, not embedded payloads. The model archive, model bytes,

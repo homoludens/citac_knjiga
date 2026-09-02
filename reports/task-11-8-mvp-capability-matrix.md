@@ -111,7 +111,7 @@ task in 1.x through 11.x is omitted.
 | `validate_model_package_manifest.py` plus external archive SHA-256 check | Passed; archive hash `58c031fd...6458b`. |
 | `validate_onnx.py` against local graph and manifest | Pass; ORT 1.29.0, declared limits and runtime probes valid. |
 | `./gradlew test --no-daemon --max-workers=1` | Pass. |
-| All module lint tasks plus `app:verifyOfflineReleaseManifests` | Pass; standard/F-Droid release manifests have no routine network permission. |
+| All module lint tasks plus `app:verifyModelDownloadManifests` | Pass; standard/F-Droid release manifests require `INTERNET` only for the pinned model-download policy and reject routine network permissions. |
 | Core, TTS, EPUB, and playback/export connected suites | Pass: 19, 21, 2, and 17 tests respectively on API 35 x86_64. |
 | Focused app accessibility, diagnostics, player-controls, and multi-chapter suite | Pass: 9 tests on API 35 x86_64. |
 | Full `:app:connectedStandardDebugAndroidTest` | One expected failure: typed-text proof has no verified package; opt-in model/AAC proofs are skipped without flags. |

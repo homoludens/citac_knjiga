@@ -82,6 +82,48 @@
       "build_mode": "published Maven AAR; not locally source-built"
     }
   ],
+  "network_policy": {
+    "schema": "citac-knjiga-model-download-network-policy",
+    "version": 1,
+    "permission": "android.permission.INTERNET",
+    "cleartext": false,
+    "allowed_host": "github.com",
+    "allowed_path_prefix": "/homoludens/citac_knjiga/releases/download/",
+    "allowed_assets": [
+      {
+        "engine": "KOKORO",
+        "url": "https://github.com/homoludens/citac_knjiga/releases/download/kokoro-model-v1.0.0/kokoro-serbian-dragana-v2.zip",
+        "filename": "kokoro-serbian-dragana-v2.zip",
+        "size_bytes": 338316574,
+        "sha256": "58c031fd6e37a12cafe3575d26a057e10c45cdfe7c6c7605f6966e7e2406458b"
+      },
+      {
+        "engine": "VITS",
+        "url": "https://github.com/homoludens/citac_knjiga/releases/download/vits-model-v1.0.0/serbian-vits-1.0.0.zip",
+        "filename": "serbian-vits-1.0.0.zip",
+        "size_bytes": 121971081,
+        "sha256": "45aa231e12c8a317f0d093cfb56d54066e19b53561b4ac401661109f19abe5dc"
+      }
+    ],
+    "offline_operations": [
+      "document_import",
+      "generation",
+      "runtime_dependency_acquisition"
+    ],
+    "forbidden_network_api_terms": [
+      "java.net.URL",
+      "java.net.URLConnection",
+      "java.net.Socket",
+      "javax.net.",
+      "HttpURLConnection",
+      "WebView",
+      "android.net.http",
+      "okhttp",
+      "retrofit",
+      "ktor-client",
+      "volley"
+    ]
+  },
   "optional_source_components": [
     {
       "name": "sherpa-onnx-vits",

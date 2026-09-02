@@ -2,28 +2,28 @@
   "bundle_id": "task-12-6",
   "generated_by": {
     "path": "scripts/generate_release_docs.py",
-    "sha256": "cc70aa2166ae7c7da51ce92462f704b2d60ce136d52d4343a5fa52e8d3c443d5"
+    "sha256": "33e26a5cd9982a57a44c8fd8e996e6d3c277fa55248e7a022c91b62bdce8fe1b"
   },
   "inputs": [
     {
       "path": "app/src/main/assets/notices/dependency-license-inventory.json",
-      "sha256": "230b6a9f5ceeab7ec08795a9d79810ca839fed2095c4e5a2f5913a5cc6f21906"
+      "sha256": "11bd0ca2d0c36cad72439e50dc240f3008ccb71d2847d7460ea1e0f5e8144c52"
     },
     {
       "path": "app/src/main/assets/notices/THIRD_PARTY_NOTICES.md",
-      "sha256": "35a38cd1f533bcece297992a2824880c069c31ac79cdb27f3516c1be65b31229"
+      "sha256": "19fc75e15dac7681441200a7b95128a4f8bd4985c79bc9bdffe1f107c1c9219e"
     },
     {
       "path": "gradle/libs.versions.toml",
-      "sha256": "4b10b1758444f7e44f72f50734e34e98143afdc0c065b045885009e2782334c0"
+      "sha256": "c765f30c26a6f65819ac4649760dbe096ae803d2868cae4da4e6751bee804655"
     },
     {
       "path": "gradle/toolchain.lock.json",
-      "sha256": "17fef8791a45f8fb36d82cd740b1bb9a8feb9bba60aef134deb13dd05f5bc426"
+      "sha256": "d74624513370582b2a54ce52a4a88047997ac61b87273a3ebf58524a6eaa8da3"
     },
     {
       "path": "gradle/verification-metadata.xml",
-      "sha256": "b7e6898cbf5a054221415483531918973de89500ed7d523652e23a30c93240b2"
+      "sha256": "e64669e10ded9757f20cd8fb23678107d22ff76eff21d63700642c9ea6e95e31"
     },
     {
       "path": "settings-gradle.lockfile",
@@ -31,7 +31,7 @@
     },
     {
       "path": "app/gradle.lockfile",
-      "sha256": "cc4d0d5060d587265ad739e374d083d9a0a871da3aa90bff24119e26c4fe969b"
+      "sha256": "554f26edd657064d5f04b6395f5e8304e1573b756a681f8fd89884344228d2fa"
     },
     {
       "path": "core/gradle.lockfile",
@@ -39,7 +39,7 @@
     },
     {
       "path": "tts-onnx/gradle.lockfile",
-      "sha256": "f4c98694ec54a37f388a2cdbecee2f2a813704d2a1caaf1a5daa746b974f3cef"
+      "sha256": "707a75f9bfa33c071bea4ee83a88646eed156fc61ab78d54b19f6bb7f266f4a7"
     },
     {
       "path": "document-epub/gradle.lockfile",
@@ -55,7 +55,7 @@
     },
     {
       "path": "model-tools/native/source-closure-v1.json",
-      "sha256": "e6fb227157503634d4ff0eaf61bd104ae90dfedaa77147ba9dd993158d9ee7d6"
+      "sha256": "0f2f555d7dd9350f042e929fe8bad74d1c4f833a03edc62b094e0d34fb8b7eb3"
     },
     {
       "path": "model-tools/native/espeak-data-manifest-v1.json",
@@ -94,8 +94,24 @@
       "sha256": "603fc3ef334d328dba6163de144b88a93ec71e958873f2d7ec877049e74e6a16"
     },
     {
+      "path": "app/src/main/AndroidManifest.xml",
+      "sha256": "9254c848b9a4d030df9a7e6557aa4ea0bee6c8d108659e62edbd0e5f692cb815"
+    },
+    {
+      "path": "app/build.gradle.kts",
+      "sha256": "cf59f61cc19119d67e71ee242a6aac232c43e11be164f514c4673a5d4968383d"
+    },
+    {
+      "path": "app/src/main/java/com/homoludens/citacknjiga/diagnostics/ModelDownloadConfig.kt",
+      "sha256": "06b15052c665df96f51201bb1ec6d2eac87551cd3924643bd4f4484e9258bb07"
+    },
+    {
+      "path": "fdroid/check-config-v1.json",
+      "sha256": "8b7fb9d3f301e804583bfe53022e412e0893e951cd5338f9d3b671f18dfb0214"
+    },
+    {
       "path": "DEPLOYMENT.md",
-      "sha256": "b6650f8cb370ecde1a4129d4c8a69cc1db6854c8ee70a0dafed53811d82e4069"
+      "sha256": "996fcef0288ebfae35a29bee7220d43e89fd8c690a90dc354ccc6bda653afa9d"
     },
     {
       "path": "reports/task-11-4-android-qualification.md",
@@ -103,21 +119,21 @@
     },
     {
       "path": "reports/task-11-8-mvp-capability-matrix.md",
-      "sha256": "56c0b59df7ecfda974d8cab414713118775959578798737dbd267301bdfdb6b6"
+      "sha256": "02e10c8ce10ee2e240e447c430c98595c28d3bf18d7c0912475bc068bd3c3c4b"
     },
     {
       "path": "scripts/generate_release_docs.py",
-      "sha256": "cc70aa2166ae7c7da51ce92462f704b2d60ce136d52d4343a5fa52e8d3c443d5"
+      "sha256": "33e26a5cd9982a57a44c8fd8e996e6d3c277fa55248e7a022c91b62bdce8fe1b"
     }
   ],
   "notice_references": {
     "inventory": {
       "path": "app/src/main/assets/notices/dependency-license-inventory.json",
-      "sha256": "230b6a9f5ceeab7ec08795a9d79810ca839fed2095c4e5a2f5913a5cc6f21906"
+      "sha256": "11bd0ca2d0c36cad72439e50dc240f3008ccb71d2847d7460ea1e0f5e8144c52"
     },
     "markdown": {
       "path": "app/src/main/assets/notices/THIRD_PARTY_NOTICES.md",
-      "sha256": "35a38cd1f533bcece297992a2824880c069c31ac79cdb27f3516c1be65b31229"
+      "sha256": "19fc75e15dac7681441200a7b95128a4f8bd4985c79bc9bdffe1f107c1c9219e"
     }
   },
   "outputs": [

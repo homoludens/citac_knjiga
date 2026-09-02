@@ -212,7 +212,7 @@
     <string name="diagnostics_storage_action">Подаци о меморији нису доступни. Проверите слободан простор пре генерисања.</string>
     <string name="diagnostics_policy_section">Офлајн политика</string>
     <string name="diagnostics_offline_policy">Обрада текста, модел и звук остају на уређају.</string>
-    <string name="diagnostics_network_policy">Апликација нема рутинску мрежну дозволу; модел се увози ручно преко система.</string>
+    <string name="diagnostics_network_policy">Мрежа је ограничена на подешена GitHub преузимања модела; увоз докумената, генерисање и зависности остају офлајн.</string>
     <string name="diagnostics_evidence_section">Докази и тестови</string>
     <string name="diagnostics_evidence_parity">Android паритет модела</string>
     <string name="diagnostics_evidence_benchmark">Одрживо мерење уређаја</string>

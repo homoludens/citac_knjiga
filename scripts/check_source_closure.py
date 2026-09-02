@@ -10,12 +10,15 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from urllib.parse import urlparse
 
 
 DEFAULT_ROOT = Path(__file__).resolve().parents[1]
 POLICY_RELATIVE = Path("model-tools/native/source-closure-v1.json")
 TOOLCHAIN_RELATIVE = Path("gradle/toolchain.lock.json")
 DATA_MANIFEST_RELATIVE = Path("model-tools/native/espeak-data-manifest-v1.json")
+DESCRIPTOR_RELATIVE = Path("app/src/main/java/com/homoludens/citacknjiga/diagnostics/ModelDownloadConfig.kt")
+ANDROID_NS = "http://schemas.android.com/apk/res/android"
 NATIVE_SUFFIXES = {
     ".aar", ".a", ".apk", ".class", ".dll", ".dylib", ".jar", ".o", ".obj", ".so"
 }
@@ -111,6 +114,85 @@ def verify_provenance(root: Path, policy: dict[str, object]) -> None:
             require(marker not in contents, f"file-based or local native dependency in {path.relative_to(root)}: {marker}")
 
 
+def descriptor_records(source: str) -> set[tuple[str, str, str, int, str]]:
+    records: set[tuple[str, str, str, int, str]] = set()
+    pattern = re.compile(
+        r"public val (KOKORO|VITS): ModelReleaseDescriptor = ModelReleaseDescriptor\((.*?)\n        \)",
+        re.DOTALL,
+    )
+    for engine, body in pattern.findall(source):
+        def field(name: str) -> str:
+            match = re.search(rf"\b{name} = \"([^\"]+)\"", body)
+            require(match is not None, f"model descriptor field is missing: {engine}.{name}")
+            return match.group(1)
+
+        url = re.search(r'\bassetUrl = "([^"]*)"\s*\+\s*"([^"]*)"', body)
+        require(url is not None, f"model descriptor URL is missing: {engine}")
+        size = re.search(r"\bexpectedSizeBytes = ([0-9_]+)L", body)
+        require(size is not None, f"model descriptor size is missing: {engine}")
+        records.add((engine, url.group(1) + url.group(2), field("assetFileName"), int(size.group(1).replace("_", "")), field("outerSha256")))
+    return records
+
+
+def verify_network_policy(root: Path, policy: dict[str, object]) -> None:
+    network = policy.get("network_policy")
+    require(isinstance(network, dict), "network policy is missing from source closure")
+    require(network.get("schema") == "citac-knjiga-model-download-network-policy", "unsupported network policy schema")
+    require(network.get("version") == 1, "unsupported network policy version")
+    require(network.get("permission") == "android.permission.INTERNET", "network policy permission is not INTERNET")
+    require(network.get("cleartext") is False, "network policy permits cleartext traffic")
+    require(network.get("allowed_host") == "github.com", "network policy host is not GitHub")
+    prefix = network.get("allowed_path_prefix")
+    require(isinstance(prefix, str) and prefix.startswith("/"), "network policy path prefix is invalid")
+
+    assets = network.get("allowed_assets")
+    require(isinstance(assets, list) and len(assets) == 2, "network policy must contain exactly two model assets")
+    expected: set[tuple[str, str, str, int, str]] = set()
+    for asset in assets:
+        require(isinstance(asset, dict), "network policy asset is not an object")
+        values = (asset.get("engine"), asset.get("url"), asset.get("filename"), asset.get("size_bytes"), asset.get("sha256"))
+        require(all(isinstance(value, (str, int)) for value in values), "network policy asset metadata is incomplete")
+        engine, url, filename, size, digest = values
+        parsed = urlparse(url)
+        require(parsed.scheme == "https" and parsed.hostname == network["allowed_host"] and not parsed.query and not parsed.fragment,
+                f"network policy asset URL is not a pinned HTTPS GitHub URL: {url}")
+        require(parsed.path.startswith(prefix) and parsed.path.endswith("/" + filename),
+                f"network policy asset path is outside the approved release prefix: {url}")
+        require(isinstance(size, int) and size > 0 and isinstance(digest, str) and re.fullmatch(r"[0-9a-f]{64}", digest),
+                f"network policy asset integrity metadata is invalid: {filename}")
+        expected.add((engine, url, filename, size, digest))
+    require(len(expected) == len(assets), "network policy contains duplicate assets")
+    descriptors = descriptor_records((root / DESCRIPTOR_RELATIVE).read_text(encoding="utf-8"))
+    require(descriptors == expected, "network policy differs from pinned model descriptors")
+
+    offline_operations = network.get("offline_operations")
+    require(offline_operations == ["document_import", "generation", "runtime_dependency_acquisition"],
+            "network policy does not preserve offline operation boundaries")
+    forbidden = network.get("forbidden_network_api_terms")
+    require(isinstance(forbidden, list) and forbidden, "network policy has no forbidden network API list")
+    for relative_root in policy["closure"]["scan_roots"]:
+        source_root = root / relative_root
+        for path in source_root.rglob("*"):
+            if not path.is_file() or path.is_symlink() or any(part in {"build", ".cxx", ".gradle", ".kotlin"} for part in path.relative_to(root).parts):
+                continue
+            if path.suffix.lower() not in {".java", ".kt"}:
+                continue
+            contents = path.read_text(encoding="utf-8")
+            for term in forbidden:
+                require(term.lower() not in contents.lower(), f"network API is outside the model-download boundary: {path.relative_to(root)}: {term}")
+
+    manifest = ET.parse(root / "app/src/main/AndroidManifest.xml").getroot()
+    permissions = {
+        node.attrib.get("{" + ANDROID_NS + "}name")
+        for node in manifest.iter()
+        if node.tag.rsplit("}", 1)[-1].startswith("uses-permission")
+    }
+    require(network["permission"] in permissions, "application manifest does not declare the model-download permission")
+    application = manifest.find("application")
+    require(application is not None and application.attrib.get("{" + ANDROID_NS + "}usesCleartextTraffic") == "false",
+            "application manifest does not enforce HTTPS-only model downloads")
+
+
 def verify_data_closure(root: Path, policy: dict[str, object]) -> int:
     data = policy["data"]
     manifest = read_json(root, data["manifest"])
@@ -167,13 +249,14 @@ def main() -> int:
         policy = read_json(root, POLICY_RELATIVE)
         require(policy["schema"] == "citac-knjiga-native-source-closure", "unsupported source-closure schema")
         verify_provenance(root, policy)
+        verify_network_policy(root, policy)
         data_count = verify_data_closure(root, policy)
         scanned, allowlisted = verify_source_files(root, policy)
     except (ClosureError, OSError, ET.ParseError, KeyError, TypeError, ValueError) as error:
         print(f"source closure failed: {error}", file=sys.stderr)
         return 2
     print(f"source closure verified: {data_count} eSpeak data files, {scanned} source files, {allowlisted} documented binary exception")
-    print("F-Droid inputs: no local native/model artifacts; ONNX Runtime AAR is explicitly locked from Maven Central")
+    print("F-Droid inputs: no local native/model artifacts; model network policy is pinned to two GitHub assets")
     return 0
 
 

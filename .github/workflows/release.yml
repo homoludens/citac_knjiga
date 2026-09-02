@@ -58,6 +58,7 @@ jobs:
         run: |
           python3 scripts/check_source_closure.py
           python3 scripts/validate_release_docs.py
+          ./gradlew :app:verifyModelDownloadManifests --no-daemon --max-workers=2 --console=plain
 
       - name: Run locked JVM and release lint checks
         run: |

@@ -122,6 +122,8 @@ jobs:
           ./gradlew :app:assembleStandardDebug :app:assembleFdroidDebug \
             :app:assembleStandardRelease :app:assembleFdroidRelease \
             --no-daemon --max-workers=2 --console=plain --dependency-verification=strict
+      - name: Verify model-download merged manifests
+        run: ./gradlew :app:verifyModelDownloadManifests --no-daemon --max-workers=2 --console=plain
       - name: Run F-Droid-oriented scanner checks
         run: python3 scripts/check_fdroid.py --require-build
       - name: Validate release documentation bundle

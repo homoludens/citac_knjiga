@@ -46,6 +46,11 @@ target.
 - OpenSpec `manage-library-and-model-downloads` task 4.1 pins immutable Kokoro and
   VITS GitHub Release asset descriptors with exact repository paths, versions, sizes,
   and outer SHA-256 values; descriptor construction rejects inconsistent metadata.
+- OpenSpec `manage-library-and-model-downloads` task 4.2 adds `INTERNET` to both
+  standard and F-Droid manifests for the pinned model assets only. Merged-manifest,
+  F-Droid, source-closure, privacy, and release-manifest checks reject cleartext,
+  routine network clients, arbitrary URLs, and networked document import/generation;
+  task 4.3 still owns transport.
 
 - Archived OpenSpec change `fix-real-world-epub-import` is implemented across the
   `document-epub` and `app` modules. It now uses immutable production limits,
@@ -495,13 +500,12 @@ target.
   exact archive-limit, high-ratio, external-DTD, and external-URI cases. A
   well-formed empty NCX map is also tested to ensure malformed navigation warns
   without discarding valid spine content; no large attack artifact is added.
-- Task 11.2 verifies the actual standard and F-Droid release merged manifests
-  contain no `INTERNET` or `ACCESS_NETWORK_STATE` permission. `LocalDiagnostics`
-  now keeps only safe category tokens, validated numeric values, SHA-256 hashes,
-  and constrained IDs; free-form messages, document text, URI/path/query/
-  fragment values, and exception details are redacted. Focused and release
-  verification commands and the dependency/component/runtime audit are recorded
-  in `DEPLOYMENT.md`.
+- Task 11.2 established the prior no-network-permission baseline for local
+  processing. Task 4.2 supersedes that manifest assertion with the narrower
+  `INTERNET` model-asset policy; `ACCESS_NETWORK_STATE` remains removed.
+  `LocalDiagnostics` keeps only safe category tokens, validated numeric values,
+  SHA-256 hashes, and constrained IDs; free-form messages, document text,
+  URI/path/query/fragment values, and exception details are redacted.
 - Task 11.3 adds cross-component recovery coverage: golden Serbian
   Latin/Cyrillic vectors retain identical phoneme/token/generation identities;
   Room reconciliation plus the bounded runner regenerates only a changed
