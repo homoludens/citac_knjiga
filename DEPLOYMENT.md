@@ -2,14 +2,42 @@
 
 ## PDF import verification
 
-PdfBox-Android `2.0.27.0` is enabled in `document-pdf` after qualification on
-API 33 `arm64-v8a` (production) and API 35 `x86_64` (development). Bouncy Castle
-`1.72` is part of the locked transitive runtime closure. API 30 and API 36 are
-non-gating and are recorded as not executed.
+The selected production parser is
+`com.tom-roush:pdfbox-android:2.0.27.0` (Apache-2.0). Its locked crypto
+runtime closure is `org.bouncycastle:bcprov-jdk15to18:1.72`,
+`org.bouncycastle:bcpkix-jdk15to18:1.72`, and
+`org.bouncycastle:bcutil-jdk15to18:1.72` (Bouncy Castle MIT-like license).
+The PdfBox AAR SHA-256 is
+`30277f879cfd571db2a137582c95516a0d4ea6778e945519bc58ca93d57d88c7`; all
+transitive artifact hashes are recorded in
+`document-pdf/pdfbox-source-closure.json` and
+`pdf-qualification/android-consumer/qualification-closure.json`.
 
-Run the offline production and test gates:
+The checked-in qualification report is
+`pdf-qualification/qualification-report.json` and is `pass`. Its gating
+scope is API 33 `arm64-v8a` on the Poco F3 production target and API 35
+`x86_64` on the Google development emulator. API 30 and API 36 are explicitly
+non-gating and were not executed. The report enables the production gate;
+`PdfFeatureAvailability.QUALIFIED` is derived from that passing report and the
+PDF services are constructed only when it is true.
+
+The release evidence covers:
+
+- `./gradlew --offline :document-pdf:testDebugUnitTest`: JVM PDF coverage passes (13 tests), including limits, geometry, diagnostics, provenance, and atomic rollback.
+- `./gradlew --offline :document-pdf:connectedDebugAndroidTest`: the 10-test PdfBox suite passes on both Poco F3 API 33 `arm64-v8a` and API 35 `x86_64`, covering resource-loader setup, real extraction, provider disappearance after staging, cancellation cleanup, malformed/protected/truncated/image-only files, external-resource isolation, and the enabled gate.
+- Accepted PDF persistence is covered through Room project/chapter/narration-block projection with no generation run or audio segment created during acceptance.
+- The focused app PDF UI suite passes 4/4 on API 35 `x86_64`, covering invalid ranges, preview-before-acceptance, loading cancellation, safe diagnostics, and accepted state without generation. The API 33 app UI attempt lost device transport before completion; no API 33 app UI pass is claimed.
+- `python3 scripts/check_pdf_qualification.py`, dependency locking/checksum verification, `python3 scripts/check_source_closure.py`, the PdfBox source/license closure, and Apache/Bouncy Castle notices pass.
+- Offline production compile, `document-pdf` lint, and standard/F-Droid release APK assembly pass with the parser enabled; release payload checks contain no OCR model, PDF upload path, or undeclared PDF dependency. The release APKs are unsigned: this checkout has no production keystore or signing credentials, so unsigned APK inspection is not signed-release evidence.
+
+Before release, run the deterministic checks and the locked build:
 
 ```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+python3 scripts/check_pdf_qualification.py
+python3 scripts/check_source_closure.py
+python3 scripts/audit_dependencies.py
 ANDROID_HOME=/home/homoludens/Android/Sdk \
 ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
 ./gradlew --offline \
@@ -17,15 +45,15 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
   :document-pdf:testDebugUnitTest \
   :document-pdf:connectedDebugAndroidTest \
   :document-pdf:lintDebug \
-  :document-pdf:assembleRelease
+  :app:assembleStandardRelease :app:assembleFdroidRelease
 ```
 
-The qualification report is `pdf-qualification/qualification-report.json`.
-Run `python3 scripts/check_pdf_qualification.py` and
-`python3 scripts/audit_dependencies.py` before release. PdfBox notices,
-checksums, source closure, and the generated dependency inventories must remain
-in sync; rollback means restoring the prior dependency-lock, verification, and
-`PdfFeatureAvailability` gate together.
+If the parser fails after release, restore the qualification report to a
+non-passing result so `PdfFeatureAvailability` is disabled and the app keeps
+the unavailable diagnostic. Remove only abandoned PDF staging directories
+under the private `temporary/pdf-*` area (the existing
+`PdfOrphanReconciler` path). Do not remove accepted PDF sources, canonical
+text, Room projects, EPUB data, model packages, or verified audio.
 
 ## EPUB import verification
 
@@ -2178,32 +2206,3 @@ the source/toolchain/package/legal/parity/benchmark input hashes, exact SBOM
 coordinates, notice hashes, output set, and redaction rules. It does not sign,
 publish, or approve an application or model package; those are tasks 12.7 and
 12.8.
-
-## PDF parser qualification and disabled production gate
-
-The PDF change intentionally keeps production PDF import unavailable until a
-candidate passes the complete qualification matrix. The disposable consumer
-has no PDF dependency and generates local fixture inputs without network access.
-Run:
-
-```sh
-python3 pdf-qualification/qualify.py
-python3 scripts/check_pdf_qualification.py
-```
-
-The checked-in report is `pdf-qualification/qualification-report.json`. It is a
-binary `no-pass`: API 35 is recorded as an executed negative check because no
-approved text-and-geometry adapter is wired; API 30 and API 36 are unavailable
-images in this environment. `document-pdf` contains only the fail-closed
-adapter and safety contracts, is not an app dependency, and adds no parser
-coordinate, lock entry, checksum, notice, picker, OCR, or network behavior.
-
-Focused PDF checks:
-
-```sh
-ANDROID_HOME=/home/homoludens/Android/Sdk \
-ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
-./gradlew :core:testDebugUnitTest :document-pdf:testDebugUnitTest \
-  :document-pdf:compileDebugAndroidTestKotlin \
-  :document-pdf:lintDebug :document-pdf:assembleRelease
-```

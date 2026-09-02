@@ -6,17 +6,19 @@ target.
 
 ## Status
 
-- OpenSpec change `add-pdfbox-android-parser` has qualified and selected
-  PdfBox-Android `2.0.27.0` for the API 33 `arm64-v8a` production target and
-  API 35 `x86_64` development target. The locked production adapter now reads
-  only staged private files, preserves page/text geometry and provenance, and
-  fails closed for protected, malformed, unreadable, and image-only content.
-  API 33/API 35 qualification evidence passes; API 30/API 36 are explicitly
-  non-gating and not executed. App/UI integration remains a later phase.
-- The PdfBox JVM suite, Android instrumentation suite on the available API 35
-  emulator, offline app compile, dependency audit, source closure, and notices
-  are passing. The parser feature gate is enabled only for the checked-in
-  qualification scope.
+- OpenSpec change `add-pdfbox-android-parser` has selected
+  `com.tom-roush:pdfbox-android:2.0.27.0` for the API 33 `arm64-v8a` production
+  target and API 35 `x86_64` development target. Its locked Bouncy Castle
+  closure is `bcprov-jdk15to18`, `bcpkix-jdk15to18`, and `bcutil-jdk15to18`, all
+  at `1.72`. The adapter reads only staged private files, preserves page/text
+  geometry and provenance, and fails closed for protected, malformed,
+  unreadable, and image-only content.
+- The checked-in qualification report passes for both gating targets; API 30
+  and API 36 are explicitly non-gating and were not executed. The
+  `PdfFeatureAvailability` gate is enabled from that passing report. JVM,
+  Android, lint, dependency, source-closure, notice, offline, and release APK
+  checks pass within their documented scope. Release APKs remain unsigned
+  because no production keystore or signing credentials are available.
 
 - OpenSpec change `fix-real-world-epub-import` is implemented across the
   `document-epub` and `app` modules. It now uses immutable production limits,
@@ -693,18 +695,31 @@ target.
 
 ## PDF page import change
 
-- OpenSpec change `add-text-pdf-page-import` adds the format-neutral document IR,
-  exact immutable PDF limits, private SAF staging, cleanup-safe preview
-  boundaries, deterministic geometry diagnostics, and existing Room/Markdown
-  projection helpers under `core/` and `document-pdf/`.
-- The disposable `pdf-qualification/` consumer records a binary `no-pass`
-  result. API 35 has a negative gate record; API 30 and API 36 images are not
-  available. No PDF parser dependency, picker, OCR surface, or network/resource
-  resolver is wired into production until a candidate passes every gate.
-- PDF preview safety now derives displayed text from geometry-ordered blocks,
-  preserves adapter diagnostics and warnings, reports deadline expiry as a
-  bounded timeout, and validates the projected document against its preview
-  before acceptance.
+- OpenSpec change `add-pdfbox-android-parser` promotes PdfBox-Android
+  `2.0.27.0` after the 13-fixture candidate suite passed 6/6 on Poco F3 API 33
+  `arm64-v8a` and 6/6 on the API 35 `x86_64` emulator. API 30 and API 36 are
+  non-gating and not executed. The candidate AAR and all Bouncy Castle 1.72
+  artifacts are locked, checksum-verified, source-closed, and covered by the
+  checked-in Apache/Bouncy Castle notices.
+- The production gate is enabled only by the passing report. The JVM suite
+  covers normalization, geometry ordering, limits, diagnostics, provenance,
+  cancellation/deadline behavior, and atomic rollback. Android coverage
+  includes PdfBox resource initialization, provider disappearance after
+  staging, cancellation cleanup, malformed/protected/truncated/image-only
+  rejection, external-resource isolation, and the real parser. Acceptance
+  persistence verifies Room project/chapter/narration-block output and no
+  generation job or audio.
+- The focused app PDF UI suite passes 4/4 on API 35 `x86_64` for invalid range,
+  preview, loading cancellation, safe diagnostics, and accepted-without-
+  generation states. The API 33 app UI run lost device transport before it
+  completed, so API 33 app UI is not claimed as passed. Release APK assembly is
+  offline and parser-enabled, but unsigned and therefore not signed-release
+  evidence; no OCR model, PDF upload path, or undeclared PDF dependency is
+  included.
+- If the parser must be rolled back, restore the qualification report to a
+  non-passing result to disable `PdfFeatureAvailability`, then remove only
+  abandoned `temporary/pdf-*` staging. Preserve accepted PDF sources,
+  canonical text, Room state, EPUB data, model packages, and verified audio.
 
 ## Serbian VITS backend qualification
 
