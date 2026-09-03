@@ -88,11 +88,16 @@ generation request. Chapter/book regeneration uses that same queue and the
 currently selected engine; no document-format-specific generation path is
 required.
 
-Generation progress is committed when a complete audio segment is published.
-While ONNX inference is running, the library shows an indeterminate progress
-bar because the native call does not produce a valid partial WAV. The private
-temporary artifact is created only after inference returns and is atomically
-published, so its byte size must not be used as inference progress.
+Durable generation progress is committed when a complete audio segment is
+published. During the active segment, Kokoro's existing inference chunks and
+VITS text chunks of approximately 180 characters append to a valid cumulative
+PCM16 WAV under private temporary storage. The library combines completed
+segment words with this active chunk checkpoint and shows the staging WAV size
+beside the progress bar. The bar remains indeterminate until the first chunk
+finishes because a native inference call cannot expose finer progress. The WAV
+size proves that chunk output is accumulating; it is not an estimate of the
+final duration or completion percentage. Publication, cancellation, and
+terminal inference failures remove the active checkpoint and staging WAV.
 
 If both EPUB and PDF projects show the generic generation failure, inspect the
 persisted generation run's `last_error` before changing document import code.

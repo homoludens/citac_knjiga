@@ -11,6 +11,7 @@ import com.homoludens.citacknjiga.core.database.GenerationRunEntity
 import com.homoludens.citacknjiga.core.database.GenerationRunStatus
 import com.homoludens.citacknjiga.core.database.GenerationProgressSnapshot
 import com.homoludens.citacknjiga.core.database.PlaybackPositionEntity
+import com.homoludens.citacknjiga.core.generation.ActiveGenerationProgress
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -73,7 +74,7 @@ public class LibraryStateTest {
         val chapters = listOf(chapter("chapter-0", 0, ChapterStatus.PARTIAL))
         val segments = listOf(
             segment("ready", "chapter-0", AudioSegmentStatus.READY),
-            segment("pending", "chapter-0", AudioSegmentStatus.PENDING),
+            segment("pending", "chapter-0", AudioSegmentStatus.GENERATING),
             segment("failed", "chapter-0", AudioSegmentStatus.FAILED),
         )
         val snapshot = GenerationProgressSnapshot(
@@ -94,21 +95,25 @@ public class LibraryStateTest {
         val book = LibraryDisplayMapper.mapBook(
             project = project,
             chapters = chapters,
-            segments = segments,
-            runs = emptyList(),
+            segments = segments.map { it.copy(generationRunId = "run-1") },
+            runs = listOf(run(project.id)),
             positions = emptyList(),
             chapterProgress = listOf(snapshot),
             bookProgress = bookSnapshot,
+            activeProgress = {
+                ActiveGenerationProgress("run-1", "pending", completedWords = 20, totalWords = 88, temporaryWavBytes = 4_096)
+            },
         )
 
-        assertEquals(12L, book.chapters.single().progress.completedWords)
+        assertEquals(32L, book.chapters.single().progress.completedWords)
         assertEquals(100L, book.chapters.single().progress.totalWords)
-        assertEquals(12, book.chapters.single().progress.percentage)
+        assertEquals(32, book.chapters.single().progress.percentage)
         assertEquals(12, snapshot.percentage)
         assertEquals(GenerationRunStatus.RUNNING, book.chapters.single().generationStatus)
-        assertEquals(12L, book.generationProgress.completedWords)
-        assertEquals(12, book.generationProgress.percentage)
+        assertEquals(32L, book.generationProgress.completedWords)
+        assertEquals(32, book.generationProgress.percentage)
         assertEquals(GenerationRunStatus.RUNNING, book.generationStatus)
+        assertEquals(4_096L, book.activeGenerationProgress?.temporaryWavBytes)
     }
 
     @Test

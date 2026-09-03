@@ -478,7 +478,9 @@ private fun GenerationProgress(
                     stateDescription = statusDescription
                 },
         )
-        if (status == GenerationRunStatus.RUNNING) {
+        if (status == GenerationRunStatus.RUNNING &&
+            (book.activeGenerationProgress == null || book.activeGenerationProgress.completedWords == 0)
+        ) {
             LinearProgressIndicator(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -500,6 +502,13 @@ private fun GenerationProgress(
                         contentDescription = progressAccessibility
                         stateDescription = progress
                     },
+            )
+        }
+        book.activeGenerationProgress?.let { active ->
+            Text(
+                stringResource(R.string.generation_temporary_wav_size, formatBytes(active.temporaryWavBytes)),
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.testTag("generation-temporary-size-${book.project.id}"),
             )
         }
         Text(

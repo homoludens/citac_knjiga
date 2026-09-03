@@ -22,6 +22,7 @@ import com.homoludens.citacknjiga.core.generation.RoomGenerationNotificationData
 import com.homoludens.citacknjiga.core.generation.RoomGenerationQueue
 import com.homoludens.citacknjiga.core.generation.GenerationWorkScheduler
 import com.homoludens.citacknjiga.core.generation.GenerationInvalidationCoordinator
+import com.homoludens.citacknjiga.core.generation.GenerationProgressStore
 import com.homoludens.citacknjiga.generation.VitsGenerationCoordinator
 import com.homoludens.citacknjiga.generation.KokoroGenerationCoordinator
 import com.homoludens.citacknjiga.document.epub.ContentResolverEpubSourceReader
@@ -205,7 +206,11 @@ public class AppContainer(
                 },
             )
             val generationState = GenerationStateService(database)
-            val vitsFactory = VitsSegmentGeneratorFactory(modelStore.vitsModelPackageStore)
+            val generationProgress = GenerationProgressStore(privateStorage)
+            val vitsFactory = VitsSegmentGeneratorFactory(
+                modelStore.vitsModelPackageStore,
+                progressStore = generationProgress,
+            )
             val runExecutor: suspend (String, SegmentGenerator) -> BoundedGenerationResult = { runId, generator ->
                 BoundedGenerationRunner(
                     state = generationState,
@@ -226,6 +231,7 @@ public class AppContainer(
             val kokoroFactory = KokoroSegmentGeneratorFactory(
                 store = modelStore,
                 preprocessorFactory = { SerbianPreprocessor.fromAssets(assets, filesDir) },
+                progressStore = generationProgress,
             )
             val kokoroExecutor: GenerationRunExecutor = KokoroGenerationExecutor(
                 openGenerator = { modelPackageId -> kokoroFactory.open(modelPackageId) },

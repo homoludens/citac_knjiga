@@ -7,6 +7,7 @@ import com.homoludens.citacknjiga.core.generation.ClaimedGenerationSegment
 import com.homoludens.citacknjiga.core.generation.GeneratedSegmentAudio
 import com.homoludens.citacknjiga.core.generation.GenerationError
 import com.homoludens.citacknjiga.core.generation.GenerationStateGateway
+import com.homoludens.citacknjiga.core.generation.GenerationProgressStore
 import com.homoludens.citacknjiga.core.database.AudioSegmentEntity
 import com.homoludens.citacknjiga.core.database.AudioSegmentStatus
 import com.homoludens.citacknjiga.core.database.GenerationRunEntity
@@ -15,13 +16,14 @@ import com.homoludens.citacknjiga.core.database.NarrationBlockEntity
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.core.storage.AtomicArtifactStore
 import com.homoludens.citacknjiga.core.storage.PublishedArtifact
-import java.util.concurrent.atomic.AtomicBoolean
 import java.io.File
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.io.path.createTempDirectory
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -132,6 +134,58 @@ public class VitsBoundaryTest {
     }
 
     @Test
+    public fun longSegmentReportsChunkWordsAndGrowingStagingWav() {
+        val packageInfo = packageInfo()
+        val frontend = VitsSerbianFrontend(VitsSerbianFrontendTestVocabulary.map, blankId = 139)
+        val storage = AppPrivateStorage(createTempDirectory().toFile())
+        val progress = GenerationProgressStore(storage)
+        val text = List(50) { "Čao." }.joinToString(" ")
+        val observedSizes = mutableListOf<Long>()
+        var calls = 0
+        val generator = VitsSegmentGenerator(
+            frontend = frontend,
+            session = SherpaVitsSession.fromNative(object : SherpaVitsNativeSession {
+                override fun generate(tokenIds: IntArray, speakerId: Int, speed: Float): VitsNativeAudio {
+                    observedSizes += requireNotNull(progress.snapshot("run")).temporaryWavBytes
+                    calls++
+                    return VitsNativeAudio(FloatArray(2_205) { 0.1f })
+                }
+
+                override fun close() = Unit
+            }),
+            packageInfo = packageInfo,
+            inferenceSettingsHash = VitsGenerationContract.INFERENCE_SETTINGS_HASH,
+            progressStore = progress,
+        )
+        val block = NarrationBlockEntity(
+            id = "block", chapterId = "chapter", ordinal = 0,
+            blockType = com.homoludens.citacknjiga.core.database.NarrationBlockType.PARAGRAPH,
+            sourceText = text, createdAt = 1L, updatedAt = 1L,
+        )
+        val segment = AudioSegmentEntity(
+            id = "segment", chapterId = "chapter", narrationBlockId = "block", sequence = 0,
+            chunkOrdinal = 0,
+            generationKey = VitsGenerationContract.generationKey(packageInfo, frontend.process(text).tokenIds),
+            generationRunId = "run", createdAt = 1L, updatedAt = 1L,
+        )
+
+        val generated = runBlocking { generator.generate(segment, block) }
+        val snapshot = requireNotNull(progress.snapshot("run"))
+
+        assertTrue(calls > 1)
+        assertEquals(44L, observedSizes.first())
+        assertTrue(observedSizes.zipWithNext().all { (before, after) -> after > before })
+        assertEquals(50, snapshot.completedWords)
+        assertEquals(50, snapshot.totalWords)
+        assertTrue(snapshot.temporaryWavBytes > 44)
+        val output = storage.temporaryFile("test", "long.wav").also { it.parentFile!!.mkdirs() }
+        output.outputStream().use(generated.writer)
+        generated.validator(output)
+        generated.cleanup()
+        assertNull(progress.snapshot("run"))
+    }
+
+    @Test
     public fun segmentGeneratorRejectsAnUnexpectedGenerationKey() {
         val packageInfo = packageInfo()
         val generator = VitsSegmentGenerator(
@@ -174,6 +228,7 @@ public class VitsBoundaryTest {
         )
         val state = SingleSegmentGenerationState(segment, block, run(packageInfo))
         val storage = AppPrivateStorage(createTempDirectory().toFile())
+        val progress = GenerationProgressStore(storage)
         val generator = VitsSegmentGenerator(
             frontend = frontend,
             session = SherpaVitsSession.fromNative(object : SherpaVitsNativeSession {
@@ -184,6 +239,7 @@ public class VitsBoundaryTest {
             }),
             packageInfo = packageInfo,
             inferenceSettingsHash = VitsGenerationContract.INFERENCE_SETTINGS_HASH,
+            progressStore = progress,
             modelPackageId = "room-package",
         )
 
@@ -225,6 +281,7 @@ public class VitsBoundaryTest {
         )
         val state = SingleSegmentGenerationState(segment, block, run(packageInfo))
         val storage = AppPrivateStorage(createTempDirectory().toFile())
+        val progress = GenerationProgressStore(storage)
         val kokoroAudio = storage.readySegmentAudio("book", "chapter", "kokoro-segment").apply {
             checkNotNull(parentFile).mkdirs()
             writeText("existing Kokoro audio")
@@ -239,6 +296,7 @@ public class VitsBoundaryTest {
             }),
             packageInfo = packageInfo,
             inferenceSettingsHash = VitsGenerationContract.INFERENCE_SETTINGS_HASH,
+            progressStore = progress,
         )
 
         val result = BoundedGenerationRunner(
@@ -253,6 +311,7 @@ public class VitsBoundaryTest {
         assertEquals(AudioSegmentStatus.FAILED, state.segment.status)
         assertEquals("existing Kokoro audio", kokoroAudio.readText())
         assertTrue(!storage.readySegmentWav("book", "chapter", "vits-segment").exists())
+        assertNull(progress.snapshot("run"))
         generator.close()
     }
 

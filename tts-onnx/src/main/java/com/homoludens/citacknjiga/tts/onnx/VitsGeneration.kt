@@ -4,6 +4,7 @@ import com.homoludens.citacknjiga.core.generation.BoundedGenerationResult
 import com.homoludens.citacknjiga.core.generation.GenerationKeyCalculator
 import com.homoludens.citacknjiga.core.generation.GenerationKeyInput
 import com.homoludens.citacknjiga.core.generation.GenerationRunExecutor
+import com.homoludens.citacknjiga.core.generation.GenerationProgressStore
 import java.security.MessageDigest
 
 /** Shared VITS identity inputs used by both queue creation and generation. */
@@ -11,12 +12,14 @@ public object VitsGenerationContract {
     public const val PREPROCESSING_VERSION: String = "serbian-vits-preprocessing-v1"
     public const val RESAMPLER_VERSION: String = "serbian-vits-resampler-v1"
     public const val AUDIO_PROCESSING_VERSION: String = "pcm16-wav-v1"
-    public const val INFERENCE_SETTINGS_TEXT: String = "execution_provider=cpu;inter_op_threads=1;intra_op_threads=1;speed=1.0"
+    public const val INFERENCE_SETTINGS_TEXT: String =
+        "execution_provider=cpu;inter_op_threads=1;intra_op_threads=1;speed=1.0;text_chunk_characters=180"
     public val INFERENCE_SETTINGS: Map<String, String> = mapOf(
         "execution_provider" to "cpu",
         "inter_op_threads" to "1",
         "intra_op_threads" to "1",
         "speed" to "1.0",
+        "text_chunk_characters" to "180",
     )
     public val INFERENCE_SETTINGS_HASH: String = sha256(INFERENCE_SETTINGS_TEXT)
 
@@ -76,6 +79,7 @@ public class VitsSegmentGeneratorFactory(
     private val store: VitsModelPackageStore,
     private val sessionOpener: (VitsModelPackageStore, InstalledModelPackage) -> SherpaVitsSession =
         { packageStore, packageInfo -> SherpaVitsSession.open(packageStore, packageInfo) },
+    private val progressStore: GenerationProgressStore? = null,
 ) {
     public fun open(modelPackageId: String? = null): VitsSegmentGenerator {
         val packageInfo = store.activePackage()
@@ -90,6 +94,7 @@ public class VitsSegmentGeneratorFactory(
                 inferenceSettingsHash = VitsGenerationContract.INFERENCE_SETTINGS_HASH,
                 audioProcessingVersion = VitsGenerationContract.AUDIO_PROCESSING_VERSION,
                 modelPackageId = modelPackageId ?: packageInfo.packageId,
+                progressStore = progressStore,
             )
         } catch (failure: Throwable) {
             session.close()

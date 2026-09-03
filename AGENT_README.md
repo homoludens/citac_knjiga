@@ -834,6 +834,11 @@ target.
   package and engine state in place. Accepted EPUB/PDF imports now enqueue the
   shared durable whole-book generation path; regeneration uses that same path.
 - SAF export now falls back to copy-and-verify when a selected document provider
-  cannot rename a temporary document. Generation shows an indeterminate bar
-  during native inference because partial WAV bytes do not exist until inference
-  returns and atomic publication begins.
+  cannot rename a temporary document.
+- Shared PDF/EPUB generation now exposes active chunk progress for both engines.
+  Kokoro uses its existing token chunks; VITS uses approximately 180-character
+  text chunks. Each completed inference chunk is appended to a valid private
+  cumulative PCM16 staging WAV, and the library combines its approximate word
+  checkpoint with published segment progress while showing the current WAV
+  size. The first native call remains indeterminate, and the checkpoint/WAV are
+  removed after publication, cancellation, or terminal inference failure.

@@ -6,6 +6,8 @@ import com.homoludens.citacknjiga.core.generation.GeneratedSegmentAudio
 import com.homoludens.citacknjiga.core.generation.GenerationKeyCalculator
 import com.homoludens.citacknjiga.core.generation.GenerationKeyInput
 import com.homoludens.citacknjiga.core.generation.GenerationProvenance
+import com.homoludens.citacknjiga.core.generation.GenerationProgressStore
+import com.homoludens.citacknjiga.core.generation.ApproximateWordCounter
 import com.homoludens.citacknjiga.core.generation.SegmentGenerator
 import com.homoludens.citacknjiga.tts.onnx.preprocessing.SerbianPreprocessor
 import java.security.MessageDigest
@@ -62,6 +64,7 @@ public class KokoroSegmentGeneratorFactory(
     private val preprocessorFactory: () -> SerbianPreprocessor,
     private val sessionOpener: (ModelPackageStore, InstalledModelPackage) -> OnnxTtsSession =
         { modelStore, packageInfo -> OnnxTtsSession.open(modelStore, packageInfo) },
+    private val progressStore: GenerationProgressStore? = null,
 ) {
     public fun open(modelPackageId: String? = null): KokoroSegmentGenerator {
         val packageInfo = store.activePackage()
@@ -74,6 +77,7 @@ public class KokoroSegmentGeneratorFactory(
                 session = session,
                 packageInfo = packageInfo,
                 modelPackageId = modelPackageId ?: KokoroGenerationContract.roomPackageId(packageInfo),
+                progressStore = progressStore,
             )
         } catch (failure: Throwable) {
             session.close()
@@ -88,19 +92,45 @@ public class KokoroSegmentGenerator(
     private val session: OnnxTtsSession,
     private val packageInfo: InstalledModelPackage,
     private val modelPackageId: String,
+    private val progressStore: GenerationProgressStore? = null,
 ) : SegmentGenerator, AutoCloseable {
     override suspend fun generate(segment: AudioSegmentEntity, block: NarrationBlockEntity): GeneratedSegmentAudio {
         val prepared = preprocessor.process(block.sourceText)
-        val chunks = prepared.chunkBoundaries.map { boundary ->
-            session.generate(prepared.tokenIdsForChunk(boundary), speed = 1f)
-        }
-        val output = OnnxTtsOutput(
-            pcm = chunks.flatMap { it.pcm.asIterable() }.toFloatArray(),
-            predDur = chunks.flatMap { it.predDur.asIterable() }.toLongArray(),
-        )
-        OnnxAudioOutputValidator.validate(output, output.predDur.size)
         val expectedKey = KokoroGenerationContract.generationKey(packageInfo, prepared.tokenIds)
         check(segment.generationKey == expectedKey) { "Kokoro generation key does not match the pending segment" }
+        val runId = segment.generationRunId
+        val totalWords = ApproximateWordCounter.count(block.sourceText)
+        val chunks = mutableListOf<OnnxTtsOutput>()
+        val progressWav = if (runId != null && progressStore != null) {
+            ProgressiveWavWriter(progressStore.wavFile(runId), OnnxRuntimeContract.SAMPLE_RATE_HZ)
+        } else {
+            null
+        }
+        val output = try {
+            try {
+                if (runId != null && progressStore != null) {
+                    progressStore.update(runId, segment.id, completedWords = 0, totalWords = totalWords)
+                }
+                prepared.chunkBoundaries.forEachIndexed { index, boundary ->
+                    chunks += session.generate(prepared.tokenIdsForChunk(boundary), speed = 1f)
+                    if (runId != null && progressStore != null) {
+                        progressWav?.append(chunks.last().pcm)
+                        progressStore.update(
+                            runId,
+                            segment.id,
+                            totalWords * (index + 1) / prepared.chunkBoundaries.size,
+                            totalWords,
+                        )
+                    }
+                }
+            } finally {
+                progressWav?.close()
+            }
+            combined(chunks).also { OnnxAudioOutputValidator.validate(it, it.predDur.size) }
+        } catch (failure: Throwable) {
+            runId?.let { progressStore?.clear(it) }
+            throw failure
+        }
         val durationMs = (output.pcm.size * 1_000L / output.sampleRateHz).coerceAtLeast(1)
         return GeneratedSegmentAudio(
             provenance = GenerationProvenance(
@@ -125,14 +155,24 @@ public class KokoroSegmentGenerator(
             sampleRateHz = output.sampleRateHz,
             channels = output.channels,
             durationMs = durationMs,
-            writer = { stream -> PcmWavWriter.write(stream, output, output.predDur.size) },
+            writer = { stream ->
+                val staged = runId?.let { progressStore?.wavFile(it) }?.takeIf { it.isFile }
+                if (staged == null) PcmWavWriter.write(stream, output, output.predDur.size)
+                else staged.inputStream().use { it.copyTo(stream) }
+            },
             validator = { file ->
                 val info = PcmWavValidator.validate(file)
                 require(info.sampleCount == output.pcm.size.toLong()) { "Kokoro WAV sample count is invalid" }
             },
             artifactExtension = "wav",
+            cleanup = { runId?.let { progressStore?.clear(it) } },
         )
     }
+
+    private fun combined(chunks: List<OnnxTtsOutput>): OnnxTtsOutput = OnnxTtsOutput(
+        pcm = chunks.flatMap { it.pcm.asIterable() }.toFloatArray(),
+        predDur = chunks.flatMap { it.predDur.asIterable() }.toLongArray(),
+    )
 
     override fun close() {
         session.close()

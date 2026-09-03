@@ -61,6 +61,7 @@ public data class GeneratedSegmentAudio(
     public val writer: (OutputStream) -> Unit,
     public val validator: (File) -> Unit,
     public val artifactExtension: String = "m4a",
+    public val cleanup: () -> Unit = {},
 ) {
     init {
         require(sampleRateHz > 0) { "Audio sample rate must be positive" }
@@ -162,9 +163,10 @@ public class BoundedGenerationRunner(
             val claimed = state.claimNextSegment(runId)
                 ?: return@withContext result(state.finishGenerationRun(runId), generated, failed)
             var failurePhase = GenerationFailurePhase.INFERENCE
+            var generatedAudio: GeneratedSegmentAudio? = null
             try {
                 currentCoroutineContext().ensureActive()
-                val audio = generator.generate(claimed.segment, claimed.block)
+                val audio = generator.generate(claimed.segment, claimed.block).also { generatedAudio = it }
                 requireCompatibleProvenance(current, audio)
                 claimed.segment.generationKey?.let { expected ->
                     checkProvenance(audio.provenance.generationKey == expected, "different generation key")
@@ -212,6 +214,8 @@ public class BoundedGenerationRunner(
                 } else {
                     failed += claimed.segment.id
                 }
+            } finally {
+                runCatching { generatedAudio?.cleanup?.invoke() }
             }
         }
         error("Generation runner loop terminated unexpectedly")

@@ -13,6 +13,8 @@ import com.homoludens.citacknjiga.core.database.GenerationProgressSnapshot
 import com.homoludens.citacknjiga.core.database.NarrationBlockEntity
 import com.homoludens.citacknjiga.core.database.PlaybackPositionEntity
 import com.homoludens.citacknjiga.core.generation.GenerationEngine
+import com.homoludens.citacknjiga.core.generation.ActiveGenerationProgress
+import com.homoludens.citacknjiga.core.generation.GenerationProgressStore
 import com.homoludens.citacknjiga.core.generation.GenerationRequest
 import com.homoludens.citacknjiga.core.generation.GenerationRequestFactory
 import com.homoludens.citacknjiga.core.generation.GenerationScope
@@ -27,7 +29,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.delay
 
 public data class ProgressDisplay(
     public val completed: Int,
@@ -77,6 +81,7 @@ public data class LibraryBookDisplay(
     public val failures: List<String>,
     public val generationRunId: String? = null,
     public val generationStatus: GenerationRunStatus? = null,
+    public val activeGenerationProgress: ActiveGenerationProgress? = null,
 ) {
     public val title: String = project.title
     public val author: String = project.author.orEmpty()
@@ -188,6 +193,7 @@ public object LibraryDisplayMapper {
         fileSize: (String) -> Long = { File(it).length() },
         chapterProgress: List<GenerationProgressSnapshot> = emptyList(),
         bookProgress: List<GenerationProgressSnapshot> = emptyList(),
+        activeProgress: (String) -> ActiveGenerationProgress? = { null },
     ): List<LibraryBookDisplay> = projects.filterNot { it.isDeleting }.map { project ->
         val projectChapters = chapters.filter { it.bookProjectId == project.id }
         val projectSegments = segments.filter { segment ->
@@ -203,6 +209,7 @@ public object LibraryDisplayMapper {
             fileSize = fileSize,
             chapterProgress = chapterProgress,
             bookProgress = bookProgress.firstOrNull { it.scopeId == project.id },
+            activeProgress = activeProgress,
         )
     }
 
@@ -215,21 +222,26 @@ public object LibraryDisplayMapper {
         fileSize: (String) -> Long = { File(it).length() },
         chapterProgress: List<GenerationProgressSnapshot> = emptyList(),
         bookProgress: GenerationProgressSnapshot? = null,
+        activeProgress: (String) -> ActiveGenerationProgress? = { null },
     ): LibraryBookDisplay {
         val chapterDisplays = chapters.sortedBy { it.ordinal }.map { chapter ->
             val chapterSegments = segments.filter { it.chapterId == chapter.id }
             val chapterProgressSnapshot = chapterProgress.firstOrNull { it.scopeId == chapter.id }
-            val chapterRun = chapterProgressSnapshot?.generationStatus ?: runs
+            val latestRun = runs
                 .filter { run -> chapterSegments.any { it.generationRunId == run.id } }
                 .maxWithOrNull(compareBy<GenerationRunEntity> { it.requestedAt }.thenBy { it.id })
-                ?.status
+            val active = latestRun?.takeIf { it.status == GenerationRunStatus.RUNNING }
+                ?.let { activeProgress(it.id) }
+                ?.takeIf { current ->
+                    chapterSegments.any { it.id == current.segmentId && it.status == AudioSegmentStatus.GENERATING }
+                }
             ChapterDisplay(
                 chapter = chapter,
-                progress = chapterProgressSnapshot?.toDisplay() ?: legacyProgress(chapterSegments),
+                progress = (chapterProgressSnapshot?.toDisplay() ?: legacyProgress(chapterSegments)).withActive(active),
                 durationMs = chapterSegments.sumOf { it.durationMs ?: 0L },
                 storageBytes = chapterSegments.sumOf { it.sizeBytes ?: 0L } +
                     chapter.canonicalMarkdownPath?.let(fileSize).safeSize(),
-                generationStatus = chapterRun,
+                generationStatus = chapterProgressSnapshot?.generationStatus ?: latestRun?.status,
             )
         }
         val currentPosition = positions.firstOrNull { it.bookProjectId == project.id }
@@ -248,7 +260,12 @@ public object LibraryDisplayMapper {
         val latestRun = runs
             .filter { it.bookProjectId == project.id }
             .maxWithOrNull(compareBy<GenerationRunEntity> { it.requestedAt }.thenBy { it.id })
-        val progress = bookProgress?.toDisplay() ?: legacyProgress(segments)
+        val active = latestRun?.takeIf { it.status == GenerationRunStatus.RUNNING }
+            ?.let { activeProgress(it.id) }
+            ?.takeIf { current ->
+                segments.any { it.id == current.segmentId && it.status == AudioSegmentStatus.GENERATING }
+            }
+        val progress = (bookProgress?.toDisplay() ?: legacyProgress(segments)).withActive(active)
         return LibraryBookDisplay(
             project = project,
             chapters = chapterDisplays,
@@ -261,6 +278,7 @@ public object LibraryDisplayMapper {
             failures = failures,
             generationRunId = latestRun?.id,
             generationStatus = bookProgress?.generationStatus ?: latestRun?.status,
+            activeGenerationProgress = active,
         )
     }
 
@@ -279,6 +297,14 @@ public object LibraryDisplayMapper {
         total = segments.size,
     )
 
+    private fun ProgressDisplay.withActive(active: ActiveGenerationProgress?): ProgressDisplay = if (
+        active == null || !usesWordEstimate
+    ) {
+        this
+    } else {
+        copy(completedWords = (completedWords + active.completedWords).coerceAtMost(totalWords))
+    }
+
     private fun calculateStorage(
         project: BookProjectEntity,
         chapters: List<ChapterDisplay>,
@@ -294,6 +320,7 @@ public object LibraryDisplayMapper {
 /** Small Room-backed state holder; navigation and generation actions stay outside it. */
 public class LibraryController(
     dao: AudiobookDao,
+    private val generationProgress: GenerationProgressStore? = null,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate),
 ) : AutoCloseable {
     private val projects: Flow<List<BookProjectEntity>> = dao.observeAllProjects()
@@ -303,6 +330,12 @@ public class LibraryController(
     private val positions: Flow<List<PlaybackPositionEntity>> = dao.observeAllPlaybackPositions()
     private val chapterProgress: Flow<List<GenerationProgressSnapshot>> = dao.observeChapterGenerationProgress()
     private val bookProgress: Flow<List<GenerationProgressSnapshot>> = dao.observeBookGenerationProgress()
+    private val progressRefresh: Flow<Unit> = flow {
+        while (true) {
+            emit(Unit)
+            delay(1_000)
+        }
+    }
 
     private val rows = combine(
         projects,
@@ -314,8 +347,8 @@ public class LibraryController(
         LibraryRows(projectRows, chapterRows, segmentRows, runRows, positionRows)
     }
 
-    public val state: StateFlow<LibraryViewState> = combine(rows, chapterProgress, bookProgress) {
-        currentRows, chapterProgressRows, bookProgressRows ->
+    public val state: StateFlow<LibraryViewState> = combine(rows, chapterProgress, bookProgress, progressRefresh) {
+        currentRows, chapterProgressRows, bookProgressRows, _ ->
         LibraryViewState(
             LibraryDisplayMapper.mapBooks(
                 projects = currentRows.projects,
@@ -325,6 +358,7 @@ public class LibraryController(
                 positions = currentRows.positions,
                 chapterProgress = chapterProgressRows,
                 bookProgress = bookProgressRows,
+                activeProgress = { runId -> generationProgress?.snapshot(runId) },
             ),
         )
     }.stateIn(scope, SharingStarted.WhileSubscribed(5_000), LibraryViewState())

@@ -31,6 +31,7 @@ import com.homoludens.citacknjiga.core.database.ChapterStatus
 import com.homoludens.citacknjiga.core.database.GenerationRunStatus
 import com.homoludens.citacknjiga.core.database.NarrationBlockEntity
 import com.homoludens.citacknjiga.core.database.NarrationBlockType
+import com.homoludens.citacknjiga.core.generation.ActiveGenerationProgress
 import com.homoludens.citacknjiga.library.ChapterDisplay
 import com.homoludens.citacknjiga.library.GenerationAction
 import com.homoludens.citacknjiga.library.LibraryBookDisplay
@@ -53,11 +54,14 @@ public class AccessibilityUiTest {
     @Test
     public fun generationProgressAnnouncesStateAndExposesActions() {
         val actions = mutableListOf<Pair<String, GenerationAction>>()
+        val book = runningBook().copy(
+            activeGenerationProgress = ActiveGenerationProgress("run-1", "segment-2", 5, 25, 44),
+        )
         composeRule.setContent {
             CompositionLocalProvider(LocalContext provides serbianContext()) {
                 MaterialTheme {
                     LibraryScreen(
-                        state = LibraryViewState(listOf(runningBook())),
+                        state = LibraryViewState(listOf(book)),
                         onBookClick = {},
                         onGenerationAction = { runId, action -> actions += runId to action },
                     )
@@ -81,6 +85,7 @@ public class AccessibilityUiTest {
                     ),
                 ),
             )
+        composeRule.onNodeWithText("Привремени WAV: 44 B").assertExists()
         composeRule.onNodeWithText("Паузирај").assert(hasClickAction()).performClick()
         composeRule.onNodeWithText("Откажи генерисање").assert(hasClickAction()).performClick()
         assertEquals(listOf("run-1" to GenerationAction.PAUSE, "run-1" to GenerationAction.CANCEL), actions)

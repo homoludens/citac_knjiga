@@ -121,6 +121,7 @@ import com.homoludens.citacknjiga.library.RegenerationResult
 import com.homoludens.citacknjiga.library.RegenerationResultStatus
 import com.homoludens.citacknjiga.core.generation.GenerationInvalidationCoordinator
 import com.homoludens.citacknjiga.core.generation.GenerationScope
+import com.homoludens.citacknjiga.core.generation.GenerationProgressStore
 import com.homoludens.citacknjiga.core.database.NarrationBlockEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -244,6 +245,7 @@ public fun CitacKnjigaApp(
                     pdfAcceptanceService = pdfAcceptanceService,
                     epubChapterProofService = epubChapterProofService,
                     playbackController = playbackController,
+                    privateStorage = privateStorage,
                     onOpenBook = { id -> navController.navigate(AppRoute.Book.forId(id)) },
                     onOpenDiagnostics = { navController.navigate(AppRoute.Diagnostics.path) },
                     onGenerationAction = onGenerationAction,
@@ -273,6 +275,7 @@ public fun CitacKnjigaApp(
                     audiobookDao = audiobookDao,
                     playbackController = playbackController,
                     audiobookExportService = audiobookExportService,
+                    privateStorage = privateStorage,
                     bookId = entry.arguments?.getString(AppRoute.Book.argument),
                     onBack = navController::popBackStack,
                     onOpenTextPreview = { id -> navController.navigate(AppRoute.TextPreview.forId(id)) },
@@ -309,6 +312,7 @@ private fun StartScreen(
     pdfAcceptanceService: PdfAcceptanceService?,
     epubChapterProofService: EpubChapterProofService?,
     playbackController: AudiobookPlayerController?,
+    privateStorage: AppPrivateStorage?,
     onOpenBook: (String) -> Unit,
     onOpenDiagnostics: () -> Unit,
     onGenerationAction: (String, GenerationAction) -> Unit,
@@ -317,7 +321,9 @@ private fun StartScreen(
     regenerationFeedback: RegenerationFeedback?,
     ttsEnginePreference: TtsEnginePreference?,
 ) {
-    val libraryController = remember(audiobookDao) { audiobookDao?.let(::LibraryController) }
+    val libraryController = remember(audiobookDao, privateStorage) {
+        audiobookDao?.let { LibraryController(it, privateStorage?.let(::GenerationProgressStore)) }
+    }
     val libraryFlow: Flow<LibraryViewState> = libraryController?.state ?: flowOf(LibraryViewState())
     val libraryState by libraryFlow.collectAsState(initial = LibraryViewState())
     val controller = remember(proofEngine) {
@@ -650,6 +656,7 @@ private fun BookRoute(
     audiobookDao: AudiobookDao?,
     playbackController: AudiobookPlayerController?,
     audiobookExportService: RoomAudiobookExportService?,
+    privateStorage: AppPrivateStorage?,
     bookId: String?,
     onBack: () -> Unit,
     onOpenTextPreview: (String) -> Unit,
@@ -741,7 +748,9 @@ private fun BookRoute(
             startPlanning(uri)
         }
     }
-    val libraryController = remember(audiobookDao) { audiobookDao?.let(::LibraryController) }
+    val libraryController = remember(audiobookDao, privateStorage) {
+        audiobookDao?.let { LibraryController(it, privateStorage?.let(::GenerationProgressStore)) }
+    }
     val libraryFlow: Flow<LibraryViewState> = libraryController?.state ?: flowOf(LibraryViewState())
     val libraryState by libraryFlow.collectAsState(initial = LibraryViewState())
     val playerState by playbackController?.state?.collectAsState() ?: remember { mutableStateOf(PlayerControlState()) }

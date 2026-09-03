@@ -138,14 +138,19 @@ public class BoundedGenerationRunnerTest {
     @Test
     public fun writeFailureIsCategorizedAndNeverPublishesAnArtifact() = runBlocking {
         val fixture = fixture(listOf(segment("segment", 0)))
+        var cleaned = false
 
         val result = fixture.runner(GenerationRetryPolicy(maxAttempts = 1)) { _, _ ->
-            audio("segment").copy(writer = { error("disk full") })
+            audio("segment").copy(
+                writer = { error("disk full") },
+                cleanup = { cleaned = true },
+            )
         }.run("run")
 
         assertEquals(BoundedGenerationStatus.FAILED, result.status)
         assertEquals("WRITE_FAILURE: disk full", fixture.state.segments["segment"]!!.lastError)
         assertFalse(fixture.storage.readySegmentAudio("book", "chapter", "segment").exists())
+        assertTrue(cleaned)
     }
 
     @Test

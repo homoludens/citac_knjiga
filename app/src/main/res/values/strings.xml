@@ -141,6 +141,7 @@
     <string name="status_partial">делимично</string>
     <string name="cancelled">отказано</string>
     <string name="generation_running">Генерисање је у току. Можете паузирати или отказати.</string>
+    <string name="generation_temporary_wav_size">Привремени WAV: %1$s</string>
     <string name="generation_paused">Генерисање је паузирано. Наставите када будете спремни.</string>
     <string name="generation_queued">Генерисање чека на почетак.</string>
     <string name="generation_completed">Генерисање је завршено.</string>

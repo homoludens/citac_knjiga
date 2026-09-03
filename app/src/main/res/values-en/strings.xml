@@ -141,6 +141,7 @@
     <string name="status_partial">partial</string>
     <string name="cancelled">cancelled</string>
     <string name="generation_running">Generation is running. You can pause or cancel it.</string>
+    <string name="generation_temporary_wav_size">Temporary WAV: %1$s</string>
     <string name="generation_paused">Generation is paused. Resume when ready.</string>
     <string name="generation_queued">Generation is waiting to start.</string>
     <string name="generation_completed">Generation is complete.</string>
