@@ -467,6 +467,18 @@ public fun DiagnosticsAboutRoute(
             vitsImportMessage = null
             scope.launch(Dispatchers.IO) {
                 val result = modelPackageStore?.tryImportVitsFromSaf(context.contentResolver, uri)
+                val refreshedEngines = if (result is com.homoludens.citacknjiga.tts.onnx.ModelPackageImportResult.Success) {
+                    ttsEnginePreference?.refresh()
+                } else {
+                    null
+                }
+                val refreshedState = DiagnosticsAboutSnapshotBuilder(
+                    context,
+                    variant,
+                    modelPackageStore,
+                    privateStorage,
+                    vitsModelPackageStore,
+                ).build(latestImportFailure)
                 withContext(Dispatchers.Main.immediate) {
                     vitsImportBusy = false
                     vitsImportMessage = if (result is com.homoludens.citacknjiga.tts.onnx.ModelPackageImportResult.Success) {
@@ -474,6 +486,11 @@ public fun DiagnosticsAboutRoute(
                     } else {
                         R.string.vits_import_failed
                     }
+                    refreshedEngines?.let { engines ->
+                        availableEngines = engines
+                        selectedEngine = ttsEnginePreference?.selected ?: TtsEngine.KOKORO
+                    }
+                    state = refreshedState
                 }
             }
         }

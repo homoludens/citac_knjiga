@@ -293,6 +293,14 @@ public class VitsBoundaryTest {
         assertEquals(TtsEngine.KOKORO, selector.select(TtsEngine.VITS))
     }
 
+    @Test
+    public fun kokoroUsesContractFrontendWhenPackageMetadataOmitsIt() {
+        assertEquals(
+            KokoroGenerationContract.PREPROCESSING_VERSION,
+            KokoroGenerationContract.frontendVersion(packageInfo().copy(frontendVersion = null)),
+        )
+    }
+
     private fun narrationBlock() = com.homoludens.citacknjiga.core.database.NarrationBlockEntity(
         id = "block",
         chapterId = "chapter",

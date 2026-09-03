@@ -26,6 +26,23 @@ public class VitsModelPackageStoreTest {
     }
 
     @Test
+    public fun qualifiedVitsBecomesAvailableAfterPackageImport() {
+        val root = createTempDirectory().toFile()
+        val store = VitsModelPackageStore(root)
+        val selector = TtsEngineSelector(
+            store,
+            apiLevel = 33,
+            abi = "arm64-v8a",
+            runtimeAvailable = { true },
+        )
+
+        assertEquals(listOf(TtsEngine.KOKORO), selector.available())
+        store.importPackage(ModelPackageSource { ByteArrayInputStream(packageBytes("installed")) })
+
+        assertEquals(listOf(TtsEngine.KOKORO, TtsEngine.VITS), selector.available())
+    }
+
+    @Test
     public fun packageMissingTokensIsRejectedWithoutReplacingVitsState() {
         val root = createTempDirectory().toFile()
         val store = VitsModelPackageStore(root)

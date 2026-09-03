@@ -23,6 +23,9 @@ public object KokoroGenerationContract {
     )
     public val INFERENCE_SETTINGS_HASH: String = sha256(INFERENCE_SETTINGS_TEXT)
 
+    public fun frontendVersion(packageInfo: InstalledModelPackage): String =
+        packageInfo.frontendVersion ?: PREPROCESSING_VERSION
+
     public fun generationKey(packageInfo: InstalledModelPackage, tokenIds: List<Int>): String =
         GenerationKeyCalculator.generationKey(
             GenerationKeyInput(
@@ -36,7 +39,7 @@ public object KokoroGenerationContract {
                 engine = packageInfo.engine,
                 modelRevision = packageInfo.modelRevision,
                 speakerId = packageInfo.speakerId,
-                frontendVersion = packageInfo.frontendVersion,
+                frontendVersion = frontendVersion(packageInfo),
                 nativeSampleRateHz = packageInfo.nativeSampleRateHz,
                 finalSampleRateHz = packageInfo.sampleRateHz,
                 resamplerVersion = packageInfo.resamplerVersion,
@@ -114,7 +117,7 @@ public class KokoroSegmentGenerator(
                 speakerId = packageInfo.speakerId,
                 nativeSampleRateHz = packageInfo.nativeSampleRateHz ?: output.sampleRateHz,
                 finalSampleRateHz = packageInfo.sampleRateHz,
-                frontendVersion = packageInfo.frontendVersion ?: KokoroGenerationContract.PREPROCESSING_VERSION,
+                frontendVersion = KokoroGenerationContract.frontendVersion(packageInfo),
                 resamplerVersion = packageInfo.resamplerVersion,
                 runtimeId = packageInfo.runtimeId,
                 runtimeVersion = packageInfo.runtimeVersion,

@@ -58,6 +58,7 @@ public class KokoroGenerationCoordinator(
                         engine = packageInfo.engine,
                         modelRevision = packageInfo.modelRevision,
                         speakerId = packageInfo.speakerId,
+                        frontendVersion = KokoroGenerationContract.frontendVersion(packageInfo),
                         nativeSampleRateHz = packageInfo.nativeSampleRateHz ?: packageInfo.sampleRateHz,
                         finalSampleRateHz = packageInfo.sampleRateHz,
                         resamplerVersion = packageInfo.resamplerVersion,

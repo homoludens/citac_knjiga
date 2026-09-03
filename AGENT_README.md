@@ -68,6 +68,10 @@ target.
   such as generation speed/pitch/energy/distribution, normalization, cache
   clearing, sleep timer, bookmarks, and theme switching are not presented as
   working features.
+- Task 5.8 fixes durable PDF/EPUB generation provenance: Kokoro planning now
+  records the same frontend contract version used by its generator. VITS
+  availability is refreshed after package import and when returning to the
+  synthesis/settings destinations.
 - OpenSpec `manage-library-and-model-downloads` task 5.1 verifies the PDF/EPUB
   lifecycle flows. Tasks 5.2-5.3 remain for the final repository-wide checks and
   deployment/project-overview documentation.

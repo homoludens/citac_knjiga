@@ -381,15 +381,15 @@ private fun StartScreen(
         mutableStateOf(ttsEnginePreference?.selected ?: TtsEngine.KOKORO)
     }
     var availableEngines by remember(ttsEnginePreference) { mutableStateOf(listOf(TtsEngine.KOKORO)) }
-    androidx.compose.runtime.LaunchedEffect(ttsEnginePreference) {
+    val mainNavController = rememberNavController()
+    val currentRoute = mainNavController.currentBackStackEntryAsState().value?.destination?.route
+        ?: AppRoute.Library.path
+    androidx.compose.runtime.LaunchedEffect(ttsEnginePreference, currentRoute) {
         availableEngines = withContext(Dispatchers.IO) {
             ttsEnginePreference?.refresh() ?: listOf(TtsEngine.KOKORO)
         }
         selectedEngine = ttsEnginePreference?.selected ?: TtsEngine.KOKORO
     }
-    val mainNavController = rememberNavController()
-    val currentRoute = mainNavController.currentBackStackEntryAsState().value?.destination?.route
-        ?: AppRoute.Library.path
     val destinations = remember {
         listOf(
             MainDestination(AppRoute.Library, R.string.library, Icons.Default.Home),
