@@ -49,6 +49,8 @@ import com.homoludens.citacknjiga.core.diagnostics.LocalDiagnostics
 import com.homoludens.citacknjiga.core.storage.AppPrivateStorage
 import com.homoludens.citacknjiga.tts.onnx.DeviceParityRuntimeIdentity
 import com.homoludens.citacknjiga.tts.onnx.ModelPackageStore
+import com.homoludens.citacknjiga.tts.onnx.TtsEngine
+import com.homoludens.citacknjiga.tts.onnx.TtsEnginePreference
 import com.homoludens.citacknjiga.tts.onnx.VitsModelPackageStore
 import com.homoludens.citacknjiga.tts.onnx.ModelPackageFailure
 import com.homoludens.citacknjiga.tts.onnx.ModelPackageFailureCode
@@ -410,6 +412,7 @@ public fun DiagnosticsAboutRoute(
     modelPackageStore: ModelPackageStore?,
     vitsModelPackageStore: VitsModelPackageStore?,
     modelDownloadScheduler: ModelDownloadWorkScheduler? = null,
+    ttsEnginePreference: TtsEnginePreference? = null,
     privateStorage: AppPrivateStorage?,
     variant: AppVariant,
     onBack: () -> Unit,
@@ -424,6 +427,10 @@ public fun DiagnosticsAboutRoute(
     var vitsImportBusy by remember { mutableStateOf(false) }
     var vitsImportMessage by remember { mutableStateOf<Int?>(null) }
     var releaseMessage by remember { mutableStateOf<Int?>(null) }
+    var selectedEngine by remember(ttsEnginePreference) {
+        mutableStateOf(ttsEnginePreference?.selected ?: TtsEngine.KOKORO)
+    }
+    val availableEngines = ttsEnginePreference?.available() ?: listOf(TtsEngine.KOKORO)
     val kokoroDownload = rememberModelDownloadInfo(modelDownloadScheduler, ModelEngine.KOKORO)
     val vitsDownload = rememberModelDownloadInfo(modelDownloadScheduler, ModelEngine.VITS)
     val releaseUrl = BuildConfig.MODEL_RELEASE_URL
@@ -501,6 +508,10 @@ public fun DiagnosticsAboutRoute(
             ).build(latestImportFailure)
         }
     }
+    LaunchedEffect(ttsEnginePreference) {
+        ttsEnginePreference?.refresh()
+        selectedEngine = ttsEnginePreference?.selected ?: TtsEngine.KOKORO
+    }
     DiagnosticsAboutScreen(
         state = state,
         exportMessage = exportMessage?.let { stringResource(it) },
@@ -512,6 +523,12 @@ public fun DiagnosticsAboutRoute(
         vitsImportBusy = vitsImportBusy,
         vitsImportMessage = vitsImportMessage?.let { stringResource(it) },
         modelDownloadScheduler = modelDownloadScheduler,
+        selectedEngine = selectedEngine,
+        availableEngines = availableEngines,
+        onEngineSelected = {
+            ttsEnginePreference?.select(it)
+            selectedEngine = ttsEnginePreference?.selected ?: TtsEngine.KOKORO
+        },
         kokoroDownload = kokoroDownload,
         vitsDownload = vitsDownload,
         onDownload = { engine -> modelDownloadScheduler?.enqueue(engine) },
@@ -542,6 +559,9 @@ public fun DiagnosticsAboutScreen(
     vitsImportBusy: Boolean = false,
     vitsImportMessage: String? = null,
     modelDownloadScheduler: ModelDownloadWorkScheduler? = null,
+    selectedEngine: TtsEngine = TtsEngine.KOKORO,
+    availableEngines: List<TtsEngine> = listOf(TtsEngine.KOKORO),
+    onEngineSelected: (TtsEngine) -> Unit = {},
     kokoroDownload: WorkInfo? = null,
     vitsDownload: WorkInfo? = null,
     onDownload: (ModelEngine) -> Unit = {},
@@ -576,6 +596,22 @@ public fun DiagnosticsAboutScreen(
                 Text(stringResource(R.string.diagnostics_about_description), style = MaterialTheme.typography.bodyLarge)
                 DiagnosticsSection(stringResource(R.string.diagnostics_model_section)) {
                     StatusValue(stringResource(R.string.diagnostics_verification), state.model.status)
+                    if (availableEngines.size > 1) {
+                        Text(stringResource(R.string.engine), style = MaterialTheme.typography.titleMedium)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            availableEngines.forEach { engine ->
+                                if (engine == selectedEngine) {
+                                    Button(onClick = { onEngineSelected(engine) }) {
+                                        Text(stringResource(engine.label()))
+                                    }
+                                } else {
+                                    OutlinedButton(onClick = { onEngineSelected(engine) }) {
+                                        Text(stringResource(engine.label()))
+                                    }
+                                }
+                            }
+                        }
+                    }
                     InfoValue(stringResource(R.string.diagnostics_package_id), state.model.packageId)
                     InfoValue(stringResource(R.string.diagnostics_package_version), state.model.packageVersion)
                     InfoValue(stringResource(R.string.diagnostics_package_checksum), state.model.packageSha256)
@@ -886,6 +922,11 @@ private fun formatBytes(bytes: Long): String = when {
     bytes < 1_024L -> "$bytes B"
     bytes < 1_024L * 1_024L -> "%.1f KiB".format(bytes / 1_024.0)
     else -> "%.1f MiB".format(bytes / (1_024.0 * 1_024.0))
+}
+
+private fun TtsEngine.label(): Int = when (this) {
+    TtsEngine.KOKORO -> R.string.engine_kokoro
+    TtsEngine.VITS -> R.string.engine_vits
 }
 
 @Composable

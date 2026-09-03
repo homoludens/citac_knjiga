@@ -9,6 +9,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.test.core.app.ApplicationProvider
 import android.content.Context
@@ -16,6 +17,7 @@ import android.content.res.Configuration
 import com.homoludens.citacknjiga.diagnostics.DiagnosticsAboutScreen
 import com.homoludens.citacknjiga.diagnostics.DiagnosticsAboutState
 import com.homoludens.citacknjiga.diagnostics.DiagnosticsStatus
+import com.homoludens.citacknjiga.tts.onnx.TtsEngine
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -146,6 +148,26 @@ public class DiagnosticsAboutUiTest {
         assertEquals(1, composeRule.onAllNodesWithText("Serbian VITS модел", useUnmergedTree = true).fetchSemanticsNodes().size)
         assertEquals(2, composeRule.onAllNodesWithText("Није инсталиран", useUnmergedTree = true).fetchSemanticsNodes().size)
         assertEquals(2, composeRule.onAllNodesWithText("Преузми модел", useUnmergedTree = true).fetchSemanticsNodes().size)
+    }
+
+    @Test
+    public fun engineSelectionIsAvailableInDiagnostics() {
+        var selected = TtsEngine.KOKORO
+        composeRule.setContent {
+            CompositionLocalProvider(LocalContext provides serbianContext()) {
+                MaterialTheme {
+                    DiagnosticsAboutScreen(
+                        state = DiagnosticsAboutState.missing(),
+                        selectedEngine = selected,
+                        availableEngines = listOf(TtsEngine.KOKORO, TtsEngine.VITS),
+                        onEngineSelected = { selected = it },
+                    )
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("VITS (Dragana)").performClick()
+        assertEquals(TtsEngine.VITS, selected)
     }
 
     @Test

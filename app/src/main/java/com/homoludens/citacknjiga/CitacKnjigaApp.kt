@@ -232,6 +232,7 @@ public fun CitacKnjigaApp(
                     modelPackageStore = modelPackageStore,
                     vitsModelPackageStore = modelPackageStore?.vitsModelPackageStore,
                     modelDownloadScheduler = modelDownloadScheduler,
+                    ttsEnginePreference = ttsEnginePreference,
                     privateStorage = privateStorage,
                     variant = variant,
                     onBack = navController::popBackStack,
@@ -295,14 +296,6 @@ private fun StartScreen(
     val libraryState by libraryFlow.collectAsState(initial = LibraryViewState())
     val controller = remember(proofEngine) {
         TypedTextProofController(proofEngine ?: MissingProofEngine())
-    }
-    var selectedEngine by remember(ttsEnginePreference) {
-        mutableStateOf(ttsEnginePreference?.selected ?: TtsEngine.KOKORO)
-    }
-    val availableEngines = ttsEnginePreference?.available() ?: listOf(TtsEngine.KOKORO)
-    androidx.compose.runtime.LaunchedEffect(ttsEnginePreference) {
-        ttsEnginePreference?.refresh()
-        selectedEngine = ttsEnginePreference?.selected ?: TtsEngine.KOKORO
     }
     val player = remember { LocalWavPlayer() }
     val playbackScope = rememberCoroutineScope()
@@ -489,12 +482,6 @@ private fun StartScreen(
                 onCancel = controller::cancel,
                 onPlay = { state.wav?.file?.let { player.play(it, playbackScope) } },
                 onStop = player::stop,
-                selectedEngine = selectedEngine,
-                availableEngines = availableEngines,
-                onEngineSelected = {
-                    ttsEnginePreference?.select(it)
-                    selectedEngine = ttsEnginePreference?.selected ?: TtsEngine.KOKORO
-                },
             )
         }
     }
@@ -1120,9 +1107,6 @@ private fun TypedTextProofContent(
     onCancel: () -> Unit,
     onPlay: () -> Unit,
     onStop: () -> Unit,
-    selectedEngine: TtsEngine,
-    availableEngines: List<TtsEngine>,
-    onEngineSelected: (TtsEngine) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -1140,22 +1124,6 @@ private fun TypedTextProofContent(
             text = stringResource(R.string.proof_description),
             style = MaterialTheme.typography.bodyLarge,
         )
-        if (availableEngines.size > 1) {
-            Text(stringResource(R.string.engine), style = MaterialTheme.typography.titleMedium)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                availableEngines.forEach { engine ->
-                    if (engine == selectedEngine) {
-                        Button(onClick = { onEngineSelected(engine) }) {
-                            Text(stringResource(engine.label()))
-                        }
-                    } else {
-                        OutlinedButton(onClick = { onEngineSelected(engine) }) {
-                            Text(stringResource(engine.label()))
-                        }
-                    }
-                }
-            }
-        }
         OutlinedTextField(
             value = state.text,
             onValueChange = onTextChanged,
@@ -1228,11 +1196,6 @@ private fun TypedTextProofContent(
         }
         Text(stringResource(R.string.distribution_format, variant.distribution.id), style = MaterialTheme.typography.labelMedium)
     }
-}
-
-private fun TtsEngine.label(): Int = when (this) {
-    TtsEngine.KOKORO -> R.string.engine_kokoro
-    TtsEngine.VITS -> R.string.engine_vits
 }
 
 @Composable
