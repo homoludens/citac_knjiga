@@ -171,6 +171,20 @@ public class DiagnosticsAboutUiTest {
     }
 
     @Test
+    public fun unavailableEngineRemainsVisibleButDisabled() {
+        composeRule.setContent {
+            CompositionLocalProvider(LocalContext provides serbianContext()) {
+                MaterialTheme {
+                    DiagnosticsAboutScreen(state = DiagnosticsAboutState.missing())
+                }
+            }
+        }
+
+        composeRule.onNodeWithText("VITS (Dragana)").assertIsNotEnabled()
+        composeRule.onNodeWithText("VITS је доступан тек када су пакет и подршка за извршавање доступни.")
+    }
+
+    @Test
     public fun unavailableModelReleaseActionIsShownButDisabled() {
         composeRule.setContent {
             CompositionLocalProvider(LocalContext provides serbianContext()) {

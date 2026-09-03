@@ -58,6 +58,9 @@ target.
   outer checksum and package validation, independent Kokoro/VITS atomic slots, and
   separate download/status controls. Failed or canceled downloads retain the prior
   verified package and never expose private paths or credentials.
+- Diagnostics now always shows the Kokoro/VITS engine choices; unavailable VITS
+  remains visible but disabled until its verified package and runtime support are
+  present, while the persisted engine preference remains the generation source of truth.
 - OpenSpec `manage-library-and-model-downloads` task 5.1 verifies the PDF/EPUB
   lifecycle flows. Tasks 5.2-5.3 remain for the final repository-wide checks and
   deployment/project-overview documentation.

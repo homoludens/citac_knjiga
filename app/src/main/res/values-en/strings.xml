@@ -74,6 +74,7 @@
     <string name="engine">Engine</string>
     <string name="engine_kokoro">Kokoro</string>
     <string name="engine_vits">VITS (Dragana)</string>
+    <string name="engine_unavailable">VITS is available only when its package and runtime support are available.</string>
     <string name="ready_wav">Ready WAV</string>
     <string name="wav_format_samples">24 kHz, mono, PCM16, %1$d samples</string>
     <string name="distribution_format">Distribution: %1$s</string>

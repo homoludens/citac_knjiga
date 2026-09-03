@@ -596,20 +596,24 @@ public fun DiagnosticsAboutScreen(
                 Text(stringResource(R.string.diagnostics_about_description), style = MaterialTheme.typography.bodyLarge)
                 DiagnosticsSection(stringResource(R.string.diagnostics_model_section)) {
                     StatusValue(stringResource(R.string.diagnostics_verification), state.model.status)
-                    if (availableEngines.size > 1) {
+                    if (TtsEngine.entries.size > 1) {
                         Text(stringResource(R.string.engine), style = MaterialTheme.typography.titleMedium)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            availableEngines.forEach { engine ->
+                            TtsEngine.entries.forEach { engine ->
+                                val enabled = engine in availableEngines
                                 if (engine == selectedEngine) {
-                                    Button(onClick = { onEngineSelected(engine) }) {
+                                    Button(onClick = { onEngineSelected(engine) }, enabled = enabled) {
                                         Text(stringResource(engine.label()))
                                     }
                                 } else {
-                                    OutlinedButton(onClick = { onEngineSelected(engine) }) {
+                                    OutlinedButton(onClick = { onEngineSelected(engine) }, enabled = enabled) {
                                         Text(stringResource(engine.label()))
                                     }
                                 }
                             }
+                        }
+                        if (availableEngines.size < TtsEngine.entries.size) {
+                            Text(stringResource(R.string.engine_unavailable), color = MaterialTheme.colorScheme.error)
                         }
                     }
                     InfoValue(stringResource(R.string.diagnostics_package_id), state.model.packageId)
