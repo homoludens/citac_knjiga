@@ -81,6 +81,22 @@ The complete app connected suite also contains a separate typed-text proof that
 requires a verified private model package; its absence is not an EPUB import
 failure.
 
+## Generation troubleshooting
+
+If both EPUB and PDF projects show the generic generation failure, inspect the
+persisted generation run's `last_error` before changing document import code.
+The shared VITS frontend previously rejected common book characters such as
+U+2014, U+00E0, U+00F6, U+00BB, and U+00AB before inference. It now normalizes
+those punctuation and accent forms to the verified model vocabulary while
+continuing to reject digits and genuinely unknown symbols. Verify the change
+with:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew --offline :tts-onnx:testDebugUnitTest
+```
+
 ## Signed app release artifacts (task 12.7)
 
 `scripts/release_artifacts.py` is the app-only release gate. It builds the

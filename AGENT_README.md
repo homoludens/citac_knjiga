@@ -72,6 +72,13 @@ target.
   records the same frontend contract version used by its generator. VITS
   availability is refreshed after package import and when returning to the
   synthesis/settings destinations.
+- Device database inspection found the generic generation failure was shared by
+  EPUB and PDF narration text: the VITS frontend rejected common book
+  punctuation and decomposable foreign Latin accents before inference. The
+  frontend now normalizes Unicode dash/quote/ellipsis forms and strips only
+  foreign combining marks before Serbian transliteration, while retaining
+  fail-closed handling for digits and unknown symbols. The focused
+  `:tts-onnx:testDebugUnitTest` suite passes.
 - OpenSpec `manage-library-and-model-downloads` task 5.1 verifies the PDF/EPUB
   lifecycle flows. Tasks 5.2-5.3 remain for the final repository-wide checks and
   deployment/project-overview documentation.

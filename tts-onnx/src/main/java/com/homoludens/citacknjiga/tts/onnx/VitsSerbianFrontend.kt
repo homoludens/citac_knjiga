@@ -19,9 +19,15 @@ public class VitsSerbianFrontend(
     public fun process(text: String): VitsFrontendOutput {
         if (latinPolicy != LATIN_POLICY) throw VitsFrontendException("Unsupported Latin policy")
         var normalized = Normalizer.normalize(text, Normalizer.Form.NFC)
+            .replace('\u00a0', ' ')
+            .replace(Regex("[\u2010-\u2015]"), "-")
+            .replace(Regex("[\u2018\u2019\u201a\u201b\u2032\u2035\u00ab\u00bb]"), "'")
+            .replace('\u2026', '.')
             .replace(Regex("\\s+"), " ")
             .trim()
         if (normalized.isEmpty()) throw VitsFrontendException("VITS input is empty")
+        normalized = transliterate(normalized)
+        normalized = stripForeignDiacritics(normalized)
         normalized = transliterate(normalized)
         normalized = normalized.lowercase(Locale.ROOT)
         ABBREVIATIONS.forEach { (short, expanded) -> normalized = normalized.replace(short, expanded) }
@@ -45,6 +51,14 @@ public class VitsSerbianFrontend(
     private fun transliterate(value: String): String = buildString(value.length) {
         value.forEach { append(LATIN_TO_CYRILLIC[it] ?: it) }
     }
+
+    private fun stripForeignDiacritics(value: String): String =
+        Normalizer.normalize(value, Normalizer.Form.NFKD)
+            .filter { character ->
+                Character.getType(character) != Character.NON_SPACING_MARK.toInt() &&
+                    Character.getType(character) != Character.COMBINING_SPACING_MARK.toInt() &&
+                    Character.getType(character) != Character.ENCLOSING_MARK.toInt()
+            }
 
     private companion object {
         const val LATIN_POLICY = "transliterate-case-aware-v1"

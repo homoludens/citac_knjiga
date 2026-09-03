@@ -60,6 +60,15 @@ public class VitsBoundaryTest {
     }
 
     @Test
+    public fun frontendNormalizesCommonBookPunctuationAndForeignDiacritics() {
+        val frontend = VitsSerbianFrontend(VitsSerbianFrontendTestVocabulary.map, blankId = 139)
+
+        val output = frontend.process("— Dobàr »Köbenhavn«…")
+
+        assertEquals("- добар 'кобенхавн'.", output.normalizedText)
+    }
+
+    @Test
     public fun sessionClosesNativeHandleAndChecksCancellation() {
         val native = object : SherpaVitsNativeSession {
             var closed = false
