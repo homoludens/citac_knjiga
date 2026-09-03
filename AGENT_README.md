@@ -842,3 +842,5 @@ target.
   checkpoint with published segment progress while showing the current WAV
   size. The first native call remains indeterminate, and the checkpoint/WAV are
   removed after publication, cancellation, or terminal inference failure.
+- The launcher uses a violet adaptive open-book and audio-bars icon, with a
+  circular legacy fallback and an Android 13 monochrome themed-icon layer.
