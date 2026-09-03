@@ -36,12 +36,14 @@ public class TtsEnginePreference(
 
     public fun available(): List<TtsEngine> = selector.available()
 
-    public fun refresh() {
-        val refreshed = selector.select(selected)
+    public fun refresh(): List<TtsEngine> {
+        val available = selector.available()
+        val refreshed = selected.takeIf { it in available } ?: TtsEngine.KOKORO
         if (refreshed != selected) {
             selected = refreshed
             preferences.edit().putString(KEY, refreshed.name).apply()
         }
+        return available
     }
 
     public fun select(preferred: TtsEngine) {

@@ -15,9 +15,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -44,12 +49,16 @@ import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import com.homoludens.citacknjiga.R
 import com.homoludens.citacknjiga.core.database.BookProjectStatus
 import com.homoludens.citacknjiga.core.database.ChapterStatus
 import com.homoludens.citacknjiga.core.database.GenerationRunStatus
 import com.homoludens.citacknjiga.core.generation.GenerationScope
+import com.homoludens.citacknjiga.ui.theme.CitacKnjigaTheme
 
 public enum class GenerationAction {
     PAUSE,
@@ -66,15 +75,26 @@ public fun LibraryScreen(
     onDeleteBook: (String) -> Unit = {},
     onRegenerate: (String, GenerationScope) -> Unit = { _, _ -> },
     regenerationFeedback: RegenerationFeedback? = null,
+    showTitle: Boolean = true,
+    compactCards: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(stringResource(R.string.library), style = MaterialTheme.typography.headlineSmall)
+        if (showTitle) Text(stringResource(R.string.library), style = MaterialTheme.typography.headlineSmall)
         if (state.books.isEmpty()) {
-            Text(stringResource(R.string.no_books))
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(
+                    stringResource(R.string.no_books),
+                    modifier = Modifier.padding(20.dp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         } else {
             state.books.forEach { book ->
                 LibraryBookCard(
@@ -84,6 +104,7 @@ public fun LibraryScreen(
                     onDeleteBook = onDeleteBook,
                     onRegenerate = onRegenerate,
                     regenerationFeedback = regenerationFeedback,
+                    compact = compactCards,
                 )
             }
         }
@@ -98,26 +119,37 @@ private fun LibraryBookCard(
     onDeleteBook: (String) -> Unit,
     onRegenerate: (String, GenerationScope) -> Unit,
     regenerationFeedback: RegenerationFeedback?,
+    compact: Boolean,
 ) {
     val title = book.title.ifBlank { stringResource(R.string.book_fallback) }
     val author = book.author.ifBlank { stringResource(R.string.author_fallback) }
     Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .semantics { contentDescription = title },
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.Top,
         ) {
-            BookCover(book.coverPath, title, Modifier.size(64.dp))
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(title, style = MaterialTheme.typography.titleMedium)
+            BookCover(book.coverPath, title, Modifier.size(width = 72.dp, height = 100.dp))
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                    if (compact) {
+                        CompactBookActions(book, onRegenerate, onDeleteBook)
+                    }
+                }
                 Text(author, style = MaterialTheme.typography.bodySmall)
                 Text(
                     stringResource(R.string.chapters_ready_format, book.readyChapterCount, book.chapters.size),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                Text(
+                    stringResource(R.string.book_duration_format, formatDuration(book.chapters.sumOf { it.durationMs })),
                     style = MaterialTheme.typography.bodySmall,
                 )
                 if (book.hasGenerationWork) {
@@ -146,10 +178,74 @@ private fun LibraryBookCard(
                     )
                 }
                 RegenerationFeedbackContent(book, regenerationFeedback, onRegenerate)
-                RegenerateBookAction(book, onRegenerate)
-                DeleteBookAction(book, onDeleteBook)
+                if (!compact) {
+                    RegenerateBookAction(book, onRegenerate)
+                    DeleteBookAction(book, onDeleteBook)
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun CompactBookActions(
+    book: LibraryBookDisplay,
+    onRegenerate: (String, GenerationScope) -> Unit,
+    onDeleteBook: (String) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var confirmRegeneration by remember { mutableStateOf(false) }
+    var confirmDeletion by remember { mutableStateOf(false) }
+    Box {
+        IconButton(onClick = { expanded = true }) {
+            Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.book_actions))
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.regenerate_book)) },
+                onClick = { expanded = false; confirmRegeneration = true },
+                modifier = Modifier.testTag("regenerate-book-${book.project.id}"),
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.delete_book)) },
+                onClick = { expanded = false; confirmDeletion = true },
+                modifier = Modifier.testTag("delete-book-${book.project.id}"),
+            )
+        }
+    }
+    if (confirmRegeneration) {
+        AlertDialog(
+            onDismissRequest = { confirmRegeneration = false },
+            title = { Text(stringResource(R.string.regenerate_book_title)) },
+            text = { Text(stringResource(R.string.regenerate_book_message)) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        confirmRegeneration = false
+                        onRegenerate(book.project.id, GenerationScope.CompleteBook)
+                    },
+                    modifier = Modifier.testTag("confirm-regenerate-book-${book.project.id}"),
+                ) { Text(stringResource(R.string.regenerate_confirm)) }
+            },
+            dismissButton = { TextButton(onClick = { confirmRegeneration = false }) { Text(stringResource(R.string.cancel)) } },
+        )
+    }
+    if (confirmDeletion) {
+        AlertDialog(
+            onDismissRequest = { confirmDeletion = false },
+            title = { Text(stringResource(R.string.delete_book_title)) },
+            text = { Text(stringResource(R.string.delete_book_message, book.title)) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        confirmDeletion = false
+                        onDeleteBook(book.project.id)
+                    },
+                    modifier = Modifier.testTag("confirm-delete-book-${book.project.id}"),
+                ) { Text(stringResource(R.string.delete_book_confirm)) }
+            },
+            dismissButton = { TextButton(onClick = { confirmDeletion = false }) { Text(stringResource(R.string.cancel)) } },
+        )
     }
 }
 
@@ -552,7 +648,7 @@ private fun ChapterRow(
 }
 
 @Composable
-private fun BookCover(path: String?, title: String, modifier: Modifier = Modifier) {
+public fun BookCover(path: String?, title: String, modifier: Modifier = Modifier) {
     val bitmap = remember(path) { path?.let { BitmapFactory.decodeFile(it)?.asImageBitmap() } }
     if (bitmap != null) {
         Image(
@@ -668,6 +764,14 @@ private fun safeFailureMessage(value: String): String = when (value.substringBef
 private fun formatDuration(milliseconds: Long): String {
     val seconds = (milliseconds.coerceAtLeast(0L) / 1_000L)
     return "%d:%02d".format(seconds / 60, seconds % 60)
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun LibraryPreview() {
+    CitacKnjigaTheme {
+        LibraryScreen(state = LibraryViewState(), onBookClick = {})
+    }
 }
 
 private fun formatBytes(bytes: Long): String = when {

@@ -430,7 +430,7 @@ public fun DiagnosticsAboutRoute(
     var selectedEngine by remember(ttsEnginePreference) {
         mutableStateOf(ttsEnginePreference?.selected ?: TtsEngine.KOKORO)
     }
-    val availableEngines = ttsEnginePreference?.available() ?: listOf(TtsEngine.KOKORO)
+    var availableEngines by remember(ttsEnginePreference) { mutableStateOf(listOf(TtsEngine.KOKORO)) }
     val kokoroDownload = rememberModelDownloadInfo(modelDownloadScheduler, ModelEngine.KOKORO)
     val vitsDownload = rememberModelDownloadInfo(modelDownloadScheduler, ModelEngine.VITS)
     val releaseUrl = BuildConfig.MODEL_RELEASE_URL
@@ -509,7 +509,9 @@ public fun DiagnosticsAboutRoute(
         }
     }
     LaunchedEffect(ttsEnginePreference) {
-        ttsEnginePreference?.refresh()
+        availableEngines = withContext(Dispatchers.IO) {
+            ttsEnginePreference?.refresh() ?: listOf(TtsEngine.KOKORO)
+        }
         selectedEngine = ttsEnginePreference?.selected ?: TtsEngine.KOKORO
     }
     DiagnosticsAboutScreen(
@@ -526,8 +528,12 @@ public fun DiagnosticsAboutRoute(
         selectedEngine = selectedEngine,
         availableEngines = availableEngines,
         onEngineSelected = {
-            ttsEnginePreference?.select(it)
-            selectedEngine = ttsEnginePreference?.selected ?: TtsEngine.KOKORO
+            scope.launch(Dispatchers.IO) {
+                ttsEnginePreference?.select(it)
+                withContext(Dispatchers.Main.immediate) {
+                    selectedEngine = ttsEnginePreference?.selected ?: TtsEngine.KOKORO
+                }
+            }
         },
         kokoroDownload = kokoroDownload,
         vitsDownload = vitsDownload,

@@ -4,27 +4,46 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -32,19 +51,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -111,6 +137,8 @@ import com.homoludens.citacknjiga.tts.onnx.TtsEnginePreference
 import com.homoludens.citacknjiga.diagnostics.DiagnosticsAboutRoute
 import com.homoludens.citacknjiga.diagnostics.EpubImportDiagnosticFormatter
 import com.homoludens.citacknjiga.modeldownload.ModelDownloadWorkScheduler
+import com.homoludens.citacknjiga.settings.SettingsScreen
+import com.homoludens.citacknjiga.ui.theme.CitacKnjigaTheme
 
 @Composable
 public fun CitacKnjigaApp(
@@ -201,7 +229,7 @@ public fun CitacKnjigaApp(
             }
         }
     }
-    MaterialTheme {
+    CitacKnjigaTheme {
         NavHost(
             navController = navController,
             startDestination = AppRoute.Start.path,
@@ -209,13 +237,13 @@ public fun CitacKnjigaApp(
         ) {
             composable(AppRoute.Start.path) {
                 StartScreen(
-                    variant = variant,
                     audiobookDao = audiobookDao,
                     proofEngine = proofEngine,
                     epubImportPreviewService = epubImportPreviewService,
                     pdfImportPreviewService = pdfImportPreviewService,
                     pdfAcceptanceService = pdfAcceptanceService,
                     epubChapterProofService = epubChapterProofService,
+                    playbackController = playbackController,
                     onOpenBook = { id -> navController.navigate(AppRoute.Book.forId(id)) },
                     onOpenDiagnostics = { navController.navigate(AppRoute.Diagnostics.path) },
                     onGenerationAction = onGenerationAction,
@@ -223,7 +251,6 @@ public fun CitacKnjigaApp(
                     onRegenerate = onRegenerate,
                     regenerationFeedback = regenerationFeedback,
                     ttsEnginePreference = ttsEnginePreference,
-                    modelDownloadScheduler = modelDownloadScheduler,
                 )
             }
             composable(AppRoute.Diagnostics.path) {
@@ -275,13 +302,13 @@ public fun CitacKnjigaApp(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun StartScreen(
-    variant: AppVariant,
     audiobookDao: AudiobookDao?,
     proofEngine: TypedTextProofEngine?,
     epubImportPreviewService: EpubImportPreviewService?,
     pdfImportPreviewService: PdfImportPreviewService?,
     pdfAcceptanceService: PdfAcceptanceService?,
     epubChapterProofService: EpubChapterProofService?,
+    playbackController: AudiobookPlayerController?,
     onOpenBook: (String) -> Unit,
     onOpenDiagnostics: () -> Unit,
     onGenerationAction: (String, GenerationAction) -> Unit,
@@ -289,7 +316,6 @@ private fun StartScreen(
     onRegenerate: (String, GenerationScope) -> Unit,
     regenerationFeedback: RegenerationFeedback?,
     ttsEnginePreference: TtsEnginePreference?,
-    modelDownloadScheduler: ModelDownloadWorkScheduler?,
 ) {
     val libraryController = remember(audiobookDao) { audiobookDao?.let(::LibraryController) }
     val libraryFlow: Flow<LibraryViewState> = libraryController?.state ?: flowOf(LibraryViewState())
@@ -350,142 +376,267 @@ private fun StartScreen(
         }
     }
     val state by controller.state.collectAsState()
+    val playerState by playbackController?.state?.collectAsState() ?: remember { mutableStateOf(PlayerControlState()) }
+    var selectedEngine by remember(ttsEnginePreference) {
+        mutableStateOf(ttsEnginePreference?.selected ?: TtsEngine.KOKORO)
+    }
+    var availableEngines by remember(ttsEnginePreference) { mutableStateOf(listOf(TtsEngine.KOKORO)) }
+    androidx.compose.runtime.LaunchedEffect(ttsEnginePreference) {
+        availableEngines = withContext(Dispatchers.IO) {
+            ttsEnginePreference?.refresh() ?: listOf(TtsEngine.KOKORO)
+        }
+        selectedEngine = ttsEnginePreference?.selected ?: TtsEngine.KOKORO
+    }
+    val mainNavController = rememberNavController()
+    val currentRoute = mainNavController.currentBackStackEntryAsState().value?.destination?.route
+        ?: AppRoute.Library.path
+    val destinations = remember {
+        listOf(
+            MainDestination(AppRoute.Library, R.string.library, Icons.Default.Home),
+            MainDestination(AppRoute.Import, R.string.nav_import, Icons.Default.Add),
+            MainDestination(AppRoute.Synthesize, R.string.nav_synthesize, Icons.Default.PlayArrow),
+            MainDestination(AppRoute.Player, R.string.nav_player, Icons.AutoMirrored.Filled.List),
+            MainDestination(AppRoute.Settings, R.string.nav_settings, Icons.Default.Settings),
+        )
+    }
+
+    fun navigateTo(destination: MainDestination) {
+        mainNavController.navigate(destination.route.path) {
+            popUpTo(AppRoute.Library.path) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.start_title)) },
-                actions = {
-                    TextButton(onClick = onOpenDiagnostics) {
-                        Text(stringResource(R.string.open_diagnostics))
-                    }
+                title = {
+                    Text(stringResource(destinations.firstOrNull { it.route.path == currentRoute }?.label ?: R.string.library))
                 },
             )
         },
+        bottomBar = {
+            NavigationBar {
+                destinations.forEach { destination ->
+                    NavigationBarItem(
+                        selected = currentRoute == destination.route.path,
+                        onClick = { navigateTo(destination) },
+                        icon = { Icon(destination.icon, contentDescription = null) },
+                        label = { Text(stringResource(destination.label)) },
+                        modifier = Modifier.testTag("nav-${destination.route.path}"),
+                    )
+                }
+            }
+        },
+        floatingActionButton = {
+            if (currentRoute == AppRoute.Library.path) {
+                FloatingActionButton(
+                    onClick = { navigateTo(destinations.first { it.route == AppRoute.Import }) },
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = stringResource(R.string.nav_import))
+                }
+            }
+        },
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState()),
+        NavHost(
+            navController = mainNavController,
+            startDestination = AppRoute.Library.path,
+            modifier = Modifier.padding(paddingValues),
         ) {
-            LibraryScreen(
-                state = libraryState,
-                onBookClick = onOpenBook,
-                onGenerationAction = onGenerationAction,
-                onDeleteBook = onDeleteBook,
-                onRegenerate = onRegenerate,
-                regenerationFeedback = regenerationFeedback,
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 20.dp),
-            )
-            EpubImportPreviewContent(
-                state = importState,
-                enabled = epubImportPreviewService != null,
-                onSelect = { importLauncher.launch(arrayOf("application/epub+zip", "application/zip")) },
-                onAccept = { preview ->
-                    importState = ImportPreviewUiState.Loading
-                    importJob = playbackScope.launch(Dispatchers.IO) {
-                        val result = epubImportPreviewService?.accept(preview)
-                        withContext(Dispatchers.Main.immediate) {
-                            importState = result.toUiState()
+            composable(AppRoute.Library.path) {
+                LibraryScreen(
+                    state = libraryState,
+                    onBookClick = onOpenBook,
+                    onGenerationAction = onGenerationAction,
+                    onDeleteBook = onDeleteBook,
+                    onRegenerate = onRegenerate,
+                    regenerationFeedback = regenerationFeedback,
+                    showTitle = false,
+                    compactCards = true,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                )
+            }
+            composable(AppRoute.Import.path) {
+                Column(
+                    modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(stringResource(R.string.import_book_title), style = MaterialTheme.typography.headlineSmall)
+                        Text(
+                            stringResource(R.string.import_book_description),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    EpubImportPreviewContent(
+                        state = importState,
+                        enabled = epubImportPreviewService != null,
+                        onSelect = { importLauncher.launch(arrayOf("application/epub+zip", "application/zip")) },
+                        onAccept = { preview ->
+                            importState = ImportPreviewUiState.Loading
+                            importJob = playbackScope.launch(Dispatchers.IO) {
+                                val result = epubImportPreviewService?.accept(preview)
+                                withContext(Dispatchers.Main.immediate) {
+                                    importState = result.toUiState()
+                                    chapterGeneration = ChapterGenerationUiState.Idle
+                                }
+                            }
+                        },
+                        onCancel = { preview ->
+                            epubImportPreviewService?.discard(preview)
+                            importState = ImportPreviewUiState.Idle
                             chapterGeneration = ChapterGenerationUiState.Idle
-                        }
-                    }
-                },
-                onCancel = { preview ->
-                    epubImportPreviewService?.discard(preview)
-                    importState = ImportPreviewUiState.Idle
-                    chapterGeneration = ChapterGenerationUiState.Idle
-                },
-                onCancelLoading = {
-                    importJob?.cancel()
-                    importState = ImportPreviewUiState.Idle
-                    chapterGeneration = ChapterGenerationUiState.Idle
-                },
-                generation = chapterGeneration,
-                onGenerate = { acceptedPreview, chapterOrdinal ->
-                    if (epubChapterProofService != null) {
-                        chapterGeneration = ChapterGenerationUiState.Generating(chapterOrdinal)
+                        },
+                        onCancelLoading = {
+                            importJob?.cancel()
+                            importState = ImportPreviewUiState.Idle
+                            chapterGeneration = ChapterGenerationUiState.Idle
+                        },
+                        generation = chapterGeneration,
+                        onGenerate = { acceptedPreview, chapterOrdinal ->
+                            if (epubChapterProofService != null) {
+                                chapterGeneration = ChapterGenerationUiState.Generating(chapterOrdinal)
+                                playbackScope.launch(Dispatchers.IO) {
+                                    val result = runCatching {
+                                        epubChapterProofService.generate(acceptedPreview, chapterOrdinal)
+                                    }
+                                    withContext(Dispatchers.Main.immediate) {
+                                        chapterGeneration = result.fold(
+                                            onSuccess = { ChapterGenerationUiState.Success(it) },
+                                            onFailure = { ChapterGenerationUiState.Error(chapterOrdinal) },
+                                        )
+                                    }
+                                }
+                            }
+                        },
+                        onPlayGenerated = { result -> player.play(result.audio.file, playbackScope) },
+                        onStopGenerated = player::stop,
+                    )
+                    PdfImportPreviewContent(
+                        state = if (PdfFeatureAvailability.QUALIFIED) {
+                            pdfImportState
+                        } else {
+                            PdfImportUiState.Error(pdfUnavailableDiagnostic())
+                        },
+                        enabled = PdfFeatureAvailability.QUALIFIED &&
+                            pdfImportPreviewService != null && pdfAcceptanceService != null,
+                        onSelect = { pdfImportLauncher.launch(arrayOf("application/pdf")) },
+                        onPreview = { startPage, endPage ->
+                            (pdfImportState as? PdfImportUiState.Ready)?.let { ready ->
+                                val service = pdfImportPreviewService ?: return@PdfImportPreviewContent
+                                pdfImportState = PdfImportUiState.Loading
+                                pdfImportJob = playbackScope.launch(Dispatchers.IO) {
+                                    val result = service.previewStaged(ready.preview.stagedSource, startPage, endPage)
+                                    withContext(Dispatchers.Main.immediate) {
+                                        pdfImportState = result.toUiState()
+                                    }
+                                }
+                            }
+                        },
+                        onAccept = { preview ->
+                            val acceptance = pdfAcceptanceService ?: return@PdfImportPreviewContent
+                            pdfImportState = PdfImportUiState.Accepting
+                            pdfImportJob = playbackScope.launch(Dispatchers.IO) {
+                                val result = try {
+                                    acceptance.accept(preview, PdfDocumentProjector.toIr(preview))
+                                } catch (cancelled: CancellationException) {
+                                    throw cancelled
+                                } catch (_: Exception) {
+                                    PdfAcceptanceResult.Failed(
+                                        ImportDiagnostic(
+                                            ImportDiagnosticCode.ACCEPTANCE_FAILED,
+                                            message = "The PDF import could not be completed.",
+                                            action = "Select the PDF again and retry.",
+                                        ),
+                                    )
+                                }
+                                withContext(Dispatchers.Main.immediate) {
+                                    pdfImportState = result.toUiState()
+                                }
+                            }
+                        },
+                        onCancel = { preview ->
+                            pdfImportPreviewService?.discard(preview)
+                            pdfImportState = PdfImportUiState.Idle
+                        },
+                        onCancelLoading = {
+                            pdfImportJob?.cancel()
+                            pdfImportState = PdfImportUiState.Idle
+                        },
+                    )
+                }
+            }
+            composable(AppRoute.Synthesize.path) {
+                TypedTextProofContent(
+                    paddingValues = PaddingValues(0.dp),
+                    state = state,
+                    selectedEngine = selectedEngine,
+                    availableEngines = availableEngines,
+                    onEngineSelected = { engine ->
                         playbackScope.launch(Dispatchers.IO) {
-                            val result = runCatching {
-                                epubChapterProofService.generate(acceptedPreview, chapterOrdinal)
-                            }
+                            ttsEnginePreference?.select(engine)
                             withContext(Dispatchers.Main.immediate) {
-                                chapterGeneration = result.fold(
-                                    onSuccess = { ChapterGenerationUiState.Success(it) },
-                                    onFailure = { ChapterGenerationUiState.Error(chapterOrdinal) },
-                                )
+                                selectedEngine = ttsEnginePreference?.selected ?: TtsEngine.KOKORO
                             }
                         }
-                    }
-                },
-                onPlayGenerated = { result -> player.play(result.audio.file, playbackScope) },
-                onStopGenerated = player::stop,
-            )
-            PdfImportPreviewContent(
-                state = if (PdfFeatureAvailability.QUALIFIED) {
-                    pdfImportState
-                } else {
-                    PdfImportUiState.Error(pdfUnavailableDiagnostic())
-                },
-                enabled = PdfFeatureAvailability.QUALIFIED &&
-                    pdfImportPreviewService != null && pdfAcceptanceService != null,
-                onSelect = { pdfImportLauncher.launch(arrayOf("application/pdf")) },
-                onPreview = { startPage, endPage ->
-                    (pdfImportState as? PdfImportUiState.Ready)?.let { ready ->
-                        val service = pdfImportPreviewService ?: return@PdfImportPreviewContent
-                        pdfImportState = PdfImportUiState.Loading
-                        pdfImportJob = playbackScope.launch(Dispatchers.IO) {
-                            val result = service.previewStaged(ready.preview.stagedSource, startPage, endPage)
+                    },
+                    onTextChanged = controller::setText,
+                    onGenerate = controller::generate,
+                    onCancel = controller::cancel,
+                    onPlay = { state.wav?.file?.let { player.play(it, playbackScope) } },
+                    onStop = player::stop,
+                )
+            }
+            composable(AppRoute.Player.path) {
+                val activeBook = libraryState.books.firstOrNull { it.project.id == playerState.projectId }
+                AudiobookPlayerControls(
+                    state = playerState,
+                    title = activeBook?.title,
+                    author = activeBook?.author,
+                    coverPath = activeBook?.coverPath,
+                    onPlayPause = { playbackController?.playPause() },
+                    onSeek = { playbackController?.seek(it) },
+                    onPreviousChapter = { playbackController?.previousChapter() ?: false },
+                    onNextChapter = { playbackController?.nextChapter() ?: false },
+                    onJumpBackward = { playbackController?.jumpBackward() },
+                    onJumpForward = { playbackController?.jumpForward() },
+                    onSelectChapter = { playbackController?.selectChapter(it) ?: false },
+                    onSetJumps = { backward, forward -> playbackController?.setJumpValues(backward, forward) },
+                    onSetSpeed = { playbackController?.setSpeed(it) ?: false },
+                    onRegenerate = { playbackController?.requestRegeneration(it) ?: false },
+                    expanded = true,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                )
+            }
+            composable(AppRoute.Settings.path) {
+                SettingsScreen(
+                    selectedEngine = selectedEngine,
+                    availableEngines = availableEngines,
+                    onEngineSelected = { engine ->
+                        playbackScope.launch(Dispatchers.IO) {
+                            ttsEnginePreference?.select(engine)
                             withContext(Dispatchers.Main.immediate) {
-                                pdfImportState = result.toUiState()
+                                selectedEngine = ttsEnginePreference?.selected ?: TtsEngine.KOKORO
                             }
                         }
-                    }
-                },
-                onAccept = { preview ->
-                    val acceptance = pdfAcceptanceService ?: return@PdfImportPreviewContent
-                    pdfImportState = PdfImportUiState.Accepting
-                    pdfImportJob = playbackScope.launch(Dispatchers.IO) {
-                        val result = try {
-                            acceptance.accept(preview, PdfDocumentProjector.toIr(preview))
-                        } catch (cancelled: CancellationException) {
-                            throw cancelled
-                        } catch (_: Exception) {
-                            PdfAcceptanceResult.Failed(
-                                ImportDiagnostic(
-                                    ImportDiagnosticCode.ACCEPTANCE_FAILED,
-                                    message = "The PDF import could not be completed.",
-                                    action = "Select the PDF again and retry.",
-                                ),
-                            )
-                        }
-                        withContext(Dispatchers.Main.immediate) {
-                            pdfImportState = result.toUiState()
-                        }
-                    }
-                },
-                onCancel = { preview ->
-                    pdfImportPreviewService?.discard(preview)
-                    pdfImportState = PdfImportUiState.Idle
-                },
-                onCancelLoading = {
-                    pdfImportJob?.cancel()
-                    pdfImportState = PdfImportUiState.Idle
-                },
-            )
-            TypedTextProofContent(
-                paddingValues = PaddingValues(0.dp),
-                variant = variant,
-                state = state,
-                onTextChanged = controller::setText,
-                onGenerate = controller::generate,
-                onCancel = controller::cancel,
-                onPlay = { state.wav?.file?.let { player.play(it, playbackScope) } },
-                onStop = player::stop,
-            )
+                    },
+                    onOpenDiagnostics = onOpenDiagnostics,
+                )
+            }
         }
     }
 }
+
+private data class MainDestination(
+    val route: AppRoute,
+    val label: Int,
+    val icon: ImageVector,
+)
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -673,6 +824,9 @@ private fun BookRoute(
             if (book != null && playbackController != null) {
                 AudiobookPlayerControls(
                     state = playerState,
+                    title = book.title,
+                    author = book.author,
+                    coverPath = book.coverPath,
                     onPlayPause = playbackController::playPause,
                     onSeek = playbackController::seek,
                     onPreviousChapter = { playbackController.previousChapter() },
@@ -683,6 +837,7 @@ private fun BookRoute(
                     onSetJumps = playbackController::setJumpValues,
                     onSetSpeed = playbackController::setSpeed,
                     onRegenerate = { segmentId -> playbackController.requestRegeneration(segmentId) },
+                    modifier = Modifier.heightIn(max = 280.dp),
                 )
             }
         }
@@ -853,17 +1008,16 @@ private fun EpubImportPreviewContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 24.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(stringResource(R.string.import_epub_title), style = MaterialTheme.typography.headlineSmall)
-        Text(
-            stringResource(R.string.import_epub_description),
-            style = MaterialTheme.typography.bodyMedium,
+        ImportPickerCard(
+            badge = "EPUB",
+            title = stringResource(R.string.choose_epub),
+            description = stringResource(R.string.import_epub_description),
+            enabled = enabled && state !is ImportPreviewUiState.Loading,
+            onClick = onSelect,
         )
-        Button(onClick = onSelect, enabled = enabled && state !is ImportPreviewUiState.Loading) {
-            Text(stringResource(R.string.choose_epub))
-        }
         when (state) {
             ImportPreviewUiState.Idle -> Unit
             ImportPreviewUiState.Loading -> {
@@ -982,50 +1136,25 @@ internal fun PdfImportPreviewContent(
     onCancel: (PdfImportPreview) -> Unit,
     onCancelLoading: () -> Unit,
 ) {
-    var startPage by remember { mutableStateOf("1") }
-    var endPage by remember { mutableStateOf("1") }
-    var invalidRange by remember { mutableStateOf(false) }
+    var startPage by rememberSaveable { mutableStateOf("1") }
+    var endPage by rememberSaveable { mutableStateOf("1") }
+    var invalidRange by rememberSaveable { mutableStateOf(false) }
     val pageCount = (state as? PdfImportUiState.Ready)?.preview?.inspection?.pageCount ?: 0
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 24.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(stringResource(R.string.import_pdf_title), style = MaterialTheme.typography.headlineSmall)
-        Text(stringResource(R.string.import_pdf_description), style = MaterialTheme.typography.bodyMedium)
-        Button(onClick = onSelect, enabled = enabled && state !is PdfImportUiState.Loading) {
-            Text(stringResource(R.string.choose_pdf))
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = startPage,
-                onValueChange = { startPage = it; invalidRange = false },
-                modifier = Modifier.weight(1f),
-                label = { Text(stringResource(R.string.pdf_start_page)) },
-                singleLine = true,
-                enabled = enabled,
-            )
-            OutlinedTextField(
-                value = endPage,
-                onValueChange = { endPage = it; invalidRange = false },
-                modifier = Modifier.weight(1f),
-                label = { Text(stringResource(R.string.pdf_end_page)) },
-                singleLine = true,
-                enabled = enabled,
-            )
-        }
-        if (pageCount > 0) {
-            Text(stringResource(R.string.pdf_page_count_format, pageCount))
-        }
-        if (invalidRange) {
-            Text(
-                stringResource(R.string.pdf_invalid_range),
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
-            )
-        }
+        ImportPickerCard(
+            badge = "PDF",
+            title = stringResource(R.string.choose_pdf),
+            description = stringResource(R.string.import_pdf_description),
+            enabled = enabled && state !is PdfImportUiState.Loading,
+            onClick = onSelect,
+            errorBadge = true,
+        )
         when (state) {
             PdfImportUiState.Idle -> Unit
             PdfImportUiState.Loading -> {
@@ -1063,6 +1192,32 @@ internal fun PdfImportPreviewContent(
             }
             is PdfImportUiState.Ready -> {
                 val preview = state.preview
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = startPage,
+                        onValueChange = { startPage = it; invalidRange = false },
+                        modifier = Modifier.weight(1f),
+                        label = { Text(stringResource(R.string.pdf_start_page)) },
+                        singleLine = true,
+                        enabled = enabled,
+                    )
+                    OutlinedTextField(
+                        value = endPage,
+                        onValueChange = { endPage = it; invalidRange = false },
+                        modifier = Modifier.weight(1f),
+                        label = { Text(stringResource(R.string.pdf_end_page)) },
+                        singleLine = true,
+                        enabled = enabled,
+                    )
+                }
+                Text(stringResource(R.string.pdf_page_count_format, pageCount))
+                if (invalidRange) {
+                    Text(
+                        stringResource(R.string.pdf_invalid_range),
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
+                    )
+                }
                 Button(
                     onClick = {
                         val range = parsePdfPageRange(startPage, endPage, pageCount)
@@ -1098,10 +1253,56 @@ internal fun PdfImportPreviewContent(
 }
 
 @Composable
+private fun ImportPickerCard(
+    badge: String,
+    title: String,
+    description: String,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    errorBadge: Boolean = false,
+) {
+    Card(
+        onClick = onClick,
+        enabled = enabled,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(58.dp)
+                    .background(
+                        if (errorBadge) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer,
+                        RoundedCornerShape(10.dp),
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    badge,
+                    color = if (errorBadge) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer,
+                    style = MaterialTheme.typography.labelLarge,
+                )
+            }
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(title, style = MaterialTheme.typography.titleMedium)
+                Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Text("›", style = MaterialTheme.typography.headlineSmall)
+        }
+    }
+}
+
+@Composable
 private fun TypedTextProofContent(
     paddingValues: PaddingValues,
-    variant: AppVariant,
     state: TypedTextProofState,
+    selectedEngine: TtsEngine,
+    availableEngines: List<TtsEngine>,
+    onEngineSelected: (TtsEngine) -> Unit,
     onTextChanged: (String) -> Unit,
     onGenerate: () -> Unit,
     onCancel: () -> Unit,
@@ -1112,31 +1313,80 @@ private fun TypedTextProofContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues)
-            .padding(horizontal = 24.dp, vertical = 32.dp)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp, vertical = 12.dp)
             .imePadding(),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
-            text = stringResource(R.string.proof_title),
-            style = MaterialTheme.typography.headlineSmall,
+            text = stringResource(R.string.engine),
+            style = MaterialTheme.typography.titleMedium,
         )
-        Text(
-            text = stringResource(R.string.proof_description),
-            style = MaterialTheme.typography.bodyLarge,
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth().selectableGroup(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            TtsEngine.entries.forEach { engine ->
+                val enabled = engine in availableEngines
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (!enabled) {
+                            MaterialTheme.colorScheme.surfaceVariant
+                        } else if (selectedEngine == engine) {
+                            MaterialTheme.colorScheme.primaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.surfaceContainerLow
+                        },
+                    ),
+                    modifier = Modifier.weight(1f).selectable(
+                        selected = selectedEngine == engine,
+                        enabled = enabled,
+                        role = Role.RadioButton,
+                        onClick = { onEngineSelected(engine) },
+                    ),
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(14.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Icon(Icons.Default.PlayArrow, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        Text(stringResource(engineLabel(engine)), style = MaterialTheme.typography.labelLarge)
+                        RadioButton(
+                            selected = selectedEngine == engine,
+                            onClick = null,
+                            enabled = enabled,
+                        )
+                    }
+                }
+            }
+        }
+        if (availableEngines.size < TtsEngine.entries.size) {
+            Text(
+                stringResource(R.string.engine_unavailable),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(stringResource(R.string.text), style = MaterialTheme.typography.titleMedium)
+            Text("${state.text.length} / 5000", style = MaterialTheme.typography.labelMedium)
+        }
         OutlinedTextField(
             value = state.text,
             onValueChange = onTextChanged,
             modifier = Modifier.fillMaxWidth(),
-            minLines = 5,
+            minLines = 6,
             maxLines = 10,
-            label = { Text(stringResource(R.string.text)) },
+            placeholder = { Text(stringResource(R.string.enter_text)) },
         )
-        Text(
-            stringResource(R.string.status_format, state.status.displayName()),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-        )
+        if (state.status != TypedTextProofStatus.IDLE) {
+            Text(
+                stringResource(R.string.status_format, state.status.displayName()),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+            )
+        }
         if (state.status == TypedTextProofStatus.ERROR) {
             Text(
                 stringResource(R.string.generation_failed),
@@ -1151,35 +1401,15 @@ private fun TypedTextProofContent(
             )
             OutlinedButton(onClick = onCancel) { Text(stringResource(R.string.cancel)) }
         } else {
-            Button(onClick = onGenerate, enabled = state.text.isNotBlank()) {
-                Text(stringResource(if (state.status == TypedTextProofStatus.ERROR) R.string.retry else R.string.generate))
-            }
-        }
-        state.diagnostics?.let { diagnostics ->
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier
-                        .padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    val none = stringResource(R.string.none)
-                    Text(stringResource(R.string.diagnostics), style = MaterialTheme.typography.titleMedium)
-                    DiagnosticValue(stringResource(R.string.cleaned_text), diagnostics.cleanupText)
-                    DiagnosticValue(stringResource(R.string.normalized_text), diagnostics.normalizedText)
-                    DiagnosticValue(stringResource(R.string.phonemes), diagnostics.phonemes)
-                    DiagnosticValue(stringResource(R.string.token_ids), diagnostics.tokenIds.joinToString())
-                    DiagnosticValue(stringResource(R.string.protected_ranges), diagnostics.protectedSpans.joinToString().ifEmpty { none })
-                    DiagnosticValue(stringResource(R.string.chunk_boundaries), diagnostics.chunkBoundaries.joinToString().ifEmpty { none })
-                    DiagnosticValue(stringResource(R.string.voice_row), "${diagnostics.model.voice} / ${diagnostics.voiceRowIndex}")
-                    DiagnosticValue(stringResource(R.string.model), "${diagnostics.model.packageId} ${diagnostics.model.packageVersion}")
-                    DiagnosticValue(stringResource(R.string.package_origin), diagnostics.model.packageSha256)
-                    DiagnosticValue(stringResource(R.string.runtime), diagnostics.model.runtime)
-                    DiagnosticValue(stringResource(R.string.preprocessing), diagnostics.model.preprocessing)
-                }
+            Button(onClick = onGenerate, enabled = state.text.isNotBlank(), modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(if (state.status == TypedTextProofStatus.ERROR) R.string.retry else R.string.generate_audio))
             }
         }
         state.wav?.let { wav ->
-            Card(modifier = Modifier.fillMaxWidth()) {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(stringResource(R.string.ready_wav), style = MaterialTheme.typography.titleMedium)
                     Text(stringResource(R.string.wav_format_samples, wav.sampleCount))
@@ -1194,14 +1424,12 @@ private fun TypedTextProofContent(
                 }
             }
         }
-        Text(stringResource(R.string.distribution_format, variant.distribution.id), style = MaterialTheme.typography.labelMedium)
     }
 }
 
-@Composable
-private fun DiagnosticValue(label: String, value: String) {
-    Text(label, style = MaterialTheme.typography.labelMedium)
-    Text(value, style = MaterialTheme.typography.bodyMedium)
+private fun engineLabel(engine: TtsEngine): Int = when (engine) {
+    TtsEngine.KOKORO -> R.string.engine_kokoro
+    TtsEngine.VITS -> R.string.engine_vits
 }
 
 @Composable
@@ -1232,4 +1460,35 @@ private class MissingProofEngine : TypedTextProofEngine {
         onDiagnostics: (TypedTextProofDiagnostics) -> Unit,
     ): com.homoludens.citacknjiga.proof.TypedTextProofResult =
         error("No verified model package is installed. Import a compatible package before generating.")
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ImportScreenPreview() {
+    CitacKnjigaTheme {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text("Увези књигу", style = MaterialTheme.typography.headlineSmall)
+            ImportPickerCard("EPUB", "Увези EPUB", "Подржава EPUB 2 и 3", true, {})
+            ImportPickerCard("PDF", "Увези PDF", "Извлачи текст са PDF страница", true, {}, true)
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SynthesisScreenPreview() {
+    CitacKnjigaTheme {
+        TypedTextProofContent(
+            paddingValues = PaddingValues(0.dp),
+            state = TypedTextProofState(),
+            selectedEngine = TtsEngine.VITS,
+            availableEngines = TtsEngine.entries,
+            onEngineSelected = {},
+            onTextChanged = {},
+            onGenerate = {},
+            onCancel = {},
+            onPlay = {},
+            onStop = {},
+        )
+    }
 }

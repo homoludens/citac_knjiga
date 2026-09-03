@@ -61,6 +61,13 @@ target.
 - Diagnostics now always shows the Kokoro/VITS engine choices; unavailable VITS
   remains visible but disabled until its verified package and runtime support are
   present, while the persisted engine preference remains the generation source of truth.
+- The app UI now follows a pale-lavender Material 3 system with five primary
+  destinations: Library, Import, Synthesize, Player, and Settings. Import preview
+  state and all existing generation/playback callbacks remain intact; About and
+  Diagnostics is a secondary Settings destination. Unsupported mockup controls
+  such as generation speed/pitch/energy/distribution, normalization, cache
+  clearing, sleep timer, bookmarks, and theme switching are not presented as
+  working features.
 - OpenSpec `manage-library-and-model-downloads` task 5.1 verifies the PDF/EPUB
   lifecycle flows. Tasks 5.2-5.3 remain for the final repository-wide checks and
   deployment/project-overview documentation.

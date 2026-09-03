@@ -2,6 +2,12 @@
 <resources>
     <string name="app_name">Book Reader</string>
     <string name="start_title">Serbian text to speech</string>
+    <string name="nav_import">Import</string>
+    <string name="nav_synthesize">Synthesize</string>
+    <string name="nav_player">Player</string>
+    <string name="nav_settings">Settings</string>
+    <string name="import_book_title">Import a book</string>
+    <string name="import_book_description">Choose a file from this device. Content is previewed first; nothing is saved until you accept it.</string>
     <string name="book_title">Book</string>
     <string name="back">Back</string>
     <string name="export_audio">Export audio</string>
@@ -58,6 +64,7 @@
     <string name="enter_text">Enter Serbian text to generate.</string>
     <string name="retry">Try again</string>
     <string name="generate">Generate</string>
+    <string name="generate_audio">Generate audio</string>
     <string name="diagnostics">Diagnostics</string>
     <string name="cleaned_text">Cleaned text</string>
     <string name="normalized_text">Normalized text</string>
@@ -79,8 +86,10 @@
     <string name="wav_format_samples">24 kHz, mono, PCM16, %1$d samples</string>
     <string name="distribution_format">Distribution: %1$s</string>
     <string name="library">Library</string>
-    <string name="no_books">No accepted books yet. Import an EPUB below.</string>
+    <string name="no_books">No accepted books yet. Open Import or tap +.</string>
     <string name="chapters_ready_format">Chapters: %1$d/%2$d ready</string>
+    <string name="book_duration_format">Duration: %1$s</string>
+    <string name="book_actions">Book actions</string>
     <string name="storage_format">Storage: %1$s</string>
     <string name="listening_format">Listening: %1$s, %2$s</string>
     <string name="book_fallback">Book</string>
@@ -143,6 +152,7 @@
     <string name="storage_failure">There is not enough space for audio. Free space and try again.</string>
     <string name="audio_failure">The verified audio is invalid. Generate this part again.</string>
     <string name="no_active_chapter">No active chapter</string>
+    <string name="no_active_book">No book selected</string>
     <string name="player_retry">Try again</string>
     <string name="previous_chapter">Previous</string>
     <string name="play">Play</string>
@@ -170,6 +180,23 @@
     <string name="epub_duplicate">This EPUB is already imported.</string>
     <string name="epub_unavailable">EPUB import is unavailable. Choose the file again.</string>
     <string name="open_diagnostics">Diagnostics</string>
+    <string name="settings_speech_voice">Speech and voice</string>
+    <string name="settings_default_engine">Default engine</string>
+    <string name="settings_engine_not_ready">Package or runtime support is unavailable</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_serbian">Serbian (sr)</string>
+    <string name="settings_audio">Audio</string>
+    <string name="settings_sample_rate">Output sample rate</string>
+    <string name="settings_audio_format">Audio format</string>
+    <string name="settings_storage">Storage</string>
+    <string name="settings_download_location">Download location</string>
+    <string name="settings_internal_storage">Internal storage</string>
+    <string name="settings_storage_description">Storage usage and model package management are available in diagnostics.</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_light_theme">Light</string>
+    <string name="settings_advanced">Advanced</string>
+    <string name="settings_advanced_description">Review versions, device and storage details, and manage model packages.</string>
     <string name="diagnostics_about_title">About and diagnostics</string>
     <string name="diagnostics_about_description">A safe view of the local model, device, versions, licenses, storage, and proof status. Book text is not shown here.</string>
     <string name="diagnostics_loading">Checking local data…</string>
