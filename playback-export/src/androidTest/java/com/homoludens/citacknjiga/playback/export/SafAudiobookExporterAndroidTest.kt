@@ -163,14 +163,15 @@ public class SafAudiobookExporterAndroidTest {
     }
 
     @Test
-    public fun providerWithoutRenameNeverPublishesACompleteName() {
+    public fun providerWithoutRenameCopiesAndPublishesACompleteName() {
         val noRenameTree = FakeSafTree(supportsRename = false)
         val exporter = SafAudiobookExporter(storage, chapterAssembler = WavChapterAudioAssembler())
         val plan = exporter.plan(noRenameTree, request())
 
-        assertTrue(runCatching { exporter.export(plan) }.exceptionOrNull() is DestinationUnavailableException)
-        assertFalse(noRenameTree.listChildren().any { it.name == "0001-Citanje_knjige.wav" })
-        assertTrue(noRenameTree.listChildren().any { it.name.endsWith(".incomplete") })
+        exporter.export(plan)
+
+        assertTrue(noRenameTree.listChildren().any { it.name == "0001-Citanje_knjige.wav" })
+        assertFalse(noRenameTree.listChildren().any { it.name.endsWith(".incomplete") })
     }
 
     @Test

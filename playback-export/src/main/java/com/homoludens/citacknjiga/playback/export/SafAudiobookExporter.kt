@@ -372,13 +372,11 @@ public class SafAudiobookExporter(
                     throw DestinationUnavailableException("Could not replace existing export file ${planned.name}")
                 }
             }
-            if (!plan.destination.capabilities.supportsDocumentRename) {
-                throw DestinationUnavailableException(
-                    "Provider cannot safely finalize ${planned.name}; choose a destination that supports document rename",
-                )
-            }
-            val finalUri = plan.destination.rename(temporaryUri, planned.name)
-                ?: throw DestinationUnavailableException("Provider could not finalize ${planned.name}")
+            val finalUri = if (plan.destination.capabilities.supportsDocumentRename) {
+                plan.destination.rename(temporaryUri, planned.name)
+            } else {
+                null
+            } ?: copyToFinalDocument(plan, planned, temporaryUri, expected)
             val verified = verifyProvider(plan.destination, finalUri, expected, planned.name)
                 .copy(uri = finalUri)
             listener?.onVerifiedFile(planned, verified)
@@ -396,6 +394,35 @@ public class SafAudiobookExporter(
         } catch (failure: Throwable) {
             throw DestinationUnavailableException("Could not create temporary export file for ${planned.name}", failure)
         } ?: throw DestinationUnavailableException("Could not create temporary export file for ${planned.name}")
+    }
+
+    /** Some SAF providers can create/write files but do not implement renameDocument. */
+    private fun copyToFinalDocument(
+        plan: ExportPlan,
+        planned: PlannedExportFile,
+        temporaryUri: Uri,
+        expected: ExpectedProviderBytes,
+    ): Uri {
+        val finalUri = plan.destination.createFile(planned.name, planned.mimeType)
+            ?: throw DestinationUnavailableException("Provider could not create ${planned.name}")
+        try {
+            val input = plan.destination.openForRead(temporaryUri)
+                ?: throw DestinationUnavailableException("Provider cannot read temporary ${planned.name}")
+            val output = plan.destination.openForWrite(finalUri)
+                ?: throw DestinationUnavailableException("Provider cannot write ${planned.name}")
+            input.use { source -> output.use { target -> source.copyTo(target) } }
+            verifyProvider(plan.destination, finalUri, expected, planned.name)
+            if (!plan.destination.delete(temporaryUri)) {
+                throw DestinationUnavailableException("Provider could not remove temporary ${planned.name}")
+            }
+            return finalUri
+        } catch (failure: DestinationUnavailableException) {
+            plan.destination.delete(finalUri)
+            throw failure
+        } catch (failure: Throwable) {
+            plan.destination.delete(finalUri)
+            throw DestinationUnavailableException("Provider could not finalize ${planned.name}", failure)
+        }
     }
 
     private fun expectedBytes(plan: ExportPlan, planned: PlannedExportFile): ExpectedProviderBytes {

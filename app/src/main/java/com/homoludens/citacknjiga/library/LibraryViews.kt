@@ -478,17 +478,30 @@ private fun GenerationProgress(
                     stateDescription = statusDescription
                 },
         )
-        LinearProgressIndicator(
-            progress = { book.generationProgress.fraction },
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("generation-progress-bar-${book.project.id}")
-                .semantics {
-                    progressBarRangeInfo = ProgressBarRangeInfo(book.generationProgress.fraction, 0f..1f)
-                    contentDescription = progressAccessibility
-                    stateDescription = progress
-                },
-        )
+        if (status == GenerationRunStatus.RUNNING) {
+            LinearProgressIndicator(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("generation-progress-bar-${book.project.id}")
+                    .semantics {
+                        progressBarRangeInfo = ProgressBarRangeInfo(0f, 0f..1f)
+                        contentDescription = progressAccessibility
+                        stateDescription = progress
+                    },
+            )
+        } else {
+            LinearProgressIndicator(
+                progress = { book.generationProgress.fraction },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("generation-progress-bar-${book.project.id}")
+                    .semantics {
+                        progressBarRangeInfo = ProgressBarRangeInfo(book.generationProgress.fraction, 0f..1f)
+                        contentDescription = progressAccessibility
+                        stateDescription = progress
+                    },
+            )
+        }
         Text(
             statusDescription,
             color = statusColor,

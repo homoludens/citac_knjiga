@@ -88,6 +88,12 @@ generation request. Chapter/book regeneration uses that same queue and the
 currently selected engine; no document-format-specific generation path is
 required.
 
+Generation progress is committed when a complete audio segment is published.
+While ONNX inference is running, the library shows an indeterminate progress
+bar because the native call does not produce a valid partial WAV. The private
+temporary artifact is created only after inference returns and is atomically
+published, so its byte size must not be used as inference progress.
+
 If both EPUB and PDF projects show the generic generation failure, inspect the
 persisted generation run's `last_error` before changing document import code.
 The shared VITS frontend previously rejected common book characters such as
@@ -103,13 +109,16 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
 ```
 
 VITS is available only in an APK built with the optional Sherpa JNI runtime.
+Run `:app:clean` when switching this option on or off; the Android packaging
+task can otherwise retain a previously produced APK without the optional
+native library.
 The debug runtime supports both the API 35 `x86_64` emulator and the production
 `arm64-v8a` target. Build it with the pinned external source and ONNX Runtime
 JNI directory before importing the VITS package:
 
 ```sh
 ANDROID_HOME=/home/homoludens/Android/Sdk \
-./gradlew --offline \
+./gradlew --offline :app:clean \
   -PenableSherpaVits=true \
   -PsherpaOnnxSourceDir=/path/to/sherpa-onnx-34eba5a \
   -PsherpaOnnxRuntimeLibRoot=/path/to/onnxruntime/jni \
