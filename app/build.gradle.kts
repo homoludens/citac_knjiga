@@ -89,9 +89,11 @@ val verifyModelDownloadManifests = tasks.register("verifyModelDownloadManifests"
     dependsOn("processStandardReleaseMainManifest", "processFdroidReleaseMainManifest")
     doLast {
         val androidNamespace = "http://schemas.android.com/apk/res/android"
-        val requiredPermissions = setOf("android.permission.INTERNET")
-        val prohibitedPermissions = setOf(
+        val requiredPermissions = setOf(
+            "android.permission.INTERNET",
             "android.permission.ACCESS_NETWORK_STATE",
+        )
+        val prohibitedPermissions = setOf(
             "android.permission.ACCESS_WIFI_STATE",
             "android.permission.CHANGE_WIFI_STATE",
         )
@@ -101,7 +103,7 @@ val verifyModelDownloadManifests = tasks.register("verifyModelDownloadManifests"
         variants.forEach { variant ->
             val taskNameVariant = variant.replaceFirstChar(Char::uppercaseChar)
             val manifest = layout.buildDirectory.file(
-                "intermediates/merged_manifests/$variant/process${taskNameVariant}Manifest/AndroidManifest.xml",
+                "intermediates/merged_manifest/$variant/process${taskNameVariant}MainManifest/AndroidManifest.xml",
             ).get().asFile
             check(manifest.isFile) { "Merged manifest was not produced for $variant: ${manifest.path}" }
             val document = parser.parse(manifest)

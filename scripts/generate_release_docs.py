@@ -296,7 +296,8 @@ authoritative package gate.
 `citac-knjiga` is designed to process DRM-free EPUB input and generate Serbian
 audio locally. In the documented application path, text, tokens, model data and
 audio are not uploaded. Both release variants declare `INTERNET` only for the
-configured model-asset download boundary; no analytics or proprietary service is
+configured model-asset download boundary and `ACCESS_NETWORK_STATE` only so
+WorkManager can wait for connectivity; no analytics or proprietary service is
 part of the audited runtime graph.
 
 ## Data handling
@@ -328,8 +329,8 @@ Offline behavior does not protect data from the Android OS, a compromised
 device, root access, backups, or a user-selected external export/player. The
 app cannot make claims about other applications after export. A device may
 still have network access for unrelated software; the application does not use
-that network for document import or narration. The download transport is not
-implemented in this task; task 4.3 must retain this allowlist. Privacy checks are
+that network for document import or narration. The download transport uses only
+the pinned allowlist. Privacy checks are
 static and test-based, not a privacy certification or a guarantee against future
 code changes.
 """,
@@ -351,7 +352,7 @@ destinations and diagnostic records.
 | SAF export destination | Partial writes, collisions, low capacity or provider loss damage the project | Preflight capacity checks, `.incomplete` writes, read-back verification, safe finalization, collision handling and persisted checkpoints | Real provider/device loss and two-player playback evidence remain incomplete. |
 | Process death, reboot, update or storage failure | Completed work is regenerated or a partial file is marked ready | Room state machine, bounded segment checkpoints, synced temporary writes, atomic publication and startup reconciliation | Physical force-stop/reboot/update and the required Android-version matrix remain unqualified. |
 | Diagnostics or logs | Document text, URI, path, exception or secret leaks | Safe-token messages, constrained IDs/hashes/numbers and redacted export; no free-form payload logging | OS logs and user/device compromise are outside this component's control. |
-| Network or remote services | Accidental upload, arbitrary fetch, or routine tracking | `INTERNET` is limited by the pinned GitHub Release asset policy; cleartext, routine network clients, analytics, and proprietary services are rejected; document import and generation are local | This is not a firewall: other installed software and user export destinations may use network access. The download transport remains a later task. |
+| Network or remote services | Accidental upload, arbitrary fetch, or routine tracking | `INTERNET` is limited by the pinned GitHub Release asset policy; `ACCESS_NETWORK_STATE` is used only by WorkManager connectivity constraints; cleartext, routine network clients, analytics, and proprietary services are rejected; document import and generation are local | This is not a firewall: other installed software and user export destinations may use network access. |
 
 Release interpretation: unresolved limitations are recorded, not silently
 accepted. The legal model gate, missing external-player evidence and incomplete
@@ -453,16 +454,18 @@ schema validity is not legal clearance.
 ## Direct model-download policy
 
 The release and F-Droid variants declare `android.permission.INTERNET` for direct
-model acquisition only. Cleartext traffic and arbitrary URLs are rejected. The
-allowlist is immutable application configuration:
+model acquisition and `android.permission.ACCESS_NETWORK_STATE` for the
+WorkManager connected-network constraint. The latter does not transfer data.
+Cleartext traffic and arbitrary URLs are rejected. The allowlist is immutable
+application configuration:
 
 | Engine | Filename | Expected bytes | Outer SHA-256 | HTTPS asset |
 |---|---|---:|---|---|
 {network_assets}
 
 Document import, generation, and runtime dependency acquisition remain offline.
-The download transport is intentionally outside this task; any implementation
-must use only the allowlist above and preserve the existing package on failure.
+The download transport uses only the allowlist above and preserves the existing
+package on failure.
 
 ## Recorded checksums and versions
 

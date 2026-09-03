@@ -140,6 +140,8 @@ def verify_network_policy(root: Path, policy: dict[str, object]) -> None:
     require(network.get("schema") == "citac-knjiga-model-download-network-policy", "unsupported network policy schema")
     require(network.get("version") == 1, "unsupported network policy version")
     require(network.get("permission") == "android.permission.INTERNET", "network policy permission is not INTERNET")
+    require(network.get("supporting_permissions") == ["android.permission.ACCESS_NETWORK_STATE"],
+            "network policy supporting permissions are not constrained to WorkManager connectivity")
     require(network.get("cleartext") is False, "network policy permits cleartext traffic")
     require(network.get("allowed_host") == "github.com", "network policy host is not GitHub")
     prefix = network.get("allowed_path_prefix")
@@ -201,6 +203,8 @@ def verify_network_policy(root: Path, policy: dict[str, object]) -> None:
         if node.tag.rsplit("}", 1)[-1].startswith("uses-permission")
     }
     require(network["permission"] in permissions, "application manifest does not declare the model-download permission")
+    require(set(network["supporting_permissions"]).issubset(permissions),
+            "application manifest does not declare the WorkManager connectivity permission")
     application = manifest.find("application")
     require(application is not None and application.attrib.get("{" + ANDROID_NS + "}usesCleartextTraffic") == "false",
             "application manifest does not enforce HTTPS-only model downloads")

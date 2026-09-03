@@ -2,7 +2,7 @@
   "bundle_id": "task-12-6",
   "generated_by": {
     "path": "scripts/generate_release_docs.py",
-    "sha256": "33e26a5cd9982a57a44c8fd8e996e6d3c277fa55248e7a022c91b62bdce8fe1b"
+    "sha256": "fa63bb08dcf3be08694c175b339217c39f8ca4dfd05dd739caf91d49e8f6ae98"
   },
   "inputs": [
     {
@@ -55,7 +55,7 @@
     },
     {
       "path": "model-tools/native/source-closure-v1.json",
-      "sha256": "0cebfb80f0c05f1b037c7060f26e6957f9648d6040970466ca796e1c5e9d5139"
+      "sha256": "204c06c87ad6a1423da9d06a807b2918cf153d37a070a9396d77676f5ffa51ea"
     },
     {
       "path": "model-tools/native/espeak-data-manifest-v1.json",
@@ -95,11 +95,11 @@
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
-      "sha256": "9254c848b9a4d030df9a7e6557aa4ea0bee6c8d108659e62edbd0e5f692cb815"
+      "sha256": "7554872562eaa52fa579a57e13c4a0080c96ba0dd01bcfd21f8139f55eb1507c"
     },
     {
       "path": "app/build.gradle.kts",
-      "sha256": "dab27c34aac0a8647eb17c19e7d35d22821a613b44fe9c57722b3a363e19373c"
+      "sha256": "e9884c1874b440e8d699af746a36c759ccfdbf6942f886ab5940869b6f976aab"
     },
     {
       "path": "app/src/main/java/com/homoludens/citacknjiga/diagnostics/ModelDownloadConfig.kt",
@@ -107,11 +107,11 @@
     },
     {
       "path": "fdroid/check-config-v1.json",
-      "sha256": "e142b30bb1d3719a152525ce21975fec6c0918d40e78d9e0096fc2c99cb91481"
+      "sha256": "86963231959b1cabdc5a8b131b3015f68fba1a3e41f603925f579a693d97a0da"
     },
     {
       "path": "DEPLOYMENT.md",
-      "sha256": "5cd1a1f41a7c33998cc630e532b7c28a8e7814dc4058bd218247610ece4f98ea"
+      "sha256": "6e0d583329d62c265a5ca674972b31b8d31bd7f2758a9a84fb16d2fbc7a400bc"
     },
     {
       "path": "reports/task-11-4-android-qualification.md",
@@ -123,7 +123,7 @@
     },
     {
       "path": "scripts/generate_release_docs.py",
-      "sha256": "33e26a5cd9982a57a44c8fd8e996e6d3c277fa55248e7a022c91b62bdce8fe1b"
+      "sha256": "fa63bb08dcf3be08694c175b339217c39f8ca4dfd05dd739caf91d49e8f6ae98"
     }
   ],
   "notice_references": {

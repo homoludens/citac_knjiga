@@ -86,6 +86,9 @@
     "schema": "citac-knjiga-model-download-network-policy",
     "version": 1,
     "permission": "android.permission.INTERNET",
+    "supporting_permissions": [
+      "android.permission.ACCESS_NETWORK_STATE"
+    ],
     "cleartext": false,
     "allowed_host": "github.com",
     "allowed_path_prefix": "/homoludens/citac_knjiga/releases/download/",

@@ -22,8 +22,10 @@ schema validity is not legal clearance.
 ## Direct model-download policy
 
 The release and F-Droid variants declare `android.permission.INTERNET` for direct
-model acquisition only. Cleartext traffic and arbitrary URLs are rejected. The
-allowlist is immutable application configuration:
+model acquisition and `android.permission.ACCESS_NETWORK_STATE` for the
+WorkManager connected-network constraint. The latter does not transfer data.
+Cleartext traffic and arbitrary URLs are rejected. The allowlist is immutable
+application configuration:
 
 | Engine | Filename | Expected bytes | Outer SHA-256 | HTTPS asset |
 |---|---|---:|---|---|
@@ -31,8 +33,8 @@ allowlist is immutable application configuration:
 | `VITS` | `serbian-vits-1.0.0.zip` | `121971081` | `45aa231e12c8a317f0d093cfb56d54066e19b53561b4ac401661109f19abe5dc` | <https://github.com/homoludens/citac_knjiga/releases/download/vits-model-v1.0.0/serbian-vits-1.0.0.zip> |
 
 Document import, generation, and runtime dependency acquisition remain offline.
-The download transport is intentionally outside this task; any implementation
-must use only the allowlist above and preserve the existing package on failure.
+The download transport uses only the allowlist above and preserves the existing
+package on failure.
 
 ## Recorded checksums and versions
 

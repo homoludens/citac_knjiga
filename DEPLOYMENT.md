@@ -1781,11 +1781,12 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
 ## Network permission and offline model-download policy (tasks 4.2-4.5)
 
 The direct model-download path is the only planned application network boundary.
-Both `standard` and `fdroid` declare `android.permission.INTERNET`; the app also
-sets `android:usesCleartextTraffic="false"` and removes
-`android.permission.ACCESS_NETWORK_STATE` plus Wi-Fi control permissions. The
-manifest permission does not authorize document upload, telemetry, arbitrary
-URLs, or network-backed generation.
+Both `standard` and `fdroid` declare `android.permission.INTERNET` for the
+download transport and `android.permission.ACCESS_NETWORK_STATE` so WorkManager
+can enforce its connected-network constraint. The latter does not transfer data.
+The app sets `android:usesCleartextTraffic="false"` and does not request Wi-Fi
+control permissions. These permissions do not authorize document upload,
+telemetry, arbitrary URLs, or network-backed generation.
 
 The immutable policy is recorded in
 `model-tools/native/source-closure-v1.json` and matches the task-4.1 Kotlin
@@ -1821,8 +1822,9 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
   ./gradlew :app:verifyModelDownloadManifests --no-daemon --max-workers=1
 ```
 
-The gate requires `INTERNET`, rejects routine network permissions, and requires
-cleartext traffic to be disabled for both `standardRelease` and `fdroidRelease`.
+The gate requires `INTERNET` and the WorkManager connectivity permission, rejects
+Wi-Fi control and other routine network permissions, and requires cleartext
+traffic to be disabled for both `standardRelease` and `fdroidRelease`.
 `python3 scripts/check_source_closure.py` additionally rejects network clients
 and checks the exact descriptor/policy allowlist and offline operation boundary.
 

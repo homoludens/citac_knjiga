@@ -46,11 +46,13 @@ target.
 - OpenSpec `manage-library-and-model-downloads` task 4.1 pins immutable Kokoro and
   VITS GitHub Release asset descriptors with exact repository paths, versions, sizes,
   and outer SHA-256 values; descriptor construction rejects inconsistent metadata.
-- OpenSpec `manage-library-and-model-downloads` task 4.2 adds `INTERNET` to both
-  standard and F-Droid manifests for the pinned model assets only. Merged-manifest,
-  F-Droid, source-closure, privacy, and release-manifest checks reject cleartext,
-  routine network clients, arbitrary URLs, and networked document import/generation;
-  the only source allowlist for network APIs is the model-download transport.
+- OpenSpec `manage-library-and-model-downloads` task 4.2 adds `INTERNET` and the
+  WorkManager-required `ACCESS_NETWORK_STATE` permission to both standard and
+  F-Droid manifests for the pinned model assets only. Merged-manifest, F-Droid,
+  source-closure, privacy, and release-manifest checks reject cleartext, Wi-Fi
+  control permissions, routine network clients, arbitrary URLs, and networked
+  document import/generation; the only source allowlist for network APIs is the
+  model-download transport.
 - OpenSpec `manage-library-and-model-downloads` tasks 4.3-4.5 implement cancellable
   HTTPS streaming to private temporary files, WorkManager connectivity constraints,
   outer checksum and package validation, independent Kokoro/VITS atomic slots, and
@@ -510,7 +512,8 @@ target.
   without discarding valid spine content; no large attack artifact is added.
 - Task 11.2 established the prior no-network-permission baseline for local
   processing. Task 4.2 supersedes that manifest assertion with the narrower
-  `INTERNET` model-asset policy; `ACCESS_NETWORK_STATE` remains removed.
+  `INTERNET` model-asset policy; `ACCESS_NETWORK_STATE` is retained only for the
+  WorkManager connected-network constraint.
   `LocalDiagnostics` keeps only safe category tokens, validated numeric values,
   SHA-256 hashes, and constrained IDs; free-form messages, document text,
   URI/path/query/fragment values, and exception details are redacted.

@@ -136,7 +136,7 @@ def check_notices(config: dict[str, object]) -> None:
 
 
 def merged_manifests() -> list[Path]:
-    return sorted((ROOT / "app/build/intermediates/merged_manifests").glob("**/AndroidManifest.xml"))
+    return sorted((ROOT / "app/build/intermediates/merged_manifest").glob("**/AndroidManifest.xml"))
 
 
 def check_manifest(path: Path, config: dict[str, object]) -> None:
