@@ -21,6 +21,7 @@
     <string name="preparing_preview">Preparing preview. You can wait or cancel.</string>
     <string name="cancel_import">Cancel import</string>
     <string name="import_accepted">Import accepted and saved.</string>
+    <string name="audio_generation_queued">Audio generation has been queued.</string>
     <string name="no_narration_text">No narration text.</string>
     <string name="generate_chapter">Generate this chapter</string>
     <string name="generating_chapter">Generating chapter. You can cancel.</string>

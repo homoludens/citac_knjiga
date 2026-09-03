@@ -21,6 +21,7 @@
     <string name="preparing_preview">Припрема прегледа. Можете сачекати или отказати.</string>
     <string name="cancel_import">Откажи увоз</string>
     <string name="import_accepted">Увоз је прихваћен и сачуван.</string>
+    <string name="audio_generation_queued">Генерисање звука је постављено у ред.</string>
     <string name="no_narration_text">Нема текста за нарацију.</string>
     <string name="generate_chapter">Генериши ово поглавље</string>
     <string name="generating_chapter">Генерисање поглавља је у току. Можете отказати.</string>

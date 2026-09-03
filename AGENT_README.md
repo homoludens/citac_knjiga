@@ -827,6 +827,9 @@ target.
   parity, resource, interruption, recovery, and equivalent API 33 `x86_64`
   evidence remain open, so VITS is not production-qualified.
 - The Sherpa JNI runtime is an opt-in source build using the pinned checkout and
-  `CITA_ENABLE_SHERPA_VITS`; normal APKs intentionally omit it. Engine selection
-  also probes `libcita_sherpa_vits.so`, so a qualified package cannot expose VITS
-  when the runtime library is absent.
+-  `CITA_ENABLE_SHERPA_VITS`; normal APKs intentionally omit it. The debug
+  runtime supports native `x86_64` as well as production `arm64-v8a`, and engine
+  selection probes `libcita_sherpa_vits.so`, so a valid package cannot expose
+  VITS when the runtime library is absent. Download completion refreshes the
+  package and engine state in place. Accepted EPUB/PDF imports now enqueue the
+  shared durable whole-book generation path; regeneration uses that same path.

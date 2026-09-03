@@ -83,6 +83,11 @@ failure.
 
 ## Generation troubleshooting
 
+Accepted EPUB and PDF imports now enqueue the same durable whole-book
+generation request. Chapter/book regeneration uses that same queue and the
+currently selected engine; no document-format-specific generation path is
+required.
+
 If both EPUB and PDF projects show the generic generation failure, inspect the
 persisted generation run's `last_error` before changing document import code.
 The shared VITS frontend previously rejected common book characters such as
@@ -96,6 +101,25 @@ ANDROID_HOME=/home/homoludens/Android/Sdk \
 ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
 ./gradlew --offline :tts-onnx:testDebugUnitTest
 ```
+
+VITS is available only in an APK built with the optional Sherpa JNI runtime.
+The debug runtime supports both the API 35 `x86_64` emulator and the production
+`arm64-v8a` target. Build it with the pinned external source and ONNX Runtime
+JNI directory before importing the VITS package:
+
+```sh
+ANDROID_HOME=/home/homoludens/Android/Sdk \
+./gradlew --offline \
+  -PenableSherpaVits=true \
+  -PsherpaOnnxSourceDir=/path/to/sherpa-onnx-34eba5a \
+  -PsherpaOnnxRuntimeLibRoot=/path/to/onnxruntime/jni \
+  :app:assembleStandardDebug
+```
+
+After a download finishes, diagnostics refreshes the installed package and
+engine list without requiring navigation away from the screen. A standard APK
+without the optional native library continues to hide VITS from selection even
+when its package is valid.
 
 ## Signed app release artifacts (task 12.7)
 

@@ -484,6 +484,9 @@ private fun StartScreen(
                                 withContext(Dispatchers.Main.immediate) {
                                     importState = result.toUiState()
                                     chapterGeneration = ChapterGenerationUiState.Idle
+                                    if (result is EpubAcceptanceResult.Published) {
+                                        onRegenerate(result.source.projectId, GenerationScope.CompleteBook)
+                                    }
                                 }
                             }
                         },
@@ -557,6 +560,9 @@ private fun StartScreen(
                                 }
                                 withContext(Dispatchers.Main.immediate) {
                                     pdfImportState = result.toUiState()
+                                    if (result is PdfAcceptanceResult.Published) {
+                                        onRegenerate(result.source.projectId, GenerationScope.CompleteBook)
+                                    }
                                 }
                             }
                         },
@@ -1042,38 +1048,12 @@ private fun EpubImportPreviewContent(
             }
             is ImportPreviewUiState.Accepted -> {
                 Text(stringResource(R.string.import_accepted))
-                val noNarration = stringResource(R.string.no_narration_text)
-                state.preview.canonical.chapters.forEachIndexed { index, chapter ->
+                Text(stringResource(R.string.audio_generation_queued))
+                state.preview.canonical.chapters.forEach { chapter ->
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text("${index + 1}. ${chapter.title}", style = MaterialTheme.typography.titleMedium)
-                            Text(chapter.narrationText.ifEmpty { noNarration })
-                            val retrying = generation is ChapterGenerationUiState.Error && generation.chapterOrdinal == index
-                            Button(
-                                onClick = { onGenerate(state.accepted, index) },
-                                enabled = generation !is ChapterGenerationUiState.Generating,
-                            ) { Text(stringResource(if (retrying) R.string.retry else R.string.generate_chapter)) }
-                            when (val current = generation) {
-                                is ChapterGenerationUiState.Generating -> if (current.chapterOrdinal == index) {
-                                    Text(
-                                        stringResource(R.string.generating_chapter),
-                                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-                                    )
-                                }
-                                is ChapterGenerationUiState.Success -> if (current.result.chapter.ordinal == index) {
-                                    Text(stringResource(R.string.verified_wav))
-                                    OutlinedButton(onClick = { onPlayGenerated(current.result) }) { Text(stringResource(R.string.play_offline)) }
-                                    OutlinedButton(onClick = onStopGenerated) { Text(stringResource(R.string.stop)) }
-                                }
-                                is ChapterGenerationUiState.Error -> if (current.chapterOrdinal == index) {
-                                    Text(
-                                        stringResource(R.string.generation_failed),
-                                        color = MaterialTheme.colorScheme.error,
-                                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive },
-                                    )
-                                }
-                                ChapterGenerationUiState.Idle -> Unit
-                            }
+                            Text(chapter.title, style = MaterialTheme.typography.titleMedium)
+                            Text(chapter.narrationText.ifEmpty { stringResource(R.string.no_narration_text) })
                         }
                     }
                 }

@@ -531,6 +531,26 @@ public fun DiagnosticsAboutRoute(
         }
         selectedEngine = ttsEnginePreference?.selected ?: TtsEngine.KOKORO
     }
+    LaunchedEffect(kokoroDownload?.state, vitsDownload?.state) {
+        if (kokoroDownload?.state == WorkInfo.State.SUCCEEDED ||
+            vitsDownload?.state == WorkInfo.State.SUCCEEDED
+        ) {
+            val refreshed = withContext(Dispatchers.IO) {
+                val engines = ttsEnginePreference?.refresh() ?: listOf(TtsEngine.KOKORO)
+                val snapshot = DiagnosticsAboutSnapshotBuilder(
+                    context,
+                    variant,
+                    modelPackageStore,
+                    privateStorage,
+                    vitsModelPackageStore,
+                ).build(latestImportFailure)
+                engines to snapshot
+            }
+            availableEngines = refreshed.first
+            selectedEngine = ttsEnginePreference?.selected ?: TtsEngine.KOKORO
+            state = refreshed.second
+        }
+    }
     DiagnosticsAboutScreen(
         state = state,
         exportMessage = exportMessage?.let { stringResource(it) },

@@ -18,12 +18,16 @@ public class TtsEngineSelector(
 ) {
     public fun available(): List<TtsEngine> = buildList {
         add(TtsEngine.KOKORO)
-        if (apiLevel >= 33 && abi == "arm64-v8a" && runtimeAvailable() && vitsStore.activePackage() != null) {
+        if (apiLevel >= 33 && abi in SUPPORTED_VITS_ABIS && runtimeAvailable() && vitsStore.activePackage() != null) {
             add(TtsEngine.VITS)
         }
     }
 
     public fun select(preferred: TtsEngine): TtsEngine = preferred.takeIf { it in available() } ?: TtsEngine.KOKORO
+
+    private companion object {
+        val SUPPORTED_VITS_ABIS = setOf("arm64-v8a", "x86_64")
+    }
 }
 
 /** Persists the user's engine choice while falling back closed to Kokoro. */
