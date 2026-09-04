@@ -845,6 +845,13 @@ target.
   from 0.669 s to 0.305 s, but seeded FP32/INT8 duration outputs differed. It is
   unqualified and must pass physical-device sound and performance testing before
   any package is published.
+- Task 5.18 added an instrumentation-only raw-model comparison and ran it on
+  Poco F3 `2555a240` (API 33, `arm64-v8a`). Both FP32 and static-QDQ INT8
+  generated finite, non-silent 22,050 Hz mono audio. Across three post-warm-up
+  runs, FP32 had a 2,052 ms median and static INT8 had a 603 ms median. Output
+  lengths differ because VITS duration sampling is stochastic, so this is
+  performance/compatibility evidence only, not audio-quality or package
+  qualification.
 - SAF export now falls back to copy-and-verify when a selected document provider
   cannot rename a temporary document.
 - Shared PDF/EPUB generation now exposes active chunk progress for both engines.
