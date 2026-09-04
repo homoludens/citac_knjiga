@@ -23,8 +23,8 @@ public class ExperimentalSherpaVitsInt8AndroidTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val fp32 = stage(requireNotNull(fp32Path), File(context.cacheDir, "vits-fp32.onnx"))
         val staticInt8 = stage(requireNotNull(staticInt8Path), File(context.cacheDir, "vits-static-int8.onnx"))
-        val fp32Trial = generate(fp32)
-        val staticInt8Trial = generate(staticInt8)
+        val fp32Trial = generate(fp32, File(context.filesDir, "vits-fp32.wav"))
+        val staticInt8Trial = generate(staticInt8, File(context.filesDir, "vits-static-int8.wav"))
 
         Log.i(TAG, "fp32 median=${fp32Trial.medianMillis}ms timings=${fp32Trial.samples} audioSamples=${fp32Trial.sampleCount}")
         Log.i(TAG, "static-int8 median=${staticInt8Trial.medianMillis}ms timings=${staticInt8Trial.samples} audioSamples=${staticInt8Trial.sampleCount}")
@@ -43,13 +43,13 @@ public class ExperimentalSherpaVitsInt8AndroidTest {
         return destination
     }
 
-    private fun generate(model: File): Trial {
+    private fun generate(model: File, wav: File): Trial {
         val factoryClass = Class.forName("com.homoludens.citacknjiga.tts.onnx.JniSherpaVitsSession")
         val factory = factoryClass.getField("INSTANCE").get(null) as SherpaVitsSessionFactory
         SherpaVitsSession.fromNative(factory.open(model.absolutePath, "", null)).use { session ->
             session.generate(TOKEN_IDS, speakerId = 0, speed = 1f)
             var audioSampleCount = 0L
-            val samples = (0 until 3).map {
+            val samples = (0 until 3).map { index ->
                 val started = SystemClock.elapsedRealtimeNanos()
                 val audio = session.generate(TOKEN_IDS, speakerId = 0, speed = 1f)
                 assertEquals(22_050, audio.sampleRateHz)
@@ -57,6 +57,7 @@ public class ExperimentalSherpaVitsInt8AndroidTest {
                 assertTrue(audio.pcm.isNotEmpty())
                 assertTrue(audio.pcm.all { it.isFinite() })
                 assertTrue(audio.pcm.any { abs(it) > 0.0001f })
+                if (index == 0) VitsWavWriter.writeAtomic(wav, VitsAudioOutputValidator.resampleOnce(audio))
                 audioSampleCount = audio.pcm.size.toLong()
                 (SystemClock.elapsedRealtimeNanos() - started) / NANOS_PER_MILLISECOND
             }.sorted()

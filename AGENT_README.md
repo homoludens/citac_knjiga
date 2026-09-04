@@ -852,6 +852,9 @@ target.
   lengths differ because VITS duration sampling is stochastic, so this is
   performance/compatibility evidence only, not audio-quality or package
   qualification.
+- Task 5.19 extends that experiment to write one canonical 24,000 Hz PCM16 WAV
+  per model. The Poco F3 run passed and the external review files are
+  `/tmp/vits-int8/vits-fp32.wav` and `/tmp/vits-int8/vits-static-int8.wav`.
 - SAF export now falls back to copy-and-verify when a selected document provider
   cannot rename a temporary document.
 - Shared PDF/EPUB generation now exposes active chunk progress for both engines.
