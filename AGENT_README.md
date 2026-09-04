@@ -844,3 +844,7 @@ target.
   removed after publication, cancellation, or terminal inference failure.
 - The launcher uses a violet adaptive open-book and audio-bars icon, with a
   circular legacy fallback and an Android 13 monochrome themed-icon layer.
+- User-requested model downloads require connected networking without hidden
+  battery-not-low or storage-not-low WorkManager gates. Versioned unique-work
+  names retire requests persisted with the old constraints, and pending work is
+  described as queued rather than incorrectly claiming the network is offline.

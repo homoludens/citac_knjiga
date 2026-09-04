@@ -905,7 +905,7 @@ private fun downloadEngineName(engine: ModelEngine): String = stringResource(
 private fun downloadStatusText(status: DownloadDisplayStatus): String = stringResource(
     when (status) {
         DownloadDisplayStatus.IDLE -> R.string.model_download_idle
-        DownloadDisplayStatus.WAITING -> R.string.model_download_offline
+        DownloadDisplayStatus.WAITING -> R.string.model_download_waiting
         DownloadDisplayStatus.DOWNLOADING -> R.string.model_download_downloading
         DownloadDisplayStatus.VERIFYING -> R.string.model_download_verifying
         DownloadDisplayStatus.INSTALLED -> R.string.model_download_installed

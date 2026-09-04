@@ -285,7 +285,7 @@
     <string name="model_download_retry">Понови преузимање модела</string>
     <string name="model_download_cancel">Откажи преузимање модела</string>
     <string name="model_download_idle">Није инсталиран</string>
-    <string name="model_download_offline">Ван мреже или се чека мрежа</string>
+    <string name="model_download_waiting">Преузимање чека на покретање</string>
     <string name="model_download_downloading">Преузимање у току</string>
     <string name="model_download_verifying">Провера пакета у току</string>
     <string name="model_download_installed">Инсталиран и проверен</string>

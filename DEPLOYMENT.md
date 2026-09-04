@@ -1865,7 +1865,10 @@ store. Kokoro and VITS publish independently through atomic `active.zip` and
 incompatible download deletes its temporary file and leaves the previous active
 package unchanged. The diagnostics screen exposes separate Kokoro and VITS
 download actions with downloading, verifying, installed, failed, canceled, and
-offline states; it never displays private paths or credentials.
+queued states; it never displays private paths or credentials. User-requested
+downloads require a connected network but are not silently delayed by Android's
+battery-not-low or storage-not-low scheduler flags. Explicit package-size and
+stream bounds continue to report storage and oversized-download failures.
 
 The variant-aware Gradle gate parses the actual AGP merged manifests rather than
 checking source manifests:

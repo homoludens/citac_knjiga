@@ -38,6 +38,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 
 public data class ModelDownloadProgress(
     val bytesDownloaded: Long,
@@ -328,10 +329,14 @@ public object ModelDownloadWorkContract {
     public const val PACKAGE_ID_KEY: String = "package_id"
     public const val PACKAGE_VERSION_KEY: String = "package_version"
     public const val PACKAGE_SHA256_KEY: String = "package_sha256"
-    public const val UNIQUE_WORK_PREFIX: String = "model-download-"
+    public const val UNIQUE_WORK_PREFIX: String = "model-download-v2-"
     public const val TAG_PREFIX: String = "model-download:"
+    internal const val LEGACY_UNIQUE_WORK_PREFIX: String = "model-download-"
 
     public fun uniqueWorkName(engine: ModelEngine): String = UNIQUE_WORK_PREFIX + engine.name.lowercase()
+
+    internal fun legacyUniqueWorkName(engine: ModelEngine): String =
+        LEGACY_UNIQUE_WORK_PREFIX + engine.name.lowercase()
 
     public fun tag(engine: ModelEngine): String = TAG_PREFIX + engine.name.lowercase()
 }
@@ -468,32 +473,37 @@ public class ModelDownloadWorkScheduler(
     private val constraints: Constraints = defaultConstraints(),
 ) {
     public fun enqueue(engine: ModelEngine): Operation {
+        val workManager = workManagerProvider()
+        workManager.cancelUniqueWork(ModelDownloadWorkContract.legacyUniqueWorkName(engine))
         val request = OneTimeWorkRequestBuilder<ModelDownloadWorker>()
             .setInputData(workDataOf(ModelDownloadWorkContract.ENGINE_KEY to engine.name.lowercase()))
             .setConstraints(constraints)
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 10, TimeUnit.SECONDS)
             .addTag(ModelDownloadWorkContract.tag(engine))
             .build()
-        return workManagerProvider().enqueueUniqueWork(
+        return workManager.enqueueUniqueWork(
             ModelDownloadWorkContract.uniqueWorkName(engine),
             ExistingWorkPolicy.KEEP,
             request,
         )
     }
 
-    public fun cancel(engine: ModelEngine): Operation = workManagerProvider().cancelUniqueWork(
-        ModelDownloadWorkContract.uniqueWorkName(engine),
-    )
+    public fun cancel(engine: ModelEngine): Operation {
+        val workManager = workManagerProvider()
+        workManager.cancelUniqueWork(ModelDownloadWorkContract.legacyUniqueWorkName(engine))
+        return workManager.cancelUniqueWork(ModelDownloadWorkContract.uniqueWorkName(engine))
+    }
 
-    public fun workInfo(engine: ModelEngine): Flow<WorkInfo?> = workManagerProvider()
-        .getWorkInfosForUniqueWorkFlow(ModelDownloadWorkContract.uniqueWorkName(engine))
-        .map { it.firstOrNull() }
+    public fun workInfo(engine: ModelEngine): Flow<WorkInfo?> {
+        val workManager = workManagerProvider()
+        return workManager.getWorkInfosForUniqueWorkFlow(ModelDownloadWorkContract.uniqueWorkName(engine))
+            .map { it.firstOrNull() }
+            .onStart { workManager.cancelUniqueWork(ModelDownloadWorkContract.legacyUniqueWorkName(engine)) }
+    }
 
     public companion object {
         public fun defaultConstraints(): Constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
-            .setRequiresBatteryNotLow(true)
-            .setRequiresStorageNotLow(true)
             .build()
     }
 }

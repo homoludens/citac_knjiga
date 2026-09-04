@@ -285,7 +285,7 @@
     <string name="model_download_retry">Retry model download</string>
     <string name="model_download_cancel">Cancel model download</string>
     <string name="model_download_idle">Not installed</string>
-    <string name="model_download_offline">Offline or waiting for network</string>
+    <string name="model_download_waiting">Download queued; waiting to start</string>
     <string name="model_download_downloading">Downloading</string>
     <string name="model_download_verifying">Verifying package</string>
     <string name="model_download_installed">Installed and verified</string>
