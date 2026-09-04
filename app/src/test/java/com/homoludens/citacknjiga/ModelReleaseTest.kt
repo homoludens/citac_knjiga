@@ -51,12 +51,12 @@ public class ModelReleaseTest {
         assertEquals("homoludens", vits.repositoryOwner)
         assertEquals("citac_knjiga", vits.repositoryName)
         assertEquals("https://github.com/homoludens/citac_knjiga/releases/download/" +
-            "vits-model-v1.0.0/serbian-vits-1.0.0.zip", vits.assetUrl)
-        assertEquals("vits-model-v1.0.0", vits.releaseTag)
-        assertEquals("serbian-vits-1.0.0.zip", vits.assetFileName)
-        assertEquals("1.0.0", vits.version)
-        assertEquals(121_971_081L, vits.expectedSizeBytes)
-        assertEquals("45aa231e12c8a317f0d093cfb56d54066e19b53561b4ac401661109f19abe5dc", vits.outerSha256)
+            "vits-model-v1.1.0/serbian-vits-1.1.0.zip", vits.assetUrl)
+        assertEquals("vits-model-v1.1.0", vits.releaseTag)
+        assertEquals("serbian-vits-1.1.0.zip", vits.assetFileName)
+        assertEquals("1.1.0", vits.version)
+        assertEquals(41_111_655L, vits.expectedSizeBytes)
+        assertEquals("e1522a1fd13b015fdf0617af0c3125cb68ae8babd3dadd88f52c32e0dcae25f2", vits.outerSha256)
     }
 
     @Test

@@ -55,7 +55,7 @@
     },
     {
       "path": "model-tools/native/source-closure-v1.json",
-      "sha256": "204c06c87ad6a1423da9d06a807b2918cf153d37a070a9396d77676f5ffa51ea"
+      "sha256": "1e56e20b75e70949e38a3bf2f52b3e93f32a635508b81cf2ac69ea93c50ec648"
     },
     {
       "path": "model-tools/native/espeak-data-manifest-v1.json",
@@ -95,7 +95,7 @@
     },
     {
       "path": "app/src/main/AndroidManifest.xml",
-      "sha256": "7554872562eaa52fa579a57e13c4a0080c96ba0dd01bcfd21f8139f55eb1507c"
+      "sha256": "38cac35340f8eb0eae39501d56418a1d286837be72ece2594482b0421509433c"
     },
     {
       "path": "app/build.gradle.kts",
@@ -103,7 +103,7 @@
     },
     {
       "path": "app/src/main/java/com/homoludens/citacknjiga/diagnostics/ModelDownloadConfig.kt",
-      "sha256": "06b15052c665df96f51201bb1ec6d2eac87551cd3924643bd4f4484e9258bb07"
+      "sha256": "7a0e532d0c97c3dc295a7b521b9bce2d9ad253cbea1356f6e4a74803f2408253"
     },
     {
       "path": "fdroid/check-config-v1.json",
@@ -111,7 +111,7 @@
     },
     {
       "path": "DEPLOYMENT.md",
-      "sha256": "6e0d583329d62c265a5ca674972b31b8d31bd7f2758a9a84fb16d2fbc7a400bc"
+      "sha256": "f36f147e619f58adcc34521987692eea41b48908dec4edfccb0b2ab62ba8a34c"
     },
     {
       "path": "reports/task-11-4-android-qualification.md",

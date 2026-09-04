@@ -855,6 +855,10 @@ target.
 - Task 5.19 extends that experiment to write one canonical 24,000 Hz PCM16 WAV
   per model. The Poco F3 run passed and the external review files are
   `/tmp/vits-int8/vits-fp32.wav` and `/tmp/vits-int8/vits-static-int8.wav`.
+- Task 5.20 publishes the project-owner-approved static-QDQ INT8 package as
+  `vits-model-v1.1.0`. It is an external 41,111,655-byte GitHub release asset,
+  SHA-256 `e1522a1fd13b015fdf0617af0c3125cb68ae8babd3dadd88f52c32e0dcae25f2`;
+  the app pins that asset and retains FP32 v1.0.0 as the rollback release.
 - SAF export now falls back to copy-and-verify when a selected document provider
   cannot rename a temporary document.
 - Shared PDF/EPUB generation now exposes active chunk progress for both engines.

@@ -102,10 +102,10 @@
       },
       {
         "engine": "VITS",
-        "url": "https://github.com/homoludens/citac_knjiga/releases/download/vits-model-v1.0.0/serbian-vits-1.0.0.zip",
-        "filename": "serbian-vits-1.0.0.zip",
-        "size_bytes": 121971081,
-        "sha256": "45aa231e12c8a317f0d093cfb56d54066e19b53561b4ac401661109f19abe5dc"
+        "url": "https://github.com/homoludens/citac_knjiga/releases/download/vits-model-v1.1.0/serbian-vits-1.1.0.zip",
+        "filename": "serbian-vits-1.1.0.zip",
+        "size_bytes": 41111655,
+        "sha256": "e1522a1fd13b015fdf0617af0c3125cb68ae8babd3dadd88f52c32e0dcae25f2"
       }
     ],
     "offline_operations": [

@@ -30,7 +30,7 @@ application configuration:
 | Engine | Filename | Expected bytes | Outer SHA-256 | HTTPS asset |
 |---|---|---:|---|---|
 | `KOKORO` | `kokoro-serbian-dragana-v2.zip` | `338316574` | `58c031fd6e37a12cafe3575d26a057e10c45cdfe7c6c7605f6966e7e2406458b` | <https://github.com/homoludens/citac_knjiga/releases/download/kokoro-model-v1.0.0/kokoro-serbian-dragana-v2.zip> |
-| `VITS` | `serbian-vits-1.0.0.zip` | `121971081` | `45aa231e12c8a317f0d093cfb56d54066e19b53561b4ac401661109f19abe5dc` | <https://github.com/homoludens/citac_knjiga/releases/download/vits-model-v1.0.0/serbian-vits-1.0.0.zip> |
+| `VITS` | `serbian-vits-1.1.0.zip` | `41111655` | `e1522a1fd13b015fdf0617af0c3125cb68ae8babd3dadd88f52c32e0dcae25f2` | <https://github.com/homoludens/citac_knjiga/releases/download/vits-model-v1.1.0/serbian-vits-1.1.0.zip> |
 
 Document import, generation, and runtime dependency acquisition remain offline.
 The download transport uses only the allowlist above and preserves the existing

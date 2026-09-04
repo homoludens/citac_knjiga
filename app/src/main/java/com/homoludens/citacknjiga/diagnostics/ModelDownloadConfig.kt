@@ -33,20 +33,24 @@ public data class ModelReleaseDescriptor(
 
         val expected = when (engine) {
             ModelEngine.KOKORO -> "kokoro-model-v1.0.0" to "kokoro-serbian-dragana-v2.zip"
-            ModelEngine.VITS -> "vits-model-v1.0.0" to "serbian-vits-1.0.0.zip"
+            ModelEngine.VITS -> "vits-model-v1.1.0" to "serbian-vits-1.1.0.zip"
         }
         require(releaseTag == expected.first && assetFileName == expected.second) {
             "Model release and asset identity are inconsistent"
         }
         val expectedSize = when (engine) {
             ModelEngine.KOKORO -> 338_316_574L
-            ModelEngine.VITS -> 121_971_081L
+            ModelEngine.VITS -> 41_111_655L
         }
         val expectedHash = when (engine) {
             ModelEngine.KOKORO -> "58c031fd6e37a12cafe3575d26a057e10c45cdfe7c6c7605f6966e7e2406458b"
-            ModelEngine.VITS -> "45aa231e12c8a317f0d093cfb56d54066e19b53561b4ac401661109f19abe5dc"
+            ModelEngine.VITS -> "e1522a1fd13b015fdf0617af0c3125cb68ae8babd3dadd88f52c32e0dcae25f2"
         }
-        require(version == "1.0.0" && expectedSizeBytes == expectedSize) {
+        val expectedVersion = when (engine) {
+            ModelEngine.KOKORO -> "1.0.0"
+            ModelEngine.VITS -> "1.1.0"
+        }
+        require(version == expectedVersion && expectedSizeBytes == expectedSize) {
             "Model release metadata is inconsistent"
         }
         require(outerSha256 == expectedHash) { "Model asset checksum is not approved" }
@@ -88,13 +92,13 @@ public data class ModelReleaseDescriptor(
             engine = ModelEngine.VITS,
             repositoryOwner = REPOSITORY_OWNER,
             repositoryName = REPOSITORY_NAME,
-            releaseTag = "vits-model-v1.0.0",
-            assetFileName = "serbian-vits-1.0.0.zip",
-            version = "1.0.0",
-            expectedSizeBytes = 121_971_081L,
-            outerSha256 = "45aa231e12c8a317f0d093cfb56d54066e19b53561b4ac401661109f19abe5dc",
+            releaseTag = "vits-model-v1.1.0",
+            assetFileName = "serbian-vits-1.1.0.zip",
+            version = "1.1.0",
+            expectedSizeBytes = 41_111_655L,
+            outerSha256 = "e1522a1fd13b015fdf0617af0c3125cb68ae8babd3dadd88f52c32e0dcae25f2",
             assetUrl = "https://github.com/homoludens/citac_knjiga/releases/download/" +
-                "vits-model-v1.0.0/serbian-vits-1.0.0.zip",
+                "vits-model-v1.1.0/serbian-vits-1.1.0.zip",
         )
 
         public val ALL: List<ModelReleaseDescriptor> = listOf(KOKORO, VITS)

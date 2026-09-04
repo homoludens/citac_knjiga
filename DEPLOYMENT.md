@@ -288,17 +288,12 @@ ANDROID_SDK_ROOT=/path/to/android-sdk \
 The selected engine checks that `libcita_sherpa_vits.so` loads and still
 requires a verified VITS package before exposing the engine.
 
-The first real Sherpa VITS Android smoke run passed on Poco F3 `2555a240`
-(`M2012K11AG`, API 33, native `arm64-v8a`) with Wi-Fi and mobile data disabled.
-`SherpaVitsAndroidTest#qualifiedPackageGeneratesOfflineSerbianAudio` imported
-the external package, generated non-silent native 22,050 Hz mono audio, and
-validated the single 24,000 Hz mono resampling step. The package SHA-256 was
-`45aa231e12c8a317f0d093cfb56d54066e19b53561b4ac401661109f19abe5dc`.
-This is recorded in `android-parity-report.json` and
-`android-matrix-report.json` as smoke evidence only. Full parity, resource,
-interruption, recovery, and equivalent API 33 `x86_64` evidence remain open;
-the overall qualification therefore remains rejected and VITS is not exposed
-as a usable production engine.
+VITS model release `v1.1.0` uses a static-QDQ INT8 Conv graph. On Poco F3
+`2555a240` (`M2012K11AG`, API 33, native `arm64-v8a`), it generated finite,
+non-silent native 22,050 Hz mono audio and was exported as validated 24,000 Hz
+mono PCM WAV. Three post-warm-up runs had a 603 ms median, versus 2,052 ms for
+the FP32 graph. The public asset is explicitly pinned by its filename, byte
+count, and SHA-256; FP32 `v1.0.0` remains available as a rollback release.
 
 The disposable fetch command is:
 
@@ -1841,7 +1836,7 @@ descriptors exactly:
 | Engine | Release asset | Expected bytes | Outer SHA-256 |
 |---|---|---:|---|
 | Kokoro | `kokoro-serbian-dragana-v2.zip` | 338316574 | `58c031fd6e37a12cafe3575d26a057e10c45cdfe7c6c7605f6966e7e2406458b` |
-| VITS | `serbian-vits-1.0.0.zip` | 121971081 | `45aa231e12c8a317f0d093cfb56d54066e19b53561b4ac401661109f19abe5dc` |
+| VITS | `serbian-vits-1.1.0.zip` | 41111655 | `e1522a1fd13b015fdf0617af0c3125cb68ae8babd3dadd88f52c32e0dcae25f2` |
 
 Only `https://github.com/homoludens/citac_knjiga/releases/download/` paths for
 those two assets are permitted. `ModelDownloadConfig` rejects arbitrary URLs and

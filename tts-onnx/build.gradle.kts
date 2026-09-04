@@ -31,7 +31,7 @@ val prepareSherpaVitsRuntime = tasks.register("prepareSherpaVitsRuntime") {
     val sourceProvided = providers.gradleProperty("sherpaOnnxSourceDir").isPresent
     val runtimeProvided = providers.gradleProperty("sherpaOnnxRuntimeLibRoot").isPresent &&
         providers.gradleProperty("sherpaOnnxRuntimeIncludeDir").isPresent
-    inputs.files(onnxRuntimeNative)
+    inputs.file(onnxRuntimeNative.elements.map { artifacts -> artifacts.single().asFile })
     outputs.dir(sherpaOnnxDirectory)
     outputs.dir(onnxRuntimeDirectory)
     onlyIf { sherpaVitsEnabled.get() }
