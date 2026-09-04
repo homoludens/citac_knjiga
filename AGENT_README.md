@@ -822,8 +822,8 @@ target.
   `83dc1e1b95d85b9f5602dc94909706fc83dfbc6c`, Dragana speaker `0`, CC-BY-4.0.
 - Legal distribution is accepted for this project, and the deterministic
   external package `serbian-vits-1.0.0.zip` has a validated identity and
-  self-contained graph. The opt-in debug runtime is available for testing, but
-  VITS remains unqualified for production until the full API 33 native ARM64
+  self-contained graph. The default native runtime is available for testing,
+  but VITS remains unqualified for production until the full API 33 native ARM64
   gate passes. No raw checkpoint, generated audio, or network runtime dependency
   is added.
 - The first real Sherpa VITS smoke run passed on Poco F3 `2555a240` (`M2012K11AG`,
@@ -838,6 +838,13 @@ target.
   `arm64-v8a`; the VITS model package remains a separate verified download.
   Accepted EPUB/PDF imports enqueue the shared durable whole-book generation
   path; regeneration uses that same path.
+- Task 5.17 adds `quantize_serbian_vits_static_int8.py` for a reproducible
+  static-QDQ INT8 Conv experiment. It preprocesses without unsupported symbolic
+  VITS-duration shape inference and calibrates 18 Serbian character inputs. The
+  desktop candidate reduced the model from 122 MB to 41 MB and median inference
+  from 0.669 s to 0.305 s, but seeded FP32/INT8 duration outputs differed. It is
+  unqualified and must pass physical-device sound and performance testing before
+  any package is published.
 - SAF export now falls back to copy-and-verify when a selected document provider
   cannot rename a temporary document.
 - Shared PDF/EPUB generation now exposes active chunk progress for both engines.
