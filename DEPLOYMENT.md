@@ -113,27 +113,24 @@ ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
 ./gradlew --offline :tts-onnx:testDebugUnitTest
 ```
 
-VITS is available only in an APK built with the optional Sherpa JNI runtime.
-Run `:app:clean` when switching this option on or off; the Android packaging
-task can otherwise retain a previously produced APK without the optional
-native library.
-The debug runtime supports both the API 35 `x86_64` emulator and the production
-`arm64-v8a` target. Build it with the pinned external source and ONNX Runtime
-JNI directory before importing the VITS package:
+VITS JNI is included in the default APK build. On its first online build,
+`prepareSherpaVitsRuntime` fetches the pinned Sherpa-ONNX revision and extracts
+the required headers and ABI libraries from the resolved ONNX Runtime Android
+AAR into `tts-onnx/build`. The model package remains a separate verified
+download/import. The debug runtime supports both the API 35 `x86_64` emulator
+and the production `arm64-v8a` target:
 
 ```sh
 ANDROID_HOME=/home/homoludens/Android/Sdk \
-./gradlew --offline :app:clean \
-  -PenableSherpaVits=true \
-  -PsherpaOnnxSourceDir=/path/to/sherpa-onnx-34eba5a \
-  -PsherpaOnnxRuntimeLibRoot=/path/to/onnxruntime/jni \
-  :app:assembleStandardDebug
+ANDROID_SDK_ROOT=/home/homoludens/Android/Sdk \
+./gradlew :app:assembleStandardDebug
 ```
 
-After a download finishes, diagnostics refreshes the installed package and
-engine list without requiring navigation away from the screen. A standard APK
-without the optional native library continues to hide VITS from selection even
-when its package is valid.
+Use `-PenableSherpaVits=false` to omit the VITS JNI bridge. Existing external
+source/runtime overrides remain available through `sherpaOnnxSourceDir`,
+`sherpaOnnxRuntimeLibRoot`, and `sherpaOnnxRuntimeIncludeDir`. After a model
+download finishes, diagnostics refreshes the installed package and engine list
+without requiring navigation away from the screen.
 
 ## Signed app release artifacts (task 12.7)
 
@@ -277,24 +274,19 @@ and Apache-2.0 notice are recorded in
 `model-tools/native/sherpa-onnx-source-closure-v1.json` and
 `model-tools/native/SHERPA-NOTICE.md`.
 
-To build the optional Sherpa JNI runtime from an external pinned checkout, pass
-the source and ONNX Runtime JNI/headers roots explicitly. The source checkout,
-runtime AAR contents, model package, and generated audio remain outside this
+Default builds fetch the pinned Sherpa JNI source and extract the ONNX Runtime
+JNI/headers from the declared Android AAR. The source checkout and AAR contents
+remain build outputs; the model package and generated audio remain outside this
 repository:
 
 ```sh
-SHERPA_ONNXRUNTIME_INCLUDE_DIR=/path/to/onnxruntime/headers \
 ANDROID_HOME=/path/to/android-sdk \
-./gradlew --offline \
-  -PenableSherpaVits=true \
-  -PsherpaOnnxSourceDir=/path/to/sherpa-onnx-34eba5a \
-  -PsherpaOnnxRuntimeLibRoot=/path/to/onnxruntime/jni \
-  :app:assembleStandardRelease :app:assembleFdroidRelease
+ANDROID_SDK_ROOT=/path/to/android-sdk \
+./gradlew :app:assembleStandardRelease :app:assembleFdroidRelease
 ```
 
-The selected engine additionally checks that `libcita_sherpa_vits.so` loads;
-normal APKs therefore fail closed to Kokoro rather than exposing an unusable
-VITS option.
+The selected engine checks that `libcita_sherpa_vits.so` loads and still
+requires a verified VITS package before exposing the engine.
 
 The first real Sherpa VITS Android smoke run passed on Poco F3 `2555a240`
 (`M2012K11AG`, API 33, native `arm64-v8a`) with Wi-Fi and mobile data disabled.

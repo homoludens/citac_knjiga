@@ -1,6 +1,76 @@
+import java.io.ByteArrayOutputStream
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+}
+
+val sherpaOnnxRevision = "34eba5a27220026b5981b633981c53205515067d"
+val sherpaOnnxDirectory = layout.buildDirectory.dir("sherpa-onnx-$sherpaOnnxRevision")
+val onnxRuntimeDirectory = layout.buildDirectory.dir("onnxruntime-android")
+val sherpaVitsEnabled = providers.gradleProperty("enableSherpaVits")
+    .map { it.toBooleanStrictOrNull() ?: error("enableSherpaVits must be true or false") }
+    .orElse(true)
+val sherpaOnnxSourceDir = providers.gradleProperty("sherpaOnnxSourceDir")
+    .orElse(sherpaOnnxDirectory.map { it.asFile.absolutePath })
+val sherpaOnnxRuntimeLibRoot = providers.gradleProperty("sherpaOnnxRuntimeLibRoot")
+    .orElse(onnxRuntimeDirectory.map { it.dir("jni").asFile.absolutePath })
+val sherpaOnnxRuntimeIncludeDir = providers.gradleProperty("sherpaOnnxRuntimeIncludeDir")
+    .orElse(onnxRuntimeDirectory.map { it.dir("headers").asFile.absolutePath })
+val onnxRuntimeNative by configurations.creating {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+    isTransitive = false
+}
+
+dependencies {
+    add(onnxRuntimeNative.name, libs.onnxruntime.android)
+}
+
+val prepareSherpaVitsRuntime = tasks.register("prepareSherpaVitsRuntime") {
+    val sourceProvided = providers.gradleProperty("sherpaOnnxSourceDir").isPresent
+    val runtimeProvided = providers.gradleProperty("sherpaOnnxRuntimeLibRoot").isPresent &&
+        providers.gradleProperty("sherpaOnnxRuntimeIncludeDir").isPresent
+    inputs.files(onnxRuntimeNative)
+    outputs.dir(sherpaOnnxDirectory)
+    outputs.dir(onnxRuntimeDirectory)
+    onlyIf { sherpaVitsEnabled.get() }
+    doLast {
+        val source = file(sherpaOnnxSourceDir.get())
+        val sourceCheckout = File(source, ".git").isDirectory
+        if (!sourceProvided && !sourceCheckout) {
+            delete(source)
+            source.parentFile.mkdirs()
+            exec {
+                commandLine("git", "clone", "--no-checkout", "https://github.com/k2-fsa/sherpa-onnx.git", source)
+            }
+            exec {
+                commandLine("git", "-C", source, "fetch", "--depth=1", "origin", sherpaOnnxRevision)
+            }
+            exec {
+                commandLine("git", "-C", source, "checkout", "--detach", sherpaOnnxRevision)
+            }
+        } else if (sourceProvided && !sourceCheckout) {
+            error("sherpaOnnxSourceDir is not a Git checkout")
+        }
+        val revision = ByteArrayOutputStream().also { output ->
+            exec {
+                commandLine("git", "-C", source, "rev-parse", "HEAD")
+                standardOutput = output
+            }
+        }.toString().trim()
+        check(revision == sherpaOnnxRevision) { "Sherpa-ONNX revision is not pinned" }
+
+        if (!runtimeProvided) {
+            val destination = onnxRuntimeDirectory.get().asFile
+            delete(destination)
+            copy {
+                from(zipTree(onnxRuntimeNative.singleFile))
+                include("headers/**", "jni/**")
+                into(destination)
+            }
+        }
+    }
 }
 
 android {
@@ -21,13 +91,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                arguments("-DCITA_ENABLE_SHERPA_VITS=${providers.gradleProperty("enableSherpaVits").orNull == "true"}")
-                providers.gradleProperty("sherpaOnnxSourceDir").orNull?.let { source ->
-                    arguments("-DSHERPA_ONNX_SOURCE_DIR=$source")
-                }
-                providers.gradleProperty("sherpaOnnxRuntimeLibRoot").orNull?.let { root ->
-                    arguments("-DCITA_ONNXRUNTIME_LIB_ROOT=$root")
-                }
+                arguments("-DCITA_ENABLE_SHERPA_VITS=${sherpaVitsEnabled.get()}")
+                arguments("-DSHERPA_ONNX_SOURCE_DIR=${sherpaOnnxSourceDir.get()}")
+                arguments("-DCITA_ONNXRUNTIME_LIB_ROOT=${sherpaOnnxRuntimeLibRoot.get()}")
+                arguments("-DCITA_ONNXRUNTIME_INCLUDE_DIR=${sherpaOnnxRuntimeIncludeDir.get()}")
             }
         }
     }
@@ -71,6 +138,10 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+}
+
+tasks.configureEach {
+    if (name.startsWith("configureCMake")) dependsOn(prepareSherpaVitsRuntime)
 }
 
 kotlin {

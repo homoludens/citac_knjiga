@@ -50,6 +50,7 @@ target_link_libraries(cita_espeak PRIVATE espeak-ng)
 option(CITA_ENABLE_SHERPA_VITS "Build the source-pinned Sherpa VITS JNI bridge" OFF)
 set(SHERPA_ONNX_SOURCE_DIR "" CACHE PATH "Pinned Sherpa-ONNX source directory")
 set(CITA_ONNXRUNTIME_LIB_ROOT "" CACHE PATH "ONNX Runtime AAR jni root, containing one directory per Android ABI")
+set(CITA_ONNXRUNTIME_INCLUDE_DIR "" CACHE PATH "ONNX Runtime AAR headers directory")
 if(CITA_ENABLE_SHERPA_VITS)
     if(NOT IS_DIRECTORY "${SHERPA_ONNX_SOURCE_DIR}")
         message(FATAL_ERROR "CITA_ENABLE_SHERPA_VITS requires SHERPA_ONNX_SOURCE_DIR")
@@ -61,6 +62,10 @@ if(CITA_ENABLE_SHERPA_VITS)
         endif()
         set(ENV{SHERPA_ONNXRUNTIME_LIB_DIR} "${_cita_ort_lib_dir}")
     endif()
+    if(NOT IS_DIRECTORY "${CITA_ONNXRUNTIME_INCLUDE_DIR}")
+        message(FATAL_ERROR "CITA_ENABLE_SHERPA_VITS requires CITA_ONNXRUNTIME_INCLUDE_DIR")
+    endif()
+    set(ENV{SHERPA_ONNXRUNTIME_INCLUDE_DIR} "${CITA_ONNXRUNTIME_INCLUDE_DIR}")
     # Build only the Sherpa VITS model/session implementation below.  Sherpa's
     # aggregate TTS target also links Piper phonemization, which is not the
     # frontend for this character VITS model.
@@ -85,7 +90,7 @@ if(CITA_ENABLE_SHERPA_VITS)
     target_compile_features(cita_sherpa_vits PRIVATE cxx_std_17)
     target_include_directories(cita_sherpa_vits PRIVATE
         "${SHERPA_ONNX_SOURCE_DIR}"
-        "$ENV{SHERPA_ONNXRUNTIME_INCLUDE_DIR}"
+        "${CITA_ONNXRUNTIME_INCLUDE_DIR}"
     )
     target_link_libraries(cita_sherpa_vits PRIVATE cita_sherpa_vits_model)
 endif()
