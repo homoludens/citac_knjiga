@@ -137,7 +137,8 @@ public object DefaultPlaybackAudioFormatValidator : PlaybackAudioFormatValidator
     private fun readInt(bytes: ByteArray, offset: Int): Int =
         readShort(bytes, offset) or (readShort(bytes, offset + 2) shl 16)
 
-    private fun ByteArray.startsWith(value: String): Boolean = contentEquals(value.toByteArray())
+    private fun ByteArray.startsWith(value: String): Boolean =
+        size >= value.length && copyOf(value.length).contentEquals(value.toByteArray())
 }
 
 /** Room snapshot used by the repository to reject stale generated audio. */

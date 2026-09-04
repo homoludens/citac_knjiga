@@ -88,6 +88,25 @@ public class PlaybackAvailabilityPolicyTest {
         root.deleteRecursively()
     }
 
+    @Test
+    public fun validPcmWavPassesFormatValidation() {
+        val root = createTempDirectory().toFile()
+        val storage = AppPrivateStorage(root)
+        val store = AtomicArtifactStore(storage)
+        val wav = store.publish(
+            "wav",
+            storage.readySegmentWav("book", "chapter", "wav"),
+            { it.write(validWav()) },
+        )
+
+        assertNull(
+            PlaybackAvailabilityPolicy(storage, store).check(
+                segment("wav", audioPath = wav.file.path, sha256 = wav.sha256),
+            ),
+        )
+        root.deleteRecursively()
+    }
+
     private fun segment(
         id: String,
         status: AudioSegmentStatus = AudioSegmentStatus.READY,
@@ -133,6 +152,13 @@ public class PlaybackAvailabilityPolicyTest {
 
     private fun validM4a(): ByteArray = box("ftyp", "M4A ".toByteArray() + ByteArray(12)) +
         box("moov", ByteArray(1)) + box("mdat", byteArrayOf(1))
+
+    private fun validWav(): ByteArray = ByteBuffer.allocate(46)
+        .order(ByteOrder.LITTLE_ENDIAN)
+        .put("RIFF".toByteArray()).putInt(38).put("WAVEfmt ".toByteArray()).putInt(16)
+        .putShort(1).putShort(1).putInt(24_000).putInt(48_000).putShort(2).putShort(16)
+        .put("data".toByteArray()).putInt(2).putShort(1)
+        .array()
 
     private fun box(type: String, payload: ByteArray): ByteArray =
         ByteBuffer.allocate(8 + payload.size).order(ByteOrder.BIG_ENDIAN)

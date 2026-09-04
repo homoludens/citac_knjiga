@@ -25,6 +25,11 @@ target.
   Android, lint, dependency, source-closure, notice, offline, and release APK
   checks pass within their documented scope. Release APKs remain unsigned
   because no production keystore or signing credentials are available.
+- Task 5.15 fixes playback rejection of generated WAV audio: the RIFF/WAVE
+  header validator was comparing four-byte prefixes against the complete header
+  buffer. A regression test now covers valid PCM WAV playback validation. The
+  rebuilt standard debug APK was verified on the connected Poco F3: playback
+  starts and Media3 reports 24 kHz mono output.
 
 - OpenSpec `manage-library-and-model-downloads` task 2.2 now exposes one durable
   generation coordinator for complete-book and chapter requests. Kokoro and VITS
